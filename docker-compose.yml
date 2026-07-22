@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wedding
+      POSTGRES_PASSWORD: wedding
+      POSTGRES_DB: wedding
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wedding -d wedding"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://wedding:wedding@db:5432/wedding?schema=public
+      JWT_SECRET: dev-jwt-secret-change-me
+      JWT_REFRESH_SECRET: dev-jwt-refresh-secret-change-me
+      CORS_ORIGIN: http://localhost:3000
+      PUBLIC_API_URL: http://localhost:3001
+      # Optional Cloudinary (якщо порожньо — локальні uploads/):
+      # CLOUDINARY_CLOUD_NAME:
+      # CLOUDINARY_API_KEY:
+      # CLOUDINARY_API_SECRET:
+      # CLOUDINARY_FOLDER: nitka/vendors
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+      - api_uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npx prisma db push --accept-data-loss && npm run start:dev"
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      API_URL: http://api:3001
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  api_uploads:

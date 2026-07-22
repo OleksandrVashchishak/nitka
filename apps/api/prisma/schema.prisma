@@ -1,0 +1,362 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GUEST
+  COUPLE
+  VENDOR
+  ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  BLOCKED
+}
+
+enum RequestStatus {
+  NEW
+  CONTACTED
+  DONE
+  CLOSED
+}
+
+enum RsvpStatus {
+  PENDING
+  YES
+  NO
+  MAYBE
+}
+
+enum GuestSide {
+  BRIDE
+  GROOM
+  BOTH
+  OTHER
+}
+
+enum VendorPipelineStage {
+  SAVED
+  CONTACTED
+  MET
+  COMPARED
+  CHOSEN
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  password         String
+  name             String
+  role             Role     @default(COUPLE)
+  blocked          Boolean  @default(false)
+  refreshTokenHash String?  @map("refresh_token_hash")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  vendor          Vendor?
+  wedding         Wedding?
+  favorites       Favorite[]
+  reviews         Review[]
+  requests        Request[]
+  requestMessages RequestMessage[]
+  externalVendors ExternalVendor[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String
+  slug        String @unique
+  description String @default("")
+  sortOrder   Int    @default(0) @map("sort_order")
+
+  vendors Vendor[]
+
+  @@map("categories")
+}
+
+model Vendor {
+  id               String       @id @default(cuid())
+  userId           String       @unique @map("user_id")
+  name             String
+  tagline          String       @default("")
+  description      String       @default("")
+  categoryId       String       @map("category_id")
+  city             String
+  priceFrom        Int          @map("price_from")
+  priceTo          Int?         @map("price_to")
+  rating           Float        @default(0)
+  status           VendorStatus @default(PENDING)
+  featured         Boolean      @default(false)
+  phone            String?
+  website          String?
+  instagram        String?
+  address          String?
+  yearsInBusiness  Int?         @map("years_in_business")
+  teamSize         Int?         @map("team_size")
+  responseTime     String?      @map("response_time")
+  bookingLeadTime  String?      @map("booking_lead_time")
+  availabilityNote String       @default("") @map("availability_note")
+  videoUrl         String?      @map("video_url")
+  dealTitle        String?      @map("deal_title")
+  dealDescription  String?      @map("deal_description")
+  styles           String[]     @default([])
+  services         String[]     @default([])
+  serviceAreas     String[]     @default([]) @map("service_areas")
+  languages        String[]     @default([])
+  moderationNote   String?      @map("moderation_note")
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  Category           @relation(fields: [categoryId], references: [id])
+  photos    VendorPhoto[]
+  packages  VendorPackage[]
+  faqs      VendorFaq[]
+  team      VendorTeamMember[]
+  reviews   Review[]
+  favorites Favorite[]
+  requests  Request[]
+  views     VendorView[]
+
+  @@map("vendors")
+}
+
+model VendorPhoto {
+  id       String @id @default(cuid())
+  vendorId String @map("vendor_id")
+  url      String
+  order    Int    @default(0)
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_photos")
+}
+
+model VendorPackage {
+  id          String  @id @default(cuid())
+  vendorId    String  @map("vendor_id")
+  title       String
+  price       Int
+  description String  @default("")
+  includes    String  @default("")
+  duration    String  @default("")
+  isPopular   Boolean @default(false) @map("is_popular")
+  order       Int     @default(0)
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_packages")
+}
+
+model VendorTeamMember {
+  id       String  @id @default(cuid())
+  vendorId String  @map("vendor_id")
+  name     String
+  role     String
+  bio      String  @default("")
+  photoUrl String? @map("photo_url")
+  order    Int     @default(0)
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_team_members")
+}
+
+model VendorFaq {
+  id       String @id @default(cuid())
+  vendorId String @map("vendor_id")
+  question String
+  answer   String
+  order    Int    @default(0)
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_faqs")
+}
+
+model VendorView {
+  id        String   @id @default(cuid())
+  vendorId  String   @map("vendor_id")
+  viewerKey String   @map("viewer_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, viewerKey])
+  @@index([vendorId, createdAt])
+  @@map("vendor_views")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  vendorId  String   @map("vendor_id")
+  userId    String   @map("user_id")
+  rating    Int
+  text      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vendorId])
+  @@index([vendorId])
+  @@map("reviews")
+}
+
+model Favorite {
+  id          String              @id @default(cuid())
+  userId      String              @map("user_id")
+  vendorId    String              @map("vendor_id")
+  stage       VendorPipelineStage @default(SAVED)
+  quotedPrice Int?                @map("quoted_price")
+  notes       String?
+  updatedAt   DateTime            @default(now()) @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vendorId])
+  @@map("favorites")
+}
+
+model ExternalVendor {
+  id          String              @id @default(cuid())
+  userId      String              @map("user_id")
+  name        String
+  category    String
+  city        String
+  phone       String?
+  website     String?
+  quotedPrice Int?                @map("quoted_price")
+  notes       String?
+  stage       VendorPipelineStage @default(SAVED)
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, stage])
+  @@map("external_vendors")
+}
+
+model Request {
+  id        String        @id @default(cuid())
+  userId    String        @map("user_id")
+  vendorId  String        @map("vendor_id")
+  eventDate DateTime      @map("event_date")
+  city      String
+  guests    Int
+  budget    Int
+  message   String
+  status    RequestStatus @default(NEW)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor   Vendor           @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  messages RequestMessage[]
+
+  @@map("requests")
+}
+
+model RequestMessage {
+  id         String   @id @default(cuid())
+  requestId  String   @map("request_id")
+  authorId   String   @map("author_id")
+  authorRole Role     @map("author_role")
+  body       String
+  phone      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+  @@map("request_messages")
+}
+
+model Wedding {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  date            DateTime
+  city            String
+  guests          Int
+  budget          Int
+  partnerOneName  String   @default("") @map("partner_one_name")
+  partnerTwoName  String   @default("") @map("partner_two_name")
+  couplePhotoUrl  String?  @map("couple_photo_url")
+  planningStage   String   @default("EXPLORING") @map("planning_stage")
+  cityUndecided   Boolean  @default(false) @map("city_undecided")
+  guestsUndecided Boolean  @default(false) @map("guests_undecided")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  guestList   Guest[]
+  budgetItems BudgetItem[]
+
+  @@map("weddings")
+}
+
+model Task {
+  id           String  @id @default(cuid())
+  weddingId    String  @map("wedding_id")
+  title        String
+  categorySlug String? @map("category_slug")
+  completed    Boolean @default(false)
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Guest {
+  id               String     @id @default(cuid())
+  weddingId        String     @map("wedding_id")
+  name             String
+  email            String?
+  phone            String?
+  side             GuestSide  @default(BOTH)
+  rsvpStatus       RsvpStatus @default(PENDING) @map("rsvp_status")
+  plusOne          Boolean    @default(false) @map("plus_one")
+  plusOneName      String?    @map("plus_one_name")
+  plusOneAttending Boolean?   @map("plus_one_attending")
+  allergies        String?
+  tableLabel       String?    @map("table_label")
+  notes            String?
+  inviteToken      String     @unique @default(cuid()) @map("invite_token")
+  respondedAt      DateTime?  @map("responded_at")
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@map("guests")
+}
+
+model BudgetItem {
+  id        String   @id @default(cuid())
+  weddingId String   @map("wedding_id")
+  category  String
+  title     String
+  estimated Int      @default(0)
+  actual    Int      @default(0)
+  paid      Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@map("budget_items")
+}
