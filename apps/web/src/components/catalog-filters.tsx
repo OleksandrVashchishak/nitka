@@ -121,18 +121,20 @@ export function CatalogFilters({ categories, filters, values }: Props) {
         </button>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-        <CityAutocomplete
-          value={city}
-          allowEmpty
-          placeholder="Місто України"
-          className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          onChange={setCity}
-          onSelect={(next) => {
-            setCity(next);
-            apply({ city: next });
-          }}
-        />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="min-w-0">
+          <CityAutocomplete
+            value={city}
+            allowEmpty
+            placeholder="Місто України"
+            className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            onChange={setCity}
+            onSelect={(next) => {
+              setCity(next);
+              apply({ city: next });
+            }}
+          />
+        </div>
 
         <select
           value={style}
@@ -140,7 +142,7 @@ export function CatalogFilters({ categories, filters, values }: Props) {
             setStyle(e.target.value);
             apply({ style: e.target.value });
           }}
-          className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+          className="min-w-0 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
         >
           <option value="">Усі стилі</option>
           {(filters.styles ?? []).map((s) => (
@@ -156,7 +158,7 @@ export function CatalogFilters({ categories, filters, values }: Props) {
             setPrice(e.target.value);
             apply({ price: e.target.value });
           }}
-          className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+          className="min-w-0 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
         >
           <option value="">Ціна (будь-яка)</option>
           <option value="15000">до 15 000</option>
@@ -172,7 +174,7 @@ export function CatalogFilters({ categories, filters, values }: Props) {
             setRating(e.target.value);
             apply({ rating: e.target.value });
           }}
-          className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+          className="min-w-0 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
         >
           <option value="">Рейтинг</option>
           {filters.ratings.map((r) => (
@@ -188,7 +190,7 @@ export function CatalogFilters({ categories, filters, values }: Props) {
             setSort(e.target.value);
             apply({ sort: e.target.value });
           }}
-          className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+          className="min-w-0 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
         >
           {(filters.sorts ?? []).map((s) => (
             <option key={s.value} value={s.value}>

@@ -1,6 +1,19 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig: NextConfig = {
+  // Локально не тримаємо fetch/data cache між реквестами
+  ...(isDev
+    ? {
+        experimental: {
+          staleTimes: {
+            dynamic: 0,
+            static: 30,
+          },
+        },
+      }
+    : {}),
   images: {
     remotePatterns: [
       {

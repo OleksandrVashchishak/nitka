@@ -58,12 +58,13 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      # Без окремого volume для .next — кеш на хості, не «прилипає» в Docker
       - ./apps/web:/app
       - /app/node_modules
-      - /app/.next
     depends_on:
       - api
-    command: npm run dev
+    # Чистимо .next на старті — щоб локально не ловити «липкий» кеш
+    command: sh -c "rm -rf .next && npm run dev"
 
 volumes:
   postgres_data:

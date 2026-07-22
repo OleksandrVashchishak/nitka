@@ -15,6 +15,7 @@ export function Hero({ categories }: Props) {
   const router = useRouter();
   const [city, setCity] = useState("");
   const [category, setCategory] = useState("");
+  const [cityMenuOpen, setCityMenuOpen] = useState(false);
 
   function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -54,11 +55,12 @@ export function Hero({ categories }: Props) {
 
         <form
           onSubmit={onSearch}
-          className="animate-rise-late mt-8 grid w-full max-w-3xl gap-2 rounded-2xl bg-white/95 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:grid-cols-[1.1fr_1fr_auto]"
+          className="relative z-20 mt-8 grid w-full max-w-3xl gap-2 rounded-2xl bg-white p-2 shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:grid-cols-[1.1fr_1fr_auto]"
         >
           <CityAutocomplete
             value={city}
             onChange={setCity}
+            onOpenChange={setCityMenuOpen}
             allowEmpty
             placeholder="Місто"
             className="w-full rounded-xl border-0 bg-transparent px-4 py-3 text-ink outline-none placeholder:text-ink-soft/70"
@@ -83,7 +85,11 @@ export function Hero({ categories }: Props) {
           </button>
         </form>
 
-        <div className="animate-rise-late mt-5 flex flex-wrap gap-3">
+        <div
+          className={`relative z-0 mt-5 flex flex-wrap gap-3 ${
+            cityMenuOpen ? "invisible" : ""
+          }`}
+        >
           <Link
             href="/vendors"
             className="rounded-full border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20"

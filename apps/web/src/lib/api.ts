@@ -107,18 +107,28 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL ??
   "http://localhost:3001";
 
+const isDev = process.env.NODE_ENV !== "production";
+
+/** Локально — без кешу; в проді — ISR з revalidate. */
+function fetchCache(revalidate: number): RequestInit {
+  if (isDev) return { cache: "no-store" };
+  return { next: { revalidate } };
+}
+
 export async function getCategories(): Promise<Category[]> {
-  const res = await fetch(`${API_URL}/api/categories`, {
-    next: { revalidate: 30 },
-  });
+  const res = await fetch(
+    `${API_URL}/api/categories`,
+    fetchCache(30),
+  );
   if (!res.ok) return [];
   return res.json();
 }
 
 export async function getVendorFilters(): Promise<VendorFilterOptions> {
-  const res = await fetch(`${API_URL}/api/vendors/filters`, {
-    next: { revalidate: 60 },
-  });
+  const res = await fetch(
+    `${API_URL}/api/vendors/filters`,
+    fetchCache(60),
+  );
   if (!res.ok) {
     return {
       cities: [],
@@ -150,17 +160,19 @@ export async function getVendors(
   if (params?.featured) query.set("featured", params.featured);
 
   const qs = query.toString();
-  const res = await fetch(`${API_URL}/api/vendors${qs ? `?${qs}` : ""}`, {
-    next: { revalidate: 15 },
-  });
+  const res = await fetch(
+    `${API_URL}/api/vendors${qs ? `?${qs}` : ""}`,
+    fetchCache(15),
+  );
   if (!res.ok) return [];
   return res.json();
 }
 
 export async function getVendor(id: string): Promise<Vendor | null> {
-  const res = await fetch(`${API_URL}/api/vendors/${id}`, {
-    next: { revalidate: 0 },
-  });
+  const res = await fetch(
+    `${API_URL}/api/vendors/${id}`,
+    fetchCache(0),
+  );
   if (!res.ok) return null;
   return res.json();
 }

@@ -38,8 +38,10 @@ function BudgetInner() {
   const [plan, setPlan] = useState(300000);
   const [savingPlan, setSavingPlan] = useState(false);
   const [form, setForm] = useState(emptyItem);
+  const [editForm, setEditForm] = useState(emptyItem);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [savingItem, setSavingItem] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -81,7 +83,7 @@ function BudgetInner() {
 
   function startEdit(item: BudgetItem) {
     setEditingId(item.id);
-    setForm({
+    setEditForm({
       category: item.category,
       title: item.title,
       estimated: item.estimated,
@@ -91,33 +93,53 @@ function BudgetInner() {
     });
   }
 
-  function resetForm() {
+  function cancelEdit() {
     setEditingId(null);
-    setForm(emptyItem);
+    setEditForm(emptyItem);
   }
 
-  async function onSaveItem(e: FormEvent) {
+  async function onAddItem(e: FormEvent) {
     e.preventDefault();
     setSavingItem(true);
     setError(null);
     try {
-      const payload = {
+      const res = await createBudgetItem({
         category: form.category,
         title: form.title,
         estimated: form.estimated,
         actual: form.actual,
         paid: form.paid,
         notes: form.notes || undefined,
-      };
-      const res = editingId
-        ? await updateBudgetItem(editingId, payload)
-        : await createBudgetItem(payload);
+      });
       setData(res);
-      resetForm();
+      setForm(emptyItem);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не збережено статтю");
     } finally {
       setSavingItem(false);
+    }
+  }
+
+  async function onSaveEdit(e: FormEvent) {
+    e.preventDefault();
+    if (!editingId) return;
+    setSavingEdit(true);
+    setError(null);
+    try {
+      const res = await updateBudgetItem(editingId, {
+        category: editForm.category,
+        title: editForm.title,
+        estimated: editForm.estimated,
+        actual: editForm.actual,
+        paid: editForm.paid,
+        notes: editForm.notes || undefined,
+      });
+      setData(res);
+      cancelEdit();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не оновлено статтю");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -126,7 +148,7 @@ function BudgetInner() {
     try {
       const res = await deleteBudgetItem(id);
       setData(res);
-      if (editingId === id) resetForm();
+      if (editingId === id) cancelEdit();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не видалено");
     }
@@ -176,8 +198,8 @@ function BudgetInner() {
         Бюджет
       </h1>
       <p className="mt-2 max-w-2xl text-ink-soft">
-        План vs факт по категоріях. Базовий розклад створюється автоматично від
-        загального бюджету весілля.
+        Заплановано vs витрачено по категоріях. Базовий розклад створюється
+        автоматично від загального бюджету весілля.
       </p>
 
       {error ? (
@@ -259,76 +281,88 @@ function BudgetInner() {
       </form>
 
       <form
-        onSubmit={onSaveItem}
+        onSubmit={onAddItem}
         className="mt-6 space-y-4 rounded-2xl border border-line bg-white p-5 md:p-6"
       >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
-            {editingId ? "Редагувати статтю" : "Додати статтю"}
-          </h2>
-          {editingId ? (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="text-sm text-ink-soft underline-offset-4 hover:underline"
-            >
-              Скасувати
-            </button>
-          ) : null}
-        </div>
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
+          Додати статтю
+        </h2>
         <div className="grid gap-3 md:grid-cols-2">
-          <select
-            value={form.category}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, category: e.target.value }))
-            }
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          >
-            {BUDGET_CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          <input
-            required
-            minLength={2}
-            value={form.title}
-            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            placeholder="Назва витрати"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <input
-            type="number"
-            min={0}
-            required
-            value={form.estimated}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, estimated: Number(e.target.value) }))
-            }
-            placeholder="План"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <input
-            type="number"
-            min={0}
-            required
-            value={form.actual}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, actual: Number(e.target.value) }))
-            }
-            placeholder="Факт"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
+          <label className="block">
+            <span className="mb-1 block text-sm text-ink-soft">Категорія</span>
+            <select
+              value={form.category}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, category: e.target.value }))
+              }
+              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            >
+              {BUDGET_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-ink-soft">Назва</span>
+            <input
+              required
+              minLength={2}
+              value={form.title}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, title: e.target.value }))
+              }
+              placeholder="Напр. Фотограф"
+              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-ink-soft">
+              Заплановано, грн
+            </span>
+            <input
+              type="number"
+              min={0}
+              required
+              value={form.estimated}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, estimated: Number(e.target.value) }))
+              }
+              placeholder="Скільки плануєш витратити"
+              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-ink-soft">
+              Витрачено, грн
+            </span>
+            <input
+              type="number"
+              min={0}
+              required
+              value={form.actual}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, actual: Number(e.target.value) }))
+              }
+              placeholder="Скільки вже витрачено"
+              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            />
+          </label>
         </div>
         <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-          <input
-            value={form.notes}
-            onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-            placeholder="Нотатки / підрядник"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <label className="flex items-center gap-2 rounded-xl border border-line px-4 py-3 text-sm text-ink">
+          <label className="block">
+            <span className="mb-1 block text-sm text-ink-soft">Нотатки</span>
+            <input
+              value={form.notes}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, notes: e.target.value }))
+              }
+              placeholder="Підрядник, коментар…"
+              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            />
+          </label>
+          <label className="mt-auto flex items-center gap-2 rounded-xl border border-line px-4 py-3 text-sm text-ink">
             <input
               type="checkbox"
               checked={form.paid}
@@ -345,11 +379,7 @@ function BudgetInner() {
           disabled={savingItem}
           className="rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
         >
-          {savingItem
-            ? "Зберігаємо..."
-            : editingId
-              ? "Оновити статтю"
-              : "Додати статтю"}
+          {savingItem ? "Зберігаємо..." : "Додати статтю"}
         </button>
       </form>
 
@@ -364,7 +394,7 @@ function BudgetInner() {
                 {categoryLabel(group.category)}
               </h2>
               <p className="text-sm text-ink-soft">
-                план {formatMoney(group.estimated)} · факт{" "}
+                заплановано {formatMoney(group.estimated)} · витрачено{" "}
                 {formatMoney(group.actual)} грн
               </p>
             </div>
@@ -374,42 +404,174 @@ function BudgetInner() {
                   key={item.id}
                   className="rounded-xl border border-line bg-white p-4"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-ink">{item.title}</p>
-                      <p className="mt-1 text-sm text-ink-soft">
-                        План {formatMoney(item.estimated)} · факт{" "}
-                        {formatMoney(item.actual)} грн
-                        {item.paid ? " · сплачено" : ""}
-                      </p>
-                      {item.notes ? (
-                        <p className="mt-1 text-sm text-ink-soft">{item.notes}</p>
-                      ) : null}
+                  {editingId === item.id ? (
+                    <form onSubmit={onSaveEdit} className="space-y-3">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="block">
+                          <span className="mb-1 block text-xs text-ink-soft">
+                            Категорія
+                          </span>
+                          <select
+                            value={editForm.category}
+                            onChange={(e) =>
+                              setEditForm((f) => ({
+                                ...f,
+                                category: e.target.value,
+                              }))
+                            }
+                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
+                          >
+                            {BUDGET_CATEGORIES.map((c) => (
+                              <option key={c.value} value={c.value}>
+                                {c.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="block">
+                          <span className="mb-1 block text-xs text-ink-soft">
+                            Назва
+                          </span>
+                          <input
+                            required
+                            minLength={2}
+                            value={editForm.title}
+                            onChange={(e) =>
+                              setEditForm((f) => ({
+                                ...f,
+                                title: e.target.value,
+                              }))
+                            }
+                            placeholder="Назва"
+                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="mb-1 block text-xs text-ink-soft">
+                            Заплановано, грн
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            required
+                            value={editForm.estimated}
+                            onChange={(e) =>
+                              setEditForm((f) => ({
+                                ...f,
+                                estimated: Number(e.target.value),
+                              }))
+                            }
+                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="mb-1 block text-xs text-ink-soft">
+                            Витрачено, грн
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            required
+                            value={editForm.actual}
+                            onChange={(e) =>
+                              setEditForm((f) => ({
+                                ...f,
+                                actual: Number(e.target.value),
+                              }))
+                            }
+                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
+                          />
+                        </label>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                        <label className="block">
+                          <span className="mb-1 block text-xs text-ink-soft">
+                            Нотатки
+                          </span>
+                          <input
+                            value={editForm.notes}
+                            onChange={(e) =>
+                              setEditForm((f) => ({
+                                ...f,
+                                notes: e.target.value,
+                              }))
+                            }
+                            placeholder="Підрядник, коментар…"
+                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
+                          />
+                        </label>
+                        <label className="mt-auto flex items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm text-ink">
+                          <input
+                            type="checkbox"
+                            checked={editForm.paid}
+                            onChange={(e) =>
+                              setEditForm((f) => ({
+                                ...f,
+                                paid: e.target.checked,
+                              }))
+                            }
+                            className="size-4 accent-[var(--sage)]"
+                          />
+                          Сплачено
+                        </label>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="submit"
+                          disabled={savingEdit}
+                          className="rounded-full bg-sage px-4 py-2 text-xs font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+                        >
+                          {savingEdit ? "Зберігаємо..." : "Зберегти"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="rounded-full border border-line px-4 py-2 text-xs text-ink-soft hover:border-sage/40"
+                        >
+                          Скасувати
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-ink">{item.title}</p>
+                        <p className="mt-1 text-sm text-ink-soft">
+                          Заплановано {formatMoney(item.estimated)} · витрачено{" "}
+                          {formatMoney(item.actual)} грн
+                          {item.paid ? " · сплачено" : ""}
+                        </p>
+                        {item.notes ? (
+                          <p className="mt-1 text-sm text-ink-soft">
+                            {item.notes}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void onTogglePaid(item)}
+                          className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-sage/40"
+                        >
+                          {item.paid ? "Не сплачено" : "Позначити сплачено"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => startEdit(item)}
+                          className="rounded-full border border-line px-3 py-1.5 text-xs text-ink hover:border-sage/40"
+                        >
+                          Змінити
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void onDelete(item.id)}
+                          className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-red-300"
+                        >
+                          Видалити
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => void onTogglePaid(item)}
-                        className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-sage/40"
-                      >
-                        {item.paid ? "Не сплачено" : "Позначити сплачено"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => startEdit(item)}
-                        className="rounded-full border border-line px-3 py-1.5 text-xs text-ink hover:border-sage/40"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void onDelete(item.id)}
-                        className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-red-300"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                  )}
                 </li>
               ))}
             </ul>

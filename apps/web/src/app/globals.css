@@ -55,6 +55,16 @@ body {
   }
 }
 
+/* Без opacity — щоб діти (дропдауни) не ставали «прозорими» поверх сусідів */
+@keyframes rise-y {
+  from {
+    transform: translateY(18px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @keyframes soft-zoom {
   from {
     transform: scale(1.08);
@@ -84,6 +94,14 @@ body {
 
 .animate-rise-late {
   animation: rise 1s ease 0.3s both;
+}
+
+.animate-rise-y {
+  animation: rise-y 0.9s ease both;
+}
+
+.animate-rise-y-late {
+  animation: rise-y 1s ease 0.3s both;
 }
 
 .animate-hero-media {
