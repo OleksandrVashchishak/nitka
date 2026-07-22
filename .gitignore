@@ -7,6 +7,7 @@ dist
 .DS_Store
 coverage
 .turbo
-uploads
+apps/api/uploads
+!apps/api/uploads/.gitkeep
 prisma/*.db
 prisma/*.db-journal
