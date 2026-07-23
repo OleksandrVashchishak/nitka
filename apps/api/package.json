@@ -9,8 +9,9 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "prisma:seed": "ts-node --transpile-only prisma/seed.ts"
+    "prisma:push": "prisma db push --accept-data-loss",
+    "prisma:seed": "ts-node --transpile-only prisma/seed.ts",
+    "start:render": "npx prisma db execute --file prisma/migrate-task-status.sql && npx prisma db push --accept-data-loss && node dist/main"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",
