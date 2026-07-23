@@ -6,6 +6,8 @@ const usePolling =
   process.env.CHOKIDAR_USEPOLLING === "true";
 
 const nextConfig: NextConfig = {
+  // Next 16: production build = Turbopack; порожній turbopack глушить конфлікт з optional webpack
+  turbopack: {},
   // Локально не тримаємо fetch/data cache між реквестами
   ...(isDev
     ? {
@@ -17,18 +19,22 @@ const nextConfig: NextConfig = {
         },
       }
     : {}),
-  // Windows + Docker bind mounts: webpack polling, щоб HMR бачив сейви без restart
-  webpack: (config, { dev }) => {
-    if (dev && usePolling) {
-      config.watchOptions = {
-        ...config.watchOptions,
-        poll: Number(process.env.WATCHPACK_POLL_INTERVAL || 1000),
-        aggregateTimeout: 300,
-        ignored: /node_modules/,
-      };
-    }
-    return config;
-  },
+  // Windows + Docker bind mounts: webpack polling лише коли явно увімкнено (dev:docker)
+  ...(usePolling
+    ? {
+        webpack: (config: {
+          watchOptions?: Record<string, unknown>;
+        }) => {
+          config.watchOptions = {
+            ...config.watchOptions,
+            poll: Number(process.env.WATCHPACK_POLL_INTERVAL || 1000),
+            aggregateTimeout: 300,
+            ignored: /node_modules/,
+          };
+          return config;
+        },
+      }
+    : {}),
   images: {
     remotePatterns: [
       {

@@ -380,6 +380,15 @@ export class VendorsService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
+    // Не валимо boot, якщо seed/backfill slug впаде (напр. тимчасовий DB glitch)
+    try {
+      await this.bootstrapDemoVendors();
+    } catch (err) {
+      console.error('[vendors] bootstrap failed', err);
+    }
+  }
+
+  private async bootstrapDemoVendors() {
     for (const demo of DEMO_VENDORS) {
       const category = await this.prisma.category.findUnique({
         where: { slug: demo.categorySlug },

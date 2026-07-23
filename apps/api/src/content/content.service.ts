@@ -1,6 +1,7 @@
 ﻿import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
@@ -78,10 +79,15 @@ function bodyBlockCount(body: unknown) {
 
 @Injectable()
 export class ContentService implements OnModuleInit {
+  private readonly logger = new Logger(ContentService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async onModuleInit() {
-    await this.seedTopicsAndPosts();
+  onModuleInit() {
+    // Не блокуємо listen/healthcheck на Render — seed у фоні
+    void this.seedTopicsAndPosts().catch((err) => {
+      this.logger.error('Content seed failed', err instanceof Error ? err.stack : err);
+    });
   }
 
   listTopics() {
