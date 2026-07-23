@@ -270,9 +270,9 @@ function CoupleDashboardInner() {
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                href: nextMeta?.href || "#wedding-plan",
+                href: "/checklist",
                 icon: nextMeta?.icon || "✓",
-                title: nextMeta?.title || "Переглянути план",
+                title: nextMeta?.title || "Відкрити чекліст",
                 hint: "Наступна ціль",
               },
               {
@@ -288,7 +288,7 @@ function CoupleDashboardInner() {
                 hint: "Категорії й витрати",
               },
               {
-                href: "#wedding-plan",
+                href: "/checklist",
                 icon: "📅",
                 title: "Відкрити чекліст",
                 hint: "Дати та статуси",
@@ -333,8 +333,14 @@ function CoupleDashboardInner() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                href="/guests"
+                href="/checklist"
                 className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-mist"
+              >
+                Чекліст
+              </Link>
+              <Link
+                href="/guests"
+                className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
               >
                 Гості
               </Link>

@@ -412,3 +412,54 @@ export function getPhaseWindowLabel(date: string, phase: number): string {
 export function hrefForPlanKey(key: string): string | null {
   return PLAN_ITEMS.find((planItem) => planItem.key === key)?.href ?? null;
 }
+
+/** Місяці до весілля для фаз плану (орієнтовні дедлайни). */
+const PHASE_MONTHS_BEFORE = [10, 7, 4, 1] as const;
+
+export function suggestedDueDateForPlanItem(
+  weddingDateIso: string,
+  categorySlug: string | null | undefined,
+  sortOrder = 0,
+): string | null {
+  const wedding = new Date(`${weddingDateIso.slice(0, 10)}T12:00:00`);
+  if (Number.isNaN(wedding.getTime())) return null;
+
+  const meta = PLAN_ITEMS.find((item) => item.key === categorySlug);
+  const phase = meta?.phase ?? 2;
+  const monthsBefore = PHASE_MONTHS_BEFORE[phase - 1] ?? 4;
+  const due = new Date(wedding);
+  due.setMonth(due.getMonth() - monthsBefore);
+  // Розкидаємо задачі в межах місяця, щоб не всі в один день
+  const day = Math.min(28, 2 + (sortOrder % 12) * 2);
+  due.setDate(day);
+  return due.toISOString().slice(0, 10);
+}
+
+export function planCategoryLabel(categorySlug: string | null | undefined): string {
+  if (!categorySlug) return "Інше";
+  if (categorySlug.startsWith("phase-")) return "Своє";
+  const meta = PLAN_ITEMS.find((item) => item.key === categorySlug);
+  if (!meta) return "Інше";
+  return PLAN_PHASES.find((p) => p.id === meta.phase)?.label ?? "План";
+}
+
+export function monthKeyFromIso(iso: string): string {
+  return iso.slice(0, 7);
+}
+
+export function formatMonthYearUk(monthKey: string): string {
+  const [y, m] = monthKey.split("-").map(Number);
+  if (!y || !m) return monthKey;
+  const label = new Intl.DateTimeFormat("uk-UA", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(y, m - 1, 1));
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export function formatDayMonthUk(iso: string): string {
+  return new Intl.DateTimeFormat("uk-UA", {
+    day: "numeric",
+    month: "long",
+  }).format(new Date(`${iso.slice(0, 10)}T12:00:00`));
+}

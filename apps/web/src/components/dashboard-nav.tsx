@@ -10,9 +10,13 @@ import {
 import { useAuthStore } from "@/lib/auth-store";
 
 const COUPLE_LINKS = [
-  { href: "/dashboard", label: "План весілля" },
+  { href: "/dashboard", label: "Огляд" },
+  { href: "/checklist", label: "Чекліст" },
+  { href: "/day-plan", label: "План подій" },
   { href: "/budget", label: "Бюджет" },
   { href: "/guests", label: "Гості", badgeKeys: ["newRsvp", "pendingRsvp"] },
+  { href: "/seating", label: "Розсадка" },
+  { href: "/my-vendors", label: "Мої підрядники" },
   { href: "/invitations", label: "Запрошення" },
   { href: "/website", label: "Сайт" },
   { href: "/favorites", label: "Обране" },

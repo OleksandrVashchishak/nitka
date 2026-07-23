@@ -5,7 +5,14 @@ export const PRODUCT_NAV = [
     label: "План весілля",
     shortLabel: "План",
     guestHref: "/vesilnyy-plan",
-    coupleHref: "/dashboard",
+    coupleHref: "/checklist",
+  },
+  {
+    id: "dayPlan",
+    label: "План дня весілля",
+    shortLabel: "План дня",
+    guestHref: "/plan-dnya-vesillya",
+    coupleHref: "/day-plan",
   },
   {
     id: "budget",
@@ -20,6 +27,20 @@ export const PRODUCT_NAV = [
     shortLabel: "Гості",
     guestHref: "/spysok-gostey",
     coupleHref: "/guests",
+  },
+  {
+    id: "seating",
+    label: "Розсадка гостей",
+    shortLabel: "Розсадка",
+    guestHref: "/rozsadka-gostey",
+    coupleHref: "/seating",
+  },
+  {
+    id: "vendors",
+    label: "Мої підрядники",
+    shortLabel: "Підрядники",
+    guestHref: "/moyi-pidryadnyky",
+    coupleHref: "/my-vendors",
   },
   {
     id: "invitations",

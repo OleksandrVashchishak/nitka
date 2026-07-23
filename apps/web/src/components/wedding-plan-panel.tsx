@@ -166,6 +166,12 @@ export function WeddingPlanPanel({
             <p className="mt-1 text-sm text-ink-soft">
               Цілі до вашого дня + свої задачі
             </p>
+            <Link
+              href="/checklist"
+              className="mt-2 inline-flex text-sm font-semibold text-sage-deep hover:underline"
+            >
+              Повний чекліст →
+            </Link>
           </div>
           <p className="rounded-full bg-white px-3 py-1 text-sm font-medium text-sage-deep">
             {done}/{total}
