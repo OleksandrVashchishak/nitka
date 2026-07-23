@@ -16,7 +16,7 @@ services:
     buildCommand: npm install --include=dev && npx prisma generate && npm run build
     # Free tier не підтримує preDeployCommand — схема/міграція тільки в start.
     # Dashboard Start Command обовʼязково: npm run start:render
-    # (prisma db execute вимагає --schema/--url, інакше падає одразу)
+    # (prisma db execute вимагає --schema/--url; entrypoint має бути dist/main.js)
     startCommand: npm run start:render
     healthCheckPath: /api/categories
     envVars:

@@ -7,11 +7,11 @@
     "build": "prisma generate && nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/main.js",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push --accept-data-loss",
     "prisma:seed": "ts-node --transpile-only prisma/seed.ts",
-    "start:render": "npx prisma db execute --schema prisma/schema.prisma --file prisma/migrate-task-status.sql && npx prisma db push --schema prisma/schema.prisma --accept-data-loss && node dist/main"
+    "start:render": "npx prisma db execute --schema prisma/schema.prisma --file prisma/migrate-task-status.sql && npx prisma db push --schema prisma/schema.prisma --accept-data-loss && node dist/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",
