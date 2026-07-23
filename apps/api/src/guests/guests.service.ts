@@ -5,8 +5,10 @@ import {
 } from '@nestjs/common';
 import { RsvpStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
   CreateGuestDto,
+  ImportGuestsDto,
   PublicRsvpDto,
   UpdateGuestDto,
 } from './dto/guest.dto';
@@ -16,14 +18,7 @@ export class GuestsService {
   constructor(private readonly prisma: PrismaService) {}
 
   private async getWeddingForUser(userId: string) {
-    const wedding = await this.prisma.wedding.findUnique({
-      where: { userId },
-    });
-    if (!wedding) {
-      throw new BadRequestException(
-        'Спочатку створи весілля в кабінеті (дата / місто)',
-      );
-    }
+    const { wedding } = await requireWeddingForUser(this.prisma, userId);
     return wedding;
   }
 
@@ -40,8 +35,7 @@ export class GuestsService {
     const pending = guests.filter((g) => g.rsvpStatus === 'PENDING').length;
     const headcount = guests.reduce((sum, g) => {
       if (g.rsvpStatus !== 'YES') return sum;
-      const plus =
-        g.plusOne && g.plusOneAttending === true ? 1 : 0;
+      const plus = g.plusOne && g.plusOneAttending === true ? 1 : 0;
       return sum + 1 + plus;
     }, 0);
 
@@ -91,11 +85,41 @@ export class GuestsService {
         tableLabel: dto.tableLabel?.trim() || null,
         notes: dto.notes?.trim() || null,
         respondedAt:
-          dto.rsvpStatus && dto.rsvpStatus !== 'PENDING'
-            ? new Date()
-            : null,
+          dto.rsvpStatus && dto.rsvpStatus !== 'PENDING' ? new Date() : null,
       },
     });
+  }
+
+  async importMany(userId: string, dto: ImportGuestsDto) {
+    if (!dto.guests?.length) {
+      throw new BadRequestException('Список гостей порожній');
+    }
+    if (dto.guests.length > 500) {
+      throw new BadRequestException('Максимум 500 гостей за раз');
+    }
+
+    const wedding = await this.getWeddingForUser(userId);
+    const created = await this.prisma.$transaction(
+      dto.guests.map((row) =>
+        this.prisma.guest.create({
+          data: {
+            weddingId: wedding.id,
+            name: row.name.trim(),
+            email: row.email?.trim() || null,
+            phone: row.phone?.trim() || null,
+            side: row.side ?? 'BOTH',
+            plusOne: row.plusOne ?? false,
+            notes: row.notes?.trim() || null,
+            rsvpStatus: 'PENDING',
+          },
+        }),
+      ),
+    );
+
+    return {
+      imported: created.length,
+      guests: created,
+    };
   }
 
   async update(userId: string, guestId: string, dto: UpdateGuestDto) {
@@ -140,9 +164,7 @@ export class GuestsService {
           ? { notes: dto.notes?.trim() || null }
           : {}),
         respondedAt:
-          nextStatus === 'PENDING'
-            ? null
-            : guest.respondedAt ?? new Date(),
+          nextStatus === 'PENDING' ? null : (guest.respondedAt ?? new Date()),
       },
     });
   }
@@ -182,9 +204,7 @@ export class GuestsService {
       .map((name) => name.trim())
       .filter(Boolean);
     const coupleName =
-      partners.length > 0
-        ? partners.join(' & ')
-        : guest.wedding.user.name;
+      partners.length > 0 ? partners.join(' & ') : guest.wedding.user.name;
 
     return {
       token: guest.inviteToken,

@@ -4,11 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { TaskStatus } from '@prisma/client';
+import { TaskStatus, WeddingMemberRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
+import {
+  requireWeddingForUser,
+  requireWeddingOwner,
+  resolveWeddingForUser,
+} from './wedding-access';
 
 /** categorySlug: каталог АБО внутрішній сервіс (guests/budget/date/…) */
 const DEFAULT_TASKS = [
@@ -38,27 +43,44 @@ const DEFAULT_TASKS = [
 
 const TASK_ORDER = { orderBy: [{ sortOrder: 'asc' as const }, { id: 'asc' as const }] };
 
+const MEMBER_INCLUDE = {
+  user: { select: { id: true, name: true, email: true } },
+} as const;
+
 @Injectable()
 export class WeddingsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMine(userId: string) {
+  private async loadWeddingWithMeta(weddingId: string, userId: string) {
     const wedding = await this.prisma.wedding.findUnique({
-      where: { userId },
-      include: { tasks: TASK_ORDER },
+      where: { id: weddingId },
+      include: {
+        tasks: TASK_ORDER,
+        members: { include: MEMBER_INCLUDE, orderBy: { createdAt: 'asc' } },
+      },
     });
-
     if (!wedding) return null;
-    await this.syncDefaultTasks(wedding.id);
-    return this.prisma.wedding.findUnique({
-      where: { userId },
-      include: { tasks: TASK_ORDER },
-    });
+
+    const me = wedding.members.find((m) => m.userId === userId);
+    return {
+      ...wedding,
+      myRole: me?.role ?? WeddingMemberRole.OWNER,
+    };
+  }
+
+  async getMine(userId: string) {
+    const access = await resolveWeddingForUser(this.prisma, userId);
+    if (!access) return null;
+
+    await this.syncDefaultTasks(access.wedding.id);
+    return this.loadWeddingWithMeta(access.wedding.id, userId);
   }
 
   async getInsights(userId: string) {
+    const access = await resolveWeddingForUser(this.prisma, userId);
+    if (!access) return null;
     const wedding = await this.prisma.wedding.findUnique({
-      where: { userId },
+      where: { id: access.wedding.id },
       include: {
         tasks: true,
         budgetItems: true,
@@ -249,13 +271,11 @@ export class WeddingsService {
   }
 
   async upsert(userId: string, dto: UpsertWeddingDto) {
-    const existing = await this.prisma.wedding.findUnique({
-      where: { userId },
-    });
+    const access = await resolveWeddingForUser(this.prisma, userId);
 
-    if (existing) {
+    if (access) {
       await this.prisma.wedding.update({
-        where: { userId },
+        where: { id: access.wedding.id },
         data: {
           date: new Date(dto.date),
           city: dto.city.trim(),
@@ -281,11 +301,11 @@ export class WeddingsService {
             : {}),
         },
       });
-      await this.syncDefaultTasks(existing.id);
+      await this.syncDefaultTasks(access.wedding.id);
       return this.getMine(userId);
     }
 
-    return this.prisma.wedding.create({
+    const wedding = await this.prisma.wedding.create({
       data: {
         userId,
         date: new Date(dto.date),
@@ -307,18 +327,154 @@ export class WeddingsService {
             status: TaskStatus.TODO,
           })),
         },
+        members: {
+          create: {
+            userId,
+            role: WeddingMemberRole.OWNER,
+          },
+        },
       },
       include: { tasks: TASK_ORDER },
     });
+
+    return this.loadWeddingWithMeta(wedding.id, userId);
+  }
+
+  async createPartnerInvite(userId: string) {
+    const { wedding } = await requireWeddingOwner(this.prisma, userId);
+
+    const partnerCount = await this.prisma.weddingMember.count({
+      where: { weddingId: wedding.id, role: WeddingMemberRole.PARTNER },
+    });
+    if (partnerCount >= 1) {
+      throw new BadRequestException('Партнер уже доданий до цього весілля');
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14);
+
+    const invite = await this.prisma.weddingInvite.create({
+      data: {
+        weddingId: wedding.id,
+        expiresAt,
+      },
+    });
+
+    return {
+      token: invite.token,
+      expiresAt: invite.expiresAt,
+      path: `/partner-invite/${invite.token}`,
+    };
+  }
+
+  async getPartnerInvitePreview(token: string) {
+    const invite = await this.prisma.weddingInvite.findUnique({
+      where: { token },
+      include: {
+        wedding: {
+          select: {
+            city: true,
+            date: true,
+            partnerOneName: true,
+            partnerTwoName: true,
+            user: { select: { name: true } },
+          },
+        },
+      },
+    });
+    if (!invite || invite.acceptedAt) {
+      throw new NotFoundException('Запрошення недійсне');
+    }
+    if (invite.expiresAt < new Date()) {
+      throw new BadRequestException('Термін запрошення минув');
+    }
+
+    const partners = [
+      invite.wedding.partnerOneName,
+      invite.wedding.partnerTwoName,
+    ]
+      .map((n) => n.trim())
+      .filter(Boolean);
+
+    return {
+      token: invite.token,
+      expiresAt: invite.expiresAt,
+      city: invite.wedding.city,
+      date: invite.wedding.date,
+      coupleName:
+        partners.length > 0
+          ? partners.join(' & ')
+          : invite.wedding.user.name,
+    };
+  }
+
+  async acceptPartnerInvite(userId: string, token: string) {
+    const invite = await this.prisma.weddingInvite.findUnique({
+      where: { token },
+    });
+    if (!invite || invite.acceptedAt) {
+      throw new NotFoundException('Запрошення недійсне');
+    }
+    if (invite.expiresAt < new Date()) {
+      throw new BadRequestException('Термін запрошення минув');
+    }
+
+    const existingAccess = await resolveWeddingForUser(this.prisma, userId);
+    if (existingAccess) {
+      if (existingAccess.wedding.id === invite.weddingId) {
+        return this.getMine(userId);
+      }
+      throw new BadRequestException(
+        'У тебе вже є весілля. Один акаунт — одне весілля.',
+      );
+    }
+
+    const partnerExists = await this.prisma.weddingMember.findFirst({
+      where: {
+        weddingId: invite.weddingId,
+        role: WeddingMemberRole.PARTNER,
+      },
+    });
+    if (partnerExists) {
+      throw new BadRequestException('Партнер уже приєднався');
+    }
+
+    if (invite.weddingId) {
+      const owner = await this.prisma.wedding.findUnique({
+        where: { id: invite.weddingId },
+        select: { userId: true },
+      });
+      if (owner?.userId === userId) {
+        throw new BadRequestException('Це твоє весілля');
+      }
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.weddingMember.create({
+        data: {
+          weddingId: invite.weddingId,
+          userId,
+          role: WeddingMemberRole.PARTNER,
+        },
+      }),
+      this.prisma.weddingInvite.update({
+        where: { id: invite.id },
+        data: {
+          acceptedAt: new Date(),
+          acceptedBy: userId,
+        },
+      }),
+    ]);
+
+    return this.getMine(userId);
   }
 
   async createTask(userId: string, dto: CreateTaskDto) {
-    const wedding = await this.prisma.wedding.findUnique({
-      where: { userId },
-    });
-    if (!wedding) {
-      throw new NotFoundException('Спочатку збережіть весілля');
-    }
+    const { wedding } = await requireWeddingForUser(
+      this.prisma,
+      userId,
+      'Спочатку збережіть весілля',
+    );
 
     const maxOrder = await this.prisma.task.aggregate({
       where: { weddingId: wedding.id },
@@ -339,7 +495,7 @@ export class WeddingsService {
   }
 
   async updateTask(userId: string, taskId: string, dto: UpdateTaskDto) {
-    const task = await this.requireOwnTask(userId, taskId);
+    const task = await this.requireMemberTask(userId, taskId);
 
     if (dto.title !== undefined && !task.isCustom) {
       throw new BadRequestException('Назву шаблонної задачі змінити не можна');
@@ -358,7 +514,7 @@ export class WeddingsService {
   }
 
   async deleteTask(userId: string, taskId: string) {
-    const task = await this.requireOwnTask(userId, taskId);
+    const task = await this.requireMemberTask(userId, taskId);
     if (!task.isCustom) {
       throw new BadRequestException('Шаблонну задачу видалити не можна');
     }
@@ -366,7 +522,7 @@ export class WeddingsService {
     return { ok: true };
   }
 
-  private async requireOwnTask(userId: string, taskId: string) {
+  private async requireMemberTask(userId: string, taskId: string) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: { wedding: true },
@@ -375,7 +531,9 @@ export class WeddingsService {
     if (!task) {
       throw new NotFoundException('Задачу не знайдено');
     }
-    if (task.wedding.userId !== userId) {
+
+    const access = await resolveWeddingForUser(this.prisma, userId);
+    if (!access || access.wedding.id !== task.weddingId) {
       throw new ForbiddenException();
     }
     return task;
@@ -407,7 +565,6 @@ export class WeddingsService {
         continue;
       }
 
-      // Не чіпаємо status/dueDate; підтягуємо лише slug/title/order шаблону
       if (
         found.categorySlug !== def.categorySlug ||
         found.title !== def.title ||

@@ -15,6 +15,7 @@ import {
 import { CoupleProfileCard } from "@/components/couple-profile-card";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { DashboardInsightsPanel } from "@/components/dashboard-insights";
+import { PartnerAccessCard } from "@/components/partner-access-card";
 import { RequireAuth } from "@/components/require-auth";
 import { WeddingPlanPanel } from "@/components/wedding-plan-panel";
 import { useAuthStore } from "@/lib/auth-store";
@@ -129,7 +130,10 @@ function CoupleDashboardInner() {
           : prev,
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено задачу");
+      const message =
+        err instanceof Error ? err.message : "Не оновлено задачу";
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -138,19 +142,35 @@ function CoupleDashboardInner() {
     categorySlug?: string;
     dueDate?: string;
   }) {
-    const created = await createTask(input);
-    setWedding((prev) =>
-      prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
-    );
+    try {
+      const created = await createTask(input);
+      setWedding((prev) =>
+        prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
+      );
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Не вдалося додати задачу";
+      setError(message);
+      toast.error(message);
+      throw err;
+    }
   }
 
   async function onDeleteTask(taskId: string) {
-    await deleteTask(taskId);
-    setWedding((prev) =>
-      prev
-        ? { ...prev, tasks: prev.tasks.filter((t) => t.id !== taskId) }
-        : prev,
-    );
+    try {
+      await deleteTask(taskId);
+      setWedding((prev) =>
+        prev
+          ? { ...prev, tasks: prev.tasks.filter((t) => t.id !== taskId) }
+          : prev,
+      );
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Не вдалося видалити задачу";
+      setError(message);
+      toast.error(message);
+      throw err;
+    }
   }
 
   if (loading) {
@@ -185,6 +205,8 @@ function CoupleDashboardInner() {
         />
       ) : null}
 
+      {wedding ? <PartnerAccessCard wedding={wedding} /> : null}
+
       {error ? (
         <p className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -196,7 +218,8 @@ function CoupleDashboardInner() {
           {[
             {
               label: "До весілля",
-              value: left > 0 ? `${left} дн.` : left === 0 ? "Сьогодні" : "∞",
+              value:
+                left > 0 ? `${left} дн.` : left === 0 ? "Сьогодні" : "Вже було",
               hint: formatDateLong(wedding.date),
             },
             {
@@ -236,7 +259,7 @@ function CoupleDashboardInner() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
-                Jump right in
+                Швидкий старт
               </p>
               <h2 className="mt-1 font-[family-name:var(--font-display)] text-3xl text-ink">
                 З чого продовжимо?
@@ -325,6 +348,27 @@ function CoupleDashboardInner() {
           </div>
         </section>
       ) : null}
+
+      {wedding ? null : (
+        <section className="mb-6 rounded-2xl border border-dashed border-sage/40 bg-sage/10 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
+            Початок
+          </p>
+          <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-ink">
+            Збережи дату — відкриємо чекліст
+          </h2>
+          <p className="mt-2 max-w-xl text-sm text-ink-soft">
+            Обери день весілля нижче в плані. Після цього зʼявляться бюджет,
+            гості, прогрес і персональні задачі.
+          </p>
+          <a
+            href="#wedding-plan"
+            className="mt-4 inline-flex rounded-full bg-sage px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep"
+          >
+            Обрати дату
+          </a>
+        </section>
+      )}
 
       {wedding ? <DashboardInsightsPanel city={wedding.city} /> : null}
 

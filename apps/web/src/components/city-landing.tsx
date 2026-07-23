@@ -7,17 +7,11 @@ import { SITE_NAME, getSiteUrl } from "@/lib/site";
 import {
   type WeddingCity,
   WEDDING_CITIES,
+  WEDDING_CITY_CATEGORIES,
+  cityCategoryHref,
   vendorsByCityHref,
   weddingCityHref,
 } from "@/lib/wedding-cities";
-
-const CATEGORY_LINKS = [
-  { slug: "photo", label: "Фотографи" },
-  { slug: "venue", label: "Локації" },
-  { slug: "music", label: "Музика" },
-  { slug: "decor", label: "Декор" },
-  { slug: "beauty", label: "Beauty" },
-] as const;
 
 type Props = {
   city: WeddingCity;
@@ -40,7 +34,7 @@ export function CityLanding({
   const catalogHref = vendorsByCityHref(city.name);
 
   const knownCategorySlugs = new Set(categories.map((c) => c.slug));
-  const categoryLinks = CATEGORY_LINKS.filter((c) =>
+  const categoryLinks = WEDDING_CITY_CATEGORIES.filter((c) =>
     knownCategorySlugs.has(c.slug),
   );
 
@@ -193,14 +187,14 @@ export function CityLanding({
               Підрядники {city.inCity}
             </h2>
             <p className="mt-3 max-w-2xl text-ink-soft">
-              Оберіть категорію — відкриється каталог уже з фільтром по місту{" "}
-              {city.name}.
+              Оберіть категорію — відкриється SEO-сторінка з підбіркою{" "}
+              {city.inCity}.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               {categoryLinks.map((cat) => (
                 <Link
                   key={cat.slug}
-                  href={vendorsByCityHref(city.name, cat.slug)}
+                  href={cityCategoryHref(city, cat.slug)}
                   className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:border-sage/40 hover:text-sage-deep"
                 >
                   {cat.label}

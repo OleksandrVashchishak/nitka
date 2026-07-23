@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsEmail,
   IsEnum,
@@ -7,6 +8,7 @@ import {
   IsString,
   MinLength,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { GuestSide, RsvpStatus } from '@prisma/client';
 
@@ -56,6 +58,40 @@ export class CreateGuestDto {
   @IsOptional()
   @IsString()
   notes?: string;
+}
+
+export class ImportGuestRowDto {
+  @IsString()
+  @MinLength(2)
+  name!: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsEnum(GuestSide)
+  side?: GuestSide;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  plusOne?: boolean;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class ImportGuestsDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ImportGuestRowDto)
+  guests!: ImportGuestRowDto[];
 }
 
 export class UpdateGuestDto {

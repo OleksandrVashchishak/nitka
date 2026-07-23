@@ -29,6 +29,7 @@ const STEPS = [
 const TOOL_BLURBS: Record<(typeof PRODUCT_NAV)[number]["id"], string> = {
   plan: "Чеклист по місяцях — від дати до таймінгу дня.",
   budget: "Кошторис по категоріях і залишок під контролем.",
+  guests: "Список гостей і персональні RSVP-посилання.",
   invitations: "Електронні листівки й RSVP без друку й Excel.",
   website: "Програма дня, карта й відповіді гостей в одній лінці.",
 };

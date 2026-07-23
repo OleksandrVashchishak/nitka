@@ -13,6 +13,12 @@ export type WeddingTask = {
   categorySlug?: string | null;
 };
 
+export type WeddingMember = {
+  id: string;
+  role: "OWNER" | "PARTNER";
+  user: { id: string; name: string; email: string };
+};
+
 export type Wedding = {
   id: string;
   date: string;
@@ -26,6 +32,8 @@ export type Wedding = {
   cityUndecided: boolean;
   guestsUndecided: boolean;
   tasks: WeddingTask[];
+  myRole?: "OWNER" | "PARTNER";
+  members?: WeddingMember[];
 };
 
 export type FavoriteItem = {
@@ -154,6 +162,44 @@ export type VendorDashboard = {
 
 export function getMyWedding() {
   return apiFetch<Wedding | null>("/api/weddings/me");
+}
+
+export function createPartnerInvite() {
+  return apiFetch<{ token: string; expiresAt: string; path: string }>(
+    "/api/weddings/me/partner-invite",
+    { method: "POST" },
+  );
+}
+
+export async function getPartnerInvitePreview(token: string) {
+  const api =
+    process.env.NEXT_PUBLIC_API_URL ??
+    process.env.API_URL ??
+    "http://localhost:3001";
+  const res = await fetch(`${api}/api/weddings/partner-invite/${token}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(
+      typeof body?.message === "string"
+        ? body.message
+        : "Запрошення недійсне",
+    );
+  }
+  return res.json() as Promise<{
+    token: string;
+    expiresAt: string;
+    city: string;
+    date: string;
+    coupleName: string;
+  }>;
+}
+
+export function acceptPartnerInvite(token: string) {
+  return apiFetch<Wedding>(`/api/weddings/partner-invite/${token}/accept`, {
+    method: "POST",
+  });
 }
 
 export function upsertWedding(input: {

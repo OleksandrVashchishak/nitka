@@ -72,6 +72,19 @@ export function CoupleProfileCard({
 
   const initials = `${first.trim()[0] ?? "♡"}${second.trim()[0] ?? ""}`;
 
+  function daysLabel(days: number) {
+    if (days === 0) return "Ваш день сьогодні!";
+    if (days < 0) return "Ваша історія вже почалась";
+    const n = Math.abs(days);
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    let unit = "днів";
+    if (mod10 === 1 && mod100 !== 11) unit = "день";
+    else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14))
+      unit = "дні";
+    return `${n} ${unit} до вашого дня`;
+  }
+
   return (
     <section className="mb-6 overflow-hidden rounded-3xl border border-line bg-white">
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center md:p-7">
@@ -89,7 +102,7 @@ export function CoupleProfileCard({
           ) : (
             initials
           )}
-          <span className="absolute inset-x-0 bottom-0 bg-ink/65 py-1 text-center text-[10px] font-sans text-white opacity-0 transition group-hover:opacity-100">
+          <span className="absolute inset-x-0 bottom-0 bg-ink/65 py-1 text-center text-[10px] font-sans text-white opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
             {uploading ? "Завантаження..." : "Змінити"}
           </span>
         </button>
@@ -109,13 +122,7 @@ export function CoupleProfileCard({
             {first || "Партнер 1"} <span className="text-sage">♡</span>{" "}
             {second || "Партнер 2"}
           </h1>
-          <p className="mt-2 text-ink-soft">
-            {daysLeft > 0
-              ? `${daysLeft} днів до вашого дня`
-              : daysLeft === 0
-                ? "Ваш день сьогодні!"
-                : "Ваша історія вже почалась"}
-          </p>
+          <p className="mt-2 text-ink-soft">{daysLabel(daysLeft)}</p>
           {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
         </div>
 

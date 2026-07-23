@@ -15,6 +15,13 @@ export const PRODUCT_NAV = [
     coupleHref: "/budget",
   },
   {
+    id: "guests",
+    label: "Гості та RSVP",
+    shortLabel: "Гості",
+    guestHref: "/spysok-gostey",
+    coupleHref: "/guests",
+  },
+  {
     id: "invitations",
     label: "Онлайн-запрошення",
     shortLabel: "Запрошення",

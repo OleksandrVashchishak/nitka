@@ -2,11 +2,12 @@
 
 import { PageLoader } from "@/components/ui-loader";
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   createGuest,
   deleteGuest,
   getGuestList,
+  importGuests,
   updateGuest,
   type Guest,
   type GuestListResponse,
@@ -65,6 +66,10 @@ function GuestsInner() {
   const [needWedding, setNeedWedding] = useState(false);
   const [justCreated, setJustCreated] = useState<Guest | null>(null);
   const [origin, setOrigin] = useState("");
+  const [expandedLinkId, setExpandedLinkId] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -118,6 +123,9 @@ function GuestsInner() {
       tableLabel: guest.tableLabel ?? "",
       notes: guest.notes ?? "",
     });
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   function resetForm() {
@@ -153,6 +161,131 @@ function GuestsInner() {
       }
     }
     await copyLink(guest);
+  }
+
+  async function copyAllLinks() {
+    if (!data?.guests.length || !origin) return;
+    const lines = data.guests.map(
+      (guest) => `${guest.name}: ${guestRsvpUrl(guest)}`,
+    );
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Усі лінки", `${lines.length} рядків у буфері`);
+    } catch {
+      setError("Не вдалось скопіювати лінки");
+    }
+  }
+
+  function parseCsv(text: string) {
+    const lines = text
+      .replace(/^\uFEFF/, "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (lines.length === 0) return [];
+
+    const split = (line: string) => {
+      const cells: string[] = [];
+      let current = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i += 1) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+          continue;
+        }
+        if ((ch === "," || ch === ";") && !inQuotes) {
+          cells.push(current.trim());
+          current = "";
+          continue;
+        }
+        current += ch;
+      }
+      cells.push(current.trim());
+      return cells;
+    };
+
+    const headerCells = split(lines[0]).map((c) => c.toLowerCase());
+    const hasHeader = headerCells.some((c) =>
+      ["name", "імя", "ім'я", "імʼя", "гость", "email", "телефон", "phone"].includes(
+        c,
+      ),
+    );
+    const rows = hasHeader ? lines.slice(1) : lines;
+
+    const idx = (aliases: string[]) =>
+      headerCells.findIndex((c) => aliases.includes(c));
+
+    const nameIdx = hasHeader
+      ? Math.max(0, idx(["name", "імя", "ім'я", "імʼя", "гость", "guest"]))
+      : 0;
+    const emailIdx = hasHeader ? idx(["email", "пошта", "e-mail"]) : 1;
+    const phoneIdx = hasHeader
+      ? idx(["phone", "телефон", "tel", "mobile"])
+      : 2;
+    const sideIdx = hasHeader ? idx(["side", "сторона"]) : -1;
+    const plusIdx = hasHeader ? idx(["plusone", "plus_one", "+1", "плюс"]) : -1;
+
+    const sideMap: Record<string, GuestSide> = {
+      bride: "BRIDE",
+      наречена: "BRIDE",
+      groom: "GROOM",
+      наречений: "GROOM",
+      both: "BOTH",
+      обидві: "BOTH",
+      other: "OTHER",
+      інше: "OTHER",
+    };
+
+    return rows
+      .map((line) => {
+        const cells = split(line);
+        const name = (cells[nameIdx] ?? "").trim();
+        if (name.length < 2) return null;
+        const email = emailIdx >= 0 ? cells[emailIdx]?.trim() : undefined;
+        const phone = phoneIdx >= 0 ? cells[phoneIdx]?.trim() : undefined;
+        const sideRaw = sideIdx >= 0 ? cells[sideIdx]?.trim().toLowerCase() : "";
+        const plusRaw = plusIdx >= 0 ? cells[plusIdx]?.trim().toLowerCase() : "";
+        return {
+          name,
+          email: email || undefined,
+          phone: phone || undefined,
+          side: sideRaw ? sideMap[sideRaw] : undefined,
+          plusOne:
+            plusRaw === "1" ||
+            plusRaw === "true" ||
+            plusRaw === "так" ||
+            plusRaw === "yes",
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => Boolean(row));
+  }
+
+  async function onCsvFile(file?: File) {
+    if (!file) return;
+    setImporting(true);
+    setError(null);
+    try {
+      const text = await file.text();
+      const rows = parseCsv(text);
+      if (rows.length === 0) {
+        throw new Error("У CSV немає валідних рядків (потрібна колонка з іменем)");
+      }
+      const result = await importGuests(rows);
+      toast.success("Імпорт", `Додано ${result.imported} гостей`);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Імпорт не вдався");
+    } finally {
+      setImporting(false);
+      if (csvInputRef.current) csvInputRef.current.value = "";
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -193,6 +326,8 @@ function GuestsInner() {
   }
 
   async function onDelete(id: string) {
+    const guest = data?.guests.find((g) => g.id === id);
+    if (!confirm(`Видалити гостя «${guest?.name ?? "без імені"}»?`)) return;
     setError(null);
     try {
       await deleteGuest(id);
@@ -253,6 +388,35 @@ function GuestsInner() {
         WhatsApp. Відповідь зʼявиться тут автоматично.
       </p>
 
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={!data?.guests.length || !origin}
+          onClick={() => void copyAllLinks()}
+          className="rounded-full border border-sage px-4 py-2.5 text-sm font-semibold text-sage-deep hover:bg-mist disabled:opacity-50"
+        >
+          Скопіювати всі RSVP-лінки
+        </button>
+        <button
+          type="button"
+          disabled={importing}
+          onClick={() => csvInputRef.current?.click()}
+          className="rounded-full border border-line px-4 py-2.5 text-sm text-ink-soft hover:border-sage/40 disabled:opacity-50"
+        >
+          {importing ? "Імпортуємо…" : "Імпорт CSV"}
+        </button>
+        <input
+          ref={csvInputRef}
+          type="file"
+          accept=".csv,text/csv"
+          className="hidden"
+          onChange={(e) => void onCsvFile(e.target.files?.[0])}
+        />
+        <span className="self-center text-xs text-ink-soft">
+          CSV: імʼя, email, телефон (заголовок опційний)
+        </span>
+      </div>
+
       {error ? (
         <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -271,7 +435,7 @@ function GuestsInner() {
               value: stats.pending,
               highlight: true,
             },
-            { label: "Headcount", value: stats.headcount, highlight: false },
+            { label: "Очікуємо (з +1)", value: stats.headcount, highlight: false },
           ].map((item) => (
             <div
               key={item.label}
@@ -342,6 +506,7 @@ function GuestsInner() {
       ) : null}
 
       <form
+        ref={formRef}
         onSubmit={onSubmit}
         className="mt-8 space-y-4 rounded-2xl border border-line bg-white p-5 md:p-6"
       >
@@ -544,13 +709,25 @@ function GuestsInner() {
               </div>
 
               {origin ? (
-                <div className="mt-3 rounded-xl bg-mist px-3 py-2">
-                  <p className="text-xs font-medium text-ink-soft">
-                    Посилання для гостя
-                  </p>
-                  <p className="mt-1 break-all text-xs text-ink">
-                    {guestRsvpUrl(guest)}
-                  </p>
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedLinkId((current) =>
+                        current === guest.id ? null : guest.id,
+                      )
+                    }
+                    className="text-xs font-medium text-sage-deep underline-offset-4 hover:underline"
+                  >
+                    {expandedLinkId === guest.id
+                      ? "Сховати лінк"
+                      : "Показати лінк"}
+                  </button>
+                  {expandedLinkId === guest.id ? (
+                    <p className="mt-2 break-all rounded-xl bg-mist px-3 py-2 text-xs text-ink">
+                      {guestRsvpUrl(guest)}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -584,14 +761,14 @@ function GuestsInner() {
                   onClick={() => startEdit(guest)}
                   className="rounded-full border border-line px-3 py-1.5 text-xs text-ink hover:border-sage/40"
                 >
-                  Edit
+                  Змінити
                 </button>
                 <button
                   type="button"
                   onClick={() => void onDelete(guest.id)}
                   className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-red-300"
                 >
-                  Delete
+                  Видалити
                 </button>
               </div>
             </li>

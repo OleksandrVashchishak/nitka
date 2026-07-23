@@ -144,6 +144,8 @@ function BudgetInner() {
   }
 
   async function onDelete(id: string) {
+    const item = data?.items.find((row) => row.id === id);
+    if (!confirm(`Видалити статтю «${item?.title ?? "бюджет"}»?`)) return;
     setError(null);
     try {
       const res = await deleteBudgetItem(id);

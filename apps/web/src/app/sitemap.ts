@@ -8,6 +8,8 @@ import {
 } from "@/lib/content-api";
 import {
   WEDDING_CITIES,
+  WEDDING_CITY_CATEGORIES,
+  cityCategoryHref,
   weddingCityHref,
 } from "@/lib/wedding-cities";
 import { getSiteUrl } from "@/lib/site";
@@ -72,6 +74,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.86,
     })),
+    ...WEDDING_CITIES.flatMap((city) =>
+      WEDDING_CITY_CATEGORIES.map((category) => ({
+        url: `${siteUrl}${cityCategoryHref(city, category.slug)}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: 0.84,
+      })),
+    ),
+    {
+      url: `${siteUrl}/spysok-gostey`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    },
   ];
 
   let vendorRoutes: MetadataRoute.Sitemap = [];

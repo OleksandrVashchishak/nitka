@@ -62,6 +62,7 @@ model User {
 
   vendor          Vendor?
   wedding         Wedding?
+  weddingMember   WeddingMember?
   favorites       Favorite[]
   reviews         Review[]
   requests        Request[]
@@ -302,12 +303,48 @@ model Wedding {
   cityUndecided   Boolean  @default(false) @map("city_undecided")
   guestsUndecided Boolean  @default(false) @map("guests_undecided")
 
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  members     WeddingMember[]
+  invites     WeddingInvite[]
   tasks       Task[]
   guestList   Guest[]
   budgetItems BudgetItem[]
 
   @@map("weddings")
+}
+
+enum WeddingMemberRole {
+  OWNER
+  PARTNER
+}
+
+model WeddingMember {
+  id        String            @id @default(cuid())
+  weddingId String            @map("wedding_id")
+  userId    String            @unique @map("user_id")
+  role      WeddingMemberRole @default(PARTNER)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@map("wedding_members")
+}
+
+model WeddingInvite {
+  id         String    @id @default(cuid())
+  weddingId  String    @map("wedding_id")
+  token      String    @unique @default(cuid())
+  expiresAt  DateTime  @map("expires_at")
+  acceptedAt DateTime? @map("accepted_at")
+  acceptedBy String?   @map("accepted_by")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@map("wedding_invites")
 }
 
 enum TaskStatus {

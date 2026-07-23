@@ -21,12 +21,17 @@ import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import { WeddingsService } from './weddings.service';
 
 @Controller('weddings')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.COUPLE, Role.ADMIN)
 export class WeddingsController {
   constructor(private readonly weddingsService: WeddingsService) {}
 
+  @Get('partner-invite/:token')
+  getPartnerInvitePreview(@Param('token') token: string) {
+    return this.weddingsService.getPartnerInvitePreview(token);
+  }
+
   @Get('me')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
   async getMine(
     @CurrentUser() user: AuthUser,
     @Res({ passthrough: true }) res: Response,
@@ -40,21 +45,46 @@ export class WeddingsController {
   }
 
   @Put('me')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
   upsert(@CurrentUser() user: AuthUser, @Body() dto: UpsertWeddingDto) {
     return this.weddingsService.upsert(user.id, dto);
   }
 
   @Get('me/insights')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
   getInsights(@CurrentUser() user: AuthUser) {
     return this.weddingsService.getInsights(user.id);
   }
 
+  @Post('me/partner-invite')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
+  createPartnerInvite(@CurrentUser() user: AuthUser) {
+    return this.weddingsService.createPartnerInvite(user.id);
+  }
+
+  @Post('partner-invite/:token/accept')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
+  acceptPartnerInvite(
+    @CurrentUser() user: AuthUser,
+    @Param('token') token: string,
+  ) {
+    return this.weddingsService.acceptPartnerInvite(user.id, token);
+  }
+
   @Post('tasks')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
   createTask(@CurrentUser() user: AuthUser, @Body() dto: CreateTaskDto) {
     return this.weddingsService.createTask(user.id, dto);
   }
 
   @Patch('tasks/:taskId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
   updateTask(
     @CurrentUser() user: AuthUser,
     @Param('taskId') taskId: string,
@@ -64,6 +94,8 @@ export class WeddingsController {
   }
 
   @Delete('tasks/:taskId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
   deleteTask(
     @CurrentUser() user: AuthUser,
     @Param('taskId') taskId: string,

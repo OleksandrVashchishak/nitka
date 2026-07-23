@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import {
   CreateGuestDto,
+  ImportGuestsDto,
   PublicRsvpDto,
   UpdateGuestDto,
 } from './dto/guest.dto';
@@ -35,6 +36,13 @@ export class GuestsController {
   @Roles(Role.COUPLE, Role.ADMIN)
   create(@CurrentUser() user: AuthUser, @Body() dto: CreateGuestDto) {
     return this.guestsService.create(user.id, dto);
+  }
+
+  @Post('guests/import')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
+  importMany(@CurrentUser() user: AuthUser, @Body() dto: ImportGuestsDto) {
+    return this.guestsService.importMany(user.id, dto);
   }
 
   @Patch('guests/:id')

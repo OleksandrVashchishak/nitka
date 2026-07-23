@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
   CreateBudgetItemDto,
   UpdateBudgetItemDto,
@@ -37,14 +37,11 @@ export class BudgetService {
   constructor(private readonly prisma: PrismaService) {}
 
   private async getWeddingForUser(userId: string) {
-    const wedding = await this.prisma.wedding.findUnique({
-      where: { userId },
-    });
-    if (!wedding) {
-      throw new BadRequestException(
-        'Спочатку створи весілля в кабінеті (дата / бюджет)',
-      );
-    }
+    const { wedding } = await requireWeddingForUser(
+      this.prisma,
+      userId,
+      'Спочатку створи весілля в кабінеті (дата / бюджет)',
+    );
     return wedding;
   }
 

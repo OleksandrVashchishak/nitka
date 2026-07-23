@@ -172,7 +172,7 @@ export function WeddingPlanPanel({
           </p>
         </div>
 
-        <div className="mt-5 grid grid-cols-4 gap-2">
+        <div className="mt-5 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {PLAN_PHASES.map((p) => {
             const phaseDone = PLAN_ITEMS.filter(
               (i) =>
@@ -195,24 +195,24 @@ export function WeddingPlanPanel({
                 }}
                 className={
                   active
-                    ? "flex min-w-0 flex-col items-center rounded-xl bg-sage px-1 py-2.5 text-white"
-                    : "flex min-w-0 flex-col items-center rounded-xl border border-line bg-white px-1 py-2.5 text-ink-soft hover:border-sage/40"
+                    ? "flex min-w-[7.5rem] shrink-0 flex-col items-center rounded-xl bg-sage px-3 py-3 text-white sm:min-w-0 sm:flex-1"
+                    : "flex min-w-[7.5rem] shrink-0 flex-col items-center rounded-xl border border-line bg-white px-3 py-3 text-ink-soft hover:border-sage/40 sm:min-w-0 sm:flex-1"
                 }
               >
-                <span className="flex size-6 items-center justify-center rounded-full border border-current text-xs font-semibold">
+                <span className="flex size-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
                   {p.id}
                 </span>
-                <span className="mt-1.5 text-[10px] font-semibold leading-tight">
+                <span className="mt-1.5 text-xs font-semibold leading-tight">
                   {monthWindow}
                 </span>
-                <span className="mt-0.5 truncate text-[9px] leading-tight opacity-75">
+                <span className="mt-0.5 text-[11px] leading-tight opacity-80">
                   {p.label}
                 </span>
                 <span
                   className={
                     active
-                      ? "mt-1 text-[9px] text-white/75"
-                      : "mt-1 text-[9px]"
+                      ? "mt-1 text-[10px] text-white/75"
+                      : "mt-1 text-[10px]"
                   }
                 >
                   {phaseDone}/{phaseTotal}
@@ -601,7 +601,10 @@ function TaskControls({
       {task.isCustom && onDeleteTask ? (
         <button
           type="button"
-          onClick={() => void onDeleteTask(task.id)}
+          onClick={() => {
+            if (!confirm(`Видалити задачу «${task.title}»?`)) return;
+            void onDeleteTask(task.id);
+          }}
           className="rounded-full border border-line px-3 py-2 text-xs font-medium text-ink-soft hover:border-red-300 hover:text-red-700"
         >
           Видалити

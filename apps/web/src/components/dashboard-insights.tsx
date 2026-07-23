@@ -296,7 +296,7 @@ export function DashboardInsightsPanel({ city }: Props) {
               <p className="mt-3 font-[family-name:var(--font-display)] text-3xl text-ink">
                 {insights.pipeline.total}
               </p>
-              <p className="text-sm text-ink-soft">у вашому pipeline</p>
+              <p className="text-sm text-ink-soft">у роботі</p>
             </div>
             <button
               type="button"
@@ -399,7 +399,7 @@ export function DashboardInsightsPanel({ city }: Props) {
             disabled={saving}
             className="rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
           >
-            {saving ? "Додаємо..." : "Додати в pipeline"}
+            {saving ? "Додаємо..." : "Додати в список"}
           </button>
         </form>
       ) : null}
@@ -513,7 +513,7 @@ export function DashboardInsightsPanel({ city }: Props) {
                     onClick={() => void onSaveRecommendation(vendor.id)}
                     className="mt-3 w-full rounded-full border border-sage px-3 py-2 text-xs font-semibold text-sage-deep hover:bg-sage hover:text-white"
                   >
-                    Зберегти в pipeline
+                    Зберегти в обране
                   </button>
                 </div>
               </article>
