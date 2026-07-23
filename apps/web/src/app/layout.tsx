@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ToastViewport } from "@/components/toast-viewport";
+import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
 const display = Fraunces({
   variable: "--font-display",
@@ -16,10 +17,36 @@ const sans = Manrope({
   subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "NITKA — весільні професіонали поруч",
-  description:
-    "Знайдіть ідеальних весільних підрядників: фото, локації, музику, декор і beauty.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${SITE_NAME} — весільні професіонали поруч`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "uk_UA",
+    url: siteUrl,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — весільні професіонали поруч`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — весільні професіонали поруч`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

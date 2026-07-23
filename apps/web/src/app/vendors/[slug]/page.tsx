@@ -1,13 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getVendor } from "@/lib/api";
 import { VendorActions } from "@/components/vendor-actions";
 import { VendorReviews } from "@/components/vendor-reviews";
 import { VendorHeroGallery } from "@/components/vendor-hero-gallery";
 import { VendorGrid } from "@/components/vendor-grid";
+import { getSiteUrl, truncateMeta } from "@/lib/site";
+import { vendorHref } from "@/lib/vendor-href";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 function formatPrice(value: number) {
@@ -18,10 +21,52 @@ function cleanUrl(url: string) {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const vendor = await getVendor(slug);
+  if (!vendor) {
+    return { title: "Підрядника не знайдено" };
+  }
+
+  const title = `${vendor.name} — ${vendor.category.name}, ${vendor.city}`;
+  const description = truncateMeta(
+    vendor.tagline ||
+      vendor.description ||
+      `${vendor.name} — весільний підрядник у місті ${vendor.city}.`,
+  );
+  const path = vendorHref(vendor);
+  const image = vendor.photos[0]?.url;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      title,
+      description,
+      url: path,
+      type: "website",
+      ...(image ? { images: [{ url: image, alt: vendor.name }] } : {}),
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
+  };
+}
+
 export default async function VendorPage({ params }: Props) {
-  const { id } = await params;
-  const vendor = await getVendor(id);
+  const { slug } = await params;
+  const vendor = await getVendor(slug);
   if (!vendor) notFound();
+
+  if (vendor.slug && slug !== vendor.slug) {
+    permanentRedirect(vendorHref(vendor));
+  }
 
   const reviews = vendor.reviews ?? [];
   const reviewsCount = vendor._count?.reviews ?? reviews.length;
@@ -75,8 +120,55 @@ export default async function VendorPage({ params }: Props) {
     { href: "#contact", label: "Контакти" },
   ];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: vendor.name,
+    description: truncateMeta(vendor.description || vendor.tagline || "", 300),
+    url: `${getSiteUrl()}${vendorHref(vendor)}`,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: vendor.city,
+      addressCountry: "UA",
+      ...(vendor.address ? { streetAddress: vendor.address } : {}),
+    },
+    ...(vendor.photos[0]?.url
+      ? { image: vendor.photos.map((p) => p.url) }
+      : {}),
+    ...(vendor.phone ? { telephone: vendor.phone } : {}),
+    ...(vendor.website || vendor.instagram
+      ? {
+          sameAs: [
+            ...(vendor.website ? [cleanUrl(vendor.website)] : []),
+            ...(vendor.instagram
+              ? [
+                  vendor.instagram.startsWith("http")
+                    ? vendor.instagram
+                    : `https://instagram.com/${vendor.instagram.replace(/^@/, "")}`,
+                ]
+              : []),
+          ],
+        }
+      : {}),
+    priceRange: priceText,
+    ...(reviewsCount > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: vendor.rating,
+            reviewCount: reviewsCount,
+          },
+        }
+      : {}),
+  };
+
   return (
-    <main className="bg-paper pb-16">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="bg-paper pb-16">
       <div className="px-3 pt-4 md:px-6">
         <VendorHeroGallery photos={vendor.photos} name={vendor.name} />
       </div>
@@ -489,5 +581,6 @@ export default async function VendorPage({ params }: Props) {
         </div>
       ) : null}
     </main>
+    </>
   );
 }

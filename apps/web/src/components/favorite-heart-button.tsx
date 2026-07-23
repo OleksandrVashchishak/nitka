@@ -24,6 +24,11 @@ async function loadFavoriteIds(userId: string) {
         loadedForUser = userId;
         return favoriteIds;
       })
+      .catch(() => {
+        favoriteIds = new Set();
+        loadedForUser = null;
+        return favoriteIds;
+      })
       .finally(() => {
         loadingFavorites = null;
       });

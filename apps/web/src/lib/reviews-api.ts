@@ -8,7 +8,9 @@ export type ReviewPayload = {
 };
 
 export function getMyReview(vendorId: string) {
-  return apiFetch<VendorReview | null>(`/api/reviews/mine/${vendorId}`);
+  return apiFetch<VendorReview | null>(`/api/reviews/mine/${vendorId}`, {
+    silent: true,
+  });
 }
 
 export function createReview(input: ReviewPayload) {

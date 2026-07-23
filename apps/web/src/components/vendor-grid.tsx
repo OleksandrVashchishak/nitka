@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Vendor } from "@/lib/api";
 import { FavoriteHeartButton } from "@/components/favorite-heart-button";
+import { vendorHref } from "@/lib/vendor-href";
 
 type Props = {
   vendors: Vendor[];
@@ -80,7 +81,7 @@ function VendorTile({
 
   return (
     <article className="group relative">
-      <Link href={`/vendors/${vendor.id}`} className="block">
+      <Link href={vendorHref(vendor)} className="block">
         <div
           className={`relative overflow-hidden rounded-[1.5rem] bg-sage/20 ${
             large ? "aspect-[4/5] md:aspect-[5/4] lg:min-h-[560px]" : "aspect-[5/4] lg:aspect-[16/10]"

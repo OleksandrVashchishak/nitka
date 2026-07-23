@@ -17,6 +17,7 @@ import {
 import { AdminNav } from "@/components/admin-nav";
 import { CityAutocomplete } from "@/components/city-autocomplete";
 import { RequireAuth } from "@/components/require-auth";
+import { vendorHref } from "@/lib/vendor-href";
 
 const STATUSES: Array<AdminVendor["status"] | "ALL"> = [
   "ALL",
@@ -564,7 +565,7 @@ function AdminVendorsInner() {
               {detail.featured ? "Зняти Featured" : "Зробити Featured"}
             </button>
             <Link
-              href={`/vendors/${detail.id}`}
+              href={vendorHref(detail)}
               className="rounded-full border border-line px-3 py-1.5 text-xs"
             >
               Публічна сторінка

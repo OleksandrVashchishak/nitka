@@ -15,6 +15,7 @@ import {
 } from "@/lib/dashboard-api";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
+import { vendorHref } from "@/lib/vendor-href";
 
 const STAGES: Array<{ value: VendorPipelineStage; label: string }> = [
   { value: "SAVED", label: "Зберегли" },
@@ -157,7 +158,7 @@ function FavoritesInner() {
                         className="overflow-hidden rounded-xl border border-line bg-white"
                       >
                         <Link
-                          href={`/vendors/${item.vendor.id}`}
+                          href={vendorHref(item.vendor)}
                           className="relative block aspect-[16/9] bg-mist"
                         >
                           {cover ? (

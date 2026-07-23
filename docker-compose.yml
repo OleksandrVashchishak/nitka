@@ -54,7 +54,12 @@ services:
       NODE_ENV: development
       API_URL: http://api:3001
       NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      # Windows bind mounts: без polling HMR часто «глухий»
       WATCHPACK_POLLING: "true"
+      WATCHPACK_POLL_INTERVAL: "1000"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
     ports:
       - "3000:3000"
     volumes:
@@ -63,8 +68,8 @@ services:
       - /app/node_modules
     depends_on:
       - api
-    # Чистимо .next на старті — щоб локально не ловити «липкий» кеш
-    command: sh -c "rm -rf .next && npm run dev"
+    # webpack+poll стабільніший за turbopack на Win mounts; .next чистимо на старті
+    command: sh -c "rm -rf .next && npm run dev:docker"
 
 volumes:
   postgres_data:

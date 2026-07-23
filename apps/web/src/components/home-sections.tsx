@@ -1,5 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ContentCard } from "@/components/content-card";
+import type { ContentPost } from "@/lib/content-api";
+import { PRODUCT_NAV } from "@/lib/product-routes";
+import {
+  WEDDING_CITIES,
+  weddingCityHref,
+} from "@/lib/wedding-cities";
 
 const STEPS = [
   {
@@ -19,23 +26,12 @@ const STEPS = [
   },
 ];
 
-const TOOLS = [
-  {
-    title: "План весілля",
-    text: "22 цілі по місяцях — від дати до запрошень.",
-    href: "/register",
-  },
-  {
-    title: "Бюджет",
-    text: "Витрати по категоріях і залишок під контролем.",
-    href: "/register",
-  },
-  {
-    title: "Гості",
-    text: "Список, RSVP і плюс-один без Excel-хаосу.",
-    href: "/register",
-  },
-];
+const TOOL_BLURBS: Record<(typeof PRODUCT_NAV)[number]["id"], string> = {
+  plan: "Чеклист по місяцях — від дати до таймінгу дня.",
+  budget: "Кошторис по категоріях і залишок під контролем.",
+  invitations: "Електронні листівки й RSVP без друку й Excel.",
+  website: "Програма дня, карта й відповіді гостей в одній лінці.",
+};
 
 const REVIEWS = [
   {
@@ -54,6 +50,135 @@ const REVIEWS = [
     text: "Заявки приходять з нормальним контекстом: місто, дата, гості. Менше «а скільки у вас?» з нуля.",
   },
 ];
+
+/** SEO-абзац під hero — ключі маркетплейсу без засмічення першого екрана */
+export function HomeSeoIntro() {
+  return (
+    <section className="border-b border-line bg-paper px-5 py-14 md:px-8 md:py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink md:text-3xl">
+          Весільний маркетплейс України
+        </h2>
+        <p className="mt-5 text-base leading-8 text-ink-soft md:text-lg">
+          NITKA — онлайн-платформа для пар, які шукають весільних підрядників:
+          фотографів, локації, музику, декор і beauty. Порівнюйте профілі по
+          місту й бюджету, зберігайте в обране, пишіть заявки — і ведіть{" "}
+          <Link
+            href="/vesilnyy-plan"
+            className="font-medium text-sage-deep underline-offset-2 hover:underline"
+          >
+            план весілля
+          </Link>
+          ,{" "}
+          <Link
+            href="/vesilnyy-byudzhet"
+            className="font-medium text-sage-deep underline-offset-2 hover:underline"
+          >
+            бюджет
+          </Link>{" "}
+          та ідеї в одному місці. Шукаєте по місту? Дивіться підбірки{" "}
+          <Link
+            href="/vesillya"
+            className="font-medium text-sage-deep underline-offset-2 hover:underline"
+          >
+            весілля в Києві, Львові, Одесі
+          </Link>
+          .
+        </p>
+      </div>
+    </section>
+  );
+}
+
+export function HomeCities() {
+  const cities = WEDDING_CITIES.slice(0, 6);
+
+  return (
+    <section className="border-t border-line bg-paper px-5 py-24 md:px-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-deep">
+              Міста
+            </p>
+            <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
+              Весілля у вашому місті
+            </h2>
+            <p className="mt-4 text-ink-soft">
+              Київ, Львів, Одеса та інші — підбірки підрядників і поради саме
+              під географію свята.
+            </p>
+          </div>
+          <Link
+            href="/vesillya"
+            className="text-sm font-semibold text-sage-deep transition hover:underline"
+          >
+            Усі міста →
+          </Link>
+        </div>
+
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {cities.map((city) => (
+            <Link
+              key={city.slug}
+              href={weddingCityHref(city)}
+              className="group relative overflow-hidden rounded-[1.35rem] bg-ink"
+            >
+              <div className="relative aspect-[5/3]">
+                <Image
+                  src={city.image}
+                  alt={`Весілля ${city.inCity}`}
+                  fill
+                  className="object-cover opacity-90 transition duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <p className="font-[family-name:var(--font-display)] text-2xl md:text-3xl">
+                    {city.name}
+                  </p>
+                  <p className="mt-1 text-sm text-white/75">
+                    Весілля {city.inCity} →
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function HomeBudgetTeaser() {
+  return (
+    <section className="relative overflow-hidden bg-sage-deep px-5 py-20 text-white md:px-8 md:py-24">
+      <div className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-leaf/20 blur-3xl" />
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <div className="max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
+            Бюджет
+          </p>
+          <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight md:text-5xl lg:text-6xl">
+            Скільки коштує весілля?
+          </h2>
+          <p className="mt-5 max-w-xl text-base leading-7 text-white/80 md:text-lg">
+            Не «середній чек з інтернету», а ваш кошторис: категорії, план і
+            факт, залишок на екрані. Щоб ціна свята була під контролем ще до
+            першої передоплати.
+          </p>
+        </div>
+        <Link
+          href="/vesilnyy-byudzhet"
+          className="inline-flex shrink-0 rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:bg-mist"
+        >
+          Відкрити бюджет весілля →
+        </Link>
+      </div>
+    </section>
+  );
+}
 
 export function HomeHowItWorks() {
   return (
@@ -110,7 +235,7 @@ export function HomeTools() {
         <div className="relative min-h-[420px] overflow-hidden rounded-[2rem]">
           <Image
             src="https://images.unsplash.com/photo-1460978812857-470ed1c77af0?w=1400&q=80"
-            alt="Планування весілля"
+            alt="Планування весілля онлайн"
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -118,27 +243,28 @@ export function HomeTools() {
           <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-7">
             <p className="font-[family-name:var(--font-display)] text-3xl text-white">
-              План, бюджет і гості — поруч із каталогом
+              План, бюджет, запрошення й сайт — поруч із каталогом
             </p>
           </div>
         </div>
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-deep">
-            Інструменти
+            Інструменти для пари
           </p>
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
             Не лише каталог
           </h2>
           <p className="mt-4 text-ink-soft">
-            Те, що пари зазвичай розкидають по нотатках, уже зібрано в NITKA.
+            Те, що пари зазвичай розкидають по нотатках і чатах, уже зібрано в
+            NITKA.
           </p>
 
           <div className="mt-10 space-y-0">
-            {TOOLS.map((tool, index) => (
+            {PRODUCT_NAV.map((tool, index) => (
               <Link
-                key={tool.title}
-                href={tool.href}
+                key={tool.id}
+                href={tool.guestHref}
                 className="group flex items-start gap-5 border-t border-line py-6 transition last:border-b hover:bg-mist/60"
               >
                 <span className="mt-1 font-[family-name:var(--font-display)] text-2xl text-sage/40">
@@ -146,10 +272,10 @@ export function HomeTools() {
                 </span>
                 <div className="flex-1">
                   <h3 className="font-[family-name:var(--font-display)] text-2xl text-ink transition group-hover:text-sage-deep">
-                    {tool.title}
+                    {tool.label}
                   </h3>
                   <p className="mt-1 text-sm leading-6 text-ink-soft">
-                    {tool.text}
+                    {TOOL_BLURBS[tool.id]}
                   </p>
                 </div>
                 <span className="mt-2 text-sage-deep opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100">
@@ -158,6 +284,43 @@ export function HomeTools() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function HomeIdeas({ posts }: { posts: ContentPost[] }) {
+  if (!posts.length) return null;
+
+  return (
+    <section className="border-t border-line bg-mist/40 px-5 py-24 md:px-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-deep">
+              Ідеї та поради
+            </p>
+            <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
+              Читають перед бронями
+            </h2>
+            <p className="mt-4 text-ink-soft">
+              Гайди з бюджету, локацій, запрошень і підрядників — щоб рішення
+              були спокійнішими.
+            </p>
+          </div>
+          <Link
+            href="/content"
+            className="text-sm font-semibold text-sage-deep transition hover:underline"
+          >
+            Усі матеріали →
+          </Link>
+        </div>
+
+        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.slice(0, 6).map((post) => (
+            <ContentCard key={post.id} post={post} />
+          ))}
         </div>
       </div>
     </section>

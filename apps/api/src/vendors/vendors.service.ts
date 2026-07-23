@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { slugify } from '../common/slug';
 import { UpsertVendorProfileDto } from './dto/upsert-vendor-profile.dto';
 
 type VendorFilters = {
@@ -410,6 +411,7 @@ export class VendorsService implements OnModuleInit {
           data: {
             userId: user.id,
             name: demo.name,
+            slug: await this.ensureUniqueSlug(slugify(demo.name)),
             description: demo.description,
             categoryId: category.id,
             city: demo.city,
@@ -531,6 +533,40 @@ export class VendorsService implements OnModuleInit {
         }
       }
     }
+
+    await this.backfillMissingSlugs();
+  }
+
+  private async ensureUniqueSlug(base: string, excludeId?: string) {
+    const root = slugify(base);
+    let candidate = root;
+    let n = 2;
+    while (true) {
+      const clash = await this.prisma.vendor.findFirst({
+        where: {
+          slug: candidate,
+          ...(excludeId ? { id: { not: excludeId } } : {}),
+        },
+        select: { id: true },
+      });
+      if (!clash) return candidate;
+      candidate = `${root}-${n}`;
+      n += 1;
+    }
+  }
+
+  private async backfillMissingSlugs() {
+    const missing = await this.prisma.vendor.findMany({
+      where: { OR: [{ slug: null }, { slug: '' }] },
+      select: { id: true, name: true },
+    });
+    for (const vendor of missing) {
+      const slug = await this.ensureUniqueSlug(vendor.name || vendor.id, vendor.id);
+      await this.prisma.vendor.update({
+        where: { id: vendor.id },
+        data: { slug },
+      });
+    }
   }
 
   findAll(filters: VendorFilters) {
@@ -612,11 +648,14 @@ export class VendorsService implements OnModuleInit {
   }
 
   async findOne(
-    id: string,
+    slugOrId: string,
     viewer?: { ip?: string | null; userAgent?: string },
   ) {
     const vendor = await this.prisma.vendor.findFirst({
-      where: { id, status: 'APPROVED' },
+      where: {
+        status: 'APPROVED',
+        OR: [{ slug: slugOrId }, { id: slugOrId }],
+      },
       include: vendorDetailInclude,
     });
 
@@ -745,10 +784,15 @@ export class VendorsService implements OnModuleInit {
         });
       }
 
+      const slug =
+        existing.slug ||
+        (await this.ensureUniqueSlug(baseData.name, existing.id));
+
       return this.prisma.vendor.update({
         where: { userId },
         data: {
           ...baseData,
+          slug,
           ...(data.photoUrls
             ? {
                 photos: {
@@ -813,6 +857,7 @@ export class VendorsService implements OnModuleInit {
       data: {
         userId,
         ...baseData,
+        slug: await this.ensureUniqueSlug(baseData.name),
         status: 'PENDING',
         photos: data.photoUrls?.length
           ? {

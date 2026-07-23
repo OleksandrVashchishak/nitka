@@ -15,6 +15,7 @@ import { BudgetModule } from './budget/budget.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { ContentModule } from './content/content.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UploadsModule } from './uploads/uploads.module';
     ReviewsModule,
     NotificationsModule,
     UploadsModule,
+    ContentModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],

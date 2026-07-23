@@ -164,7 +164,9 @@ export function updateTask(taskId: string, completed: boolean) {
 }
 
 export function getFavorites() {
-  return apiFetch<FavoriteItem[]>("/api/favorites");
+  return apiFetch<FavoriteItem[] | null>("/api/favorites", { silent: true }).then(
+    (items) => items ?? [],
+  );
 }
 
 export function addFavorite(vendorId: string) {

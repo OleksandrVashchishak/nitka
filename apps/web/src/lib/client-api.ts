@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/lib/auth-store";
+import { refreshRequest } from "@/lib/auth-api";
 import { toast } from "@/lib/toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -12,6 +13,8 @@ export type ApiFetchOptions = RequestInit & {
   silent?: boolean;
   /** Toast після успішної відповіді */
   successToast?: string;
+  /** Внутрішній прапорець — не ретраїти 401 повторно */
+  _retried?: boolean;
 };
 
 async function readBody(res: Response): Promise<string> {
@@ -30,11 +33,32 @@ async function parseError(res: Response, raw: string) {
   return "Щось пішло не так";
 }
 
+async function tryRefreshAccessToken() {
+  const { refreshToken } = useAuthStore.getState();
+  if (!refreshToken) return null;
+  try {
+    const data = await refreshRequest(refreshToken);
+    useAuthStore.setState({
+      user: data.user,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+    return data.accessToken;
+  } catch {
+    useAuthStore.setState({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+    });
+    return null;
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   options: ApiFetchOptions = {},
 ): Promise<T> {
-  const { silent, successToast, ...init } = options;
+  const { silent, successToast, _retried, ...init } = options;
   const token = useAuthStore.getState().accessToken;
   const headers = new Headers(init.headers);
   const isFormData =
@@ -61,10 +85,28 @@ export async function apiFetch<T>(
     throw new Error(message);
   }
 
+  if (res.status === 401 && !_retried) {
+    const nextToken = await tryRefreshAccessToken();
+    if (nextToken) {
+      return apiFetch<T>(path, { ...options, _retried: true });
+    }
+  }
+
   const raw = await readBody(res);
 
   if (!res.ok) {
     const message = await parseError(res, raw);
+    if (res.status === 401) {
+      useAuthStore.setState({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+      });
+      // Background probes (favorites, notifications) — не валимо сторінку
+      if (silent) {
+        return null as T;
+      }
+    }
     if (!silent && isMutation) toast.error(message);
     throw new Error(message);
   }

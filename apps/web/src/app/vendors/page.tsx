@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { VendorGrid } from "@/components/vendor-grid";
 import { CatalogFilters } from "@/components/catalog-filters";
@@ -6,6 +7,7 @@ import {
   getVendorFilters,
   getVendors,
 } from "@/lib/api";
+import { noIndexRobots } from "@/lib/site";
 
 type Props = {
   searchParams: Promise<{
@@ -18,6 +20,56 @@ type Props = {
     sort?: string;
   }>;
 };
+
+function hasActiveFilters(params: Awaited<Props["searchParams"]>) {
+  return Boolean(
+    params.category ||
+      params.city ||
+      params.price ||
+      params.rating ||
+      params.q ||
+      params.style ||
+      (params.sort && params.sort !== "rating"),
+  );
+}
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const params = await searchParams;
+  const filtered = hasActiveFilters(params);
+  const categories = await getCategories();
+  const categoryName = params.category
+    ? categories.find((c) => c.slug === params.category)?.name
+    : undefined;
+
+  const title = params.q
+    ? `Пошук: «${params.q}»`
+    : categoryName
+      ? `${categoryName} — каталог`
+      : filtered
+        ? "Каталог — результати фільтра"
+        : "Каталог підрядників";
+
+  const description = filtered
+    ? "Підібрані весільні підрядники за вашими фільтрами на NITKA."
+    : "Каталог весільних підрядників України: фотографи, локації, музика, декор і beauty. Фільтри за містом, стилем і ціною.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: filtered ? undefined : "/vendors",
+    },
+    robots: filtered ? noIndexRobots : { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      url: "/vendors",
+      type: "website",
+    },
+  };
+}
 
 export default async function VendorsPage({ searchParams }: Props) {
   const params = await searchParams;
@@ -36,15 +88,7 @@ export default async function VendorsPage({ searchParams }: Props) {
     getVendors({ featured: "1", sort: "rating" }),
   ]);
 
-  const hasFilters = Boolean(
-    params.category ||
-      params.city ||
-      params.price ||
-      params.rating ||
-      params.q ||
-      params.style ||
-      (params.sort && params.sort !== "rating"),
-  );
+  const hasFilters = hasActiveFilters(params);
 
   const title = params.q
     ? `Пошук: “${params.q}”`

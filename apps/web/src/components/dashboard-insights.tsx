@@ -14,6 +14,7 @@ import {
   type VendorPipeline,
   type VendorPipelineStage,
 } from "@/lib/dashboard-api";
+import { vendorHref } from "@/lib/vendor-href";
 
 const STAGES: Array<{ value: VendorPipelineStage; label: string }> = [
   { value: "SAVED", label: "Зберегли" },
@@ -416,7 +417,7 @@ export function DashboardInsightsPanel({ city }: Props) {
               >
                 <FavoriteHeartButton vendorId={vendor.id} />
                 <Link
-                  href={`/vendors/${vendor.id}`}
+                  href={vendorHref(vendor)}
                   className="block aspect-[4/3] bg-mist bg-cover bg-center"
                   style={{
                     backgroundImage: vendor.photos[0]?.url

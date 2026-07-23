@@ -74,8 +74,8 @@ export class VendorsController {
     return this.vendorsService.upsertMine(user.id, dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
+  @Get(':slugOrId')
+  findOne(@Param('slugOrId') slugOrId: string, @Req() req: Request) {
     const forwarded = req.headers['x-forwarded-for'];
     const ip =
       (typeof forwarded === 'string'
@@ -84,7 +84,7 @@ export class VendorsController {
       req.ip ||
       req.socket.remoteAddress;
 
-    return this.vendorsService.findOne(id, {
+    return this.vendorsService.findOne(slugOrId, {
       ip,
       userAgent: req.headers['user-agent'],
     });

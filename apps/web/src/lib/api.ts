@@ -49,6 +49,7 @@ export type VendorReview = {
 
 export type Vendor = {
   id: string;
+  slug?: string | null;
   name: string;
   tagline?: string;
   description: string;
@@ -168,9 +169,9 @@ export async function getVendors(
   return res.json();
 }
 
-export async function getVendor(id: string): Promise<Vendor | null> {
+export async function getVendor(slugOrId: string): Promise<Vendor | null> {
   const res = await fetch(
-    `${API_URL}/api/vendors/${id}`,
+    `${API_URL}/api/vendors/${encodeURIComponent(slugOrId)}`,
     fetchCache(0),
   );
   if (!res.ok) return null;

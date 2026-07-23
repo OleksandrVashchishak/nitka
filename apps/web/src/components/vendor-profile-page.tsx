@@ -13,6 +13,7 @@ import { RequireAuth } from "@/components/require-auth";
 import { VendorOnboardingGuide } from "@/components/vendor-onboarding-guide";
 import { PhotoUploader } from "@/components/photo-uploader";
 import Link from "next/link";
+import { vendorHref } from "@/lib/vendor-href";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -67,6 +68,7 @@ function VendorProfileInner() {
   const [faqs, setFaqs] = useState<FaqDraft[]>([]);
   const [team, setTeam] = useState<TeamDraft[]>([]);
   const [vendorId, setVendorId] = useState<string | null>(null);
+  const [vendorSlug, setVendorSlug] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -85,6 +87,7 @@ function VendorProfileInner() {
         setCategories(catsRes);
         if (profile) {
           setVendorId(profile.id);
+          setVendorSlug(profile.slug ?? null);
           setName(profile.name);
           setTagline(profile.tagline ?? "");
           setDescription(profile.description);
@@ -197,6 +200,7 @@ function VendorProfileInner() {
         })),
       });
       setVendorId(saved.id);
+      setVendorSlug(saved.slug ?? null);
       setStatus(saved.status);
       setPhotos(saved.photos.map((p) => p.url));
       setOk(
@@ -252,7 +256,7 @@ function VendorProfileInner() {
           </div>
           {vendorId && status === "APPROVED" ? (
             <Link
-              href={`/vendors/${vendorId}`}
+              href={vendorHref({ id: vendorId, slug: vendorSlug })}
               target="_blank"
               className="rounded-full border border-line bg-white px-4 py-3 text-sm font-semibold text-ink hover:border-sage/40"
             >

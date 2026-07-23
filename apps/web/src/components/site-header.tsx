@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
+import { PRODUCT_NAV } from "@/lib/product-routes";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
@@ -76,7 +77,9 @@ export function SiteHeader() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const toolsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!hydrated || !accessToken || !user) {
@@ -96,13 +99,14 @@ export function SiteHeader() {
 
   useEffect(() => {
     setMenuOpen(false);
+    setToolsOpen(false);
   }, [pathname]);
 
   useEffect(() => {
     function onDocClick(event: MouseEvent) {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
+      const target = event.target as Node;
+      if (!menuRef.current?.contains(target)) setMenuOpen(false);
+      if (!toolsRef.current?.contains(target)) setToolsOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
@@ -113,6 +117,11 @@ export function SiteHeader() {
     user?.role === "VENDOR" ? "/vendor/requests" : "/requests";
   const badgeTotal = summary?.total ?? 0;
   const initial = (user?.name?.trim()?.[0] ?? "N").toUpperCase();
+  const isCouple = user?.role === "COUPLE" || user?.role === "ADMIN";
+
+  const navLinkClass = isHome
+    ? "text-sm font-medium text-white/90 transition hover:text-white"
+    : "text-sm font-medium text-ink-soft transition hover:text-ink";
 
   const iconBtn = isHome
     ? "relative flex size-10 items-center justify-center rounded-full text-white transition hover:bg-white/15"
@@ -138,16 +147,57 @@ export function SiteHeader() {
           >
             NITKA
           </Link>
-          <Link
-            href="/vendors"
-            className={
-              isHome
-                ? "text-sm font-medium text-white/90 transition hover:text-white"
-                : "text-sm font-medium text-ink-soft transition hover:text-ink"
-            }
+          <nav
+            aria-label="Основне меню"
+            className="flex items-center gap-4 sm:gap-5 md:gap-6"
           >
-            Каталог
-          </Link>
+            <Link href="/vendors" className={navLinkClass}>
+              Каталог
+            </Link>
+            <Link href="/content" className={navLinkClass}>
+              Ідеї
+            </Link>
+            <div ref={toolsRef} className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setToolsOpen((open) => !open);
+                  setMenuOpen(false);
+                }}
+                aria-expanded={toolsOpen}
+                aria-haspopup="menu"
+                className={`${navLinkClass} inline-flex items-center gap-1`}
+              >
+                Інструменти
+                <span
+                  className={`text-[10px] transition ${toolsOpen ? "rotate-180" : ""}`}
+                  aria-hidden
+                >
+                  ▾
+                </span>
+              </button>
+              {toolsOpen ? (
+                <div
+                  role="menu"
+                  className="absolute left-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-white py-2 shadow-xl"
+                >
+                  {PRODUCT_NAV.map((item) => {
+                    const href = isCouple ? item.coupleHref : item.guestHref;
+                    return (
+                      <Link
+                        key={item.id}
+                        href={href}
+                        role="menuitem"
+                        className="block px-4 py-2.5 text-sm text-ink transition hover:bg-mist"
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          </nav>
         </div>
 
         <nav className="flex items-center gap-2 sm:gap-3">
@@ -255,8 +305,8 @@ export function SiteHeader() {
                 href="/register"
                 className={
                   isHome
-                    ? "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 sm:inline-flex"
-                    : "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-ink transition hover:bg-mist sm:inline-flex"
+                    ? "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 lg:inline-flex"
+                    : "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-ink transition hover:bg-mist lg:inline-flex"
                 }
               >
                 <PeopleIcon className="size-4" />

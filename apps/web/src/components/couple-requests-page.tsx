@@ -11,6 +11,7 @@ import {
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
 import { RequestThread } from "@/components/request-thread";
+import { vendorHref } from "@/lib/vendor-href";
 
 const STATUS_LABEL: Record<CoupleRequest["status"], string> = {
   NEW: "Очікує відповіді",
@@ -242,7 +243,7 @@ function RequestsInner() {
               />
 
               <Link
-                href={`/vendors/${item.vendor.id}`}
+                href={vendorHref(item.vendor)}
                 className="mt-5 inline-flex text-sm font-medium text-sage-deep underline-offset-4 hover:underline"
               >
                 Профіль підрядника

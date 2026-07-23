@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
+const usePolling =
+  process.env.WATCHPACK_POLLING === "true" ||
+  process.env.CHOKIDAR_USEPOLLING === "true";
 
 const nextConfig: NextConfig = {
   // Локально не тримаємо fetch/data cache між реквестами
@@ -14,6 +17,18 @@ const nextConfig: NextConfig = {
         },
       }
     : {}),
+  // Windows + Docker bind mounts: webpack polling, щоб HMR бачив сейви без restart
+  webpack: (config, { dev }) => {
+    if (dev && usePolling) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: Number(process.env.WATCHPACK_POLL_INTERVAL || 1000),
+        aggregateTimeout: 300,
+        ignored: /node_modules/,
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

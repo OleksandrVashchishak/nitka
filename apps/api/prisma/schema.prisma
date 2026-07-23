@@ -67,6 +67,7 @@ model User {
   requests        Request[]
   requestMessages RequestMessage[]
   externalVendors ExternalVendor[]
+  contentPosts    ContentPost[]
 
   @@map("users")
 }
@@ -87,6 +88,7 @@ model Vendor {
   id               String       @id @default(cuid())
   userId           String       @unique @map("user_id")
   name             String
+  slug             String?      @unique
   tagline          String       @default("")
   description      String       @default("")
   categoryId       String       @map("category_id")
@@ -359,4 +361,59 @@ model BudgetItem {
 
   @@index([weddingId])
   @@map("budget_items")
+}
+
+enum ContentKind {
+  ARTICLE
+  GUIDE
+  LANDING
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model ContentTopic {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String  @default("")
+  icon        String  @default("spark")
+  coverUrl    String? @map("cover_url")
+  sortOrder   Int     @default(0) @map("sort_order")
+
+  posts ContentPost[]
+
+  @@map("content_topics")
+}
+
+model ContentPost {
+  id                  String        @id @default(cuid())
+  title               String
+  slug                String        @unique
+  excerpt             String        @default("")
+  coverUrl            String?       @map("cover_url")
+  kind                ContentKind   @default(ARTICLE)
+  status              ContentStatus @default(DRAFT)
+  body                Json          @default("{}")
+  seoTitle            String        @default("") @map("seo_title")
+  seoDescription      String        @default("") @map("seo_description")
+  ogImageUrl          String?       @map("og_image_url")
+  city                String?
+  vendorCategorySlug  String?       @map("vendor_category_slug")
+  featured            Boolean       @default(false)
+  topicId             String        @map("topic_id")
+  authorId            String?       @map("author_id")
+  publishedAt         DateTime?     @map("published_at")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  topic  ContentTopic @relation(fields: [topicId], references: [id])
+  author User?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([topicId, status])
+  @@map("content_posts")
 }

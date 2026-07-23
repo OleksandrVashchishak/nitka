@@ -19,5 +19,7 @@ export type NotificationsSummary = {
 };
 
 export function getNotificationsSummary() {
-  return apiFetch<NotificationsSummary>("/api/notifications/summary");
+  return apiFetch<NotificationsSummary | null>("/api/notifications/summary", {
+    silent: true,
+  });
 }

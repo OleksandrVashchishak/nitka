@@ -10,9 +10,11 @@ import {
 import { useAuthStore } from "@/lib/auth-store";
 
 const COUPLE_LINKS = [
-  { href: "/dashboard", label: "Моє весілля" },
-  { href: "/guests", label: "Гості", badgeKeys: ["newRsvp", "pendingRsvp"] },
+  { href: "/dashboard", label: "План весілля" },
   { href: "/budget", label: "Бюджет" },
+  { href: "/guests", label: "Гості", badgeKeys: ["newRsvp", "pendingRsvp"] },
+  { href: "/invitations", label: "Запрошення" },
+  { href: "/website", label: "Сайт" },
   { href: "/favorites", label: "Обране" },
   {
     href: "/requests",
@@ -64,7 +66,8 @@ export function DashboardNav({ variant }: Props) {
         className="flex max-w-full gap-1 overflow-x-auto rounded-2xl bg-mist p-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {links.map((link) => {
-          const active = pathname === link.href;
+          const active =
+            pathname === link.href || pathname.startsWith(`${link.href}/`);
           const badge = badgeFor(
             "badgeKeys" in link ? link.badgeKeys : undefined,
           );

@@ -4,11 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
+    "dev:docker": "next dev --hostname 0.0.0.0 --webpack",
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "next lint"
   },
   "dependencies": {
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/editorjs": "^2.31.6",
+    "@editorjs/embed": "^2.7.7",
+    "@editorjs/header": "^2.8.9",
+    "@editorjs/image": "^2.10.3",
+    "@editorjs/list": "^2.0.9",
+    "@editorjs/paragraph": "^3.0.0",
+    "@editorjs/quote": "^2.7.6",
     "@tanstack/react-query": "^5.101.3",
     "next": "^16.2.10",
     "react": "^19.0.0",
