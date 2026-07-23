@@ -1,10 +1,15 @@
 import { apiFetch } from "@/lib/client-api";
 import type { Category, Vendor } from "@/lib/api";
 
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
 export type WeddingTask = {
   id: string;
   title: string;
-  completed: boolean;
+  status: TaskStatus;
+  dueDate: string | null;
+  sortOrder: number;
+  isCustom: boolean;
   categorySlug?: string | null;
 };
 
@@ -59,6 +64,19 @@ export type VendorPipeline = {
 
 export type DashboardInsights = {
   city: string;
+  plan: {
+    done: number;
+    total: number;
+    progress: number;
+    inProgress: number;
+  };
+  rsvp: {
+    total: number;
+    yes: number;
+    no: number;
+    maybe: number;
+    pending: number;
+  };
   market: {
     average: number;
     vendorsCount: number;
@@ -156,10 +174,37 @@ export function upsertWedding(input: {
   });
 }
 
-export function updateTask(taskId: string, completed: boolean) {
+export function updateTask(
+  taskId: string,
+  input: {
+    status?: TaskStatus;
+    dueDate?: string | null;
+    title?: string;
+  },
+) {
   return apiFetch<WeddingTask>(`/api/weddings/tasks/${taskId}`, {
     method: "PATCH",
-    body: JSON.stringify({ completed }),
+    body: JSON.stringify(input),
+  });
+}
+
+export function createTask(input: {
+  title: string;
+  categorySlug?: string;
+  dueDate?: string;
+  sortOrder?: number;
+}) {
+  return apiFetch<WeddingTask>("/api/weddings/tasks", {
+    method: "POST",
+    body: JSON.stringify(input),
+    successToast: "Задачу додано",
+  });
+}
+
+export function deleteTask(taskId: string) {
+  return apiFetch<{ ok: boolean }>(`/api/weddings/tasks/${taskId}`, {
+    method: "DELETE",
+    successToast: "Задачу видалено",
   });
 }
 

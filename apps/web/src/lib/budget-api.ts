@@ -42,12 +42,21 @@ export type BudgetResponse = {
 
 export const BUDGET_CATEGORIES = [
   { value: "venue", label: "Локація" },
+  { value: "catering", label: "Кейтеринг / банкет" },
   { value: "photo", label: "Фото" },
-  { value: "music", label: "Музика" },
-  { value: "decor", label: "Декор" },
+  { value: "video", label: "Відео" },
+  { value: "music", label: "Музика / DJ" },
+  { value: "host", label: "Ведучий" },
+  { value: "decor", label: "Декор і квіти" },
+  { value: "cake", label: "Торт" },
   { value: "beauty", label: "Beauty" },
   { value: "attire", label: "Одяг" },
   { value: "rings", label: "Обручки" },
+  { value: "transport", label: "Транспорт" },
+  { value: "docs", label: "РАЦС / документи" },
+  { value: "gifts", label: "Подарунки" },
+  { value: "honeymoon", label: "Медовий місяць" },
+  { value: "reserve", label: "Резерв" },
   { value: "other", label: "Інше" },
 ] as const;
 

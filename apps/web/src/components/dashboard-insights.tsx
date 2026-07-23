@@ -142,12 +142,18 @@ export function DashboardInsightsPanel({ city }: Props) {
   if (loading) {
     return (
       <div className="mt-6 rounded-2xl border border-line bg-white p-6 text-sm text-ink-soft">
-        Рахуємо ціни й підбираємо підрядників...
+        Збираємо прогрес плану, бюджет і RSVP…
       </div>
     );
   }
 
   if (!insights) return null;
+
+  const showMarket = insights.market.vendorsCount > 0;
+  const budgetOver =
+    insights.budget.actual > insights.budget.total
+      ? insights.budget.actual - insights.budget.total
+      : 0;
 
   return (
     <section className="mt-6 space-y-6">
@@ -160,39 +166,43 @@ export function DashboardInsightsPanel({ city }: Props) {
       <div className="grid gap-4 lg:grid-cols-3">
         <article className="rounded-2xl border border-line bg-white p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
-            Ринок · {insights.city}
+            Прогрес плану
           </p>
           <p className="mt-3 font-[family-name:var(--font-display)] text-3xl text-ink">
-            {insights.market.average
-              ? `${money(insights.market.average)} грн`
-              : "Ще мало даних"}
+            {insights.plan.progress}%
           </p>
           <p className="mt-1 text-sm text-ink-soft">
-            Середній чек підрядника · {insights.market.vendorsCount} профілів
+            {insights.plan.done} з {insights.plan.total} готово
+            {insights.plan.inProgress
+              ? ` · ${insights.plan.inProgress} у процесі`
+              : ""}
           </p>
-          <div className="mt-4 space-y-2">
-            {insights.market.categories.slice(0, 3).map((item) => (
-              <div
-                key={item.category}
-                className="flex items-center justify-between gap-3 text-sm"
-              >
-                <span className="text-ink-soft">{item.label}</span>
-                <span className="font-medium text-ink">
-                  {money(item.average)} грн
-                </span>
-              </div>
-            ))}
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-mist">
+            <div
+              className="h-full rounded-full bg-sage"
+              style={{ width: `${insights.plan.progress}%` }}
+            />
           </div>
+          <Link
+            href="#wedding-plan"
+            className="mt-4 inline-flex text-sm font-semibold text-sage-deep underline underline-offset-4"
+          >
+            Відкрити чекліст →
+          </Link>
         </article>
 
         <article className="rounded-2xl border border-line bg-sage-deep p-5 text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
-            Калькуляція бюджету
+            Бюджет
           </p>
           <p className="mt-3 font-[family-name:var(--font-display)] text-3xl">
-            {money(insights.budget.remaining)} грн
+            {budgetOver > 0
+              ? `−${money(budgetOver)} грн`
+              : `${money(insights.budget.remaining)} грн`}
           </p>
-          <p className="mt-1 text-sm text-white/70">залишилось із плану</p>
+          <p className="mt-1 text-sm text-white/70">
+            {budgetOver > 0 ? "перевищення плану" : "залишилось із плану"}
+          </p>
           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-white/10 p-3">
               <p className="text-white/60">На гостя</p>
@@ -216,10 +226,72 @@ export function DashboardInsightsPanel({ city }: Props) {
         </article>
 
         <article className="rounded-2xl border border-line bg-mist p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
+            RSVP гостей
+          </p>
+          <p className="mt-3 font-[family-name:var(--font-display)] text-3xl text-ink">
+            {insights.rsvp.pending}
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            ще не відповіли з {insights.rsvp.total || "0"}
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
+            <div className="rounded-xl bg-white px-2 py-2">
+              <p className="font-semibold text-ink">{insights.rsvp.yes}</p>
+              <p className="text-[10px] text-ink-soft">Так</p>
+            </div>
+            <div className="rounded-xl bg-white px-2 py-2">
+              <p className="font-semibold text-ink">{insights.rsvp.maybe}</p>
+              <p className="text-[10px] text-ink-soft">Можливо</p>
+            </div>
+            <div className="rounded-xl bg-white px-2 py-2">
+              <p className="font-semibold text-ink">{insights.rsvp.no}</p>
+              <p className="text-[10px] text-ink-soft">Ні</p>
+            </div>
+          </div>
+          <Link
+            href="/guests"
+            className="mt-4 inline-flex text-sm font-semibold text-sage-deep underline underline-offset-4"
+          >
+            Список гостей →
+          </Link>
+        </article>
+      </div>
+
+      {showMarket ? (
+        <article className="rounded-2xl border border-line bg-white p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
+            Ринок · {insights.city}
+          </p>
+          <p className="mt-3 font-[family-name:var(--font-display)] text-3xl text-ink">
+            {insights.market.average
+              ? `${money(insights.market.average)} грн`
+              : "Ще мало даних"}
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            Середній чек підрядника · {insights.market.vendorsCount} профілів
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            {insights.market.categories.slice(0, 3).map((item) => (
+              <div
+                key={item.category}
+                className="flex items-center justify-between gap-3 rounded-xl bg-mist px-3 py-2 text-sm"
+              >
+                <span className="text-ink-soft">{item.label}</span>
+                <span className="font-medium text-ink">
+                  {money(item.average)} грн
+                </span>
+              </div>
+            ))}
+          </div>
+        </article>
+      ) : null}
+
+      <article className="rounded-2xl border border-line bg-white p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                Підрядники
+                Підрядники (опційно)
               </p>
               <p className="mt-3 font-[family-name:var(--font-display)] text-3xl text-ink">
                 {insights.pipeline.total}
@@ -238,7 +310,7 @@ export function DashboardInsightsPanel({ city }: Props) {
             {STAGES.map((stage) => (
               <div
                 key={stage.value}
-                className="min-w-0 flex-1 rounded-lg bg-white px-1 py-2 text-center"
+                className="min-w-0 flex-1 rounded-lg bg-mist px-1 py-2 text-center"
                 title={stage.label}
               >
                 <p className="text-sm font-semibold text-ink">
@@ -251,7 +323,6 @@ export function DashboardInsightsPanel({ city }: Props) {
             ))}
           </div>
         </article>
-      </div>
 
       {showManual ? (
         <form

@@ -15,6 +15,7 @@ import {
 } from "@/lib/guests-api";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
+import { toast } from "@/lib/toast";
 
 const STATUS_LABEL: Record<RsvpStatus, string> = {
   PENDING: "Очікує",
@@ -62,6 +63,16 @@ function GuestsInner() {
   const [saving, setSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [needWedding, setNeedWedding] = useState(false);
+  const [justCreated, setJustCreated] = useState<Guest | null>(null);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  function guestRsvpUrl(guest: Guest) {
+    return `${origin}/rsvp/${guest.inviteToken}`;
+  }
 
   async function load() {
     setLoading(true);
@@ -93,6 +104,7 @@ function GuestsInner() {
 
   function startEdit(guest: Guest) {
     setEditingId(guest.id);
+    setJustCreated(null);
     setForm({
       name: guest.name,
       email: guest.email ?? "",
@@ -111,6 +123,36 @@ function GuestsInner() {
   function resetForm() {
     setEditingId(null);
     setForm(emptyForm);
+  }
+
+  async function copyLink(guest: Guest) {
+    const url = guestRsvpUrl(guest);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(guest.id);
+      toast.success("Скопійовано", "RSVP-посилання в буфері");
+      setTimeout(() => setCopiedId(null), 2500);
+    } catch {
+      setError("Не вдалось скопіювати лінк");
+    }
+  }
+
+  async function shareLink(guest: Guest) {
+    const url = guestRsvpUrl(guest);
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: `RSVP · ${guest.name}`,
+          text: "Підтверди участь у весіллі",
+          url,
+        });
+        toast.success("Поділились", `Лінк для ${guest.name}`);
+        return;
+      } catch {
+        // cancelled — fall through
+      }
+    }
+    await copyLink(guest);
   }
 
   async function onSubmit(e: FormEvent) {
@@ -134,8 +176,12 @@ function GuestsInner() {
 
       if (editingId) {
         await updateGuest(editingId, payload);
+        setJustCreated(null);
+        toast.success("Оновлено", form.name);
       } else {
-        await createGuest(payload);
+        const created = await createGuest(payload);
+        setJustCreated(created);
+        toast.success("Гостя додано", "Поділись RSVP-лінком нижче");
       }
       resetForm();
       await load();
@@ -151,6 +197,7 @@ function GuestsInner() {
     try {
       await deleteGuest(id);
       if (editingId === id) resetForm();
+      if (justCreated?.id === id) setJustCreated(null);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не видалено");
@@ -163,17 +210,6 @@ function GuestsInner() {
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не оновлено");
-    }
-  }
-
-  async function copyLink(guest: Guest) {
-    const url = `${window.location.origin}/rsvp/${guest.inviteToken}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopiedId(guest.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      setError("Не вдалось скопіювати лінк");
     }
   }
 
@@ -213,8 +249,8 @@ function GuestsInner() {
         Гості & RSVP
       </h1>
       <p className="mt-2 max-w-2xl text-ink-soft">
-        Веди список, став статуси, стіл і алергії. Кожному гостю можна дати
-        персональне RSVP-посилання.
+        Додай гостя → скопіюй або шарь персональне посилання в Telegram /
+        WhatsApp. Відповідь зʼявиться тут автоматично.
       </p>
 
       {error ? (
@@ -226,23 +262,82 @@ function GuestsInner() {
       {stats ? (
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {[
-            { label: "Усього", value: stats.total },
-            { label: "Йдуть", value: stats.yes },
-            { label: "Можливо", value: stats.maybe },
-            { label: "Не йдуть", value: stats.no },
-            { label: "Очікують", value: stats.pending },
-            { label: "Headcount", value: stats.headcount },
+            { label: "Усього", value: stats.total, highlight: false },
+            { label: "Йдуть", value: stats.yes, highlight: false },
+            { label: "Можливо", value: stats.maybe, highlight: false },
+            { label: "Не йдуть", value: stats.no, highlight: false },
+            {
+              label: "Ще не відповіли",
+              value: stats.pending,
+              highlight: true,
+            },
+            { label: "Headcount", value: stats.headcount, highlight: false },
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-line bg-mist px-4 py-4"
+              className={
+                item.highlight
+                  ? "rounded-2xl border border-sage/40 bg-sage-deep px-4 py-4 text-white"
+                  : "rounded-2xl border border-line bg-mist px-4 py-4"
+              }
             >
-              <p className="text-xs text-ink-soft">{item.label}</p>
-              <p className="mt-1 font-[family-name:var(--font-display)] text-3xl text-ink">
+              <p
+                className={
+                  item.highlight
+                    ? "text-xs text-white/70"
+                    : "text-xs text-ink-soft"
+                }
+              >
+                {item.label}
+              </p>
+              <p
+                className={
+                  item.highlight
+                    ? "mt-1 font-[family-name:var(--font-display)] text-3xl"
+                    : "mt-1 font-[family-name:var(--font-display)] text-3xl text-ink"
+                }
+              >
                 {item.value}
               </p>
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {justCreated && origin ? (
+        <div className="mt-6 rounded-2xl border border-sage/40 bg-sage/10 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
+            Посилання для гостя
+          </p>
+          <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl text-ink">
+            {justCreated.name}
+          </h2>
+          <p className="mt-1 break-all rounded-xl bg-white px-3 py-2 text-sm text-ink-soft">
+            {guestRsvpUrl(justCreated)}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void shareLink(justCreated)}
+              className="rounded-full bg-sage px-4 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep"
+            >
+              Поділитись
+            </button>
+            <button
+              type="button"
+              onClick={() => void copyLink(justCreated)}
+              className="rounded-full border border-sage px-4 py-2.5 text-sm font-semibold text-sage-deep hover:bg-white"
+            >
+              {copiedId === justCreated.id ? "Скопійовано" : "Копіювати лінк"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setJustCreated(null)}
+              className="rounded-full border border-line px-4 py-2.5 text-sm text-ink-soft"
+            >
+              Закрити
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -403,7 +498,11 @@ function GuestsInner() {
                 : "rounded-full border border-line bg-white px-4 py-2 text-sm text-ink-soft hover:border-sage/40"
             }
           >
-            {item === "ALL" ? "Усі" : STATUS_LABEL[item]}
+            {item === "ALL"
+              ? "Усі"
+              : item === "PENDING"
+                ? `Ще не відповіли${stats ? ` (${stats.pending})` : ""}`
+                : STATUS_LABEL[item]}
           </button>
         ))}
       </div>
@@ -444,6 +543,17 @@ function GuestsInner() {
                 </span>
               </div>
 
+              {origin ? (
+                <div className="mt-3 rounded-xl bg-mist px-3 py-2">
+                  <p className="text-xs font-medium text-ink-soft">
+                    Посилання для гостя
+                  </p>
+                  <p className="mt-1 break-all text-xs text-ink">
+                    {guestRsvpUrl(guest)}
+                  </p>
+                </div>
+              ) : null}
+
               <div className="mt-4 flex flex-wrap gap-2">
                 {(["YES", "MAYBE", "NO", "PENDING"] as const).map((status) => (
                   <button
@@ -457,10 +567,17 @@ function GuestsInner() {
                 ))}
                 <button
                   type="button"
-                  onClick={() => void copyLink(guest)}
+                  onClick={() => void shareLink(guest)}
                   className="rounded-full bg-sage px-3 py-1.5 text-xs font-medium text-white hover:bg-sage-deep"
                 >
-                  {copiedId === guest.id ? "Скопійовано" : "RSVP лінк"}
+                  Поділитись
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void copyLink(guest)}
+                  className="rounded-full border border-sage px-3 py-1.5 text-xs font-medium text-sage-deep hover:bg-mist"
+                >
+                  {copiedId === guest.id ? "Скопійовано" : "Копіювати"}
                 </button>
                 <button
                   type="button"

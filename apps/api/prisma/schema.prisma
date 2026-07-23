@@ -310,15 +310,25 @@ model Wedding {
   @@map("weddings")
 }
 
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
 model Task {
-  id           String  @id @default(cuid())
-  weddingId    String  @map("wedding_id")
+  id           String     @id @default(cuid())
+  weddingId    String     @map("wedding_id")
   title        String
-  categorySlug String? @map("category_slug")
-  completed    Boolean @default(false)
+  categorySlug String?    @map("category_slug")
+  status       TaskStatus @default(TODO)
+  dueDate      DateTime?  @map("due_date")
+  sortOrder    Int        @default(0) @map("sort_order")
+  isCustom     Boolean    @default(false) @map("is_custom")
 
   wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 
+  @@index([weddingId, sortOrder])
   @@map("tasks")
 }
 

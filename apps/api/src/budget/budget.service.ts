@@ -14,14 +14,22 @@ const DEFAULT_ITEMS: Array<{
   title: string;
   share: number;
 }> = [
-  { category: 'venue', title: 'Локація / банкет', share: 0.35 },
-  { category: 'photo', title: 'Фотограф', share: 0.12 },
-  { category: 'music', title: 'Музика / DJ', share: 0.08 },
-  { category: 'decor', title: 'Декор і квіти', share: 0.1 },
-  { category: 'beauty', title: 'Beauty', share: 0.05 },
-  { category: 'attire', title: 'Одяг', share: 0.12 },
-  { category: 'rings', title: 'Обручки', share: 0.08 },
-  { category: 'other', title: 'Інше / резерв', share: 0.1 },
+  { category: 'venue', title: 'Локація / оренда', share: 0.18 },
+  { category: 'catering', title: 'Кейтеринг / банкет', share: 0.28 },
+  { category: 'photo', title: 'Фото', share: 0.07 },
+  { category: 'video', title: 'Відео', share: 0.05 },
+  { category: 'music', title: 'Музика / DJ', share: 0.05 },
+  { category: 'host', title: 'Ведучий', share: 0.04 },
+  { category: 'decor', title: 'Декор і квіти', share: 0.08 },
+  { category: 'cake', title: 'Торт', share: 0.03 },
+  { category: 'beauty', title: 'Beauty', share: 0.03 },
+  { category: 'attire', title: 'Одяг пари', share: 0.07 },
+  { category: 'rings', title: 'Обручки', share: 0.03 },
+  { category: 'transport', title: 'Транспорт', share: 0.02 },
+  { category: 'docs', title: 'РАЦС / документи', share: 0.01 },
+  { category: 'gifts', title: 'Подарунки близьким', share: 0.02 },
+  { category: 'honeymoon', title: 'Медовий місяць', share: 0.02 },
+  { category: 'reserve', title: 'Резерв', share: 0.02 },
 ];
 
 @Injectable()

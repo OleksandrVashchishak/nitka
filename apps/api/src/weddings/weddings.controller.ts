@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Res,
   UseGuards,
@@ -13,6 +15,7 @@ import type { Response } from 'express';
 import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import { WeddingsService } from './weddings.service';
@@ -46,12 +49,25 @@ export class WeddingsController {
     return this.weddingsService.getInsights(user.id);
   }
 
+  @Post('tasks')
+  createTask(@CurrentUser() user: AuthUser, @Body() dto: CreateTaskDto) {
+    return this.weddingsService.createTask(user.id, dto);
+  }
+
   @Patch('tasks/:taskId')
   updateTask(
     @CurrentUser() user: AuthUser,
     @Param('taskId') taskId: string,
     @Body() dto: UpdateTaskDto,
   ) {
-    return this.weddingsService.toggleTask(user.id, taskId, dto.completed);
+    return this.weddingsService.updateTask(user.id, taskId, dto);
+  }
+
+  @Delete('tasks/:taskId')
+  deleteTask(
+    @CurrentUser() user: AuthUser,
+    @Param('taskId') taskId: string,
+  ) {
+    return this.weddingsService.deleteTask(user.id, taskId);
   }
 }

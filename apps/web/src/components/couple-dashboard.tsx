@@ -4,9 +4,12 @@ import { PageLoader } from "@/components/ui-loader";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  createTask,
+  deleteTask,
   getMyWedding,
   updateTask,
   upsertWedding,
+  type TaskStatus,
   type Wedding,
 } from "@/lib/dashboard-api";
 import { CoupleProfileCard } from "@/components/couple-profile-card";
@@ -111,16 +114,17 @@ function CoupleDashboardInner() {
     setDate(next);
   }
 
-  async function onToggleTask(taskId: string, completed: boolean) {
+  async function onUpdateTask(
+    taskId: string,
+    input: { status?: TaskStatus; dueDate?: string | null; title?: string },
+  ) {
     try {
-      const updated = await updateTask(taskId, completed);
+      const updated = await updateTask(taskId, input);
       setWedding((prev) =>
         prev
           ? {
               ...prev,
-              tasks: prev.tasks.map((t) =>
-                t.id === taskId ? { ...t, completed: updated.completed } : t,
-              ),
+              tasks: prev.tasks.map((t) => (t.id === taskId ? updated : t)),
             }
           : prev,
       );
@@ -129,12 +133,32 @@ function CoupleDashboardInner() {
     }
   }
 
+  async function onCreateTask(input: {
+    title: string;
+    categorySlug?: string;
+    dueDate?: string;
+  }) {
+    const created = await createTask(input);
+    setWedding((prev) =>
+      prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
+    );
+  }
+
+  async function onDeleteTask(taskId: string) {
+    await deleteTask(taskId);
+    setWedding((prev) =>
+      prev
+        ? { ...prev, tasks: prev.tasks.filter((t) => t.id !== taskId) }
+        : prev,
+    );
+  }
+
   if (loading) {
     return <PageLoader label="Завантажуємо кабінет…" />;
   }
 
   const left = wedding ? daysUntil(wedding.date) : daysUntil(date);
-  const done = wedding?.tasks.filter((t) => t.completed).length ?? 0;
+  const done = wedding?.tasks.filter((t) => t.status === "DONE").length ?? 0;
   const total = wedding?.tasks.length ?? 0;
   const fallbackNames = (user?.name ?? "")
     .split(/\s+(?:і|&|\+)\s+/i)
@@ -142,7 +166,7 @@ function CoupleDashboardInner() {
   const partnerOneName =
     wedding?.partnerOneName || fallbackNames[0] || user?.name || "";
   const partnerTwoName = wedding?.partnerTwoName || fallbackNames[1] || "";
-  const nextTask = wedding?.tasks.find((task) => !task.completed);
+  const nextTask = wedding?.tasks.find((task) => task.status !== "DONE");
   const nextMeta = PLAN_ITEMS.find(
     (item) => item.key === nextTask?.categorySlug,
   );
@@ -235,16 +259,16 @@ function CoupleDashboardInner() {
                 hint: "Список та RSVP",
               },
               {
-                href: `/vendors?city=${encodeURIComponent(wedding.city)}`,
-                icon: "✨",
-                title: "Знайти підрядника",
-                hint: `Рекомендації · ${wedding.city}`,
+                href: "/budget",
+                icon: "₴",
+                title: "Перевірити бюджет",
+                hint: "Категорії й витрати",
               },
               {
-                href: "/favorites",
-                icon: "♥",
-                title: "Порівняти обране",
-                hint: "Етапи вибору підрядників",
+                href: "#wedding-plan",
+                icon: "📅",
+                title: "Відкрити чекліст",
+                hint: "Дати та статуси",
               },
             ].map((action) => (
               <Link
@@ -318,7 +342,9 @@ function CoupleDashboardInner() {
           onBudgetChange={setBudget}
           onPickDay={onPickDay}
           onSave={onSave}
-          onToggleTask={onToggleTask}
+          onUpdateTask={onUpdateTask}
+          onCreateTask={onCreateTask}
+          onDeleteTask={onDeleteTask}
         />
       </div>
     </>

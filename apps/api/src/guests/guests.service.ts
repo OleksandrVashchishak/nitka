@@ -167,6 +167,8 @@ export class GuestsService {
           select: {
             date: true,
             city: true,
+            partnerOneName: true,
+            partnerTwoName: true,
             user: { select: { name: true } },
           },
         },
@@ -175,6 +177,14 @@ export class GuestsService {
     if (!guest) {
       throw new NotFoundException('Запрошення не знайдено');
     }
+
+    const partners = [guest.wedding.partnerOneName, guest.wedding.partnerTwoName]
+      .map((name) => name.trim())
+      .filter(Boolean);
+    const coupleName =
+      partners.length > 0
+        ? partners.join(' & ')
+        : guest.wedding.user.name;
 
     return {
       token: guest.inviteToken,
@@ -190,7 +200,7 @@ export class GuestsService {
       wedding: {
         date: guest.wedding.date,
         city: guest.wedding.city,
-        coupleName: guest.wedding.user.name,
+        coupleName,
       },
     };
   }
