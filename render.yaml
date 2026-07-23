@@ -13,7 +13,8 @@ services:
     runtime: node
     plan: free
     rootDir: apps/api
-    buildCommand: NODE_OPTIONS=--max-old-space-size=460 npm install --omit=dev --no-audit --no-fund && NODE_OPTIONS=--max-old-space-size=460 npx prisma generate
+    # Без NODE_OPTIONS=460: prisma generate під 460MB зависає/OOM; nest build у репо (dist).
+    buildCommand: npm install --omit=dev --no-audit --no-fund && npx prisma generate
     # Free tier не підтримує preDeployCommand — схема/міграція тільки в start.
     # Dashboard Start Command:
     #   npm run start:prod
