@@ -2,6 +2,9 @@
   "name": "wedding-api",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "postinstall": "node scripts/install-prisma-shim.cjs",
     "build": "prisma generate && nest build",
