@@ -2,24 +2,40 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-function run(cmd, args) {
+function run(cmd, args, { optional = false } = {}) {
   console.log(`[nitka-api] $ ${cmd} ${args.join(' ')}`);
-  const result = spawnSync(cmd, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+  const result = spawnSync(cmd, args, {
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
   if (result.status !== 0) {
+    if (optional) {
+      console.warn(
+        `[nitka-api] optional step failed (exit ${result.status}), continuing…`,
+      );
+      return false;
+    }
     process.exit(result.status ?? 1);
   }
+  return true;
 }
 
-// Ідемпотентна міграція + sync схеми (Render free: тільки в start)
-run('npx', [
-  'prisma',
-  'db',
-  'execute',
-  '--schema',
-  'prisma/schema.prisma',
-  '--file',
-  'prisma/migrate-task-status.sql',
-]);
+// SQL-міграція ідемпотентна, але не блокуємо старт якщо щось пішло не так —
+// prisma db push нижче піджене схему.
+run(
+  'npx',
+  [
+    'prisma',
+    'db',
+    'execute',
+    '--schema',
+    'prisma/schema.prisma',
+    '--file',
+    'prisma/migrate-task-status.sql',
+  ],
+  { optional: true },
+);
+
 run('npx', [
   'prisma',
   'db',

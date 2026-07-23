@@ -6,7 +6,7 @@ export class AppService {
     return {
       status: 'ok',
       service: 'wedding-api',
-      revision: 'slug-migrate-fix',
+      revision: 'start-resilient',
       features: {
         content: true,
         guests: true,
