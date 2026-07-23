@@ -6,7 +6,7 @@ export class AppService {
     return {
       status: 'ok',
       service: 'wedding-api',
-      revision: 'prisma-shim-execute',
+      revision: 'slug-migrate-fix',
       features: {
         content: true,
         guests: true,

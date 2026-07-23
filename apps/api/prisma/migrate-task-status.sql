@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS wedding_invites (
 CREATE UNIQUE INDEX IF NOT EXISTS wedding_invites_token_key ON wedding_invites(token);
 CREATE INDEX IF NOT EXISTS wedding_invites_wedding_id_idx ON wedding_invites(wedding_id);
 
--- Унікальні slug для вендорів перед unique constraint
+-- Slug може ще не існувати до prisma db push — додаємо мʼяко й бекфілимо
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS slug TEXT;
+
 UPDATE vendors
 SET slug = CONCAT('vendor-', id)
 WHERE slug IS NULL OR slug = '';
