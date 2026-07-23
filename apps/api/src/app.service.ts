@@ -6,7 +6,7 @@ export class AppService {
     return {
       status: 'ok',
       service: 'wedding-api',
-      revision: 'fe2f7e2-entrypoint',
+      revision: '95e5882-render-start',
       features: {
         content: true,
         guests: true,
