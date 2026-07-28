@@ -81,3 +81,52 @@ UPDATE vendors v
 SET slug = CONCAT(v.slug, '-', v.id)
 FROM dups
 WHERE v.id = dups.id AND dups.rn > 1;
+
+-- Content CMS tables (idempotent)
+DO $$ BEGIN
+  CREATE TYPE "ContentKind" AS ENUM ('ARTICLE', 'GUIDE', 'LANDING');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE "ContentStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS content_topics (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  icon TEXT NOT NULL DEFAULT 'spark',
+  cover_url TEXT,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS content_topics_slug_key ON content_topics(slug);
+
+CREATE TABLE IF NOT EXISTS content_posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  excerpt TEXT NOT NULL DEFAULT '',
+  cover_url TEXT,
+  kind "ContentKind" NOT NULL DEFAULT 'ARTICLE',
+  status "ContentStatus" NOT NULL DEFAULT 'DRAFT',
+  body JSONB NOT NULL DEFAULT '{}',
+  seo_title TEXT NOT NULL DEFAULT '',
+  seo_description TEXT NOT NULL DEFAULT '',
+  og_image_url TEXT,
+  city TEXT,
+  vendor_category_slug TEXT,
+  featured BOOLEAN NOT NULL DEFAULT false,
+  topic_id TEXT NOT NULL,
+  author_id TEXT,
+  published_at TIMESTAMP(3),
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS content_posts_slug_key ON content_posts(slug);
+CREATE INDEX IF NOT EXISTS content_posts_status_published_at_idx ON content_posts(status, published_at);
+CREATE INDEX IF NOT EXISTS content_posts_topic_id_status_idx ON content_posts(topic_id, status);
