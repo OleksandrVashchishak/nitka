@@ -33,4 +33,21 @@ require(${JSON.stringify(shimAbs)});
 
 installShim('prisma', 'prisma-shim.cjs');
 installShim('nest', 'nest-shim.cjs');
+
+// Also rewrite @nestjs/cli package bin so `npx nest` / direct resolves hit the shim.
+try {
+  const cliPkgPath = path.join(root, 'node_modules', '@nestjs', 'cli', 'package.json');
+  if (fs.existsSync(cliPkgPath)) {
+    const pkg = JSON.parse(fs.readFileSync(cliPkgPath, 'utf8'));
+    const rel = path
+      .relative(path.join(root, 'node_modules', '@nestjs', 'cli'), path.resolve(__dirname, 'nest-shim.cjs'))
+      .replace(/\\/g, '/');
+    pkg.bin = { nest: rel.startsWith('.') ? rel : `./${rel}` };
+    fs.writeFileSync(cliPkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+    console.log('[api-shims] rewrote @nestjs/cli bin → nest-shim');
+  }
+} catch (err) {
+  console.warn('[api-shims] could not rewrite @nestjs/cli bin:', err.message);
+}
+
 console.log('[api-shims] installed prisma + nest');
