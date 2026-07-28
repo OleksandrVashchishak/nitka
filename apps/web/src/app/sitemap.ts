@@ -1,19 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getVendors } from "@/lib/api";
 import {
   contentHref,
   contentTopicHref,
   getContentPosts,
   getContentTopics,
 } from "@/lib/content-api";
-import {
-  WEDDING_CITIES,
-  WEDDING_CITY_CATEGORIES,
-  cityCategoryHref,
-  weddingCityHref,
-} from "@/lib/wedding-cities";
 import { getSiteUrl } from "@/lib/site";
-import { vendorHref } from "@/lib/vendor-href";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -27,22 +19,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${siteUrl}/vendors`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
       url: `${siteUrl}/content`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/vesillya`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
     },
     {
       url: `${siteUrl}/vesilnyy-plan`,
@@ -68,20 +48,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.85,
     },
-    ...WEDDING_CITIES.map((city) => ({
-      url: `${siteUrl}${weddingCityHref(city)}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.86,
-    })),
-    ...WEDDING_CITIES.flatMap((city) =>
-      WEDDING_CITY_CATEGORIES.map((category) => ({
-        url: `${siteUrl}${cityCategoryHref(city, category.slug)}`,
-        lastModified: now,
-        changeFrequency: "weekly" as const,
-        priority: 0.84,
-      })),
-    ),
     {
       url: `${siteUrl}/spysok-gostey`,
       lastModified: now,
@@ -100,26 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.85,
     },
-    {
-      url: `${siteUrl}/moyi-pidryadnyky`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.85,
-    },
   ];
-
-  let vendorRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const vendors = await getVendors({ sort: "newest" });
-    vendorRoutes = vendors.map((vendor) => ({
-      url: `${siteUrl}${vendorHref(vendor)}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    }));
-  } catch {
-    vendorRoutes = [];
-  }
 
   let contentRoutes: MetadataRoute.Sitemap = [];
   try {
@@ -156,5 +103,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     contentRoutes = [];
   }
 
-  return [...staticRoutes, ...vendorRoutes, ...contentRoutes];
+  return [...staticRoutes, ...contentRoutes];
 }

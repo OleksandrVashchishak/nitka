@@ -12,7 +12,7 @@ export function getSiteUrl() {
 export const SITE_NAME = "NITKA";
 
 export const SITE_DESCRIPTION =
-  "Знайдіть ідеальних весільних підрядників: фото, локації, музику, декор і beauty.";
+  "Платформа планування весілля: чекліст, бюджет, гості, розсадка, запрошення та сайт пари.";
 
 /** Metadata для кабінетів / адмінки — не індексувати. */
 export const noIndexRobots = {

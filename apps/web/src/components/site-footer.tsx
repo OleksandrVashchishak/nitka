@@ -4,38 +4,16 @@ const COLUMNS = [
   {
     title: "Пара",
     links: [
-      { href: "/vendors", label: "Каталог підрядників" },
       { href: "/content", label: "Ідеї та поради" },
       { href: "/vesilnyy-plan", label: "План весілля" },
       { href: "/plan-dnya-vesillya", label: "План дня весілля" },
       { href: "/vesilnyy-byudzhet", label: "Бюджет весілля" },
       { href: "/spysok-gostey", label: "Гості та RSVP" },
       { href: "/rozsadka-gostey", label: "Розсадка гостей" },
-      { href: "/moyi-pidryadnyky", label: "Мої підрядники" },
       { href: "/zaprosinnya", label: "Онлайн-запрошення" },
       { href: "/vesilnyy-sayt", label: "Весільний сайт" },
       { href: "/register", label: "Зареєструватись" },
       { href: "/dashboard", label: "Кабінет пари" },
-    ],
-  },
-  {
-    title: "Міста",
-    links: [
-      { href: "/vesillya", label: "Усі міста" },
-      { href: "/vesillya/kyiv", label: "Весілля в Києві" },
-      { href: "/vesillya/lviv", label: "Весілля у Львові" },
-      { href: "/vesillya/odesa", label: "Весілля в Одесі" },
-      { href: "/vesillya/kharkiv", label: "Весілля у Харкові" },
-      { href: "/vesillya/dnipro", label: "Весілля у Дніпрі" },
-    ],
-  },
-  {
-    title: "Підрядник",
-    links: [
-      { href: "/register", label: "Стати підрядником" },
-      { href: "/vendor/dashboard", label: "Кабінет підрядника" },
-      { href: "/vendor/profile", label: "Публічний профіль" },
-      { href: "/vendor/requests", label: "Заявки" },
     ],
   },
   {
@@ -47,7 +25,6 @@ const COLUMNS = [
       { href: "/vesilnyy-byudzhet", label: "Бюджет весілля" },
       { href: "/spysok-gostey", label: "Гості та RSVP" },
       { href: "/rozsadka-gostey", label: "Розсадка гостей" },
-      { href: "/moyi-pidryadnyky", label: "Мої підрядники" },
       { href: "/zaprosinnya", label: "Онлайн-запрошення" },
       { href: "/vesilnyy-sayt", label: "Весільний сайт" },
       { href: "/content", label: "Ідеї та поради" },
@@ -69,19 +46,19 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-mist">
       <div className="mx-auto w-full max-w-6xl px-5 py-14 md:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.2fr_repeat(5,1fr)]">
+        <div className="grid gap-10 md:grid-cols-[1.2fr_repeat(3,1fr)]">
           <div>
             <p className="font-[family-name:var(--font-display)] text-3xl text-ink">
               NITKA
             </p>
             <p className="mt-3 max-w-xs text-sm leading-6 text-ink-soft">
-              Український маркетплейс весільних підрядників і простий план
-              весілля в одному місці.
+              Просте планування весілля українською: задачі, бюджет, гості,
+              розсадка, запрошення й сайт пари.
             </p>
           <p className="mt-5 text-xs text-ink-soft">
             Працюємо онлайн по всій Україні ·{" "}
-            <Link href="/vesillya" className="hover:text-sage-deep">
-              Київ · Львів · Одеса · Харків
+            <Link href="/content" className="hover:text-sage-deep">
+              ідеї, гайди, планування
             </Link>
           </p>
           </div>

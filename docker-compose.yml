@@ -43,7 +43,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "npx prisma db push --accept-data-loss && npm run start:dev"
+    command: sh -c "rm -f tsconfig.build.tsbuildinfo tsconfig.tsbuildinfo && npx prisma db push --accept-data-loss && npm run start:dev"
 
   web:
     build:

@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { CityAutocomplete } from "@/components/city-autocomplete";
 import { LoadingButtonLabel } from "@/components/ui-loader";
 import { useAuthStore } from "@/lib/auth-store";
-import { getHomePath } from "@/lib/routes";
 import { upsertWedding } from "@/lib/dashboard-api";
 import { getErrorMessage, toast } from "@/lib/toast";
 
@@ -44,7 +43,6 @@ const inputClass =
 export function RegisterForm() {
   const router = useRouter();
   const register = useAuthStore((s) => s.register);
-  const [role, setRole] = useState<"COUPLE" | "VENDOR">("COUPLE");
   const [step, setStep] = useState(1);
   const [planningStage, setPlanningStage] =
     useState<PlanningStage>("EXPLORING");
@@ -57,15 +55,8 @@ export function RegisterForm() {
   const [cityUndecided, setCityUndecided] = useState(false);
   const [guests, setGuests] = useState("");
   const [guestsUndecided, setGuestsUndecided] = useState(false);
-  const [vendorName, setVendorName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  function chooseRole(nextRole: "COUPLE" | "VENDOR") {
-    setRole(nextRole);
-    setStep(1);
-    setError(null);
-  }
 
   function nextStep() {
     setError(null);
@@ -122,84 +113,6 @@ export function RegisterForm() {
     }
   }
 
-  async function onVendorSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      await register({
-        name: vendorName.trim(),
-        email: email.trim(),
-        password,
-        role: "VENDOR",
-      });
-      router.push(getHomePath("VENDOR"));
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Не вдалось зареєструватись"));
-      setError(getErrorMessage(err, "Не вдалось зареєструватись"));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const roleSelector = (
-    <div className="mx-auto grid w-full max-w-sm grid-cols-2 rounded-full bg-mist p-1">
-      <button
-        type="button"
-        onClick={() => chooseRole("COUPLE")}
-        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-          role === "COUPLE" ? "bg-white text-ink shadow-sm" : "text-ink-soft"
-        }`}
-      >
-        Для пари
-      </button>
-      <button
-        type="button"
-        onClick={() => chooseRole("VENDOR")}
-        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-          role === "VENDOR" ? "bg-white text-ink shadow-sm" : "text-ink-soft"
-        }`}
-      >
-        Для підрядника
-      </button>
-    </div>
-  );
-
-  if (role === "VENDOR") {
-    return (
-      <div className="mx-auto w-full max-w-md">
-        {roleSelector}
-        <form onSubmit={onVendorSubmit} className="mt-10 space-y-5">
-          <div className="text-center">
-            <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
-              Реєстрація підрядника
-            </h1>
-            <p className="mt-2 text-ink-soft">Створи профіль і покажи свої послуги парам.</p>
-          </div>
-          <Field label="Імʼя або назва">
-            <input
-              required
-              minLength={2}
-              value={vendorName}
-              onChange={(event) => setVendorName(event.target.value)}
-              className={inputClass}
-              placeholder="Студія «Світло»"
-            />
-          </Field>
-          <AccountFields
-            email={email}
-            password={password}
-            setEmail={setEmail}
-            setPassword={setPassword}
-          />
-          <ErrorMessage error={error} />
-          <PrimaryButton loading={loading}>Створити акаунт</PrimaryButton>
-          <LoginLink />
-        </form>
-      </div>
-    );
-  }
-
   return (
     <div className="grid min-h-[700px] overflow-hidden rounded-[2rem] border border-line bg-white shadow-sm lg:grid-cols-[0.82fr_1.18fr]">
       <div className="relative hidden min-h-[700px] lg:block">
@@ -221,7 +134,6 @@ export function RegisterForm() {
       </div>
 
       <form onSubmit={onCoupleSubmit} className="flex min-h-[700px] flex-col px-6 py-8 md:px-14">
-        {roleSelector}
         <div className="mx-auto mt-8 flex w-full max-w-xl items-center gap-2">
           {[1, 2, 3, 4, 5].map((item) => (
             <div key={item} className="flex flex-1 items-center gap-2">
@@ -324,7 +236,7 @@ export function RegisterForm() {
             <>
               <StepHeading
                 title="Де ви святкуватимете?"
-                subtitle="Приблизний варіант теж ок — це допоможе підібрати локальних підрядників."
+                subtitle="Приблизний варіант теж ок — це допоможе точніше спланувати бюджет і день."
               />
               <div className="mt-7">
                 <Field label="Місто або найближчий населений пункт">

@@ -6,11 +6,8 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/admin", label: "Огляд" },
   { href: "/admin/content", label: "Контент" },
-  { href: "/admin/vendors", label: "Підрядники" },
   { href: "/admin/users", label: "Юзери" },
-  { href: "/admin/reviews", label: "Відгуки" },
   { href: "/admin/categories", label: "Категорії" },
-  { href: "/admin/requests", label: "Заявки" },
 ];
 
 export function AdminNav() {

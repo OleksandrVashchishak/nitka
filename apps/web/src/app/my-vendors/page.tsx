@@ -1,5 +1,5 @@
-import { CoupleMyVendorsPage } from "@/components/couple-my-vendors-page";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <CoupleMyVendorsPage />;
+  redirect("/dashboard");
 }

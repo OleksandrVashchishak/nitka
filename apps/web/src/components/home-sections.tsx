@@ -3,26 +3,22 @@ import Image from "next/image";
 import { ContentCard } from "@/components/content-card";
 import type { ContentPost } from "@/lib/content-api";
 import { PRODUCT_NAV } from "@/lib/product-routes";
-import {
-  WEDDING_CITIES,
-  weddingCityHref,
-} from "@/lib/wedding-cities";
 
 const STEPS = [
   {
     n: "01",
-    title: "Знайди",
-    text: "Фільтруй за містом, категорією, стилем і бюджетом — без годин у чатах.",
+    title: "Створи основу",
+    text: "Задай дату, місто й гостей — щоб план зібрався під вашу реальну картину.",
   },
   {
     n: "02",
-    title: "Порівняй",
-    text: "Зберігай в обране й веди підрядників по етапах: від першого лайку до вибору.",
+    title: "Рухай задачі",
+    text: "Чекліст і дедлайни по етапах, щоб не тримати все в голові.",
   },
   {
     n: "03",
-    title: "Обери",
-    text: "Пиши заявки з профілю, дивись відповіді в кабінеті й фіксуй команду.",
+    title: "Контролюй бюджет",
+    text: "План/факт по категоріях і зрозумілий залишок без хаосу в таблицях.",
   },
 ];
 
@@ -32,7 +28,6 @@ const TOOL_BLURBS: Record<(typeof PRODUCT_NAV)[number]["id"], string> = {
   budget: "Кошторис по категоріях і залишок під контролем.",
   guests: "Список гостей і персональні RSVP-посилання.",
   seating: "Схема столів і розсадка зі списку гостей.",
-  vendors: "Команда по категоріях — свої контакти в одному місці.",
   invitations: "Електронні листівки й RSVP без друку й Excel.",
   website: "Програма дня, карта й відповіді гостей в одній лінці.",
 };
@@ -41,32 +36,31 @@ const REVIEWS = [
   {
     name: "Оля і Тарас",
     city: "Львів",
-    text: "За тиждень зібрали фотографа, локацію і декор. Найбільше зайшов пайплайн в обраному — нарешті все в одному місці.",
+    text: "Нарешті маємо єдине місце для задач, бюджету й гостей. Без 15 нотаток і хаосу в чатах.",
   },
   {
     name: "Марина",
     city: "Київ",
-    text: "Можна одразу писати підрядникам і бачити відповіді в кабінеті. Без переписки в трьох месенджерах.",
+    text: "План дня + розсадка сильно рятують. Видно повну картину свята, а не уривки в різних апках.",
   },
   {
-    name: "Ігор, Studio Glow",
-    city: "підрядник",
-    text: "Заявки приходять з нормальним контекстом: місто, дата, гості. Менше «а скільки у вас?» з нуля.",
+    name: "Оксана і Влад",
+    city: "Одеса",
+    text: "Зручно, що RSVP, бюджет і чекліст в одному кабінеті. Підготовка стала спокійнішою.",
   },
 ];
 
-/** SEO-абзац під hero — ключі маркетплейсу без засмічення першого екрана */
+/** SEO-абзац під hero — про інструменти планування без шуму */
 export function HomeSeoIntro() {
   return (
     <section className="border-b border-line bg-paper px-5 py-14 md:px-8 md:py-16">
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink md:text-3xl">
-          Весільний маркетплейс України
+          Планування весілля без хаосу
         </h2>
         <p className="mt-5 text-base leading-8 text-ink-soft md:text-lg">
-          NITKA — онлайн-платформа для пар, які шукають весільних підрядників:
-          фотографів, локації, музику, декор і beauty. Порівнюйте профілі по
-          місту й бюджету, зберігайте в обране, пишіть заявки — і ведіть{" "}
+          NITKA — онлайн-платформа для пар, які хочуть пройти підготовку без
+          стресу: від першої дати до дня весілля. Ведіть{" "}
           <Link
             href="/vesilnyy-plan"
             className="font-medium text-sage-deep underline-offset-2 hover:underline"
@@ -80,75 +74,9 @@ export function HomeSeoIntro() {
           >
             бюджет
           </Link>{" "}
-          та ідеї в одному місці. Шукаєте по місту? Дивіться підбірки{" "}
-          <Link
-            href="/vesillya"
-            className="font-medium text-sage-deep underline-offset-2 hover:underline"
-          >
-            весілля в Києві, Львові, Одесі
-          </Link>
-          .
+          та ідеї в одному місці. Все, що зазвичай губиться по чатах і
+          нотатках, тут складається в одну систему.
         </p>
-      </div>
-    </section>
-  );
-}
-
-export function HomeCities() {
-  const cities = WEDDING_CITIES.slice(0, 6);
-
-  return (
-    <section className="border-t border-line bg-paper px-5 py-24 md:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-deep">
-              Міста
-            </p>
-            <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
-              Весілля у вашому місті
-            </h2>
-            <p className="mt-4 text-ink-soft">
-              Київ, Львів, Одеса та інші — підбірки підрядників і поради саме
-              під географію свята.
-            </p>
-          </div>
-          <Link
-            href="/vesillya"
-            className="text-sm font-semibold text-sage-deep transition hover:underline"
-          >
-            Усі міста →
-          </Link>
-        </div>
-
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cities.map((city) => (
-            <Link
-              key={city.slug}
-              href={weddingCityHref(city)}
-              className="group relative overflow-hidden rounded-[1.35rem] bg-ink"
-            >
-              <div className="relative aspect-[5/3]">
-                <Image
-                  src={city.image}
-                  alt={`Весілля ${city.inCity}`}
-                  fill
-                  className="object-cover opacity-90 transition duration-700 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <p className="font-[family-name:var(--font-display)] text-2xl md:text-3xl">
-                    {city.name}
-                  </p>
-                  <p className="mt-1 text-sm text-white/75">
-                    Весілля {city.inCity} →
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -204,10 +132,10 @@ export function HomeHowItWorks() {
             Як це працює
           </p>
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight md:text-5xl">
-            Три кроки — і команда зібрана
+            Три кроки — і підготовка під контролем
           </h2>
           <p className="mt-4 text-white/75">
-            Без зайвих дашбордів. Шукаєш, порівнюєш, бронюєш.
+            Менше хаосу, більше ясності у підготовці.
           </p>
         </div>
 
@@ -247,7 +175,7 @@ export function HomeTools() {
           <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-7">
             <p className="font-[family-name:var(--font-display)] text-3xl text-white">
-              План, бюджет, запрошення й сайт — поруч із каталогом
+              План, бюджет, запрошення й сайт в одній системі
             </p>
           </div>
         </div>
@@ -257,11 +185,10 @@ export function HomeTools() {
             Інструменти для пари
           </p>
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
-            Не лише каталог
+            Все для першої ітерації
           </h2>
           <p className="mt-4 text-ink-soft">
-            Те, що пари зазвичай розкидають по нотатках і чатах, уже зібрано в
-            NITKA.
+            Фокус зараз на чистому та зручному плануванні весілля.
           </p>
 
           <div className="mt-10 space-y-0">
@@ -306,16 +233,16 @@ export function HomeIdeas({ posts }: { posts: ContentPost[] }) {
               Ідеї та поради
             </p>
             <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
-              Читають перед бронями
+              Читають під час підготовки
             </h2>
             <p className="mt-4 text-ink-soft">
-              Гайди з бюджету, локацій, запрошень і підрядників — щоб рішення
-              були спокійнішими.
+              Гайди з бюджету, локацій, запрошень і таймінгу — щоб рішення були
+              спокійнішими.
             </p>
           </div>
           <Link
             href="/content"
-            className="text-sm font-semibold text-sage-deep transition hover:underline"
+            className="font-medium text-sage-deep underline-offset-2 hover:underline"
           >
             Усі матеріали →
           </Link>
@@ -343,7 +270,7 @@ export function HomeReviews() {
             Відгуки
           </p>
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight text-ink md:text-5xl">
-            Що кажуть пари й підрядники
+            Що кажуть пари
           </h2>
         </div>
 
@@ -392,19 +319,13 @@ export function HomeFinalCta() {
             Готові починати
           </p>
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl leading-tight md:text-6xl">
-            Збери свою весільну команду без хаосу
+            Збери своє весілля без хаосу
           </h2>
           <p className="mt-4 max-w-lg text-white/80">
-            Каталог, заявки й план весілля — під український ринок.
+            Планування, бюджет і гості — в одній зрозумілій системі.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link
-            href="/vendors"
-            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:bg-mist"
-          >
-            Почати пошук
-          </Link>
           <Link
             href="/register"
             className="rounded-full border border-white/50 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"

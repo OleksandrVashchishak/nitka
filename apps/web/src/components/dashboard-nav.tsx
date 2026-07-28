@@ -22,18 +22,11 @@ const COUPLE_PRIMARY: NavLink[] = [
   { href: "/budget", label: "Бюджет" },
   { href: "/guests", label: "Гості", badgeKeys: ["newRsvp", "pendingRsvp"] },
   { href: "/seating", label: "Розсадка" },
-  { href: "/my-vendors", label: "Підрядники" },
 ];
 
 const COUPLE_MORE: NavLink[] = [
   { href: "/invitations", label: "Запрошення" },
   { href: "/website", label: "Сайт" },
-  { href: "/favorites", label: "Обране" },
-  {
-    href: "/requests",
-    label: "Заявки",
-    badgeKeys: ["waitingRequests", "vendorReplied"],
-  },
 ];
 
 const VENDOR_LINKS: NavLink[] = [

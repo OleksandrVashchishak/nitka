@@ -36,13 +36,6 @@ export const PRODUCT_NAV = [
     coupleHref: "/seating",
   },
   {
-    id: "vendors",
-    label: "Мої підрядники",
-    shortLabel: "Підрядники",
-    guestHref: "/moyi-pidryadnyky",
-    coupleHref: "/my-vendors",
-  },
-  {
     id: "invitations",
     label: "Онлайн-запрошення",
     shortLabel: "Запрошення",

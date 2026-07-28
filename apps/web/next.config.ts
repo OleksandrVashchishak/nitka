@@ -8,6 +8,30 @@ const usePolling =
 const nextConfig: NextConfig = {
   // Next 16: production build = Turbopack; порожній turbopack глушить конфлікт з optional webpack
   turbopack: {},
+  async redirects() {
+    return [
+      { source: "/vendors", destination: "/", permanent: false },
+      { source: "/vendors/:path*", destination: "/", permanent: false },
+      { source: "/vendor", destination: "/", permanent: false },
+      { source: "/vendor/:path*", destination: "/", permanent: false },
+      { source: "/vesillya", destination: "/", permanent: false },
+      { source: "/vesillya/:path*", destination: "/", permanent: false },
+      { source: "/favorites", destination: "/", permanent: false },
+      { source: "/favorites/:path*", destination: "/", permanent: false },
+      { source: "/requests", destination: "/", permanent: false },
+      { source: "/requests/:path*", destination: "/", permanent: false },
+      { source: "/my-vendors", destination: "/dashboard", permanent: false },
+      { source: "/my-vendors/:path*", destination: "/dashboard", permanent: false },
+      { source: "/moyi-pidryadnyky", destination: "/vesilnyy-plan", permanent: false },
+      { source: "/moyi-pidryadnyky/:path*", destination: "/vesilnyy-plan", permanent: false },
+      { source: "/admin/vendors", destination: "/admin", permanent: false },
+      { source: "/admin/vendors/:path*", destination: "/admin", permanent: false },
+      { source: "/admin/requests", destination: "/admin", permanent: false },
+      { source: "/admin/requests/:path*", destination: "/admin", permanent: false },
+      { source: "/admin/reviews", destination: "/admin", permanent: false },
+      { source: "/admin/reviews/:path*", destination: "/admin", permanent: false },
+    ];
+  },
   // Локально не тримаємо fetch/data cache між реквестами
   ...(isDev
     ? {
