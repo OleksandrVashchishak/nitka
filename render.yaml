@@ -14,10 +14,11 @@ services:
     plan: free
     rootDir: apps/api
     # CRITICAL: Dashboard Build/Start часто НЕ sync з blueprint → OOM від nest build.
-    # Якщо знову "Ran out of memory (used over 8GB)" — у Settings постав ТОЧНО ці команди.
-    # Build: без nest (dist уже в git). Start: migrate + push + node dist/main.
-    buildCommand: npm ci --omit=dev --no-audit --no-fund && npm run build
-    # Free tier не підтримує preDeployCommand — схема/міграція тільки в start.
+    # У Settings → Build Command постав ТОЧНО:
+    #   bash scripts/render-build.sh
+    # Start Command:
+    #   npm run start:prod
+    buildCommand: bash scripts/render-build.sh
     startCommand: npm run start:prod
     healthCheckPath: /api/categories
     envVars:
