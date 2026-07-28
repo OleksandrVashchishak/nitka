@@ -13,11 +13,12 @@ let AppService = class AppService {
         return {
             status: 'ok',
             service: 'wedding-api',
-            revision: 'start-resilient',
+            revision: 'planning-first-2026-07-28',
             features: {
                 content: true,
                 guests: true,
                 budget: true,
+                vendorsHidden: true,
             },
             timestamp: new Date().toISOString(),
         };

@@ -10,6 +10,7 @@ export declare class AppController {
             content: boolean;
             guests: boolean;
             budget: boolean;
+            vendorsHidden: boolean;
         };
         timestamp: string;
     };
