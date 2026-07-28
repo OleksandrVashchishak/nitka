@@ -43,6 +43,18 @@ export class ReviewsService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
+    try {
+      await this.seedDemoReviews();
+    } catch (err) {
+      // Не валимо boot на Render, якщо схема/seed ще наздоганяють
+      console.warn(
+        '[reviews] demo seed skipped:',
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+
+  private async seedDemoReviews() {
     for (const demo of DEMO_REVIEWS) {
       const vendorUser = await this.prisma.user.findUnique({
         where: { email: demo.vendorEmail },
