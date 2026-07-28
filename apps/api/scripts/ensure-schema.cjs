@@ -65,6 +65,85 @@ END $$`,
   `CREATE UNIQUE INDEX IF NOT EXISTS content_posts_slug_key ON content_posts(slug)`,
   `CREATE INDEX IF NOT EXISTS content_posts_status_published_at_idx ON content_posts(status, published_at)`,
   `CREATE INDEX IF NOT EXISTS content_posts_topic_id_status_idx ON content_posts(topic_id, status)`,
+
+  // --- Couple planning (weddings / members / guests / budget) ---
+  `DO $$ BEGIN
+  CREATE TYPE "WeddingMemberRole" AS ENUM ('OWNER', 'PARTNER');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$`,
+
+  `DO $$ BEGIN
+  CREATE TYPE "RsvpStatus" AS ENUM ('PENDING', 'YES', 'NO', 'MAYBE');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$`,
+
+  `DO $$ BEGIN
+  CREATE TYPE "GuestSide" AS ENUM ('BRIDE', 'GROOM', 'BOTH', 'OTHER');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$`,
+
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS partner_one_name TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS partner_two_name TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS couple_photo_url TEXT`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS planning_stage TEXT NOT NULL DEFAULT 'EXPLORING'`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS city_undecided BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS guests_undecided BOOLEAN NOT NULL DEFAULT false`,
+
+  `CREATE TABLE IF NOT EXISTS wedding_members (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  role "WeddingMemberRole" NOT NULL DEFAULT 'PARTNER',
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS wedding_members_user_id_key ON wedding_members(user_id)`,
+  `CREATE INDEX IF NOT EXISTS wedding_members_wedding_id_idx ON wedding_members(wedding_id)`,
+
+  `CREATE TABLE IF NOT EXISTS wedding_invites (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  token TEXT NOT NULL,
+  expires_at TIMESTAMP(3) NOT NULL,
+  accepted_at TIMESTAMP(3),
+  accepted_by TEXT,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS wedding_invites_token_key ON wedding_invites(token)`,
+  `CREATE INDEX IF NOT EXISTS wedding_invites_wedding_id_idx ON wedding_invites(wedding_id)`,
+
+  `CREATE TABLE IF NOT EXISTS guests (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  side "GuestSide" NOT NULL DEFAULT 'BOTH',
+  rsvp_status "RsvpStatus" NOT NULL DEFAULT 'PENDING',
+  plus_one BOOLEAN NOT NULL DEFAULT false,
+  plus_one_name TEXT,
+  plus_one_attending BOOLEAN,
+  allergies TEXT,
+  table_label TEXT,
+  notes TEXT,
+  invite_token TEXT NOT NULL,
+  responded_at TIMESTAMP(3),
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS guests_invite_token_key ON guests(invite_token)`,
+  `CREATE INDEX IF NOT EXISTS guests_wedding_id_idx ON guests(wedding_id)`,
+
+  `CREATE TABLE IF NOT EXISTS budget_items (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  category TEXT NOT NULL,
+  title TEXT NOT NULL,
+  estimated INTEGER NOT NULL DEFAULT 0,
+  actual INTEGER NOT NULL DEFAULT 0,
+  paid BOOLEAN NOT NULL DEFAULT false,
+  notes TEXT,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE INDEX IF NOT EXISTS budget_items_wedding_id_idx ON budget_items(wedding_id)`,
 ];
 
 async function main() {
