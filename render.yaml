@@ -13,13 +13,11 @@ services:
     runtime: node
     plan: free
     rootDir: apps/api
-    # Без NODE_OPTIONS=460: prisma generate під 460MB зависає/OOM; nest build у репо (dist).
-    buildCommand: npm install --omit=dev --no-audit --no-fund && npx prisma generate
+    # CRITICAL: Dashboard Build/Start часто НЕ sync з blueprint → OOM від nest build.
+    # Якщо знову "Ran out of memory (used over 8GB)" — у Settings постав ТОЧНО ці команди.
+    # Build: без nest (dist уже в git). Start: migrate + push + node dist/main.
+    buildCommand: npm ci --omit=dev --no-audit --no-fund && npm run build
     # Free tier не підтримує preDeployCommand — схема/міграція тільки в start.
-    # Dashboard Start Command:
-    #   npm run start:prod
-    # Білд Nest робимо локально (dist у репо), на Render лише install + prisma generate —
-    # інакше free tier OOM після clear cache.
     startCommand: npm run start:prod
     healthCheckPath: /api/categories
     envVars:

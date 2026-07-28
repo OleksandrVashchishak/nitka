@@ -7,8 +7,9 @@
   },
   "scripts": {
     "postinstall": "node scripts/install-prisma-shim.cjs",
-    "build": "prisma generate && nest build",
-    "start": "nest start",
+    "build": "prisma generate && node scripts/verify-dist.cjs",
+    "build:nest": "prisma generate && nest build",
+    "start": "node scripts/start-render.js",
     "start:dev": "nest start --watch",
     "start:prod": "node scripts/start-render.js",
     "prisma:generate": "prisma generate",
