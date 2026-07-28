@@ -2,48 +2,8 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-function run(cmd, args, { optional = false } = {}) {
-  console.log(`[nitka-api] $ ${cmd} ${args.join(' ')}`);
-  const result = spawnSync(cmd, args, {
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  });
-  if (result.status !== 0) {
-    if (optional) {
-      console.warn(
-        `[nitka-api] optional step failed (exit ${result.status}), continuing…`,
-      );
-      return false;
-    }
-    process.exit(result.status ?? 1);
-  }
-  return true;
-}
-
-// SQL-міграція ідемпотентна, але не блокуємо старт якщо щось пішло не так —
-// prisma db push нижче піджене схему.
-run(
-  'npx',
-  [
-    'prisma',
-    'db',
-    'execute',
-    '--schema',
-    'prisma/schema.prisma',
-    '--file',
-    'prisma/migrate-task-status.sql',
-  ],
-  { optional: true },
-);
-
-run('npx', [
-  'prisma',
-  'db',
-  'push',
-  '--schema',
-  'prisma/schema.prisma',
-  '--accept-data-loss',
-]);
+// Schema/migrate runs in scripts/render-build.sh (build RAM).
+// Runtime free tier is 512MB — prisma CLI OOMs here.
 
 const candidates = ['dist/main.js', 'dist/src/main.js'].map((p) =>
   path.join(process.cwd(), p),
