@@ -6,13 +6,14 @@
     "node": "20.x"
   },
   "scripts": {
-    "postinstall": "node scripts/install-prisma-shim.cjs",
-    "build": "prisma generate && node scripts/verify-dist.cjs",
+    "postinstall": "node scripts/install-prisma-shim.cjs && node scripts/restore-prisma-client.cjs",
+    "build": "node scripts/restore-prisma-client.cjs && node scripts/verify-dist.cjs",
     "build:nest": "prisma generate && nest build",
     "start": "node scripts/start-render.js",
     "start:dev": "nest start --watch",
     "start:prod": "node scripts/start-render.js",
     "prisma:generate": "prisma generate",
+    "prisma:vendor": "node scripts/vendor-prisma-client.cjs",
     "prisma:push": "prisma db push --accept-data-loss",
     "prisma:seed": "ts-node --transpile-only prisma/seed.ts",
     "start:render": "node scripts/start-render.js"
