@@ -29,8 +29,8 @@ export function PublicRsvpForm({ invite }: Props) {
   );
   const [plusOneName, setPlusOneName] = useState(invite.plusOneName ?? "");
   const [allergies, setAllergies] = useState(invite.allergies ?? "");
-  const [email, setEmail] = useState(invite.email ?? "");
-  const [phone, setPhone] = useState(invite.phone ?? "");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState(invite.notes ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

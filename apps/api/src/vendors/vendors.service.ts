@@ -843,6 +843,10 @@ export class VendorsService implements OnModuleInit {
   }
 
   private async bootstrapDemoVendors() {
+    // За замовчуванням лише create-if-missing.
+    // SEED_DEMO_OVERWRITE=1 — знову підтягує статус/рейтинг/екстра з демо (лише для локалки).
+    const allowOverwrite = process.env.SEED_DEMO_OVERWRITE === '1';
+
     for (const demo of DEMO_VENDORS) {
       const category = await this.prisma.category.findUnique({
         where: { slug: demo.categorySlug },
@@ -929,7 +933,7 @@ export class VendorsService implements OnModuleInit {
             },
           },
         });
-      } else {
+      } else if (allowOverwrite) {
         // Підтягуємо статус/рейтинг/місто з демо, не затираючи кастомний опис
         await this.prisma.vendor.update({
           where: { id: existing.id },
@@ -944,6 +948,11 @@ export class VendorsService implements OnModuleInit {
           },
         });
       }
+    }
+
+    if (!allowOverwrite) {
+      await this.backfillMissingSlugs();
+      return;
     }
 
     for (const [email, extra] of Object.entries(DEMO_PROFILE_EXTRAS)) {

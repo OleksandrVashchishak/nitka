@@ -192,8 +192,6 @@ let GuestsService = class GuestsService {
         return {
             token: guest.inviteToken,
             name: guest.name,
-            email: guest.email,
-            phone: guest.phone,
             rsvpStatus: guest.rsvpStatus,
             plusOne: guest.plusOne,
             plusOneName: guest.plusOneName,

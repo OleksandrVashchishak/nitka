@@ -220,11 +220,10 @@ export class GuestsService {
         ? `/w/${guest.wedding.website.slug}`
         : null;
 
+    // Не світимо email/phone у публічному GET — гість сам вводить у формі.
     return {
       token: guest.inviteToken,
       name: guest.name,
-      email: guest.email,
-      phone: guest.phone,
       rsvpStatus: guest.rsvpStatus,
       plusOne: guest.plusOne,
       plusOneName: guest.plusOneName,

@@ -25,8 +25,6 @@ export type GuestInput = {
 export type PublicInvite = {
   token: string;
   name: string;
-  email: string | null;
-  phone: string | null;
   rsvpStatus: RsvpStatus;
   plusOne: boolean;
   plusOneName: string | null;

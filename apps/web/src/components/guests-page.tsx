@@ -15,6 +15,7 @@ import {
   type RsvpStatus,
 } from "@/lib/guests-api";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { InviteShareLinks } from "@/components/invite-share-links";
 import { RequireAuth } from "@/components/require-auth";
 import { toast } from "@/lib/toast";
 
@@ -189,6 +190,15 @@ function GuestNameRow({
           </>
         ) : null}
       </div>
+      {origin ? (
+        <div className="mt-2">
+          <InviteShareLinks
+            url={`${origin}/rsvp/${guest.inviteToken}`}
+            guestName={guest.name}
+            onCopy={() => onCopy(guest)}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

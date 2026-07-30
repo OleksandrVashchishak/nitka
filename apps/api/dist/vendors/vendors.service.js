@@ -828,6 +828,7 @@ let VendorsService = class VendorsService {
         }
     }
     async bootstrapDemoVendors() {
+        const allowOverwrite = process.env.SEED_DEMO_OVERWRITE === '1';
         for (const demo of DEMO_VENDORS) {
             const category = await this.prisma.category.findUnique({
                 where: { slug: demo.categorySlug },
@@ -911,7 +912,7 @@ let VendorsService = class VendorsService {
                     },
                 });
             }
-            else {
+            else if (allowOverwrite) {
                 await this.prisma.vendor.update({
                     where: { id: existing.id },
                     data: {
@@ -925,6 +926,10 @@ let VendorsService = class VendorsService {
                     },
                 });
             }
+        }
+        if (!allowOverwrite) {
+            await this.backfillMissingSlugs();
+            return;
         }
         for (const [email, extra] of Object.entries(DEMO_PROFILE_EXTRAS)) {
             const user = await this.prisma.user.findUnique({ where: { email } });

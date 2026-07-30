@@ -63,8 +63,6 @@ export default function PublicRsvpScreen() {
     setPlusOneAttending(invite.plusOneAttending === true);
     setPlusOneName(invite.plusOneName ?? "");
     setAllergies(invite.allergies ?? "");
-    setEmail(invite.email ?? "");
-    setPhone(invite.phone ?? "");
     setNotes(invite.notes ?? "");
     setDone(invite.rsvpStatus !== "PENDING");
     setSavedStatus(invite.rsvpStatus);

@@ -16,6 +16,7 @@ import {
   type InvitationMineResponse,
 } from "@/lib/invitations-api";
 import { getErrorMessage, toast } from "@/lib/toast";
+import { InviteShareLinks } from "@/components/invite-share-links";
 
 const fieldClass =
   "w-full border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-sage";
@@ -359,23 +360,27 @@ function InvitationsEditorInner() {
               </p>
             ) : (
               <ul className="mt-4 space-y-2">
-                {data.guestsPreview.map((g) => (
-                  <li
-                    key={g.id}
-                    className="flex items-center justify-between gap-3 border-b border-line/70 py-2 last:border-0"
-                  >
-                    <span className="min-w-0 truncate text-sm text-ink">
-                      {g.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => void copyGuestLink(g.inviteToken, g.name)}
-                      className="shrink-0 cursor-pointer text-xs font-medium uppercase tracking-[0.12em] text-sage-deep hover:underline"
+                {data.guestsPreview.map((g) => {
+                  const url =
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/rsvp/${g.inviteToken}`
+                      : `/rsvp/${g.inviteToken}`;
+                  return (
+                    <li
+                      key={g.id}
+                      className="flex flex-col gap-1.5 border-b border-line/70 py-2 last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
                     >
-                      Копіювати лінк
-                    </button>
-                  </li>
-                ))}
+                      <span className="min-w-0 truncate text-sm text-ink">
+                        {g.name}
+                      </span>
+                      <InviteShareLinks
+                        url={url}
+                        guestName={g.name}
+                        onCopy={() => void copyGuestLink(g.inviteToken, g.name)}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <p className="mt-3 text-xs text-ink-soft">
