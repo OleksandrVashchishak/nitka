@@ -23,7 +23,7 @@ const script = Great_Vibes({
 const scriptCyr = Marck_Script({
   variable: "--font-script-cyr",
   weight: "400",
-  subsets: ["cyrillic", "cyrillic-ext", "latin", "latin-ext"],
+  subsets: ["cyrillic", "latin", "latin-ext"],
 });
 
 const sans = Manrope({
