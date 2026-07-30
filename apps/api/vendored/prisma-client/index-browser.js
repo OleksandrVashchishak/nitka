@@ -132,6 +132,15 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PushDeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -289,6 +298,26 @@ exports.Prisma.WeddingScalarFieldEnum = {
   planningStage: 'planningStage',
   cityUndecided: 'cityUndecided',
   guestsUndecided: 'guestsUndecided'
+};
+
+exports.Prisma.WeddingWebsiteScalarFieldEnum = {
+  id: 'id',
+  weddingId: 'weddingId',
+  slug: 'slug',
+  templateId: 'templateId',
+  published: 'published',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WeddingInvitationScalarFieldEnum = {
+  id: 'id',
+  weddingId: 'weddingId',
+  templateId: 'templateId',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.WeddingMemberScalarFieldEnum = {
@@ -475,6 +504,7 @@ exports.ContentStatus = exports.$Enums.ContentStatus = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  PushDevice: 'PushDevice',
   Category: 'Category',
   Vendor: 'Vendor',
   VendorPhoto: 'VendorPhoto',
@@ -488,6 +518,8 @@ exports.Prisma.ModelName = {
   Request: 'Request',
   RequestMessage: 'RequestMessage',
   Wedding: 'Wedding',
+  WeddingWebsite: 'WeddingWebsite',
+  WeddingInvitation: 'WeddingInvitation',
   WeddingMember: 'WeddingMember',
   WeddingInvite: 'WeddingInvite',
   Task: 'Task',

@@ -6,29 +6,32 @@ export declare class FavoritesService {
     list(userId: string): import(".prisma/client").Prisma.PrismaPromise<({
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
-                url: string;
                 order: number;
+                url: string;
                 vendorId: string;
             }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -45,47 +48,47 @@ export declare class FavoritesService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         };
     } & {
         id: string;
         userId: string;
         vendorId: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     })[]>;
     add(userId: string, vendorId: string): Promise<{
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
-                url: string;
                 order: number;
+                url: string;
                 vendorId: string;
             }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -102,20 +105,17 @@ export declare class FavoritesService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         };
     } & {
         id: string;
         userId: string;
         vendorId: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     remove(userId: string, vendorId: string): Promise<{
         ok: boolean;
@@ -124,29 +124,32 @@ export declare class FavoritesService {
         catalog: ({
             vendor: {
                 category: {
-                    name: string;
                     id: string;
+                    name: string;
                     slug: string;
                     description: string;
                     sortOrder: number;
                 };
                 photos: {
                     id: string;
-                    url: string;
                     order: number;
+                    url: string;
                     vendorId: string;
                 }[];
             } & {
-                name: string;
+                status: import(".prisma/client").$Enums.VendorStatus;
+                featured: boolean;
                 id: string;
-                createdAt: Date;
+                userId: string;
+                name: string;
                 slug: string | null;
-                description: string;
                 tagline: string;
+                description: string;
                 categoryId: string;
                 city: string;
                 priceFrom: number;
                 priceTo: number | null;
+                rating: number;
                 phone: string | null;
                 website: string | null;
                 instagram: string | null;
@@ -163,62 +166,62 @@ export declare class FavoritesService {
                 services: string[];
                 serviceAreas: string[];
                 languages: string[];
-                userId: string;
-                rating: number;
-                status: import(".prisma/client").$Enums.VendorStatus;
-                featured: boolean;
                 moderationNote: string | null;
+                createdAt: Date;
             };
         } & {
             id: string;
             userId: string;
             vendorId: string;
+            updatedAt: Date;
             notes: string | null;
             stage: import(".prisma/client").$Enums.VendorPipelineStage;
             quotedPrice: number | null;
-            updatedAt: Date;
         })[];
         manual: {
-            category: string;
-            name: string;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             city: string;
             phone: string | null;
             website: string | null;
-            userId: string;
+            createdAt: Date;
+            category: string;
+            updatedAt: Date;
             notes: string | null;
             stage: import(".prisma/client").$Enums.VendorPipelineStage;
             quotedPrice: number | null;
-            updatedAt: Date;
         }[];
     }>;
     updatePipeline(userId: string, vendorId: string, dto: UpdatePipelineDto): Promise<{
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
-                url: string;
                 order: number;
+                url: string;
                 vendorId: string;
             }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -235,48 +238,45 @@ export declare class FavoritesService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         };
     } & {
         id: string;
         userId: string;
         vendorId: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     createExternal(userId: string, dto: CreateExternalVendorDto): Promise<{
-        category: string;
-        name: string;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         city: string;
         phone: string | null;
         website: string | null;
-        userId: string;
+        createdAt: Date;
+        category: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     updateExternal(userId: string, id: string, dto: UpdateExternalVendorDto): Promise<{
-        category: string;
-        name: string;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         city: string;
         phone: string | null;
         website: string | null;
-        userId: string;
+        createdAt: Date;
+        category: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     removeExternal(userId: string, id: string): Promise<{
         ok: boolean;

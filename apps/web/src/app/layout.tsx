@@ -1,15 +1,29 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Fraunces, Great_Vibes, Manrope, Marck_Script } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteFooterWrapper } from "@/components/site-footer";
 import { ToastViewport } from "@/components/toast-viewport";
 import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
 const display = Fraunces({
   variable: "--font-display",
   subsets: ["latin", "latin-ext"],
+});
+
+/** Latin script (navy-gold тощо). Без кирилиці — fallback на Marck Script. */
+const script = Great_Vibes({
+  variable: "--font-script",
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
+});
+
+/** Script з кирилицею — підхоплює UA-гліфи, коли Great Vibes їх немає. */
+const scriptCyr = Marck_Script({
+  variable: "--font-script-cyr",
+  weight: "400",
+  subsets: ["cyrillic", "cyrillic-ext", "latin", "latin-ext"],
 });
 
 const sans = Manrope({
@@ -56,11 +70,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uk">
-      <body className={`${display.variable} ${sans.variable} antialiased`}>
+      <body
+        className={`${display.variable} ${script.variable} ${scriptCyr.variable} ${sans.variable} antialiased`}
+      >
         <AuthProvider>
           <SiteHeader />
           <main>{children}</main>
-          <SiteFooter />
+          <SiteFooterWrapper />
           <ToastViewport />
         </AuthProvider>
       </body>

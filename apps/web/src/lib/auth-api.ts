@@ -32,6 +32,17 @@ async function parseError(res: Response) {
   return "Щось пішло не так";
 }
 
+export async function checkEmailAvailable(
+  email: string,
+): Promise<{ available: boolean; email: string }> {
+  const params = new URLSearchParams({ email: email.trim() });
+  const res = await fetch(`${API_URL}/api/auth/check-email?${params}`, {
+    method: "GET",
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
 export async function registerRequest(input: {
   email: string;
   password: string;

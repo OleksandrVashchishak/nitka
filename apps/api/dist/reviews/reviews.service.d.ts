@@ -5,43 +5,44 @@ export declare class ReviewsService implements OnModuleInit {
     private readonly prisma;
     constructor(prisma: PrismaService);
     onModuleInit(): Promise<void>;
+    private seedDemoReviews;
     private recalcVendorRating;
     listByVendor(vendorId: string): import(".prisma/client").Prisma.PrismaPromise<({
         user: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
         id: string;
-        createdAt: Date;
         userId: string;
         rating: number;
+        createdAt: Date;
         vendorId: string;
         text: string;
     })[]>;
     create(userId: string, dto: CreateReviewDto): Promise<{
         user: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
         id: string;
-        createdAt: Date;
         userId: string;
         rating: number;
+        createdAt: Date;
         vendorId: string;
         text: string;
     }>;
     update(userId: string, reviewId: string, dto: UpdateReviewDto): Promise<{
         user: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
         id: string;
-        createdAt: Date;
         userId: string;
         rating: number;
+        createdAt: Date;
         vendorId: string;
         text: string;
     }>;
@@ -50,14 +51,14 @@ export declare class ReviewsService implements OnModuleInit {
     }>;
     mineForVendor(userId: string, vendorId: string): Promise<({
         user: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
         id: string;
-        createdAt: Date;
         userId: string;
         rating: number;
+        createdAt: Date;
         vendorId: string;
         text: string;
     }) | null>;

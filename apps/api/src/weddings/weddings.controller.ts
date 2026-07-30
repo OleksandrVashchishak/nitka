@@ -16,6 +16,7 @@ import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpsertDayPlanDto } from './dto/day-plan.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import { WeddingsService } from './weddings.service';
@@ -56,6 +57,23 @@ export class WeddingsController {
   @Roles(Role.COUPLE, Role.ADMIN)
   getInsights(@CurrentUser() user: AuthUser) {
     return this.weddingsService.getInsights(user.id);
+  }
+
+  @Get('me/day-plan')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
+  getDayPlan(@CurrentUser() user: AuthUser) {
+    return this.weddingsService.getDayPlan(user.id);
+  }
+
+  @Put('me/day-plan')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.ADMIN)
+  upsertDayPlan(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpsertDayPlanDto,
+  ) {
+    return this.weddingsService.upsertDayPlan(user.id, dto);
   }
 
   @Post('me/partner-invite')

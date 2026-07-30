@@ -21,32 +21,35 @@ export declare class VendorsService implements OnModuleInit {
     private backfillMissingSlugs;
     findAll(filters: VendorFilters): Prisma.PrismaPromise<({
         category: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            order: number;
+            url: string;
+            vendorId: string;
+        }[];
         _count: {
             reviews: number;
         };
-        photos: {
-            id: string;
-            url: string;
-            order: number;
-            vendorId: string;
-        }[];
     } & {
-        name: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        featured: boolean;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         slug: string | null;
-        description: string;
         tagline: string;
+        description: string;
         categoryId: string;
         city: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -63,11 +66,8 @@ export declare class VendorsService implements OnModuleInit {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         moderationNote: string | null;
+        createdAt: Date;
     })[]>;
     private resolveSort;
     getFilterOptions(): Promise<{
@@ -86,32 +86,35 @@ export declare class VendorsService implements OnModuleInit {
     }): Promise<{
         similar: ({
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
+            photos: {
+                id: string;
+                order: number;
+                url: string;
+                vendorId: string;
+            }[];
             _count: {
                 reviews: number;
             };
-            photos: {
-                id: string;
-                url: string;
-                order: number;
-                vendorId: string;
-            }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -128,78 +131,78 @@ export declare class VendorsService implements OnModuleInit {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         })[];
         category: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            order: number;
+            url: string;
+            vendorId: string;
+        }[];
+        packages: {
+            id: string;
+            description: string;
+            order: number;
+            includes: string;
+            title: string;
+            price: number;
+            duration: string;
+            isPopular: boolean;
+            vendorId: string;
+        }[];
+        faqs: {
+            id: string;
+            order: number;
+            question: string;
+            answer: string;
+            vendorId: string;
+        }[];
+        team: {
+            role: string;
+            id: string;
+            name: string;
+            order: number;
+            bio: string;
+            photoUrl: string | null;
+            vendorId: string;
+        }[];
         reviews: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
-            createdAt: Date;
             userId: string;
             rating: number;
+            createdAt: Date;
             vendorId: string;
             text: string;
         })[];
         _count: {
             reviews: number;
         };
-        packages: {
-            id: string;
-            includes: string;
-            description: string;
-            title: string;
-            price: number;
-            duration: string;
-            isPopular: boolean;
-            order: number;
-            vendorId: string;
-        }[];
-        faqs: {
-            id: string;
-            question: string;
-            answer: string;
-            order: number;
-            vendorId: string;
-        }[];
-        team: {
-            name: string;
-            role: string;
-            id: string;
-            bio: string;
-            photoUrl: string | null;
-            order: number;
-            vendorId: string;
-        }[];
-        photos: {
-            id: string;
-            url: string;
-            order: number;
-            vendorId: string;
-        }[];
-        name: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        featured: boolean;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         slug: string | null;
-        description: string;
         tagline: string;
+        description: string;
         categoryId: string;
         city: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -216,65 +219,65 @@ export declare class VendorsService implements OnModuleInit {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         moderationNote: string | null;
+        createdAt: Date;
     }>;
     private recordView;
     getMine(userId: string): Prisma.Prisma__VendorClient<({
         category: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            order: number;
+            url: string;
+            vendorId: string;
+        }[];
         packages: {
             id: string;
-            includes: string;
             description: string;
+            order: number;
+            includes: string;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
-            order: number;
             vendorId: string;
         }[];
         faqs: {
             id: string;
+            order: number;
             question: string;
             answer: string;
-            order: number;
             vendorId: string;
         }[];
         team: {
-            name: string;
             role: string;
             id: string;
+            name: string;
+            order: number;
             bio: string;
             photoUrl: string | null;
-            order: number;
-            vendorId: string;
-        }[];
-        photos: {
-            id: string;
-            url: string;
-            order: number;
             vendorId: string;
         }[];
     } & {
-        name: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        featured: boolean;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         slug: string | null;
-        description: string;
         tagline: string;
+        description: string;
         categoryId: string;
         city: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -291,64 +294,64 @@ export declare class VendorsService implements OnModuleInit {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         moderationNote: string | null;
+        createdAt: Date;
     }) | null, null, import("@prisma/client/runtime/library").DefaultArgs, Prisma.PrismaClientOptions>;
     upsertMine(userId: string, data: UpsertVendorProfileDto): Promise<{
         category: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            order: number;
+            url: string;
+            vendorId: string;
+        }[];
         packages: {
             id: string;
-            includes: string;
             description: string;
+            order: number;
+            includes: string;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
-            order: number;
             vendorId: string;
         }[];
         faqs: {
             id: string;
+            order: number;
             question: string;
             answer: string;
-            order: number;
             vendorId: string;
         }[];
         team: {
-            name: string;
             role: string;
             id: string;
+            name: string;
+            order: number;
             bio: string;
             photoUrl: string | null;
-            order: number;
-            vendorId: string;
-        }[];
-        photos: {
-            id: string;
-            url: string;
-            order: number;
             vendorId: string;
         }[];
     } & {
-        name: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        featured: boolean;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         slug: string | null;
-        description: string;
         tagline: string;
+        description: string;
         categoryId: string;
         city: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -365,11 +368,8 @@ export declare class VendorsService implements OnModuleInit {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         moderationNote: string | null;
+        createdAt: Date;
     }>;
 }
 export {};

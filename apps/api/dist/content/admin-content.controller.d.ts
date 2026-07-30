@@ -10,62 +10,62 @@ export declare class AdminContentController {
             posts: number;
         };
     } & {
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     })[]>;
     createTopic(dto: UpsertContentTopicDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     }>;
     updateTopic(id: string, dto: UpsertContentTopicDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     }>;
     deleteTopic(id: string): Promise<{
         ok: boolean;
     }>;
     listPosts(status?: ContentStatus, topic?: string, q?: string): import(".prisma/client").Prisma.PrismaPromise<({
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: import("@prisma/client/runtime/library").JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -76,31 +76,31 @@ export declare class AdminContentController {
     })[]>;
     getPost(id: string): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: import("@prisma/client/runtime/library").JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -111,31 +111,31 @@ export declare class AdminContentController {
     }>;
     createPost(user: AuthUser, dto: UpsertContentPostDto): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: import("@prisma/client/runtime/library").JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -146,31 +146,31 @@ export declare class AdminContentController {
     }>;
     updatePost(id: string, dto: UpsertContentPostDto): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: import("@prisma/client/runtime/library").JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -181,31 +181,31 @@ export declare class AdminContentController {
     }>;
     updateStatus(id: string, dto: UpdateContentStatusDto): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: import("@prisma/client/runtime/library").JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;

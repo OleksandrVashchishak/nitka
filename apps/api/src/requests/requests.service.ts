@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { RequestStatus, Role } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { CreateRequestMessageDto } from './dto/create-request-message.dto';
@@ -35,7 +36,10 @@ const requestIncludeVendor = {
 
 @Injectable()
 export class RequestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(userId: string, dto: CreateRequestDto) {
     const vendor = await this.prisma.vendor.findFirst({
@@ -66,6 +70,38 @@ export class RequestsService {
         stage: 'CONTACTED',
       },
       update: { stage: 'CONTACTED' },
+    });
+
+    const couple = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    const eventLabel = new Intl.DateTimeFormat('uk-UA', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(dto.eventDate));
+
+    void this.notifications.notifyUser(vendor.userId, {
+      title: 'Нова заявка',
+      body: `${couple?.name || 'Пара'} · ${dto.city.trim()} · ${eventLabel}`,
+      data: { type: 'request', requestId: request.id },
+      email: {
+        subject: `Нова заявка від ${couple?.name || 'пари'}`,
+        body: [
+          'У вас нова заявка на NITKA.',
+          '',
+          `Пара: ${couple?.name || '—'}`,
+          `Місто: ${dto.city.trim()}`,
+          `Дата: ${eventLabel}`,
+          `Гості: ${dto.guests}`,
+          `Бюджет: ${dto.budget}`,
+          '',
+          dto.message.trim(),
+        ].join('\n'),
+        ctaLabel: 'Відкрити заявки',
+        ctaPath: '/vendor/requests',
+      },
     });
 
     return request;
@@ -113,11 +149,42 @@ export class RequestsService {
       throw new ForbiddenException();
     }
 
-    return this.prisma.request.update({
+    const previous = request.status;
+    const updated = await this.prisma.request.update({
       where: { id: requestId },
       data: { status },
       include: requestIncludeVendor,
     });
+
+    if (previous !== status) {
+      const statusLabel =
+        status === 'CONTACTED'
+          ? 'в роботі'
+          : status === 'DONE'
+            ? 'завершено'
+            : status === 'CLOSED'
+              ? 'закрито'
+              : status === 'NEW'
+                ? 'нова'
+                : String(status);
+      void this.notifications.notifyUser(request.userId, {
+        title: 'Статус заявки оновлено',
+        body: `${vendor.name}: ${statusLabel}`,
+        data: { type: 'request_status', requestId, status },
+        email: {
+          subject: `${vendor.name}: статус заявки — ${statusLabel}`,
+          body: [
+            `${vendor.name} оновив статус вашої заявки.`,
+            '',
+            `Новий статус: ${statusLabel}`,
+          ].join('\n'),
+          ctaLabel: 'Відкрити заявки',
+          ctaPath: '/requests',
+        },
+      });
+    }
+
+    return updated;
   }
 
   async addMessage(
@@ -173,6 +240,45 @@ export class RequestsService {
       await this.prisma.request.update({
         where: { id: requestId },
         data: { updatedAt: new Date() },
+      });
+    }
+
+    const recipientId = isVendor ? request.userId : request.vendor.userId;
+    const preview = dto.body.trim().slice(0, 120);
+    if (isVendor) {
+      const vendorName = request.vendor.name || 'Підрядник';
+      void this.notifications.notifyUser(recipientId, {
+        title: 'Відповідь підрядника',
+        body: `${vendorName}: ${preview}`,
+        data: { type: 'request_message', requestId },
+        email: {
+          subject: `${vendorName} відповів на заявку`,
+          body: [
+            `${vendorName} надіслав відповідь на вашу заявку.`,
+            '',
+            dto.body.trim(),
+            ...(phone ? ['', `Телефон: ${phone}`] : []),
+          ].join('\n'),
+          ctaLabel: 'Відкрити діалог',
+          ctaPath: '/requests',
+        },
+      });
+    } else {
+      void this.notifications.notifyUser(recipientId, {
+        title: 'Нове повідомлення',
+        body: preview,
+        data: { type: 'request_message', requestId },
+        email: {
+          subject: 'Нове повідомлення по заявці',
+          body: [
+            'Пара написала вам у заявці на NITKA.',
+            '',
+            dto.body.trim(),
+            ...(phone ? ['', `Телефон: ${phone}`] : []),
+          ].join('\n'),
+          ctaLabel: 'Відкрити заявки',
+          ctaPath: '/vendor/requests',
+        },
       });
     }
 

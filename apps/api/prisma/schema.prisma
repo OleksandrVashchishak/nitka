@@ -1,7 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
-  // native = local/docker; debian = Render Node free tier
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  // native = Windows/mac local; debian = Render; musl = Docker Alpine
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -71,8 +71,23 @@ model User {
   requestMessages RequestMessage[]
   externalVendors ExternalVendor[]
   contentPosts    ContentPost[]
+  pushDevices     PushDevice[]
 
   @@map("users")
+}
+
+model PushDevice {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  platform  String   @default("unknown")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_devices")
 }
 
 model Category {
@@ -304,6 +319,7 @@ model Wedding {
   planningStage   String   @default("EXPLORING") @map("planning_stage")
   cityUndecided   Boolean  @default(false) @map("city_undecided")
   guestsUndecided Boolean  @default(false) @map("guests_undecided")
+  dayPlan         Json?    @map("day_plan")
 
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   members     WeddingMember[]
@@ -311,8 +327,38 @@ model Wedding {
   tasks       Task[]
   guestList   Guest[]
   budgetItems BudgetItem[]
+  website     WeddingWebsite?
+  invitation  WeddingInvitation?
 
   @@map("weddings")
+}
+
+model WeddingWebsite {
+  id         String   @id @default(cuid())
+  weddingId  String   @unique @map("wedding_id")
+  slug       String   @unique
+  templateId String   @default("classic") @map("template_id")
+  published  Boolean  @default(false)
+  content    Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("wedding_websites")
+}
+
+model WeddingInvitation {
+  id         String   @id @default(cuid())
+  weddingId  String   @unique @map("wedding_id")
+  templateId String   @default("sage-linen") @map("template_id")
+  content    Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("wedding_invitations")
 }
 
 enum WeddingMemberRole {
@@ -362,6 +408,7 @@ model Task {
   categorySlug String?    @map("category_slug")
   status       TaskStatus @default(TODO)
   dueDate      DateTime?  @map("due_date")
+  dueRemindedAt DateTime? @map("due_reminded_at")
   sortOrder    Int        @default(0) @map("sort_order")
   isCustom     Boolean    @default(false) @map("is_custom")
 

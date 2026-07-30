@@ -303,14 +303,15 @@ function AdminContentEditorInner({ postId }: Props) {
                 className="mt-1 w-full rounded-xl border border-line px-3 py-2 text-sm"
               />
             </label>
-            <label className="mt-3 block">
-              <span className="text-xs text-ink-soft">OG image URL</span>
-              <input
-                value={ogImageUrl}
-                onChange={(e) => setOgImageUrl(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-line px-3 py-2 text-sm"
-              />
-            </label>
+            <div className="mt-3">
+              <p className="text-xs text-ink-soft">OG image</p>
+              <div className="mt-2">
+                <PhotoUploader
+                  urls={ogImageUrl ? [ogImageUrl] : []}
+                  onChange={(urls) => setOgImageUrl(urls[urls.length - 1] || "")}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="rounded-2xl border border-line bg-white p-4">

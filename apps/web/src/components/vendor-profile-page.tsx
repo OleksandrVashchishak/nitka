@@ -14,6 +14,8 @@ import { VendorOnboardingGuide } from "@/components/vendor-onboarding-guide";
 import { PhotoUploader } from "@/components/photo-uploader";
 import Link from "next/link";
 import { vendorHref } from "@/lib/vendor-href";
+import { uploadFile } from "@/lib/client-api";
+import { toast } from "@/lib/toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -736,18 +738,63 @@ function VendorProfileInner() {
                   className="rounded-xl border border-line px-3 py-2 outline-none focus:border-sage"
                 />
               </div>
-              <input
-                value={member.photoUrl}
-                onChange={(e) =>
-                  setTeam((prev) =>
-                    prev.map((item, i) =>
-                      i === index ? { ...item, photoUrl: e.target.value } : item,
-                    ),
-                  )
-                }
-                placeholder="URL фото"
-                className="w-full rounded-xl border border-line px-3 py-2 outline-none focus:border-sage"
-              />
+              <div className="flex flex-wrap items-center gap-3">
+                {member.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={member.photoUrl}
+                    alt={member.name || "Учасник"}
+                    className="size-14 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex size-14 items-center justify-center rounded-full bg-mist text-xs text-ink-soft">
+                    фото
+                  </div>
+                )}
+                <label className="cursor-pointer rounded-full border border-line px-3 py-1.5 text-sm hover:border-sage/40">
+                  Завантажити фото
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!file) return;
+                      void (async () => {
+                        try {
+                          const uploaded = await uploadFile(file);
+                          setTeam((prev) =>
+                            prev.map((item, i) =>
+                              i === index
+                                ? { ...item, photoUrl: uploaded.url }
+                                : item,
+                            ),
+                          );
+                          toast.success("Фото завантажено");
+                        } catch {
+                          /* api toast */
+                        }
+                      })();
+                    }}
+                  />
+                </label>
+                {member.photoUrl ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTeam((prev) =>
+                        prev.map((item, i) =>
+                          i === index ? { ...item, photoUrl: "" } : item,
+                        ),
+                      )
+                    }
+                    className="text-sm text-ink-soft hover:text-ink"
+                  >
+                    Прибрати
+                  </button>
+                ) : null}
+              </div>
               <textarea
                 rows={3}
                 value={member.bio}

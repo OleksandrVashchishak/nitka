@@ -142,7 +142,7 @@ export function DashboardInsightsPanel({ city }: Props) {
   if (loading) {
     return (
       <div className="mt-6 rounded-2xl border border-line bg-white p-6 text-sm text-ink-soft">
-        Збираємо прогрес плану, бюджет і RSVP…
+        Збираємо прогрес плану, бюджет і запрошення…
       </div>
     );
   }
@@ -227,7 +227,7 @@ export function DashboardInsightsPanel({ city }: Props) {
 
         <article className="rounded-2xl border border-line bg-mist p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
-            RSVP гостей
+            Запрошення гостей
           </p>
           <p className="mt-3 font-[family-name:var(--font-display)] text-3xl text-ink">
             {insights.rsvp.pending}

@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import { AuthUser } from '../auth/current-user.decorator';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpsertDayPlanDto } from './dto/day-plan.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import { WeddingsService } from './weddings.service';
@@ -16,35 +17,36 @@ export declare class WeddingsController {
     }>;
     getMine(user: AuthUser, res: Response): Promise<{
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
+        tasks: {
+            status: import(".prisma/client").$Enums.TaskStatus;
+            id: string;
+            title: string;
+            sortOrder: number;
+            weddingId: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            dueRemindedAt: Date | null;
+            isCustom: boolean;
+        }[];
         members: ({
             user: {
-                email: string;
-                name: string;
                 id: string;
+                name: string;
+                email: string;
             };
         } & {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            sortOrder: number;
-            title: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            weddingId: string;
-            isCustom: boolean;
-        }[];
         id: string;
-        city: string;
         userId: string;
-        date: Date;
+        city: string;
         guests: number;
         budget: number;
+        date: Date;
         partnerOneName: string;
         partnerTwoName: string;
         couplePhotoUrl: string | null;
@@ -54,35 +56,36 @@ export declare class WeddingsController {
     } | undefined>;
     upsert(user: AuthUser, dto: UpsertWeddingDto): Promise<{
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
+        tasks: {
+            status: import(".prisma/client").$Enums.TaskStatus;
+            id: string;
+            title: string;
+            sortOrder: number;
+            weddingId: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            dueRemindedAt: Date | null;
+            isCustom: boolean;
+        }[];
         members: ({
             user: {
-                email: string;
-                name: string;
                 id: string;
+                name: string;
+                email: string;
             };
         } & {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            sortOrder: number;
-            title: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            weddingId: string;
-            isCustom: boolean;
-        }[];
         id: string;
-        city: string;
         userId: string;
-        date: Date;
+        city: string;
         guests: number;
         budget: number;
+        date: Date;
         partnerOneName: string;
         partnerTwoName: string;
         couplePhotoUrl: string | null;
@@ -130,31 +133,34 @@ export declare class WeddingsController {
         recommendations: {
             reason: string;
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
+            photos: {
+                id: string;
+                order: number;
+                url: string;
+                vendorId: string;
+            }[];
             _count: {
                 reviews: number;
             };
-            photos: {
-                id: string;
-                url: string;
-                order: number;
-                vendorId: string;
-            }[];
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -171,13 +177,36 @@ export declare class WeddingsController {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         }[];
     } | null>;
+    getDayPlan(user: AuthUser): Promise<{
+        dayPlan: {
+            use24h?: boolean | undefined;
+            version: 1;
+            events: {
+                icon?: string | undefined;
+                id: string;
+                title: string;
+                durationMin: number;
+                startMin: number | null;
+            }[];
+        } | null;
+    }>;
+    upsertDayPlan(user: AuthUser, dto: UpsertDayPlanDto): Promise<{
+        dayPlan: {
+            use24h?: boolean | undefined;
+            version: 1;
+            events: {
+                icon?: string | undefined;
+                id: string;
+                title: string;
+                durationMin: number;
+                startMin: number | null;
+            }[];
+        };
+    }>;
     createPartnerInvite(user: AuthUser): Promise<{
         token: string;
         expiresAt: Date;
@@ -185,35 +214,36 @@ export declare class WeddingsController {
     }>;
     acceptPartnerInvite(user: AuthUser, token: string): Promise<{
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
+        tasks: {
+            status: import(".prisma/client").$Enums.TaskStatus;
+            id: string;
+            title: string;
+            sortOrder: number;
+            weddingId: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            dueRemindedAt: Date | null;
+            isCustom: boolean;
+        }[];
         members: ({
             user: {
-                email: string;
-                name: string;
                 id: string;
+                name: string;
+                email: string;
             };
         } & {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            sortOrder: number;
-            title: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            weddingId: string;
-            isCustom: boolean;
-        }[];
         id: string;
-        city: string;
         userId: string;
-        date: Date;
+        city: string;
         guests: number;
         budget: number;
+        date: Date;
         partnerOneName: string;
         partnerTwoName: string;
         couplePhotoUrl: string | null;
@@ -222,23 +252,25 @@ export declare class WeddingsController {
         guestsUndecided: boolean;
     } | null>;
     createTask(user: AuthUser, dto: CreateTaskDto): Promise<{
-        id: string;
-        sortOrder: number;
-        title: string;
         status: import(".prisma/client").$Enums.TaskStatus;
+        id: string;
+        title: string;
+        sortOrder: number;
+        weddingId: string;
         categorySlug: string | null;
         dueDate: Date | null;
-        weddingId: string;
+        dueRemindedAt: Date | null;
         isCustom: boolean;
     }>;
     updateTask(user: AuthUser, taskId: string, dto: UpdateTaskDto): Promise<{
-        id: string;
-        sortOrder: number;
-        title: string;
         status: import(".prisma/client").$Enums.TaskStatus;
+        id: string;
+        title: string;
+        sortOrder: number;
+        weddingId: string;
         categorySlug: string | null;
         dueDate: Date | null;
-        weddingId: string;
+        dueRemindedAt: Date | null;
         isCustom: boolean;
     }>;
     deleteTask(user: AuthUser, taskId: string): Promise<{

@@ -1,11 +1,14 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { InvitationCard } from "@/components/invitation-card";
 import {
   submitPublicRsvp,
   type PublicInvite,
   type RsvpStatus,
 } from "@/lib/guests-api";
+import { normalizeInvitationContent } from "@/lib/invitations-api";
+import { getInvitationTheme } from "@/lib/invitation-themes";
 
 const CHOICES: Array<{ value: RsvpStatus; label: string; hint: string }> = [
   { value: "YES", label: "Так, буду", hint: "З радістю" },
@@ -16,15 +19,6 @@ const CHOICES: Array<{ value: RsvpStatus; label: string; hint: string }> = [
 type Props = {
   invite: PublicInvite;
 };
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("uk-UA", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
-}
 
 export function PublicRsvpForm({ invite }: Props) {
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus>(
@@ -42,6 +36,18 @@ export function PublicRsvpForm({ invite }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(invite.rsvpStatus !== "PENDING");
   const [savedStatus, setSavedStatus] = useState(invite.rsvpStatus);
+
+  const templateId = invite.invitation?.templateId ?? "sage-linen";
+  const theme = getInvitationTheme(templateId);
+  const content = normalizeInvitationContent(invite.invitation?.content, {
+    headline: invite.wedding.coupleName,
+    dateLabel: new Intl.DateTimeFormat("uk-UA", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date(invite.wedding.date)),
+    address: invite.wedding.city,
+  });
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -67,31 +73,29 @@ export function PublicRsvpForm({ invite }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-5 py-16 md:px-8">
-      <div className="overflow-hidden rounded-3xl border border-line bg-white shadow-sm">
-        <div className="bg-gradient-to-br from-sage/20 via-mist to-paper px-6 py-8 md:px-8">
-          <p className="text-sm uppercase tracking-[0.16em] text-sage-deep">
-            Запрошення · RSVP
-          </p>
-          <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            {invite.wedding.coupleName}
-          </h1>
-          <p className="mt-3 text-ink-soft">
-            {formatDate(invite.wedding.date)} · {invite.wedding.city}
-          </p>
-          <p className="mt-6 text-lg text-ink">
-            Привіт, <span className="font-medium">{invite.name}</span>!
-            Підтверди, будь ласка, чи будеш з нами.
-          </p>
-        </div>
+    <div className="min-h-screen" style={{ background: theme.colors.bg }}>
+      <div className="mx-auto w-full max-w-xl px-3 py-6 sm:px-5 sm:py-10 md:px-6 md:py-14">
+        <InvitationCard
+          templateId={templateId}
+          content={content}
+          guestName={invite.name}
+          websiteUrl={invite.wedding.websiteUrl}
+        />
 
-        <div className="px-6 py-6 md:px-8 md:py-8">
+        <div
+          className="mt-4 border px-4 py-5 sm:mt-6 sm:px-5 sm:py-6 md:px-7 md:py-8"
+          style={{
+            background: theme.colors.surface,
+            borderColor: theme.colors.line,
+            color: theme.colors.text,
+          }}
+        >
           {done ? (
-            <div className="rounded-2xl border border-sage/30 bg-mist p-6 text-center">
-              <p className="font-[family-name:var(--font-display)] text-3xl text-ink">
+            <div className="text-center">
+              <p className="font-[family-name:var(--font-display)] text-3xl">
                 Дякуємо!
               </p>
-              <p className="mt-3 text-ink-soft">
+              <p className="mt-3 text-sm" style={{ color: theme.colors.muted }}>
                 Відповідь збережено
                 {savedStatus === "YES"
                   ? ": чекаємо на тебе."
@@ -104,46 +108,67 @@ export function PublicRsvpForm({ invite }: Props) {
               <button
                 type="button"
                 onClick={() => setDone(false)}
-                className="mt-5 text-sm font-medium text-sage-deep underline-offset-4 hover:underline"
+                className="mt-5 text-sm font-medium underline-offset-4 hover:underline"
+                style={{ color: theme.colors.accent }}
               >
                 Змінити відповідь
               </button>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-5">
+              <p
+                className="text-center text-xs uppercase tracking-[0.18em]"
+                style={{ color: theme.colors.muted }}
+              >
+                Підтвердження
+              </p>
               <div className="grid gap-3">
-                {CHOICES.map((choice) => (
-                  <label
-                    key={choice.value}
-                    className={
-                      rsvpStatus === choice.value
-                        ? "cursor-pointer rounded-2xl border-2 border-sage bg-sage/10 px-4 py-4"
-                        : "cursor-pointer rounded-2xl border border-line px-4 py-4 hover:border-sage/40"
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="rsvp"
-                      className="sr-only"
-                      checked={rsvpStatus === choice.value}
-                      onChange={() => setRsvpStatus(choice.value)}
-                    />
-                    <span className="block text-lg font-medium text-ink">
-                      {choice.label}
-                    </span>
-                    <span className="text-sm text-ink-soft">{choice.hint}</span>
-                  </label>
-                ))}
+                {CHOICES.map((choice) => {
+                  const active = rsvpStatus === choice.value;
+                  return (
+                    <label
+                      key={choice.value}
+                      className="cursor-pointer border px-4 py-4 transition"
+                      style={{
+                        borderColor: active
+                          ? theme.colors.accent
+                          : theme.colors.line,
+                        background: active
+                          ? `${theme.colors.accent}18`
+                          : "transparent",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="rsvp"
+                        className="sr-only"
+                        checked={active}
+                        onChange={() => setRsvpStatus(choice.value)}
+                      />
+                      <span className="block text-lg font-medium">
+                        {choice.label}
+                      </span>
+                      <span
+                        className="text-sm"
+                        style={{ color: theme.colors.muted }}
+                      >
+                        {choice.hint}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
 
               {invite.plusOne ? (
-                <div className="space-y-3 rounded-2xl bg-mist p-4">
-                  <label className="flex items-center gap-2 text-sm text-ink">
+                <div
+                  className="space-y-3 border p-4"
+                  style={{ borderColor: theme.colors.line }}
+                >
+                  <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
                       checked={plusOneAttending}
                       onChange={(e) => setPlusOneAttending(e.target.checked)}
-                      className="size-4 accent-[var(--sage)]"
                     />
                     Зі мною буде +1
                   </label>
@@ -152,7 +177,11 @@ export function PublicRsvpForm({ invite }: Props) {
                       value={plusOneName}
                       onChange={(e) => setPlusOneName(e.target.value)}
                       placeholder="Імʼя +1"
-                      className="w-full rounded-xl border border-line bg-white px-4 py-3 outline-none focus:border-sage"
+                      className="w-full border px-4 py-3 outline-none"
+                      style={{
+                        borderColor: theme.colors.line,
+                        background: theme.colors.bg,
+                      }}
                     />
                   ) : null}
                 </div>
@@ -162,7 +191,11 @@ export function PublicRsvpForm({ invite }: Props) {
                 value={allergies}
                 onChange={(e) => setAllergies(e.target.value)}
                 placeholder="Алергії / дієта"
-                className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+                className="w-full border px-4 py-3 outline-none"
+                style={{
+                  borderColor: theme.colors.line,
+                  background: theme.colors.bg,
+                }}
               />
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
@@ -170,13 +203,21 @@ export function PublicRsvpForm({ invite }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
-                  className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+                  className="border px-4 py-3 outline-none"
+                  style={{
+                    borderColor: theme.colors.line,
+                    background: theme.colors.bg,
+                  }}
                 />
                 <input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Телефон"
-                  className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+                  className="border px-4 py-3 outline-none"
+                  style={{
+                    borderColor: theme.colors.line,
+                    background: theme.colors.bg,
+                  }}
                 />
               </div>
               <textarea
@@ -184,11 +225,15 @@ export function PublicRsvpForm({ invite }: Props) {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Побажання / коментар"
                 rows={3}
-                className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+                className="w-full border px-4 py-3 outline-none"
+                style={{
+                  borderColor: theme.colors.line,
+                  background: theme.colors.bg,
+                }}
               />
 
               {error ? (
-                <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <p className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error}
                 </p>
               ) : null}
@@ -196,7 +241,11 @@ export function PublicRsvpForm({ invite }: Props) {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full rounded-full bg-sage px-4 py-3.5 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+                className="w-full px-4 py-3.5 text-sm font-semibold uppercase tracking-[0.14em] disabled:opacity-60"
+                style={{
+                  background: theme.colors.accent,
+                  color: theme.id === "midnight-frame" ? theme.colors.bg : "#fff",
+                }}
               >
                 {saving ? "Надсилаємо..." : "Надіслати відповідь"}
               </button>

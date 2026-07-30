@@ -6,6 +6,10 @@ export declare class AuthService {
     private readonly prisma;
     private readonly jwt;
     constructor(prisma: PrismaService, jwt: JwtService);
+    checkEmail(emailRaw: string): Promise<{
+        available: boolean;
+        email: string;
+    }>;
     register(dto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
@@ -40,11 +44,11 @@ export declare class AuthService {
         ok: boolean;
     }>;
     me(userId: string): Promise<{
-        email: string;
-        name: string;
         role: import(".prisma/client").$Enums.Role;
         id: string;
+        name: string;
         createdAt: Date;
+        email: string;
     }>;
     private resolveRegisterRole;
     private get refreshSecret();

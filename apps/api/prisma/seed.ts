@@ -447,7 +447,7 @@ async function seedCouple(passwordHash: string) {
       'Обрати флористику та декор',
       'Запланувати beauty-проби',
       'Надіслати запрошення гостям',
-      'Зібрати всі RSVP',
+      'Зібрати всі запрошення',
     ];
     for (const [index, title] of defaults.entries()) {
       await prisma.task.create({

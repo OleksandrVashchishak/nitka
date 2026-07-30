@@ -1,16 +1,65 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { resolveWeddingForUser } from '../weddings/wedding-access';
+import { RegisterPushDto } from './dto/register-push.dto';
+import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class NotificationsController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
+
+  @Post('push-token')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.VENDOR, Role.ADMIN)
+  registerPush(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: RegisterPushDto,
+  ) {
+    return this.notifications.registerDevice(
+      user.id,
+      dto.token,
+      dto.platform,
+    );
+  }
+
+  @Delete('push-token')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE, Role.VENDOR, Role.ADMIN)
+  unregisterPush(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: RegisterPushDto,
+  ) {
+    return this.notifications.unregisterDevice(user.id, dto.token);
+  }
+
+  /** Зовнішній cron / ручний тригер (заголовок x-cron-secret). */
+  @Post('reminders/due')
+  runDueReminders(@Headers('x-cron-secret') secret?: string) {
+    const expected = process.env.CRON_SECRET;
+    if (expected && secret !== expected) {
+      throw new UnauthorizedException('Invalid cron secret');
+    }
+    return this.notifications.sendDueTaskReminders();
+  }
 
   @Get('summary')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.COUPLE, Role.VENDOR, Role.ADMIN)
   async summary(@CurrentUser() user: AuthUser) {
     if (user.role === 'VENDOR') {
@@ -22,7 +71,12 @@ export class NotificationsController {
           role: 'VENDOR',
           newRequests: 0,
           total: 0,
-          items: [] as Array<{ key: string; label: string; count: number; href: string }>,
+          items: [] as Array<{
+            key: string;
+            label: string;
+            count: number;
+            href: string;
+          }>,
         };
       }
 
@@ -47,10 +101,8 @@ export class NotificationsController {
       };
     }
 
-    // COUPLE / ADMIN acting as couple dashboard badges
-    const wedding = await this.prisma.wedding.findUnique({
-      where: { userId: user.id },
-    });
+    const access = await resolveWeddingForUser(this.prisma, user.id);
+    const wedding = access?.wedding ?? null;
 
     const [pendingRsvp, newRsvp, waitingRequests, vendorReplied] =
       await Promise.all([
@@ -91,13 +143,13 @@ export class NotificationsController {
     const items = [
       {
         key: 'newRsvp',
-        label: 'Нові RSVP',
+        label: 'Нові відповіді на запрошення',
         count: newRsvp,
         href: '/guests',
       },
       {
         key: 'pendingRsvp',
-        label: 'Чекають відповіді',
+        label: 'Чекають відповіді на запрошення',
         count: pendingRsvp,
         href: '/guests',
       },

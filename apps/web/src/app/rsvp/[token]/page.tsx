@@ -16,8 +16,8 @@ export default async function RsvpPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-[80vh] bg-paper">
+    <main className="min-h-screen">
       <PublicRsvpForm invite={invite} />
-    </div>
+    </main>
   );
 }

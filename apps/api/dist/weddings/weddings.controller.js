@@ -19,6 +19,7 @@ const current_user_decorator_1 = require("../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const create_task_dto_1 = require("./dto/create-task.dto");
+const day_plan_dto_1 = require("./dto/day-plan.dto");
 const update_task_dto_1 = require("./dto/update-task.dto");
 const upsert_wedding_dto_1 = require("./dto/upsert-wedding.dto");
 const weddings_service_1 = require("./weddings.service");
@@ -42,6 +43,12 @@ let WeddingsController = class WeddingsController {
     }
     getInsights(user) {
         return this.weddingsService.getInsights(user.id);
+    }
+    getDayPlan(user) {
+        return this.weddingsService.getDayPlan(user.id);
+    }
+    upsertDayPlan(user, dto) {
+        return this.weddingsService.upsertDayPlan(user.id, dto);
     }
     createPartnerInvite(user) {
         return this.weddingsService.createPartnerInvite(user.id);
@@ -96,6 +103,25 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], WeddingsController.prototype, "getInsights", null);
+__decorate([
+    (0, common_1.Get)('me/day-plan'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], WeddingsController.prototype, "getDayPlan", null);
+__decorate([
+    (0, common_1.Put)('me/day-plan'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, day_plan_dto_1.UpsertDayPlanDto]),
+    __metadata("design:returntype", void 0)
+], WeddingsController.prototype, "upsertDayPlan", null);
 __decorate([
     (0, common_1.Post)('me/partner-invite'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

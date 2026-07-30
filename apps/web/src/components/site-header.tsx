@@ -10,6 +10,8 @@ import { PRODUCT_NAV } from "@/lib/product-routes";
 export function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+
+  if (pathname.startsWith("/w/") || pathname.startsWith("/rsvp/")) return null;
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const hydrated = useAuthStore((s) => s.hydrated);

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WeddingsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("./wedding-access");
 const DEFAULT_TASKS = [
@@ -34,7 +35,7 @@ const DEFAULT_TASKS = [
     { title: 'Надіслати запрошення гостям', categorySlug: 'invite-guests' },
     { title: 'Спробувати й обрати торт', categorySlug: 'cake' },
     { title: 'Скласти фінальний шортліст', categorySlug: 'favorites' },
-    { title: 'Зібрати всі RSVP', categorySlug: 'rsvp' },
+    { title: 'Зібрати всі запрошення', categorySlug: 'rsvp' },
     { title: 'Фіналізувати деталі дня', categorySlug: 'requests' },
     { title: 'Одружитися!', categorySlug: 'married' },
 ];
@@ -43,8 +44,9 @@ const MEMBER_INCLUDE = {
     user: { select: { id: true, name: true, email: true } },
 };
 let WeddingsService = class WeddingsService {
-    constructor(prisma) {
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
     }
     async loadWeddingWithMeta(weddingId, userId) {
         const wedding = await this.prisma.wedding.findUnique({
@@ -221,6 +223,7 @@ let WeddingsService = class WeddingsService {
     async upsert(userId, dto) {
         const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, userId);
         if (access) {
+            const prev = access.wedding;
             await this.prisma.wedding.update({
                 where: { id: access.wedding.id },
                 data: {
@@ -249,6 +252,25 @@ let WeddingsService = class WeddingsService {
                 },
             });
             await this.syncDefaultTasks(access.wedding.id);
+            const changed = prev.date.toISOString().slice(0, 10) !== dto.date.slice(0, 10) ||
+                prev.city !== dto.city.trim() ||
+                prev.guests !== dto.guests ||
+                prev.budget !== dto.budget ||
+                (dto.partnerOneName !== undefined &&
+                    prev.partnerOneName !== dto.partnerOneName.trim()) ||
+                (dto.partnerTwoName !== undefined &&
+                    prev.partnerTwoName !== dto.partnerTwoName.trim()) ||
+                (dto.cityUndecided !== undefined &&
+                    prev.cityUndecided !== dto.cityUndecided) ||
+                (dto.guestsUndecided !== undefined &&
+                    prev.guestsUndecided !== dto.guestsUndecided);
+            if (changed) {
+                void this.notifications.notifyWeddingMembers(access.wedding.id, {
+                    title: 'Партнер оновив весілля',
+                    body: 'Змінилися деталі — глянь у кабінеті',
+                    data: { type: 'wedding_update' },
+                }, userId);
+            }
             return this.getMine(userId);
         }
         const wedding = await this.prisma.wedding.create({
@@ -438,6 +460,71 @@ let WeddingsService = class WeddingsService {
         await this.prisma.task.delete({ where: { id: taskId } });
         return { ok: true };
     }
+    async getDayPlan(userId) {
+        const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId);
+        const rows = await this.prisma.$queryRaw `
+      SELECT day_plan FROM weddings WHERE id = ${wedding.id} LIMIT 1
+    `;
+        const raw = rows[0]?.day_plan ?? null;
+        return { dayPlan: this.normalizeDayPlan(raw) };
+    }
+    async upsertDayPlan(userId, dto) {
+        const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId);
+        const plan = {
+            version: 1,
+            events: dto.events.map((e) => ({
+                id: e.id.trim(),
+                title: e.title.trim(),
+                durationMin: Math.max(5, Math.min(12 * 60, Math.round(e.durationMin))),
+                startMin: e.startMin == null ? null : Math.round(e.startMin),
+                ...(e.icon ? { icon: e.icon } : {}),
+            })),
+            ...(dto.use24h !== undefined ? { use24h: dto.use24h } : {}),
+        };
+        await this.prisma.$executeRaw `
+      UPDATE weddings
+      SET day_plan = ${JSON.stringify(plan)}::jsonb
+      WHERE id = ${wedding.id}
+    `;
+        return { dayPlan: plan };
+    }
+    normalizeDayPlan(raw) {
+        if (!raw || typeof raw !== 'object')
+            return null;
+        const obj = raw;
+        if (obj.version !== 1 || !Array.isArray(obj.events))
+            return null;
+        const events = obj.events
+            .map((item) => {
+            if (!item || typeof item !== 'object')
+                return null;
+            const e = item;
+            const id = typeof e.id === 'string' ? e.id.trim() : '';
+            const title = typeof e.title === 'string' ? e.title.trim() : '';
+            const durationMin = Number(e.durationMin);
+            if (!id || !title || !Number.isFinite(durationMin))
+                return null;
+            const startRaw = e.startMin;
+            const startMin = startRaw === null || startRaw === undefined
+                ? null
+                : Number(startRaw);
+            return {
+                id,
+                title,
+                durationMin: Math.max(5, Math.min(12 * 60, Math.round(durationMin))),
+                startMin: startMin == null || !Number.isFinite(startMin)
+                    ? null
+                    : Math.round(startMin),
+                ...(typeof e.icon === 'string' ? { icon: e.icon } : {}),
+            };
+        })
+            .filter((e) => Boolean(e));
+        return {
+            version: 1,
+            events,
+            ...(typeof obj.use24h === 'boolean' ? { use24h: obj.use24h } : {}),
+        };
+    }
     async requireMemberTask(userId, taskId) {
         const task = await this.prisma.task.findUnique({
             where: { id: taskId },
@@ -491,6 +578,7 @@ let WeddingsService = class WeddingsService {
 exports.WeddingsService = WeddingsService;
 exports.WeddingsService = WeddingsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], WeddingsService);
 //# sourceMappingURL=weddings.service.js.map

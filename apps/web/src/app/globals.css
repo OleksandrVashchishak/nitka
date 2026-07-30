@@ -40,6 +40,13 @@ body {
   font-family: var(--font-sans), sans-serif;
 }
 
+/* Great Vibes (latin) → Marck Script (cyrillic) → display serif */
+.font-wedding-script {
+  font-family: var(--font-script), var(--font-script-cyr), var(--font-display),
+    serif;
+}
+
+
 ::selection {
   background: color-mix(in oklab, var(--sage) 35%, white);
 }
@@ -173,4 +180,27 @@ body {
 
 .animate-loader-dot {
   animation: loader-dot 1.1s ease-in-out infinite;
+}
+
+@keyframes weddingFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wedding-reveal {
+  animation: weddingFadeUp 0.75s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wedding-reveal,
+  .wedding-parallax {
+    animation: none !important;
+    transform: none !important;
+  }
 }

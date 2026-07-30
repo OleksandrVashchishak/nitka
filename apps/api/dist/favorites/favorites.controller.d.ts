@@ -7,29 +7,32 @@ export declare class FavoritesController {
     list(user: AuthUser): import(".prisma/client").Prisma.PrismaPromise<({
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
-                url: string;
                 order: number;
+                url: string;
                 vendorId: string;
             }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -46,48 +49,48 @@ export declare class FavoritesController {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         };
     } & {
         id: string;
         userId: string;
         vendorId: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     })[]>;
     pipeline(user: AuthUser): Promise<{
         catalog: ({
             vendor: {
                 category: {
-                    name: string;
                     id: string;
+                    name: string;
                     slug: string;
                     description: string;
                     sortOrder: number;
                 };
                 photos: {
                     id: string;
-                    url: string;
                     order: number;
+                    url: string;
                     vendorId: string;
                 }[];
             } & {
-                name: string;
+                status: import(".prisma/client").$Enums.VendorStatus;
+                featured: boolean;
                 id: string;
-                createdAt: Date;
+                userId: string;
+                name: string;
                 slug: string | null;
-                description: string;
                 tagline: string;
+                description: string;
                 categoryId: string;
                 city: string;
                 priceFrom: number;
                 priceTo: number | null;
+                rating: number;
                 phone: string | null;
                 website: string | null;
                 instagram: string | null;
@@ -104,63 +107,60 @@ export declare class FavoritesController {
                 services: string[];
                 serviceAreas: string[];
                 languages: string[];
-                userId: string;
-                rating: number;
-                status: import(".prisma/client").$Enums.VendorStatus;
-                featured: boolean;
                 moderationNote: string | null;
+                createdAt: Date;
             };
         } & {
             id: string;
             userId: string;
             vendorId: string;
+            updatedAt: Date;
             notes: string | null;
             stage: import(".prisma/client").$Enums.VendorPipelineStage;
             quotedPrice: number | null;
-            updatedAt: Date;
         })[];
         manual: {
-            category: string;
-            name: string;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             city: string;
             phone: string | null;
             website: string | null;
-            userId: string;
+            createdAt: Date;
+            category: string;
+            updatedAt: Date;
             notes: string | null;
             stage: import(".prisma/client").$Enums.VendorPipelineStage;
             quotedPrice: number | null;
-            updatedAt: Date;
         }[];
     }>;
     createExternal(user: AuthUser, dto: CreateExternalVendorDto): Promise<{
-        category: string;
-        name: string;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         city: string;
         phone: string | null;
         website: string | null;
-        userId: string;
+        createdAt: Date;
+        category: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     updateExternal(user: AuthUser, id: string, dto: UpdateExternalVendorDto): Promise<{
-        category: string;
-        name: string;
         id: string;
-        createdAt: Date;
+        userId: string;
+        name: string;
         city: string;
         phone: string | null;
         website: string | null;
-        userId: string;
+        createdAt: Date;
+        category: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     removeExternal(user: AuthUser, id: string): Promise<{
         ok: boolean;
@@ -168,29 +168,32 @@ export declare class FavoritesController {
     updatePipeline(user: AuthUser, vendorId: string, dto: UpdatePipelineDto): Promise<{
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
-                url: string;
                 order: number;
+                url: string;
                 vendorId: string;
             }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -207,47 +210,47 @@ export declare class FavoritesController {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         };
     } & {
         id: string;
         userId: string;
         vendorId: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     add(user: AuthUser, vendorId: string): Promise<{
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
-                url: string;
                 order: number;
+                url: string;
                 vendorId: string;
             }[];
         } & {
-            name: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            featured: boolean;
             id: string;
-            createdAt: Date;
+            userId: string;
+            name: string;
             slug: string | null;
-            description: string;
             tagline: string;
+            description: string;
             categoryId: string;
             city: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -264,20 +267,17 @@ export declare class FavoritesController {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
+            createdAt: Date;
         };
     } & {
         id: string;
         userId: string;
         vendorId: string;
+        updatedAt: Date;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
         quotedPrice: number | null;
-        updatedAt: Date;
     }>;
     remove(user: AuthUser, vendorId: string): Promise<{
         ok: boolean;

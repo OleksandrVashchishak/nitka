@@ -1,11 +1,16 @@
 import { AuthService } from './auth.service';
 import { AuthUser } from './current-user.decorator';
+import { CheckEmailDto } from './dto/check-email.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
+    checkEmail(query: CheckEmailDto): Promise<{
+        available: boolean;
+        email: string;
+    }>;
     register(dto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
@@ -40,10 +45,10 @@ export declare class AuthController {
         ok: boolean;
     }>;
     me(user: AuthUser): Promise<{
-        email: string;
-        name: string;
         role: import(".prisma/client").$Enums.Role;
         id: string;
+        name: string;
         createdAt: Date;
+        email: string;
     }>;
 }

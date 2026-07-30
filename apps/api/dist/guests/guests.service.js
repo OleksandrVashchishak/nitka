@@ -11,11 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GuestsService = void 0;
 const common_1 = require("@nestjs/common");
+const invitations_service_1 = require("../invitations/invitations.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
 let GuestsService = class GuestsService {
-    constructor(prisma) {
+    constructor(prisma, notifications, invitations) {
         this.prisma = prisma;
+        this.notifications = notifications;
+        this.invitations = invitations;
     }
     async getWeddingForUser(userId) {
         const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId);
@@ -163,11 +167,13 @@ let GuestsService = class GuestsService {
             include: {
                 wedding: {
                     select: {
+                        id: true,
                         date: true,
                         city: true,
                         partnerOneName: true,
                         partnerTwoName: true,
                         user: { select: { name: true } },
+                        website: { select: { slug: true, published: true } },
                     },
                 },
             },
@@ -178,7 +184,11 @@ let GuestsService = class GuestsService {
         const partners = [guest.wedding.partnerOneName, guest.wedding.partnerTwoName]
             .map((name) => name.trim())
             .filter(Boolean);
-        const coupleName = partners.length > 0 ? partners.join(' & ') : guest.wedding.user.name;
+        const coupleName = partners.length > 0 ? partners.join(' і ') : guest.wedding.user.name;
+        const design = await this.invitations.getDesignForWedding(guest.wedding.id);
+        const websiteUrl = guest.wedding.website?.published && guest.wedding.website.slug
+            ? `/w/${guest.wedding.website.slug}`
+            : null;
         return {
             token: guest.inviteToken,
             name: guest.name,
@@ -194,7 +204,9 @@ let GuestsService = class GuestsService {
                 date: guest.wedding.date,
                 city: guest.wedding.city,
                 coupleName,
+                websiteUrl,
             },
+            invitation: design,
         };
     }
     async submitPublicRsvp(token, dto) {
@@ -203,6 +215,7 @@ let GuestsService = class GuestsService {
         }
         const guest = await this.prisma.guest.findUnique({
             where: { inviteToken: token },
+            include: { wedding: { select: { userId: true } } },
         });
         if (!guest) {
             throw new common_1.NotFoundException('Запрошення не знайдено');
@@ -210,7 +223,7 @@ let GuestsService = class GuestsService {
         if (!guest.plusOne && dto.plusOneAttending) {
             throw new common_1.BadRequestException('Plus one не передбачено');
         }
-        return this.prisma.guest.update({
+        const updated = await this.prisma.guest.update({
             where: { inviteToken: token },
             data: {
                 rsvpStatus: dto.rsvpStatus,
@@ -233,13 +246,29 @@ let GuestsService = class GuestsService {
                 plusOneName: true,
                 plusOneAttending: true,
                 allergies: true,
+                weddingId: true,
             },
         });
+        const statusLabel = updated.rsvpStatus === 'YES'
+            ? 'Так'
+            : updated.rsvpStatus === 'NO'
+                ? 'Ні'
+                : updated.rsvpStatus === 'MAYBE'
+                    ? 'Може'
+                    : 'Очікуємо';
+        void this.notifications.notifyWeddingMembers(updated.weddingId, {
+            title: 'Відповідь на запрошення',
+            body: `${updated.name}: ${statusLabel}`,
+            data: { type: 'invite_reply' },
+        });
+        return updated;
     }
 };
 exports.GuestsService = GuestsService;
 exports.GuestsService = GuestsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService,
+        invitations_service_1.InvitationsService])
 ], GuestsService);
 //# sourceMappingURL=guests.service.js.map

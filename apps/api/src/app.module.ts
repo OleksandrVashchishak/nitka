@@ -16,10 +16,14 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { ContentModule } from './content/content.module';
+import { WebsiteModule } from './website/website.module';
+import { InvitationsModule } from './invitations/invitations.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
     PrismaModule,
+    EmailModule,
     AuthModule,
     CategoriesModule,
     VendorsModule,
@@ -33,6 +37,8 @@ import { ContentModule } from './content/content.module';
     NotificationsModule,
     UploadsModule,
     ContentModule,
+    WebsiteModule,
+    InvitationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],

@@ -5,8 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { TaskStatus, WeddingMemberRole } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpsertDayPlanDto } from './dto/day-plan.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import {
@@ -36,7 +38,7 @@ const DEFAULT_TASKS = [
   { title: 'Надіслати запрошення гостям', categorySlug: 'invite-guests' },
   { title: 'Спробувати й обрати торт', categorySlug: 'cake' },
   { title: 'Скласти фінальний шортліст', categorySlug: 'favorites' },
-  { title: 'Зібрати всі RSVP', categorySlug: 'rsvp' },
+  { title: 'Зібрати всі запрошення', categorySlug: 'rsvp' },
   { title: 'Фіналізувати деталі дня', categorySlug: 'requests' },
   { title: 'Одружитися!', categorySlug: 'married' },
 ];
@@ -49,7 +51,10 @@ const MEMBER_INCLUDE = {
 
 @Injectable()
 export class WeddingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   private async loadWeddingWithMeta(weddingId: string, userId: string) {
     const wedding = await this.prisma.wedding.findUnique({
@@ -274,6 +279,7 @@ export class WeddingsService {
     const access = await resolveWeddingForUser(this.prisma, userId);
 
     if (access) {
+      const prev = access.wedding;
       await this.prisma.wedding.update({
         where: { id: access.wedding.id },
         data: {
@@ -302,6 +308,33 @@ export class WeddingsService {
         },
       });
       await this.syncDefaultTasks(access.wedding.id);
+
+      const changed =
+        prev.date.toISOString().slice(0, 10) !== dto.date.slice(0, 10) ||
+        prev.city !== dto.city.trim() ||
+        prev.guests !== dto.guests ||
+        prev.budget !== dto.budget ||
+        (dto.partnerOneName !== undefined &&
+          prev.partnerOneName !== dto.partnerOneName.trim()) ||
+        (dto.partnerTwoName !== undefined &&
+          prev.partnerTwoName !== dto.partnerTwoName.trim()) ||
+        (dto.cityUndecided !== undefined &&
+          prev.cityUndecided !== dto.cityUndecided) ||
+        (dto.guestsUndecided !== undefined &&
+          prev.guestsUndecided !== dto.guestsUndecided);
+
+      if (changed) {
+        void this.notifications.notifyWeddingMembers(
+          access.wedding.id,
+          {
+            title: 'Партнер оновив весілля',
+            body: 'Змінилися деталі — глянь у кабінеті',
+            data: { type: 'wedding_update' },
+          },
+          userId,
+        );
+      }
+
       return this.getMine(userId);
     }
 
@@ -520,6 +553,79 @@ export class WeddingsService {
     }
     await this.prisma.task.delete({ where: { id: taskId } });
     return { ok: true };
+  }
+
+  async getDayPlan(userId: string) {
+    const { wedding } = await requireWeddingForUser(this.prisma, userId);
+    const rows = await this.prisma.$queryRaw<Array<{ day_plan: unknown }>>`
+      SELECT day_plan FROM weddings WHERE id = ${wedding.id} LIMIT 1
+    `;
+    const raw = rows[0]?.day_plan ?? null;
+    return { dayPlan: this.normalizeDayPlan(raw) };
+  }
+
+  async upsertDayPlan(userId: string, dto: UpsertDayPlanDto) {
+    const { wedding } = await requireWeddingForUser(this.prisma, userId);
+    const plan = {
+      version: 1 as const,
+      events: dto.events.map((e) => ({
+        id: e.id.trim(),
+        title: e.title.trim(),
+        durationMin: Math.max(5, Math.min(12 * 60, Math.round(e.durationMin))),
+        startMin: e.startMin == null ? null : Math.round(e.startMin),
+        ...(e.icon ? { icon: e.icon } : {}),
+      })),
+      ...(dto.use24h !== undefined ? { use24h: dto.use24h } : {}),
+    };
+
+    await this.prisma.$executeRaw`
+      UPDATE weddings
+      SET day_plan = ${JSON.stringify(plan)}::jsonb
+      WHERE id = ${wedding.id}
+    `;
+
+    return { dayPlan: plan };
+  }
+
+  private normalizeDayPlan(raw: unknown) {
+    if (!raw || typeof raw !== 'object') return null;
+    const obj = raw as {
+      version?: unknown;
+      events?: unknown;
+      use24h?: unknown;
+    };
+    if (obj.version !== 1 || !Array.isArray(obj.events)) return null;
+    const events = obj.events
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null;
+        const e = item as Record<string, unknown>;
+        const id = typeof e.id === 'string' ? e.id.trim() : '';
+        const title = typeof e.title === 'string' ? e.title.trim() : '';
+        const durationMin = Number(e.durationMin);
+        if (!id || !title || !Number.isFinite(durationMin)) return null;
+        const startRaw = e.startMin;
+        const startMin =
+          startRaw === null || startRaw === undefined
+            ? null
+            : Number(startRaw);
+        return {
+          id,
+          title,
+          durationMin: Math.max(5, Math.min(12 * 60, Math.round(durationMin))),
+          startMin:
+            startMin == null || !Number.isFinite(startMin)
+              ? null
+              : Math.round(startMin),
+          ...(typeof e.icon === 'string' ? { icon: e.icon } : {}),
+        };
+      })
+      .filter((e): e is NonNullable<typeof e> => Boolean(e));
+
+    return {
+      version: 1 as const,
+      events,
+      ...(typeof obj.use24h === 'boolean' ? { use24h: obj.use24h } : {}),
+    };
   }
 
   private async requireMemberTask(userId: string, taskId: string) {

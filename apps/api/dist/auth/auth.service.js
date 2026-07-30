@@ -55,6 +55,11 @@ let AuthService = class AuthService {
         this.prisma = prisma;
         this.jwt = jwt;
     }
+    async checkEmail(emailRaw) {
+        const email = emailRaw.trim().toLowerCase();
+        const existing = await this.prisma.user.findUnique({ where: { email } });
+        return { available: !existing, email };
+    }
     async register(dto) {
         const email = dto.email.trim().toLowerCase();
         const existing = await this.prisma.user.findUnique({ where: { email } });

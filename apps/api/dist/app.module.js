@@ -25,6 +25,9 @@ const reviews_module_1 = require("./reviews/reviews.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 const content_module_1 = require("./content/content.module");
+const website_module_1 = require("./website/website.module");
+const invitations_module_1 = require("./invitations/invitations.module");
+const email_module_1 = require("./email/email.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +35,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             prisma_module_1.PrismaModule,
+            email_module_1.EmailModule,
             auth_module_1.AuthModule,
             categories_module_1.CategoriesModule,
             vendors_module_1.VendorsModule,
@@ -45,6 +49,8 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             uploads_module_1.UploadsModule,
             content_module_1.ContentModule,
+            website_module_1.WebsiteModule,
+            invitations_module_1.InvitationsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, roles_guard_1.RolesGuard],

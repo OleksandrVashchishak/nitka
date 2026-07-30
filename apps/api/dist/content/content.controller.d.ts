@@ -8,51 +8,51 @@ export declare class ContentController {
             posts: number;
         };
     } & {
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     })[]>;
     getTopic(slug: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     }>;
     list(topic?: string, kind?: ContentKind, featured?: string, page?: string, limit?: string): Promise<{
         items: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             } | null;
             topic: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
-                coverUrl: string | null;
                 icon: string;
+                coverUrl: string | null;
             };
         } & {
-            id: string;
-            createdAt: Date;
-            slug: string;
-            title: string;
-            city: string | null;
             status: import(".prisma/client").$Enums.ContentStatus;
             featured: boolean;
+            id: string;
+            slug: string;
+            city: string | null;
+            createdAt: Date;
+            title: string;
             updatedAt: Date;
-            body: import("@prisma/client/runtime/library").JsonValue;
             authorId: string | null;
-            excerpt: string;
+            body: import("@prisma/client/runtime/library").JsonValue;
             coverUrl: string | null;
+            excerpt: string;
             kind: import(".prisma/client").$Enums.ContentKind;
             seoTitle: string;
             seoDescription: string;
@@ -67,31 +67,31 @@ export declare class ContentController {
     }>;
     getBySlug(slug: string): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: import("@prisma/client/runtime/library").JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;

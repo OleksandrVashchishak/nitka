@@ -12,22 +12,22 @@ export declare class ContentService implements OnModuleInit {
             posts: number;
         };
     } & {
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     })[]>;
     getTopicBySlug(slug: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     }>;
     listPublished(params: {
         topic?: string;
@@ -38,31 +38,31 @@ export declare class ContentService implements OnModuleInit {
     }): Promise<{
         items: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             } | null;
             topic: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
-                coverUrl: string | null;
                 icon: string;
+                coverUrl: string | null;
             };
         } & {
-            id: string;
-            createdAt: Date;
-            slug: string;
-            title: string;
-            city: string | null;
             status: import(".prisma/client").$Enums.ContentStatus;
             featured: boolean;
+            id: string;
+            slug: string;
+            city: string | null;
+            createdAt: Date;
+            title: string;
             updatedAt: Date;
-            body: Prisma.JsonValue;
             authorId: string | null;
-            excerpt: string;
+            body: Prisma.JsonValue;
             coverUrl: string | null;
+            excerpt: string;
             kind: import(".prisma/client").$Enums.ContentKind;
             seoTitle: string;
             seoDescription: string;
@@ -77,31 +77,31 @@ export declare class ContentService implements OnModuleInit {
     }>;
     getPublishedBySlug(slug: string): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: Prisma.JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: Prisma.JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -116,31 +116,31 @@ export declare class ContentService implements OnModuleInit {
         q?: string;
     }): Prisma.PrismaPromise<({
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: Prisma.JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: Prisma.JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -151,31 +151,31 @@ export declare class ContentService implements OnModuleInit {
     })[]>;
     adminGetPost(id: string): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: Prisma.JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: Prisma.JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -185,53 +185,53 @@ export declare class ContentService implements OnModuleInit {
         publishedAt: Date | null;
     }>;
     createTopic(dto: UpsertContentTopicDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     }>;
     updateTopic(id: string, dto: UpsertContentTopicDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;
-        coverUrl: string | null;
         icon: string;
+        coverUrl: string | null;
     }>;
     deleteTopic(id: string): Promise<{
         ok: boolean;
     }>;
     createPost(authorId: string, dto: UpsertContentPostDto): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: Prisma.JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: Prisma.JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -242,31 +242,31 @@ export declare class ContentService implements OnModuleInit {
     }>;
     updatePost(id: string, dto: UpsertContentPostDto): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: Prisma.JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: Prisma.JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;
@@ -277,31 +277,31 @@ export declare class ContentService implements OnModuleInit {
     }>;
     updateStatus(id: string, status: ContentStatus): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
         topic: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             description: string;
             sortOrder: number;
-            coverUrl: string | null;
             icon: string;
+            coverUrl: string | null;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        slug: string;
-        title: string;
-        city: string | null;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
+        id: string;
+        slug: string;
+        city: string | null;
+        createdAt: Date;
+        title: string;
         updatedAt: Date;
-        body: Prisma.JsonValue;
         authorId: string | null;
-        excerpt: string;
+        body: Prisma.JsonValue;
         coverUrl: string | null;
+        excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
         seoTitle: string;
         seoDescription: string;

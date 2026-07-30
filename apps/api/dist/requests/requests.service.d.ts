@@ -1,36 +1,42 @@
 import { RequestStatus, Role } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { CreateRequestMessageDto } from './dto/create-request-message.dto';
 export declare class RequestsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notifications;
+    constructor(prisma: PrismaService, notifications: NotificationsService);
     create(userId: string, dto: CreateRequestDto): Promise<{
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
+                vendorId: string;
                 url: string;
                 order: number;
-                vendorId: string;
             }[];
         } & {
-            name: string;
             id: string;
-            createdAt: Date;
-            slug: string | null;
-            description: string;
-            tagline: string;
-            categoryId: string;
             city: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            createdAt: Date;
+            userId: string;
+            name: string;
+            slug: string | null;
+            tagline: string;
+            description: string;
+            categoryId: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
+            featured: boolean;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -47,65 +53,65 @@ export declare class RequestsService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
         };
         messages: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
             createdAt: Date;
             phone: string | null;
-            body: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
+            authorRole: import(".prisma/client").$Enums.Role;
+            body: string;
         })[];
     } & {
         id: string;
-        createdAt: Date;
+        eventDate: Date;
         city: string;
-        userId: string;
-        status: import(".prisma/client").$Enums.RequestStatus;
-        vendorId: string;
         guests: number;
         budget: number;
-        updatedAt: Date;
-        eventDate: Date;
         message: string;
+        status: import(".prisma/client").$Enums.RequestStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        vendorId: string;
     }>;
     listMine(userId: string): import(".prisma/client").Prisma.PrismaPromise<({
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
+                vendorId: string;
                 url: string;
                 order: number;
-                vendorId: string;
             }[];
         } & {
-            name: string;
             id: string;
-            createdAt: Date;
-            slug: string | null;
-            description: string;
-            tagline: string;
-            categoryId: string;
             city: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            createdAt: Date;
+            userId: string;
+            name: string;
+            slug: string | null;
+            tagline: string;
+            description: string;
+            categoryId: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
+            featured: boolean;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -122,131 +128,131 @@ export declare class RequestsService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
         };
         messages: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
             createdAt: Date;
             phone: string | null;
-            body: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
+            authorRole: import(".prisma/client").$Enums.Role;
+            body: string;
         })[];
     } & {
         id: string;
-        createdAt: Date;
+        eventDate: Date;
         city: string;
-        userId: string;
-        status: import(".prisma/client").$Enums.RequestStatus;
-        vendorId: string;
         guests: number;
         budget: number;
-        updatedAt: Date;
-        eventDate: Date;
         message: string;
+        status: import(".prisma/client").$Enums.RequestStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        vendorId: string;
     })[]>;
     listForVendor(userId: string): Promise<({
         user: {
+            id: string;
             email: string;
             name: string;
-            id: string;
         };
         messages: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
             createdAt: Date;
             phone: string | null;
-            body: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
+            authorRole: import(".prisma/client").$Enums.Role;
+            body: string;
         })[];
     } & {
         id: string;
-        createdAt: Date;
+        eventDate: Date;
         city: string;
-        userId: string;
-        status: import(".prisma/client").$Enums.RequestStatus;
-        vendorId: string;
         guests: number;
         budget: number;
-        updatedAt: Date;
-        eventDate: Date;
         message: string;
+        status: import(".prisma/client").$Enums.RequestStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        vendorId: string;
     })[]>;
     updateStatus(userId: string, requestId: string, status: RequestStatus): Promise<{
         user: {
+            id: string;
             email: string;
             name: string;
-            id: string;
         };
         messages: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
             createdAt: Date;
             phone: string | null;
-            body: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
+            authorRole: import(".prisma/client").$Enums.Role;
+            body: string;
         })[];
     } & {
         id: string;
-        createdAt: Date;
+        eventDate: Date;
         city: string;
-        userId: string;
-        status: import(".prisma/client").$Enums.RequestStatus;
-        vendorId: string;
         guests: number;
         budget: number;
-        updatedAt: Date;
-        eventDate: Date;
         message: string;
+        status: import(".prisma/client").$Enums.RequestStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        vendorId: string;
     }>;
     addMessage(userId: string, userRole: Role, requestId: string, dto: CreateRequestMessageDto): Promise<({
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
             photos: {
                 id: string;
+                vendorId: string;
                 url: string;
                 order: number;
-                vendorId: string;
             }[];
         } & {
-            name: string;
             id: string;
-            createdAt: Date;
-            slug: string | null;
-            description: string;
-            tagline: string;
-            categoryId: string;
             city: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            createdAt: Date;
+            userId: string;
+            name: string;
+            slug: string | null;
+            tagline: string;
+            description: string;
+            categoryId: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
+            featured: boolean;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -263,91 +269,91 @@ export declare class RequestsService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
         };
         messages: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
             createdAt: Date;
             phone: string | null;
-            body: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
+            authorRole: import(".prisma/client").$Enums.Role;
+            body: string;
         })[];
     } & {
         id: string;
-        createdAt: Date;
+        eventDate: Date;
         city: string;
-        userId: string;
-        status: import(".prisma/client").$Enums.RequestStatus;
-        vendorId: string;
         guests: number;
         budget: number;
-        updatedAt: Date;
-        eventDate: Date;
         message: string;
+        status: import(".prisma/client").$Enums.RequestStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        vendorId: string;
     }) | ({
         user: {
+            id: string;
             email: string;
             name: string;
-            id: string;
         };
         messages: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
             createdAt: Date;
             phone: string | null;
-            body: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
+            authorRole: import(".prisma/client").$Enums.Role;
+            body: string;
         })[];
     } & {
         id: string;
-        createdAt: Date;
+        eventDate: Date;
         city: string;
-        userId: string;
-        status: import(".prisma/client").$Enums.RequestStatus;
-        vendorId: string;
         guests: number;
         budget: number;
-        updatedAt: Date;
-        eventDate: Date;
         message: string;
+        status: import(".prisma/client").$Enums.RequestStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        vendorId: string;
     })>;
     vendorDashboard(userId: string): Promise<{
         vendor: {
             category: {
-                name: string;
                 id: string;
+                name: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
             };
         } & {
-            name: string;
             id: string;
-            createdAt: Date;
-            slug: string | null;
-            description: string;
-            tagline: string;
-            categoryId: string;
             city: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            createdAt: Date;
+            userId: string;
+            name: string;
+            slug: string | null;
+            tagline: string;
+            description: string;
+            categoryId: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
+            featured: boolean;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -364,10 +370,6 @@ export declare class RequestsService {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
             moderationNote: string | null;
         };
         stats: {

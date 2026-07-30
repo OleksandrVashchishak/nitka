@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model PushDevice
+ * 
+ */
+export type PushDevice = $Result.DefaultSelection<Prisma.$PushDevicePayload>
+/**
  * Model Category
  * 
  */
@@ -83,6 +88,16 @@ export type RequestMessage = $Result.DefaultSelection<Prisma.$RequestMessagePayl
  * 
  */
 export type Wedding = $Result.DefaultSelection<Prisma.$WeddingPayload>
+/**
+ * Model WeddingWebsite
+ * 
+ */
+export type WeddingWebsite = $Result.DefaultSelection<Prisma.$WeddingWebsitePayload>
+/**
+ * Model WeddingInvitation
+ * 
+ */
+export type WeddingInvitation = $Result.DefaultSelection<Prisma.$WeddingInvitationPayload>
 /**
  * Model WeddingMember
  * 
@@ -389,6 +404,16 @@ export class PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.pushDevice`: Exposes CRUD operations for the **PushDevice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PushDevices
+    * const pushDevices = await prisma.pushDevice.findMany()
+    * ```
+    */
+  get pushDevice(): Prisma.PushDeviceDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.category`: Exposes CRUD operations for the **Category** model.
     * Example usage:
     * ```ts
@@ -517,6 +542,26 @@ export class PrismaClient<
     * ```
     */
   get wedding(): Prisma.WeddingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.weddingWebsite`: Exposes CRUD operations for the **WeddingWebsite** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WeddingWebsites
+    * const weddingWebsites = await prisma.weddingWebsite.findMany()
+    * ```
+    */
+  get weddingWebsite(): Prisma.WeddingWebsiteDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.weddingInvitation`: Exposes CRUD operations for the **WeddingInvitation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WeddingInvitations
+    * const weddingInvitations = await prisma.weddingInvitation.findMany()
+    * ```
+    */
+  get weddingInvitation(): Prisma.WeddingInvitationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.weddingMember`: Exposes CRUD operations for the **WeddingMember** model.
@@ -1029,6 +1074,7 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    PushDevice: 'PushDevice',
     Category: 'Category',
     Vendor: 'Vendor',
     VendorPhoto: 'VendorPhoto',
@@ -1042,6 +1088,8 @@ export namespace Prisma {
     Request: 'Request',
     RequestMessage: 'RequestMessage',
     Wedding: 'Wedding',
+    WeddingWebsite: 'WeddingWebsite',
+    WeddingInvitation: 'WeddingInvitation',
     WeddingMember: 'WeddingMember',
     WeddingInvite: 'WeddingInvite',
     Task: 'Task',
@@ -1067,7 +1115,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "category" | "vendor" | "vendorPhoto" | "vendorPackage" | "vendorTeamMember" | "vendorFaq" | "vendorView" | "review" | "favorite" | "externalVendor" | "request" | "requestMessage" | "wedding" | "weddingMember" | "weddingInvite" | "task" | "guest" | "budgetItem" | "contentTopic" | "contentPost"
+      modelProps: "user" | "pushDevice" | "category" | "vendor" | "vendorPhoto" | "vendorPackage" | "vendorTeamMember" | "vendorFaq" | "vendorView" | "review" | "favorite" | "externalVendor" | "request" | "requestMessage" | "wedding" | "weddingWebsite" | "weddingInvitation" | "weddingMember" | "weddingInvite" | "task" | "guest" | "budgetItem" | "contentTopic" | "contentPost"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1142,6 +1190,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      PushDevice: {
+        payload: Prisma.$PushDevicePayload<ExtArgs>
+        fields: Prisma.PushDeviceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PushDeviceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PushDeviceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>
+          }
+          findFirst: {
+            args: Prisma.PushDeviceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PushDeviceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>
+          }
+          findMany: {
+            args: Prisma.PushDeviceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>[]
+          }
+          create: {
+            args: Prisma.PushDeviceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>
+          }
+          createMany: {
+            args: Prisma.PushDeviceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PushDeviceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>[]
+          }
+          delete: {
+            args: Prisma.PushDeviceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>
+          }
+          update: {
+            args: Prisma.PushDeviceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>
+          }
+          deleteMany: {
+            args: Prisma.PushDeviceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PushDeviceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PushDeviceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>[]
+          }
+          upsert: {
+            args: Prisma.PushDeviceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PushDevicePayload>
+          }
+          aggregate: {
+            args: Prisma.PushDeviceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePushDevice>
+          }
+          groupBy: {
+            args: Prisma.PushDeviceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PushDeviceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PushDeviceCountArgs<ExtArgs>
+            result: $Utils.Optional<PushDeviceCountAggregateOutputType> | number
           }
         }
       }
@@ -2107,6 +2229,154 @@ export namespace Prisma {
           }
         }
       }
+      WeddingWebsite: {
+        payload: Prisma.$WeddingWebsitePayload<ExtArgs>
+        fields: Prisma.WeddingWebsiteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WeddingWebsiteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WeddingWebsiteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>
+          }
+          findFirst: {
+            args: Prisma.WeddingWebsiteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WeddingWebsiteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>
+          }
+          findMany: {
+            args: Prisma.WeddingWebsiteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>[]
+          }
+          create: {
+            args: Prisma.WeddingWebsiteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>
+          }
+          createMany: {
+            args: Prisma.WeddingWebsiteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WeddingWebsiteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>[]
+          }
+          delete: {
+            args: Prisma.WeddingWebsiteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>
+          }
+          update: {
+            args: Prisma.WeddingWebsiteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>
+          }
+          deleteMany: {
+            args: Prisma.WeddingWebsiteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WeddingWebsiteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WeddingWebsiteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>[]
+          }
+          upsert: {
+            args: Prisma.WeddingWebsiteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingWebsitePayload>
+          }
+          aggregate: {
+            args: Prisma.WeddingWebsiteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWeddingWebsite>
+          }
+          groupBy: {
+            args: Prisma.WeddingWebsiteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WeddingWebsiteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WeddingWebsiteCountArgs<ExtArgs>
+            result: $Utils.Optional<WeddingWebsiteCountAggregateOutputType> | number
+          }
+        }
+      }
+      WeddingInvitation: {
+        payload: Prisma.$WeddingInvitationPayload<ExtArgs>
+        fields: Prisma.WeddingInvitationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WeddingInvitationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WeddingInvitationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>
+          }
+          findFirst: {
+            args: Prisma.WeddingInvitationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WeddingInvitationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>
+          }
+          findMany: {
+            args: Prisma.WeddingInvitationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>[]
+          }
+          create: {
+            args: Prisma.WeddingInvitationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>
+          }
+          createMany: {
+            args: Prisma.WeddingInvitationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WeddingInvitationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>[]
+          }
+          delete: {
+            args: Prisma.WeddingInvitationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>
+          }
+          update: {
+            args: Prisma.WeddingInvitationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>
+          }
+          deleteMany: {
+            args: Prisma.WeddingInvitationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WeddingInvitationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WeddingInvitationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>[]
+          }
+          upsert: {
+            args: Prisma.WeddingInvitationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WeddingInvitationPayload>
+          }
+          aggregate: {
+            args: Prisma.WeddingInvitationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWeddingInvitation>
+          }
+          groupBy: {
+            args: Prisma.WeddingInvitationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WeddingInvitationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WeddingInvitationCountArgs<ExtArgs>
+            result: $Utils.Optional<WeddingInvitationCountAggregateOutputType> | number
+          }
+        }
+      }
       WeddingMember: {
         payload: Prisma.$WeddingMemberPayload<ExtArgs>
         fields: Prisma.WeddingMemberFieldRefs
@@ -2722,6 +2992,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    pushDevice?: PushDeviceOmit
     category?: CategoryOmit
     vendor?: VendorOmit
     vendorPhoto?: VendorPhotoOmit
@@ -2735,6 +3006,8 @@ export namespace Prisma {
     request?: RequestOmit
     requestMessage?: RequestMessageOmit
     wedding?: WeddingOmit
+    weddingWebsite?: WeddingWebsiteOmit
+    weddingInvitation?: WeddingInvitationOmit
     weddingMember?: WeddingMemberOmit
     weddingInvite?: WeddingInviteOmit
     task?: TaskOmit
@@ -2828,6 +3101,7 @@ export namespace Prisma {
     requestMessages: number
     externalVendors: number
     contentPosts: number
+    pushDevices: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2837,6 +3111,7 @@ export namespace Prisma {
     requestMessages?: boolean | UserCountOutputTypeCountRequestMessagesArgs
     externalVendors?: boolean | UserCountOutputTypeCountExternalVendorsArgs
     contentPosts?: boolean | UserCountOutputTypeCountContentPostsArgs
+    pushDevices?: boolean | UserCountOutputTypeCountPushDevicesArgs
   }
 
   // Custom InputTypes
@@ -2890,6 +3165,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountContentPostsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ContentPostWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPushDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PushDeviceWhereInput
   }
 
 
@@ -3348,6 +3630,7 @@ export namespace Prisma {
     requestMessages?: boolean | User$requestMessagesArgs<ExtArgs>
     externalVendors?: boolean | User$externalVendorsArgs<ExtArgs>
     contentPosts?: boolean | User$contentPostsArgs<ExtArgs>
+    pushDevices?: boolean | User$pushDevicesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3395,6 +3678,7 @@ export namespace Prisma {
     requestMessages?: boolean | User$requestMessagesArgs<ExtArgs>
     externalVendors?: boolean | User$externalVendorsArgs<ExtArgs>
     contentPosts?: boolean | User$contentPostsArgs<ExtArgs>
+    pushDevices?: boolean | User$pushDevicesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3412,6 +3696,7 @@ export namespace Prisma {
       requestMessages: Prisma.$RequestMessagePayload<ExtArgs>[]
       externalVendors: Prisma.$ExternalVendorPayload<ExtArgs>[]
       contentPosts: Prisma.$ContentPostPayload<ExtArgs>[]
+      pushDevices: Prisma.$PushDevicePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3825,6 +4110,7 @@ export namespace Prisma {
     requestMessages<T extends User$requestMessagesArgs<ExtArgs> = {}>(args?: Subset<T, User$requestMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RequestMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     externalVendors<T extends User$externalVendorsArgs<ExtArgs> = {}>(args?: Subset<T, User$externalVendorsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalVendorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contentPosts<T extends User$contentPostsArgs<ExtArgs> = {}>(args?: Subset<T, User$contentPostsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContentPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    pushDevices<T extends User$pushDevicesArgs<ExtArgs> = {}>(args?: Subset<T, User$pushDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4451,6 +4737,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.pushDevices
+   */
+  export type User$pushDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    where?: PushDeviceWhereInput
+    orderBy?: PushDeviceOrderByWithRelationInput | PushDeviceOrderByWithRelationInput[]
+    cursor?: PushDeviceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PushDeviceScalarFieldEnum | PushDeviceScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4466,6 +4776,1077 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PushDevice
+   */
+
+  export type AggregatePushDevice = {
+    _count: PushDeviceCountAggregateOutputType | null
+    _min: PushDeviceMinAggregateOutputType | null
+    _max: PushDeviceMaxAggregateOutputType | null
+  }
+
+  export type PushDeviceMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    token: string | null
+    platform: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PushDeviceMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    token: string | null
+    platform: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PushDeviceCountAggregateOutputType = {
+    id: number
+    userId: number
+    token: number
+    platform: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PushDeviceMinAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    platform?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PushDeviceMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    platform?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PushDeviceCountAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    platform?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PushDeviceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PushDevice to aggregate.
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PushDevices to fetch.
+     */
+    orderBy?: PushDeviceOrderByWithRelationInput | PushDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PushDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PushDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PushDevices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PushDevices
+    **/
+    _count?: true | PushDeviceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PushDeviceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PushDeviceMaxAggregateInputType
+  }
+
+  export type GetPushDeviceAggregateType<T extends PushDeviceAggregateArgs> = {
+        [P in keyof T & keyof AggregatePushDevice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePushDevice[P]>
+      : GetScalarType<T[P], AggregatePushDevice[P]>
+  }
+
+
+
+
+  export type PushDeviceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PushDeviceWhereInput
+    orderBy?: PushDeviceOrderByWithAggregationInput | PushDeviceOrderByWithAggregationInput[]
+    by: PushDeviceScalarFieldEnum[] | PushDeviceScalarFieldEnum
+    having?: PushDeviceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PushDeviceCountAggregateInputType | true
+    _min?: PushDeviceMinAggregateInputType
+    _max?: PushDeviceMaxAggregateInputType
+  }
+
+  export type PushDeviceGroupByOutputType = {
+    id: string
+    userId: string
+    token: string
+    platform: string
+    createdAt: Date
+    updatedAt: Date
+    _count: PushDeviceCountAggregateOutputType | null
+    _min: PushDeviceMinAggregateOutputType | null
+    _max: PushDeviceMaxAggregateOutputType | null
+  }
+
+  type GetPushDeviceGroupByPayload<T extends PushDeviceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PushDeviceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PushDeviceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PushDeviceGroupByOutputType[P]>
+            : GetScalarType<T[P], PushDeviceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PushDeviceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["pushDevice"]>
+
+  export type PushDeviceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["pushDevice"]>
+
+  export type PushDeviceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["pushDevice"]>
+
+  export type PushDeviceSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PushDeviceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "token" | "platform" | "createdAt" | "updatedAt", ExtArgs["result"]["pushDevice"]>
+  export type PushDeviceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PushDeviceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PushDeviceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $PushDevicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PushDevice"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      token: string
+      platform: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["pushDevice"]>
+    composites: {}
+  }
+
+  type PushDeviceGetPayload<S extends boolean | null | undefined | PushDeviceDefaultArgs> = $Result.GetResult<Prisma.$PushDevicePayload, S>
+
+  type PushDeviceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PushDeviceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PushDeviceCountAggregateInputType | true
+    }
+
+  export interface PushDeviceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PushDevice'], meta: { name: 'PushDevice' } }
+    /**
+     * Find zero or one PushDevice that matches the filter.
+     * @param {PushDeviceFindUniqueArgs} args - Arguments to find a PushDevice
+     * @example
+     * // Get one PushDevice
+     * const pushDevice = await prisma.pushDevice.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PushDeviceFindUniqueArgs>(args: SelectSubset<T, PushDeviceFindUniqueArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PushDevice that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PushDeviceFindUniqueOrThrowArgs} args - Arguments to find a PushDevice
+     * @example
+     * // Get one PushDevice
+     * const pushDevice = await prisma.pushDevice.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PushDeviceFindUniqueOrThrowArgs>(args: SelectSubset<T, PushDeviceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PushDevice that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceFindFirstArgs} args - Arguments to find a PushDevice
+     * @example
+     * // Get one PushDevice
+     * const pushDevice = await prisma.pushDevice.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PushDeviceFindFirstArgs>(args?: SelectSubset<T, PushDeviceFindFirstArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PushDevice that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceFindFirstOrThrowArgs} args - Arguments to find a PushDevice
+     * @example
+     * // Get one PushDevice
+     * const pushDevice = await prisma.pushDevice.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PushDeviceFindFirstOrThrowArgs>(args?: SelectSubset<T, PushDeviceFindFirstOrThrowArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PushDevices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PushDevices
+     * const pushDevices = await prisma.pushDevice.findMany()
+     * 
+     * // Get first 10 PushDevices
+     * const pushDevices = await prisma.pushDevice.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const pushDeviceWithIdOnly = await prisma.pushDevice.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PushDeviceFindManyArgs>(args?: SelectSubset<T, PushDeviceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PushDevice.
+     * @param {PushDeviceCreateArgs} args - Arguments to create a PushDevice.
+     * @example
+     * // Create one PushDevice
+     * const PushDevice = await prisma.pushDevice.create({
+     *   data: {
+     *     // ... data to create a PushDevice
+     *   }
+     * })
+     * 
+     */
+    create<T extends PushDeviceCreateArgs>(args: SelectSubset<T, PushDeviceCreateArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PushDevices.
+     * @param {PushDeviceCreateManyArgs} args - Arguments to create many PushDevices.
+     * @example
+     * // Create many PushDevices
+     * const pushDevice = await prisma.pushDevice.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PushDeviceCreateManyArgs>(args?: SelectSubset<T, PushDeviceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PushDevices and returns the data saved in the database.
+     * @param {PushDeviceCreateManyAndReturnArgs} args - Arguments to create many PushDevices.
+     * @example
+     * // Create many PushDevices
+     * const pushDevice = await prisma.pushDevice.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PushDevices and only return the `id`
+     * const pushDeviceWithIdOnly = await prisma.pushDevice.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PushDeviceCreateManyAndReturnArgs>(args?: SelectSubset<T, PushDeviceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PushDevice.
+     * @param {PushDeviceDeleteArgs} args - Arguments to delete one PushDevice.
+     * @example
+     * // Delete one PushDevice
+     * const PushDevice = await prisma.pushDevice.delete({
+     *   where: {
+     *     // ... filter to delete one PushDevice
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PushDeviceDeleteArgs>(args: SelectSubset<T, PushDeviceDeleteArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PushDevice.
+     * @param {PushDeviceUpdateArgs} args - Arguments to update one PushDevice.
+     * @example
+     * // Update one PushDevice
+     * const pushDevice = await prisma.pushDevice.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PushDeviceUpdateArgs>(args: SelectSubset<T, PushDeviceUpdateArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PushDevices.
+     * @param {PushDeviceDeleteManyArgs} args - Arguments to filter PushDevices to delete.
+     * @example
+     * // Delete a few PushDevices
+     * const { count } = await prisma.pushDevice.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PushDeviceDeleteManyArgs>(args?: SelectSubset<T, PushDeviceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PushDevices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PushDevices
+     * const pushDevice = await prisma.pushDevice.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PushDeviceUpdateManyArgs>(args: SelectSubset<T, PushDeviceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PushDevices and returns the data updated in the database.
+     * @param {PushDeviceUpdateManyAndReturnArgs} args - Arguments to update many PushDevices.
+     * @example
+     * // Update many PushDevices
+     * const pushDevice = await prisma.pushDevice.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PushDevices and only return the `id`
+     * const pushDeviceWithIdOnly = await prisma.pushDevice.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PushDeviceUpdateManyAndReturnArgs>(args: SelectSubset<T, PushDeviceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PushDevice.
+     * @param {PushDeviceUpsertArgs} args - Arguments to update or create a PushDevice.
+     * @example
+     * // Update or create a PushDevice
+     * const pushDevice = await prisma.pushDevice.upsert({
+     *   create: {
+     *     // ... data to create a PushDevice
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PushDevice we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PushDeviceUpsertArgs>(args: SelectSubset<T, PushDeviceUpsertArgs<ExtArgs>>): Prisma__PushDeviceClient<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PushDevices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceCountArgs} args - Arguments to filter PushDevices to count.
+     * @example
+     * // Count the number of PushDevices
+     * const count = await prisma.pushDevice.count({
+     *   where: {
+     *     // ... the filter for the PushDevices we want to count
+     *   }
+     * })
+    **/
+    count<T extends PushDeviceCountArgs>(
+      args?: Subset<T, PushDeviceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PushDeviceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PushDevice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PushDeviceAggregateArgs>(args: Subset<T, PushDeviceAggregateArgs>): Prisma.PrismaPromise<GetPushDeviceAggregateType<T>>
+
+    /**
+     * Group by PushDevice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PushDeviceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PushDeviceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PushDeviceGroupByArgs['orderBy'] }
+        : { orderBy?: PushDeviceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PushDeviceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPushDeviceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PushDevice model
+   */
+  readonly fields: PushDeviceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PushDevice.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PushDeviceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PushDevice model
+   */
+  interface PushDeviceFieldRefs {
+    readonly id: FieldRef<"PushDevice", 'String'>
+    readonly userId: FieldRef<"PushDevice", 'String'>
+    readonly token: FieldRef<"PushDevice", 'String'>
+    readonly platform: FieldRef<"PushDevice", 'String'>
+    readonly createdAt: FieldRef<"PushDevice", 'DateTime'>
+    readonly updatedAt: FieldRef<"PushDevice", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PushDevice findUnique
+   */
+  export type PushDeviceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which PushDevice to fetch.
+     */
+    where: PushDeviceWhereUniqueInput
+  }
+
+  /**
+   * PushDevice findUniqueOrThrow
+   */
+  export type PushDeviceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which PushDevice to fetch.
+     */
+    where: PushDeviceWhereUniqueInput
+  }
+
+  /**
+   * PushDevice findFirst
+   */
+  export type PushDeviceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which PushDevice to fetch.
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PushDevices to fetch.
+     */
+    orderBy?: PushDeviceOrderByWithRelationInput | PushDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PushDevices.
+     */
+    cursor?: PushDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PushDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PushDevices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PushDevices.
+     */
+    distinct?: PushDeviceScalarFieldEnum | PushDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * PushDevice findFirstOrThrow
+   */
+  export type PushDeviceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which PushDevice to fetch.
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PushDevices to fetch.
+     */
+    orderBy?: PushDeviceOrderByWithRelationInput | PushDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PushDevices.
+     */
+    cursor?: PushDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PushDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PushDevices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PushDevices.
+     */
+    distinct?: PushDeviceScalarFieldEnum | PushDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * PushDevice findMany
+   */
+  export type PushDeviceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which PushDevices to fetch.
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PushDevices to fetch.
+     */
+    orderBy?: PushDeviceOrderByWithRelationInput | PushDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PushDevices.
+     */
+    cursor?: PushDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PushDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PushDevices.
+     */
+    skip?: number
+    distinct?: PushDeviceScalarFieldEnum | PushDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * PushDevice create
+   */
+  export type PushDeviceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PushDevice.
+     */
+    data: XOR<PushDeviceCreateInput, PushDeviceUncheckedCreateInput>
+  }
+
+  /**
+   * PushDevice createMany
+   */
+  export type PushDeviceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PushDevices.
+     */
+    data: PushDeviceCreateManyInput | PushDeviceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PushDevice createManyAndReturn
+   */
+  export type PushDeviceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * The data used to create many PushDevices.
+     */
+    data: PushDeviceCreateManyInput | PushDeviceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PushDevice update
+   */
+  export type PushDeviceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PushDevice.
+     */
+    data: XOR<PushDeviceUpdateInput, PushDeviceUncheckedUpdateInput>
+    /**
+     * Choose, which PushDevice to update.
+     */
+    where: PushDeviceWhereUniqueInput
+  }
+
+  /**
+   * PushDevice updateMany
+   */
+  export type PushDeviceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PushDevices.
+     */
+    data: XOR<PushDeviceUpdateManyMutationInput, PushDeviceUncheckedUpdateManyInput>
+    /**
+     * Filter which PushDevices to update
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * Limit how many PushDevices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PushDevice updateManyAndReturn
+   */
+  export type PushDeviceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * The data used to update PushDevices.
+     */
+    data: XOR<PushDeviceUpdateManyMutationInput, PushDeviceUncheckedUpdateManyInput>
+    /**
+     * Filter which PushDevices to update
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * Limit how many PushDevices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PushDevice upsert
+   */
+  export type PushDeviceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PushDevice to update in case it exists.
+     */
+    where: PushDeviceWhereUniqueInput
+    /**
+     * In case the PushDevice found by the `where` argument doesn't exist, create a new PushDevice with this data.
+     */
+    create: XOR<PushDeviceCreateInput, PushDeviceUncheckedCreateInput>
+    /**
+     * In case the PushDevice was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PushDeviceUpdateInput, PushDeviceUncheckedUpdateInput>
+  }
+
+  /**
+   * PushDevice delete
+   */
+  export type PushDeviceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
+    /**
+     * Filter which PushDevice to delete.
+     */
+    where: PushDeviceWhereUniqueInput
+  }
+
+  /**
+   * PushDevice deleteMany
+   */
+  export type PushDeviceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PushDevices to delete
+     */
+    where?: PushDeviceWhereInput
+    /**
+     * Limit how many PushDevices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PushDevice without action
+   */
+  export type PushDeviceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PushDevice
+     */
+    select?: PushDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PushDevice
+     */
+    omit?: PushDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PushDeviceInclude<ExtArgs> | null
   }
 
 
@@ -18709,6 +20090,8 @@ export namespace Prisma {
     tasks?: boolean | Wedding$tasksArgs<ExtArgs>
     guestList?: boolean | Wedding$guestListArgs<ExtArgs>
     budgetItems?: boolean | Wedding$budgetItemsArgs<ExtArgs>
+    website?: boolean | Wedding$websiteArgs<ExtArgs>
+    invitation?: boolean | Wedding$invitationArgs<ExtArgs>
     _count?: boolean | WeddingCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wedding"]>
 
@@ -18767,6 +20150,8 @@ export namespace Prisma {
     tasks?: boolean | Wedding$tasksArgs<ExtArgs>
     guestList?: boolean | Wedding$guestListArgs<ExtArgs>
     budgetItems?: boolean | Wedding$budgetItemsArgs<ExtArgs>
+    website?: boolean | Wedding$websiteArgs<ExtArgs>
+    invitation?: boolean | Wedding$invitationArgs<ExtArgs>
     _count?: boolean | WeddingCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WeddingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18785,6 +20170,8 @@ export namespace Prisma {
       tasks: Prisma.$TaskPayload<ExtArgs>[]
       guestList: Prisma.$GuestPayload<ExtArgs>[]
       budgetItems: Prisma.$BudgetItemPayload<ExtArgs>[]
+      website: Prisma.$WeddingWebsitePayload<ExtArgs> | null
+      invitation: Prisma.$WeddingInvitationPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -19199,6 +20586,8 @@ export namespace Prisma {
     tasks<T extends Wedding$tasksArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     guestList<T extends Wedding$guestListArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$guestListArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     budgetItems<T extends Wedding$budgetItemsArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$budgetItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    website<T extends Wedding$websiteArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$websiteArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    invitation<T extends Wedding$invitationArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$invitationArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19756,6 +21145,44 @@ export namespace Prisma {
   }
 
   /**
+   * Wedding.website
+   */
+  export type Wedding$websiteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    where?: WeddingWebsiteWhereInput
+  }
+
+  /**
+   * Wedding.invitation
+   */
+  export type Wedding$invitationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    where?: WeddingInvitationWhereInput
+  }
+
+  /**
    * Wedding without action
    */
   export type WeddingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19771,6 +21198,2166 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WeddingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WeddingWebsite
+   */
+
+  export type AggregateWeddingWebsite = {
+    _count: WeddingWebsiteCountAggregateOutputType | null
+    _min: WeddingWebsiteMinAggregateOutputType | null
+    _max: WeddingWebsiteMaxAggregateOutputType | null
+  }
+
+  export type WeddingWebsiteMinAggregateOutputType = {
+    id: string | null
+    weddingId: string | null
+    slug: string | null
+    templateId: string | null
+    published: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WeddingWebsiteMaxAggregateOutputType = {
+    id: string | null
+    weddingId: string | null
+    slug: string | null
+    templateId: string | null
+    published: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WeddingWebsiteCountAggregateOutputType = {
+    id: number
+    weddingId: number
+    slug: number
+    templateId: number
+    published: number
+    content: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WeddingWebsiteMinAggregateInputType = {
+    id?: true
+    weddingId?: true
+    slug?: true
+    templateId?: true
+    published?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WeddingWebsiteMaxAggregateInputType = {
+    id?: true
+    weddingId?: true
+    slug?: true
+    templateId?: true
+    published?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WeddingWebsiteCountAggregateInputType = {
+    id?: true
+    weddingId?: true
+    slug?: true
+    templateId?: true
+    published?: true
+    content?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WeddingWebsiteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WeddingWebsite to aggregate.
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingWebsites to fetch.
+     */
+    orderBy?: WeddingWebsiteOrderByWithRelationInput | WeddingWebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WeddingWebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingWebsites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingWebsites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WeddingWebsites
+    **/
+    _count?: true | WeddingWebsiteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WeddingWebsiteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WeddingWebsiteMaxAggregateInputType
+  }
+
+  export type GetWeddingWebsiteAggregateType<T extends WeddingWebsiteAggregateArgs> = {
+        [P in keyof T & keyof AggregateWeddingWebsite]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWeddingWebsite[P]>
+      : GetScalarType<T[P], AggregateWeddingWebsite[P]>
+  }
+
+
+
+
+  export type WeddingWebsiteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WeddingWebsiteWhereInput
+    orderBy?: WeddingWebsiteOrderByWithAggregationInput | WeddingWebsiteOrderByWithAggregationInput[]
+    by: WeddingWebsiteScalarFieldEnum[] | WeddingWebsiteScalarFieldEnum
+    having?: WeddingWebsiteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WeddingWebsiteCountAggregateInputType | true
+    _min?: WeddingWebsiteMinAggregateInputType
+    _max?: WeddingWebsiteMaxAggregateInputType
+  }
+
+  export type WeddingWebsiteGroupByOutputType = {
+    id: string
+    weddingId: string
+    slug: string
+    templateId: string
+    published: boolean
+    content: JsonValue
+    createdAt: Date
+    updatedAt: Date
+    _count: WeddingWebsiteCountAggregateOutputType | null
+    _min: WeddingWebsiteMinAggregateOutputType | null
+    _max: WeddingWebsiteMaxAggregateOutputType | null
+  }
+
+  type GetWeddingWebsiteGroupByPayload<T extends WeddingWebsiteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WeddingWebsiteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WeddingWebsiteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WeddingWebsiteGroupByOutputType[P]>
+            : GetScalarType<T[P], WeddingWebsiteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WeddingWebsiteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    slug?: boolean
+    templateId?: boolean
+    published?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["weddingWebsite"]>
+
+  export type WeddingWebsiteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    slug?: boolean
+    templateId?: boolean
+    published?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["weddingWebsite"]>
+
+  export type WeddingWebsiteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    slug?: boolean
+    templateId?: boolean
+    published?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["weddingWebsite"]>
+
+  export type WeddingWebsiteSelectScalar = {
+    id?: boolean
+    weddingId?: boolean
+    slug?: boolean
+    templateId?: boolean
+    published?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WeddingWebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "slug" | "templateId" | "published" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["weddingWebsite"]>
+  export type WeddingWebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+  export type WeddingWebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+  export type WeddingWebsiteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+
+  export type $WeddingWebsitePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WeddingWebsite"
+    objects: {
+      wedding: Prisma.$WeddingPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      weddingId: string
+      slug: string
+      templateId: string
+      published: boolean
+      content: Prisma.JsonValue
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["weddingWebsite"]>
+    composites: {}
+  }
+
+  type WeddingWebsiteGetPayload<S extends boolean | null | undefined | WeddingWebsiteDefaultArgs> = $Result.GetResult<Prisma.$WeddingWebsitePayload, S>
+
+  type WeddingWebsiteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WeddingWebsiteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WeddingWebsiteCountAggregateInputType | true
+    }
+
+  export interface WeddingWebsiteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WeddingWebsite'], meta: { name: 'WeddingWebsite' } }
+    /**
+     * Find zero or one WeddingWebsite that matches the filter.
+     * @param {WeddingWebsiteFindUniqueArgs} args - Arguments to find a WeddingWebsite
+     * @example
+     * // Get one WeddingWebsite
+     * const weddingWebsite = await prisma.weddingWebsite.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WeddingWebsiteFindUniqueArgs>(args: SelectSubset<T, WeddingWebsiteFindUniqueArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WeddingWebsite that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WeddingWebsiteFindUniqueOrThrowArgs} args - Arguments to find a WeddingWebsite
+     * @example
+     * // Get one WeddingWebsite
+     * const weddingWebsite = await prisma.weddingWebsite.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WeddingWebsiteFindUniqueOrThrowArgs>(args: SelectSubset<T, WeddingWebsiteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WeddingWebsite that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteFindFirstArgs} args - Arguments to find a WeddingWebsite
+     * @example
+     * // Get one WeddingWebsite
+     * const weddingWebsite = await prisma.weddingWebsite.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WeddingWebsiteFindFirstArgs>(args?: SelectSubset<T, WeddingWebsiteFindFirstArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WeddingWebsite that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteFindFirstOrThrowArgs} args - Arguments to find a WeddingWebsite
+     * @example
+     * // Get one WeddingWebsite
+     * const weddingWebsite = await prisma.weddingWebsite.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WeddingWebsiteFindFirstOrThrowArgs>(args?: SelectSubset<T, WeddingWebsiteFindFirstOrThrowArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WeddingWebsites that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WeddingWebsites
+     * const weddingWebsites = await prisma.weddingWebsite.findMany()
+     * 
+     * // Get first 10 WeddingWebsites
+     * const weddingWebsites = await prisma.weddingWebsite.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const weddingWebsiteWithIdOnly = await prisma.weddingWebsite.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WeddingWebsiteFindManyArgs>(args?: SelectSubset<T, WeddingWebsiteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WeddingWebsite.
+     * @param {WeddingWebsiteCreateArgs} args - Arguments to create a WeddingWebsite.
+     * @example
+     * // Create one WeddingWebsite
+     * const WeddingWebsite = await prisma.weddingWebsite.create({
+     *   data: {
+     *     // ... data to create a WeddingWebsite
+     *   }
+     * })
+     * 
+     */
+    create<T extends WeddingWebsiteCreateArgs>(args: SelectSubset<T, WeddingWebsiteCreateArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WeddingWebsites.
+     * @param {WeddingWebsiteCreateManyArgs} args - Arguments to create many WeddingWebsites.
+     * @example
+     * // Create many WeddingWebsites
+     * const weddingWebsite = await prisma.weddingWebsite.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WeddingWebsiteCreateManyArgs>(args?: SelectSubset<T, WeddingWebsiteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WeddingWebsites and returns the data saved in the database.
+     * @param {WeddingWebsiteCreateManyAndReturnArgs} args - Arguments to create many WeddingWebsites.
+     * @example
+     * // Create many WeddingWebsites
+     * const weddingWebsite = await prisma.weddingWebsite.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WeddingWebsites and only return the `id`
+     * const weddingWebsiteWithIdOnly = await prisma.weddingWebsite.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WeddingWebsiteCreateManyAndReturnArgs>(args?: SelectSubset<T, WeddingWebsiteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WeddingWebsite.
+     * @param {WeddingWebsiteDeleteArgs} args - Arguments to delete one WeddingWebsite.
+     * @example
+     * // Delete one WeddingWebsite
+     * const WeddingWebsite = await prisma.weddingWebsite.delete({
+     *   where: {
+     *     // ... filter to delete one WeddingWebsite
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WeddingWebsiteDeleteArgs>(args: SelectSubset<T, WeddingWebsiteDeleteArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WeddingWebsite.
+     * @param {WeddingWebsiteUpdateArgs} args - Arguments to update one WeddingWebsite.
+     * @example
+     * // Update one WeddingWebsite
+     * const weddingWebsite = await prisma.weddingWebsite.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WeddingWebsiteUpdateArgs>(args: SelectSubset<T, WeddingWebsiteUpdateArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WeddingWebsites.
+     * @param {WeddingWebsiteDeleteManyArgs} args - Arguments to filter WeddingWebsites to delete.
+     * @example
+     * // Delete a few WeddingWebsites
+     * const { count } = await prisma.weddingWebsite.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WeddingWebsiteDeleteManyArgs>(args?: SelectSubset<T, WeddingWebsiteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WeddingWebsites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WeddingWebsites
+     * const weddingWebsite = await prisma.weddingWebsite.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WeddingWebsiteUpdateManyArgs>(args: SelectSubset<T, WeddingWebsiteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WeddingWebsites and returns the data updated in the database.
+     * @param {WeddingWebsiteUpdateManyAndReturnArgs} args - Arguments to update many WeddingWebsites.
+     * @example
+     * // Update many WeddingWebsites
+     * const weddingWebsite = await prisma.weddingWebsite.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WeddingWebsites and only return the `id`
+     * const weddingWebsiteWithIdOnly = await prisma.weddingWebsite.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WeddingWebsiteUpdateManyAndReturnArgs>(args: SelectSubset<T, WeddingWebsiteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WeddingWebsite.
+     * @param {WeddingWebsiteUpsertArgs} args - Arguments to update or create a WeddingWebsite.
+     * @example
+     * // Update or create a WeddingWebsite
+     * const weddingWebsite = await prisma.weddingWebsite.upsert({
+     *   create: {
+     *     // ... data to create a WeddingWebsite
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WeddingWebsite we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WeddingWebsiteUpsertArgs>(args: SelectSubset<T, WeddingWebsiteUpsertArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WeddingWebsites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteCountArgs} args - Arguments to filter WeddingWebsites to count.
+     * @example
+     * // Count the number of WeddingWebsites
+     * const count = await prisma.weddingWebsite.count({
+     *   where: {
+     *     // ... the filter for the WeddingWebsites we want to count
+     *   }
+     * })
+    **/
+    count<T extends WeddingWebsiteCountArgs>(
+      args?: Subset<T, WeddingWebsiteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WeddingWebsiteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WeddingWebsite.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WeddingWebsiteAggregateArgs>(args: Subset<T, WeddingWebsiteAggregateArgs>): Prisma.PrismaPromise<GetWeddingWebsiteAggregateType<T>>
+
+    /**
+     * Group by WeddingWebsite.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingWebsiteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WeddingWebsiteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WeddingWebsiteGroupByArgs['orderBy'] }
+        : { orderBy?: WeddingWebsiteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WeddingWebsiteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWeddingWebsiteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WeddingWebsite model
+   */
+  readonly fields: WeddingWebsiteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WeddingWebsite.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WeddingWebsiteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    wedding<T extends WeddingDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WeddingDefaultArgs<ExtArgs>>): Prisma__WeddingClient<$Result.GetResult<Prisma.$WeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WeddingWebsite model
+   */
+  interface WeddingWebsiteFieldRefs {
+    readonly id: FieldRef<"WeddingWebsite", 'String'>
+    readonly weddingId: FieldRef<"WeddingWebsite", 'String'>
+    readonly slug: FieldRef<"WeddingWebsite", 'String'>
+    readonly templateId: FieldRef<"WeddingWebsite", 'String'>
+    readonly published: FieldRef<"WeddingWebsite", 'Boolean'>
+    readonly content: FieldRef<"WeddingWebsite", 'Json'>
+    readonly createdAt: FieldRef<"WeddingWebsite", 'DateTime'>
+    readonly updatedAt: FieldRef<"WeddingWebsite", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WeddingWebsite findUnique
+   */
+  export type WeddingWebsiteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingWebsite to fetch.
+     */
+    where: WeddingWebsiteWhereUniqueInput
+  }
+
+  /**
+   * WeddingWebsite findUniqueOrThrow
+   */
+  export type WeddingWebsiteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingWebsite to fetch.
+     */
+    where: WeddingWebsiteWhereUniqueInput
+  }
+
+  /**
+   * WeddingWebsite findFirst
+   */
+  export type WeddingWebsiteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingWebsite to fetch.
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingWebsites to fetch.
+     */
+    orderBy?: WeddingWebsiteOrderByWithRelationInput | WeddingWebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WeddingWebsites.
+     */
+    cursor?: WeddingWebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingWebsites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingWebsites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WeddingWebsites.
+     */
+    distinct?: WeddingWebsiteScalarFieldEnum | WeddingWebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * WeddingWebsite findFirstOrThrow
+   */
+  export type WeddingWebsiteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingWebsite to fetch.
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingWebsites to fetch.
+     */
+    orderBy?: WeddingWebsiteOrderByWithRelationInput | WeddingWebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WeddingWebsites.
+     */
+    cursor?: WeddingWebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingWebsites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingWebsites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WeddingWebsites.
+     */
+    distinct?: WeddingWebsiteScalarFieldEnum | WeddingWebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * WeddingWebsite findMany
+   */
+  export type WeddingWebsiteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingWebsites to fetch.
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingWebsites to fetch.
+     */
+    orderBy?: WeddingWebsiteOrderByWithRelationInput | WeddingWebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WeddingWebsites.
+     */
+    cursor?: WeddingWebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingWebsites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingWebsites.
+     */
+    skip?: number
+    distinct?: WeddingWebsiteScalarFieldEnum | WeddingWebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * WeddingWebsite create
+   */
+  export type WeddingWebsiteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WeddingWebsite.
+     */
+    data: XOR<WeddingWebsiteCreateInput, WeddingWebsiteUncheckedCreateInput>
+  }
+
+  /**
+   * WeddingWebsite createMany
+   */
+  export type WeddingWebsiteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WeddingWebsites.
+     */
+    data: WeddingWebsiteCreateManyInput | WeddingWebsiteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WeddingWebsite createManyAndReturn
+   */
+  export type WeddingWebsiteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * The data used to create many WeddingWebsites.
+     */
+    data: WeddingWebsiteCreateManyInput | WeddingWebsiteCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WeddingWebsite update
+   */
+  export type WeddingWebsiteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WeddingWebsite.
+     */
+    data: XOR<WeddingWebsiteUpdateInput, WeddingWebsiteUncheckedUpdateInput>
+    /**
+     * Choose, which WeddingWebsite to update.
+     */
+    where: WeddingWebsiteWhereUniqueInput
+  }
+
+  /**
+   * WeddingWebsite updateMany
+   */
+  export type WeddingWebsiteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WeddingWebsites.
+     */
+    data: XOR<WeddingWebsiteUpdateManyMutationInput, WeddingWebsiteUncheckedUpdateManyInput>
+    /**
+     * Filter which WeddingWebsites to update
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * Limit how many WeddingWebsites to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WeddingWebsite updateManyAndReturn
+   */
+  export type WeddingWebsiteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * The data used to update WeddingWebsites.
+     */
+    data: XOR<WeddingWebsiteUpdateManyMutationInput, WeddingWebsiteUncheckedUpdateManyInput>
+    /**
+     * Filter which WeddingWebsites to update
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * Limit how many WeddingWebsites to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WeddingWebsite upsert
+   */
+  export type WeddingWebsiteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WeddingWebsite to update in case it exists.
+     */
+    where: WeddingWebsiteWhereUniqueInput
+    /**
+     * In case the WeddingWebsite found by the `where` argument doesn't exist, create a new WeddingWebsite with this data.
+     */
+    create: XOR<WeddingWebsiteCreateInput, WeddingWebsiteUncheckedCreateInput>
+    /**
+     * In case the WeddingWebsite was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WeddingWebsiteUpdateInput, WeddingWebsiteUncheckedUpdateInput>
+  }
+
+  /**
+   * WeddingWebsite delete
+   */
+  export type WeddingWebsiteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+    /**
+     * Filter which WeddingWebsite to delete.
+     */
+    where: WeddingWebsiteWhereUniqueInput
+  }
+
+  /**
+   * WeddingWebsite deleteMany
+   */
+  export type WeddingWebsiteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WeddingWebsites to delete
+     */
+    where?: WeddingWebsiteWhereInput
+    /**
+     * Limit how many WeddingWebsites to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WeddingWebsite without action
+   */
+  export type WeddingWebsiteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingWebsite
+     */
+    select?: WeddingWebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingWebsite
+     */
+    omit?: WeddingWebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingWebsiteInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WeddingInvitation
+   */
+
+  export type AggregateWeddingInvitation = {
+    _count: WeddingInvitationCountAggregateOutputType | null
+    _min: WeddingInvitationMinAggregateOutputType | null
+    _max: WeddingInvitationMaxAggregateOutputType | null
+  }
+
+  export type WeddingInvitationMinAggregateOutputType = {
+    id: string | null
+    weddingId: string | null
+    templateId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WeddingInvitationMaxAggregateOutputType = {
+    id: string | null
+    weddingId: string | null
+    templateId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WeddingInvitationCountAggregateOutputType = {
+    id: number
+    weddingId: number
+    templateId: number
+    content: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WeddingInvitationMinAggregateInputType = {
+    id?: true
+    weddingId?: true
+    templateId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WeddingInvitationMaxAggregateInputType = {
+    id?: true
+    weddingId?: true
+    templateId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WeddingInvitationCountAggregateInputType = {
+    id?: true
+    weddingId?: true
+    templateId?: true
+    content?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WeddingInvitationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WeddingInvitation to aggregate.
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingInvitations to fetch.
+     */
+    orderBy?: WeddingInvitationOrderByWithRelationInput | WeddingInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WeddingInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WeddingInvitations
+    **/
+    _count?: true | WeddingInvitationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WeddingInvitationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WeddingInvitationMaxAggregateInputType
+  }
+
+  export type GetWeddingInvitationAggregateType<T extends WeddingInvitationAggregateArgs> = {
+        [P in keyof T & keyof AggregateWeddingInvitation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWeddingInvitation[P]>
+      : GetScalarType<T[P], AggregateWeddingInvitation[P]>
+  }
+
+
+
+
+  export type WeddingInvitationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WeddingInvitationWhereInput
+    orderBy?: WeddingInvitationOrderByWithAggregationInput | WeddingInvitationOrderByWithAggregationInput[]
+    by: WeddingInvitationScalarFieldEnum[] | WeddingInvitationScalarFieldEnum
+    having?: WeddingInvitationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WeddingInvitationCountAggregateInputType | true
+    _min?: WeddingInvitationMinAggregateInputType
+    _max?: WeddingInvitationMaxAggregateInputType
+  }
+
+  export type WeddingInvitationGroupByOutputType = {
+    id: string
+    weddingId: string
+    templateId: string
+    content: JsonValue
+    createdAt: Date
+    updatedAt: Date
+    _count: WeddingInvitationCountAggregateOutputType | null
+    _min: WeddingInvitationMinAggregateOutputType | null
+    _max: WeddingInvitationMaxAggregateOutputType | null
+  }
+
+  type GetWeddingInvitationGroupByPayload<T extends WeddingInvitationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WeddingInvitationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WeddingInvitationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WeddingInvitationGroupByOutputType[P]>
+            : GetScalarType<T[P], WeddingInvitationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WeddingInvitationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    templateId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["weddingInvitation"]>
+
+  export type WeddingInvitationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    templateId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["weddingInvitation"]>
+
+  export type WeddingInvitationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    templateId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["weddingInvitation"]>
+
+  export type WeddingInvitationSelectScalar = {
+    id?: boolean
+    weddingId?: boolean
+    templateId?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WeddingInvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "templateId" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["weddingInvitation"]>
+  export type WeddingInvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+  export type WeddingInvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+  export type WeddingInvitationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+
+  export type $WeddingInvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WeddingInvitation"
+    objects: {
+      wedding: Prisma.$WeddingPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      weddingId: string
+      templateId: string
+      content: Prisma.JsonValue
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["weddingInvitation"]>
+    composites: {}
+  }
+
+  type WeddingInvitationGetPayload<S extends boolean | null | undefined | WeddingInvitationDefaultArgs> = $Result.GetResult<Prisma.$WeddingInvitationPayload, S>
+
+  type WeddingInvitationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WeddingInvitationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WeddingInvitationCountAggregateInputType | true
+    }
+
+  export interface WeddingInvitationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WeddingInvitation'], meta: { name: 'WeddingInvitation' } }
+    /**
+     * Find zero or one WeddingInvitation that matches the filter.
+     * @param {WeddingInvitationFindUniqueArgs} args - Arguments to find a WeddingInvitation
+     * @example
+     * // Get one WeddingInvitation
+     * const weddingInvitation = await prisma.weddingInvitation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WeddingInvitationFindUniqueArgs>(args: SelectSubset<T, WeddingInvitationFindUniqueArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WeddingInvitation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WeddingInvitationFindUniqueOrThrowArgs} args - Arguments to find a WeddingInvitation
+     * @example
+     * // Get one WeddingInvitation
+     * const weddingInvitation = await prisma.weddingInvitation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WeddingInvitationFindUniqueOrThrowArgs>(args: SelectSubset<T, WeddingInvitationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WeddingInvitation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationFindFirstArgs} args - Arguments to find a WeddingInvitation
+     * @example
+     * // Get one WeddingInvitation
+     * const weddingInvitation = await prisma.weddingInvitation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WeddingInvitationFindFirstArgs>(args?: SelectSubset<T, WeddingInvitationFindFirstArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WeddingInvitation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationFindFirstOrThrowArgs} args - Arguments to find a WeddingInvitation
+     * @example
+     * // Get one WeddingInvitation
+     * const weddingInvitation = await prisma.weddingInvitation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WeddingInvitationFindFirstOrThrowArgs>(args?: SelectSubset<T, WeddingInvitationFindFirstOrThrowArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WeddingInvitations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WeddingInvitations
+     * const weddingInvitations = await prisma.weddingInvitation.findMany()
+     * 
+     * // Get first 10 WeddingInvitations
+     * const weddingInvitations = await prisma.weddingInvitation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const weddingInvitationWithIdOnly = await prisma.weddingInvitation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WeddingInvitationFindManyArgs>(args?: SelectSubset<T, WeddingInvitationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WeddingInvitation.
+     * @param {WeddingInvitationCreateArgs} args - Arguments to create a WeddingInvitation.
+     * @example
+     * // Create one WeddingInvitation
+     * const WeddingInvitation = await prisma.weddingInvitation.create({
+     *   data: {
+     *     // ... data to create a WeddingInvitation
+     *   }
+     * })
+     * 
+     */
+    create<T extends WeddingInvitationCreateArgs>(args: SelectSubset<T, WeddingInvitationCreateArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WeddingInvitations.
+     * @param {WeddingInvitationCreateManyArgs} args - Arguments to create many WeddingInvitations.
+     * @example
+     * // Create many WeddingInvitations
+     * const weddingInvitation = await prisma.weddingInvitation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WeddingInvitationCreateManyArgs>(args?: SelectSubset<T, WeddingInvitationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WeddingInvitations and returns the data saved in the database.
+     * @param {WeddingInvitationCreateManyAndReturnArgs} args - Arguments to create many WeddingInvitations.
+     * @example
+     * // Create many WeddingInvitations
+     * const weddingInvitation = await prisma.weddingInvitation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WeddingInvitations and only return the `id`
+     * const weddingInvitationWithIdOnly = await prisma.weddingInvitation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WeddingInvitationCreateManyAndReturnArgs>(args?: SelectSubset<T, WeddingInvitationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WeddingInvitation.
+     * @param {WeddingInvitationDeleteArgs} args - Arguments to delete one WeddingInvitation.
+     * @example
+     * // Delete one WeddingInvitation
+     * const WeddingInvitation = await prisma.weddingInvitation.delete({
+     *   where: {
+     *     // ... filter to delete one WeddingInvitation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WeddingInvitationDeleteArgs>(args: SelectSubset<T, WeddingInvitationDeleteArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WeddingInvitation.
+     * @param {WeddingInvitationUpdateArgs} args - Arguments to update one WeddingInvitation.
+     * @example
+     * // Update one WeddingInvitation
+     * const weddingInvitation = await prisma.weddingInvitation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WeddingInvitationUpdateArgs>(args: SelectSubset<T, WeddingInvitationUpdateArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WeddingInvitations.
+     * @param {WeddingInvitationDeleteManyArgs} args - Arguments to filter WeddingInvitations to delete.
+     * @example
+     * // Delete a few WeddingInvitations
+     * const { count } = await prisma.weddingInvitation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WeddingInvitationDeleteManyArgs>(args?: SelectSubset<T, WeddingInvitationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WeddingInvitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WeddingInvitations
+     * const weddingInvitation = await prisma.weddingInvitation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WeddingInvitationUpdateManyArgs>(args: SelectSubset<T, WeddingInvitationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WeddingInvitations and returns the data updated in the database.
+     * @param {WeddingInvitationUpdateManyAndReturnArgs} args - Arguments to update many WeddingInvitations.
+     * @example
+     * // Update many WeddingInvitations
+     * const weddingInvitation = await prisma.weddingInvitation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WeddingInvitations and only return the `id`
+     * const weddingInvitationWithIdOnly = await prisma.weddingInvitation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WeddingInvitationUpdateManyAndReturnArgs>(args: SelectSubset<T, WeddingInvitationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WeddingInvitation.
+     * @param {WeddingInvitationUpsertArgs} args - Arguments to update or create a WeddingInvitation.
+     * @example
+     * // Update or create a WeddingInvitation
+     * const weddingInvitation = await prisma.weddingInvitation.upsert({
+     *   create: {
+     *     // ... data to create a WeddingInvitation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WeddingInvitation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WeddingInvitationUpsertArgs>(args: SelectSubset<T, WeddingInvitationUpsertArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WeddingInvitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationCountArgs} args - Arguments to filter WeddingInvitations to count.
+     * @example
+     * // Count the number of WeddingInvitations
+     * const count = await prisma.weddingInvitation.count({
+     *   where: {
+     *     // ... the filter for the WeddingInvitations we want to count
+     *   }
+     * })
+    **/
+    count<T extends WeddingInvitationCountArgs>(
+      args?: Subset<T, WeddingInvitationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WeddingInvitationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WeddingInvitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WeddingInvitationAggregateArgs>(args: Subset<T, WeddingInvitationAggregateArgs>): Prisma.PrismaPromise<GetWeddingInvitationAggregateType<T>>
+
+    /**
+     * Group by WeddingInvitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WeddingInvitationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WeddingInvitationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WeddingInvitationGroupByArgs['orderBy'] }
+        : { orderBy?: WeddingInvitationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WeddingInvitationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWeddingInvitationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WeddingInvitation model
+   */
+  readonly fields: WeddingInvitationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WeddingInvitation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WeddingInvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    wedding<T extends WeddingDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WeddingDefaultArgs<ExtArgs>>): Prisma__WeddingClient<$Result.GetResult<Prisma.$WeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WeddingInvitation model
+   */
+  interface WeddingInvitationFieldRefs {
+    readonly id: FieldRef<"WeddingInvitation", 'String'>
+    readonly weddingId: FieldRef<"WeddingInvitation", 'String'>
+    readonly templateId: FieldRef<"WeddingInvitation", 'String'>
+    readonly content: FieldRef<"WeddingInvitation", 'Json'>
+    readonly createdAt: FieldRef<"WeddingInvitation", 'DateTime'>
+    readonly updatedAt: FieldRef<"WeddingInvitation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WeddingInvitation findUnique
+   */
+  export type WeddingInvitationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingInvitation to fetch.
+     */
+    where: WeddingInvitationWhereUniqueInput
+  }
+
+  /**
+   * WeddingInvitation findUniqueOrThrow
+   */
+  export type WeddingInvitationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingInvitation to fetch.
+     */
+    where: WeddingInvitationWhereUniqueInput
+  }
+
+  /**
+   * WeddingInvitation findFirst
+   */
+  export type WeddingInvitationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingInvitation to fetch.
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingInvitations to fetch.
+     */
+    orderBy?: WeddingInvitationOrderByWithRelationInput | WeddingInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WeddingInvitations.
+     */
+    cursor?: WeddingInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WeddingInvitations.
+     */
+    distinct?: WeddingInvitationScalarFieldEnum | WeddingInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WeddingInvitation findFirstOrThrow
+   */
+  export type WeddingInvitationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingInvitation to fetch.
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingInvitations to fetch.
+     */
+    orderBy?: WeddingInvitationOrderByWithRelationInput | WeddingInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WeddingInvitations.
+     */
+    cursor?: WeddingInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WeddingInvitations.
+     */
+    distinct?: WeddingInvitationScalarFieldEnum | WeddingInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WeddingInvitation findMany
+   */
+  export type WeddingInvitationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WeddingInvitations to fetch.
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WeddingInvitations to fetch.
+     */
+    orderBy?: WeddingInvitationOrderByWithRelationInput | WeddingInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WeddingInvitations.
+     */
+    cursor?: WeddingInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WeddingInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WeddingInvitations.
+     */
+    skip?: number
+    distinct?: WeddingInvitationScalarFieldEnum | WeddingInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WeddingInvitation create
+   */
+  export type WeddingInvitationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WeddingInvitation.
+     */
+    data: XOR<WeddingInvitationCreateInput, WeddingInvitationUncheckedCreateInput>
+  }
+
+  /**
+   * WeddingInvitation createMany
+   */
+  export type WeddingInvitationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WeddingInvitations.
+     */
+    data: WeddingInvitationCreateManyInput | WeddingInvitationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WeddingInvitation createManyAndReturn
+   */
+  export type WeddingInvitationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * The data used to create many WeddingInvitations.
+     */
+    data: WeddingInvitationCreateManyInput | WeddingInvitationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WeddingInvitation update
+   */
+  export type WeddingInvitationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WeddingInvitation.
+     */
+    data: XOR<WeddingInvitationUpdateInput, WeddingInvitationUncheckedUpdateInput>
+    /**
+     * Choose, which WeddingInvitation to update.
+     */
+    where: WeddingInvitationWhereUniqueInput
+  }
+
+  /**
+   * WeddingInvitation updateMany
+   */
+  export type WeddingInvitationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WeddingInvitations.
+     */
+    data: XOR<WeddingInvitationUpdateManyMutationInput, WeddingInvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which WeddingInvitations to update
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * Limit how many WeddingInvitations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WeddingInvitation updateManyAndReturn
+   */
+  export type WeddingInvitationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * The data used to update WeddingInvitations.
+     */
+    data: XOR<WeddingInvitationUpdateManyMutationInput, WeddingInvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which WeddingInvitations to update
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * Limit how many WeddingInvitations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WeddingInvitation upsert
+   */
+  export type WeddingInvitationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WeddingInvitation to update in case it exists.
+     */
+    where: WeddingInvitationWhereUniqueInput
+    /**
+     * In case the WeddingInvitation found by the `where` argument doesn't exist, create a new WeddingInvitation with this data.
+     */
+    create: XOR<WeddingInvitationCreateInput, WeddingInvitationUncheckedCreateInput>
+    /**
+     * In case the WeddingInvitation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WeddingInvitationUpdateInput, WeddingInvitationUncheckedUpdateInput>
+  }
+
+  /**
+   * WeddingInvitation delete
+   */
+  export type WeddingInvitationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
+    /**
+     * Filter which WeddingInvitation to delete.
+     */
+    where: WeddingInvitationWhereUniqueInput
+  }
+
+  /**
+   * WeddingInvitation deleteMany
+   */
+  export type WeddingInvitationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WeddingInvitations to delete
+     */
+    where?: WeddingInvitationWhereInput
+    /**
+     * Limit how many WeddingInvitations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WeddingInvitation without action
+   */
+  export type WeddingInvitationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WeddingInvitation
+     */
+    select?: WeddingInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WeddingInvitation
+     */
+    omit?: WeddingInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WeddingInvitationInclude<ExtArgs> | null
   }
 
 
@@ -27825,6 +31412,18 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const PushDeviceScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    token: 'token',
+    platform: 'platform',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PushDeviceScalarFieldEnum = (typeof PushDeviceScalarFieldEnum)[keyof typeof PushDeviceScalarFieldEnum]
+
+
   export const CategoryScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -28021,6 +31620,32 @@ export namespace Prisma {
   };
 
   export type WeddingScalarFieldEnum = (typeof WeddingScalarFieldEnum)[keyof typeof WeddingScalarFieldEnum]
+
+
+  export const WeddingWebsiteScalarFieldEnum: {
+    id: 'id',
+    weddingId: 'weddingId',
+    slug: 'slug',
+    templateId: 'templateId',
+    published: 'published',
+    content: 'content',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WeddingWebsiteScalarFieldEnum = (typeof WeddingWebsiteScalarFieldEnum)[keyof typeof WeddingWebsiteScalarFieldEnum]
+
+
+  export const WeddingInvitationScalarFieldEnum: {
+    id: 'id',
+    weddingId: 'weddingId',
+    templateId: 'templateId',
+    content: 'content',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WeddingInvitationScalarFieldEnum = (typeof WeddingInvitationScalarFieldEnum)[keyof typeof WeddingInvitationScalarFieldEnum]
 
 
   export const WeddingMemberScalarFieldEnum: {
@@ -28301,6 +31926,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'WeddingMemberRole'
    */
   export type EnumWeddingMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WeddingMemberRole'>
@@ -28382,20 +32021,6 @@ export namespace Prisma {
    */
   export type ListEnumContentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentStatus[]'>
     
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
   /**
    * Deep Input Types
    */
@@ -28422,6 +32047,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageListRelationFilter
     externalVendors?: ExternalVendorListRelationFilter
     contentPosts?: ContentPostListRelationFilter
+    pushDevices?: PushDeviceListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -28442,6 +32068,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageOrderByRelationAggregateInput
     externalVendors?: ExternalVendorOrderByRelationAggregateInput
     contentPosts?: ContentPostOrderByRelationAggregateInput
+    pushDevices?: PushDeviceOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -28465,6 +32092,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageListRelationFilter
     externalVendors?: ExternalVendorListRelationFilter
     contentPosts?: ContentPostListRelationFilter
+    pushDevices?: PushDeviceListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -28493,6 +32121,66 @@ export namespace Prisma {
     blocked?: BoolWithAggregatesFilter<"User"> | boolean
     refreshTokenHash?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type PushDeviceWhereInput = {
+    AND?: PushDeviceWhereInput | PushDeviceWhereInput[]
+    OR?: PushDeviceWhereInput[]
+    NOT?: PushDeviceWhereInput | PushDeviceWhereInput[]
+    id?: StringFilter<"PushDevice"> | string
+    userId?: StringFilter<"PushDevice"> | string
+    token?: StringFilter<"PushDevice"> | string
+    platform?: StringFilter<"PushDevice"> | string
+    createdAt?: DateTimeFilter<"PushDevice"> | Date | string
+    updatedAt?: DateTimeFilter<"PushDevice"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type PushDeviceOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type PushDeviceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    token?: string
+    AND?: PushDeviceWhereInput | PushDeviceWhereInput[]
+    OR?: PushDeviceWhereInput[]
+    NOT?: PushDeviceWhereInput | PushDeviceWhereInput[]
+    userId?: StringFilter<"PushDevice"> | string
+    platform?: StringFilter<"PushDevice"> | string
+    createdAt?: DateTimeFilter<"PushDevice"> | Date | string
+    updatedAt?: DateTimeFilter<"PushDevice"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "token">
+
+  export type PushDeviceOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PushDeviceCountOrderByAggregateInput
+    _max?: PushDeviceMaxOrderByAggregateInput
+    _min?: PushDeviceMinOrderByAggregateInput
+  }
+
+  export type PushDeviceScalarWhereWithAggregatesInput = {
+    AND?: PushDeviceScalarWhereWithAggregatesInput | PushDeviceScalarWhereWithAggregatesInput[]
+    OR?: PushDeviceScalarWhereWithAggregatesInput[]
+    NOT?: PushDeviceScalarWhereWithAggregatesInput | PushDeviceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PushDevice"> | string
+    userId?: StringWithAggregatesFilter<"PushDevice"> | string
+    token?: StringWithAggregatesFilter<"PushDevice"> | string
+    platform?: StringWithAggregatesFilter<"PushDevice"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"PushDevice"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PushDevice"> | Date | string
   }
 
   export type CategoryWhereInput = {
@@ -29482,6 +33170,8 @@ export namespace Prisma {
     tasks?: TaskListRelationFilter
     guestList?: GuestListRelationFilter
     budgetItems?: BudgetItemListRelationFilter
+    website?: XOR<WeddingWebsiteNullableScalarRelationFilter, WeddingWebsiteWhereInput> | null
+    invitation?: XOR<WeddingInvitationNullableScalarRelationFilter, WeddingInvitationWhereInput> | null
   }
 
   export type WeddingOrderByWithRelationInput = {
@@ -29503,6 +33193,8 @@ export namespace Prisma {
     tasks?: TaskOrderByRelationAggregateInput
     guestList?: GuestOrderByRelationAggregateInput
     budgetItems?: BudgetItemOrderByRelationAggregateInput
+    website?: WeddingWebsiteOrderByWithRelationInput
+    invitation?: WeddingInvitationOrderByWithRelationInput
   }
 
   export type WeddingWhereUniqueInput = Prisma.AtLeast<{
@@ -29527,6 +33219,8 @@ export namespace Prisma {
     tasks?: TaskListRelationFilter
     guestList?: GuestListRelationFilter
     budgetItems?: BudgetItemListRelationFilter
+    website?: XOR<WeddingWebsiteNullableScalarRelationFilter, WeddingWebsiteWhereInput> | null
+    invitation?: XOR<WeddingInvitationNullableScalarRelationFilter, WeddingInvitationWhereInput> | null
   }, "id" | "userId">
 
   export type WeddingOrderByWithAggregationInput = {
@@ -29565,6 +33259,136 @@ export namespace Prisma {
     planningStage?: StringWithAggregatesFilter<"Wedding"> | string
     cityUndecided?: BoolWithAggregatesFilter<"Wedding"> | boolean
     guestsUndecided?: BoolWithAggregatesFilter<"Wedding"> | boolean
+  }
+
+  export type WeddingWebsiteWhereInput = {
+    AND?: WeddingWebsiteWhereInput | WeddingWebsiteWhereInput[]
+    OR?: WeddingWebsiteWhereInput[]
+    NOT?: WeddingWebsiteWhereInput | WeddingWebsiteWhereInput[]
+    id?: StringFilter<"WeddingWebsite"> | string
+    weddingId?: StringFilter<"WeddingWebsite"> | string
+    slug?: StringFilter<"WeddingWebsite"> | string
+    templateId?: StringFilter<"WeddingWebsite"> | string
+    published?: BoolFilter<"WeddingWebsite"> | boolean
+    content?: JsonFilter<"WeddingWebsite">
+    createdAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
+    updatedAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
+    wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+  }
+
+  export type WeddingWebsiteOrderByWithRelationInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    slug?: SortOrder
+    templateId?: SortOrder
+    published?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    wedding?: WeddingOrderByWithRelationInput
+  }
+
+  export type WeddingWebsiteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    weddingId?: string
+    slug?: string
+    AND?: WeddingWebsiteWhereInput | WeddingWebsiteWhereInput[]
+    OR?: WeddingWebsiteWhereInput[]
+    NOT?: WeddingWebsiteWhereInput | WeddingWebsiteWhereInput[]
+    templateId?: StringFilter<"WeddingWebsite"> | string
+    published?: BoolFilter<"WeddingWebsite"> | boolean
+    content?: JsonFilter<"WeddingWebsite">
+    createdAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
+    updatedAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
+    wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+  }, "id" | "weddingId" | "slug">
+
+  export type WeddingWebsiteOrderByWithAggregationInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    slug?: SortOrder
+    templateId?: SortOrder
+    published?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WeddingWebsiteCountOrderByAggregateInput
+    _max?: WeddingWebsiteMaxOrderByAggregateInput
+    _min?: WeddingWebsiteMinOrderByAggregateInput
+  }
+
+  export type WeddingWebsiteScalarWhereWithAggregatesInput = {
+    AND?: WeddingWebsiteScalarWhereWithAggregatesInput | WeddingWebsiteScalarWhereWithAggregatesInput[]
+    OR?: WeddingWebsiteScalarWhereWithAggregatesInput[]
+    NOT?: WeddingWebsiteScalarWhereWithAggregatesInput | WeddingWebsiteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WeddingWebsite"> | string
+    weddingId?: StringWithAggregatesFilter<"WeddingWebsite"> | string
+    slug?: StringWithAggregatesFilter<"WeddingWebsite"> | string
+    templateId?: StringWithAggregatesFilter<"WeddingWebsite"> | string
+    published?: BoolWithAggregatesFilter<"WeddingWebsite"> | boolean
+    content?: JsonWithAggregatesFilter<"WeddingWebsite">
+    createdAt?: DateTimeWithAggregatesFilter<"WeddingWebsite"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WeddingWebsite"> | Date | string
+  }
+
+  export type WeddingInvitationWhereInput = {
+    AND?: WeddingInvitationWhereInput | WeddingInvitationWhereInput[]
+    OR?: WeddingInvitationWhereInput[]
+    NOT?: WeddingInvitationWhereInput | WeddingInvitationWhereInput[]
+    id?: StringFilter<"WeddingInvitation"> | string
+    weddingId?: StringFilter<"WeddingInvitation"> | string
+    templateId?: StringFilter<"WeddingInvitation"> | string
+    content?: JsonFilter<"WeddingInvitation">
+    createdAt?: DateTimeFilter<"WeddingInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WeddingInvitation"> | Date | string
+    wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+  }
+
+  export type WeddingInvitationOrderByWithRelationInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    templateId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    wedding?: WeddingOrderByWithRelationInput
+  }
+
+  export type WeddingInvitationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    weddingId?: string
+    AND?: WeddingInvitationWhereInput | WeddingInvitationWhereInput[]
+    OR?: WeddingInvitationWhereInput[]
+    NOT?: WeddingInvitationWhereInput | WeddingInvitationWhereInput[]
+    templateId?: StringFilter<"WeddingInvitation"> | string
+    content?: JsonFilter<"WeddingInvitation">
+    createdAt?: DateTimeFilter<"WeddingInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WeddingInvitation"> | Date | string
+    wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+  }, "id" | "weddingId">
+
+  export type WeddingInvitationOrderByWithAggregationInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    templateId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WeddingInvitationCountOrderByAggregateInput
+    _max?: WeddingInvitationMaxOrderByAggregateInput
+    _min?: WeddingInvitationMinOrderByAggregateInput
+  }
+
+  export type WeddingInvitationScalarWhereWithAggregatesInput = {
+    AND?: WeddingInvitationScalarWhereWithAggregatesInput | WeddingInvitationScalarWhereWithAggregatesInput[]
+    OR?: WeddingInvitationScalarWhereWithAggregatesInput[]
+    NOT?: WeddingInvitationScalarWhereWithAggregatesInput | WeddingInvitationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WeddingInvitation"> | string
+    weddingId?: StringWithAggregatesFilter<"WeddingInvitation"> | string
+    templateId?: StringWithAggregatesFilter<"WeddingInvitation"> | string
+    content?: JsonWithAggregatesFilter<"WeddingInvitation">
+    createdAt?: DateTimeWithAggregatesFilter<"WeddingInvitation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WeddingInvitation"> | Date | string
   }
 
   export type WeddingMemberWhereInput = {
@@ -30162,6 +33986,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -30182,6 +34007,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -30202,6 +34028,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -30222,6 +34049,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -30255,6 +34083,68 @@ export namespace Prisma {
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PushDeviceCreateInput = {
+    id?: string
+    token: string
+    platform?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutPushDevicesInput
+  }
+
+  export type PushDeviceUncheckedCreateInput = {
+    id?: string
+    userId: string
+    token: string
+    platform?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PushDeviceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutPushDevicesNestedInput
+  }
+
+  export type PushDeviceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PushDeviceCreateManyInput = {
+    id?: string
+    userId: string
+    token: string
+    platform?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PushDeviceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PushDeviceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CategoryCreateInput = {
@@ -31307,6 +35197,8 @@ export namespace Prisma {
     tasks?: TaskCreateNestedManyWithoutWeddingInput
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateInput = {
@@ -31327,6 +35219,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUpdateInput = {
@@ -31347,6 +35241,8 @@ export namespace Prisma {
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateInput = {
@@ -31367,6 +35263,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateManyInput = {
@@ -31411,6 +35309,144 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type WeddingWebsiteCreateInput = {
+    id?: string
+    slug: string
+    templateId?: string
+    published?: boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    wedding: WeddingCreateNestedOneWithoutWebsiteInput
+  }
+
+  export type WeddingWebsiteUncheckedCreateInput = {
+    id?: string
+    weddingId: string
+    slug: string
+    templateId?: string
+    published?: boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingWebsiteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    wedding?: WeddingUpdateOneRequiredWithoutWebsiteNestedInput
+  }
+
+  export type WeddingWebsiteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingWebsiteCreateManyInput = {
+    id?: string
+    weddingId: string
+    slug: string
+    templateId?: string
+    published?: boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingWebsiteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingWebsiteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingInvitationCreateInput = {
+    id?: string
+    templateId?: string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    wedding: WeddingCreateNestedOneWithoutInvitationInput
+  }
+
+  export type WeddingInvitationUncheckedCreateInput = {
+    id?: string
+    weddingId: string
+    templateId?: string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingInvitationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    wedding?: WeddingUpdateOneRequiredWithoutInvitationNestedInput
+  }
+
+  export type WeddingInvitationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingInvitationCreateManyInput = {
+    id?: string
+    weddingId: string
+    templateId?: string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingInvitationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingInvitationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WeddingMemberCreateInput = {
@@ -32157,6 +36193,12 @@ export namespace Prisma {
     none?: ContentPostWhereInput
   }
 
+  export type PushDeviceListRelationFilter = {
+    every?: PushDeviceWhereInput
+    some?: PushDeviceWhereInput
+    none?: PushDeviceWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -32183,6 +36225,10 @@ export namespace Prisma {
   }
 
   export type ContentPostOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PushDeviceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -32285,6 +36331,38 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type PushDeviceCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PushDeviceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PushDeviceMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -32391,11 +36469,6 @@ export namespace Prisma {
     hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
     hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
     isEmpty?: boolean
-  }
-
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
   }
 
   export type CategoryScalarRelationFilter = {
@@ -33068,6 +37141,16 @@ export namespace Prisma {
     none?: BudgetItemWhereInput
   }
 
+  export type WeddingWebsiteNullableScalarRelationFilter = {
+    is?: WeddingWebsiteWhereInput | null
+    isNot?: WeddingWebsiteWhereInput | null
+  }
+
+  export type WeddingInvitationNullableScalarRelationFilter = {
+    is?: WeddingInvitationWhereInput | null
+    isNot?: WeddingInvitationWhereInput | null
+  }
+
   export type WeddingMemberOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -33142,17 +37225,122 @@ export namespace Prisma {
     guests?: SortOrder
     budget?: SortOrder
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type WeddingScalarRelationFilter = {
+    is?: WeddingWhereInput
+    isNot?: WeddingWhereInput
+  }
+
+  export type WeddingWebsiteCountOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    slug?: SortOrder
+    templateId?: SortOrder
+    published?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WeddingWebsiteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    slug?: SortOrder
+    templateId?: SortOrder
+    published?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WeddingWebsiteMinOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    slug?: SortOrder
+    templateId?: SortOrder
+    published?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type WeddingInvitationCountOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    templateId?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WeddingInvitationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    templateId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WeddingInvitationMinOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    templateId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
 
   export type EnumWeddingMemberRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.WeddingMemberRole | EnumWeddingMemberRoleFieldRefInput<$PrismaModel>
     in?: $Enums.WeddingMemberRole[] | ListEnumWeddingMemberRoleFieldRefInput<$PrismaModel>
     notIn?: $Enums.WeddingMemberRole[] | ListEnumWeddingMemberRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumWeddingMemberRoleFilter<$PrismaModel> | $Enums.WeddingMemberRole
-  }
-
-  export type WeddingScalarRelationFilter = {
-    is?: WeddingWhereInput
-    isNot?: WeddingWhereInput
   }
 
   export type WeddingMemberCountOrderByAggregateInput = {
@@ -33503,29 +37691,6 @@ export namespace Prisma {
     notIn?: $Enums.ContentStatus[] | ListEnumContentStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumContentStatusFilter<$PrismaModel> | $Enums.ContentStatus
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type ContentTopicScalarRelationFilter = {
     is?: ContentTopicWhereInput
@@ -33620,32 +37785,6 @@ export namespace Prisma {
     _min?: NestedEnumContentStatusFilter<$PrismaModel>
     _max?: NestedEnumContentStatusFilter<$PrismaModel>
   }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
-  }
 
   export type VendorCreateNestedOneWithoutUserInput = {
     create?: XOR<VendorCreateWithoutUserInput, VendorUncheckedCreateWithoutUserInput>
@@ -33707,6 +37846,13 @@ export namespace Prisma {
     connect?: ContentPostWhereUniqueInput | ContentPostWhereUniqueInput[]
   }
 
+  export type PushDeviceCreateNestedManyWithoutUserInput = {
+    create?: XOR<PushDeviceCreateWithoutUserInput, PushDeviceUncheckedCreateWithoutUserInput> | PushDeviceCreateWithoutUserInput[] | PushDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PushDeviceCreateOrConnectWithoutUserInput | PushDeviceCreateOrConnectWithoutUserInput[]
+    createMany?: PushDeviceCreateManyUserInputEnvelope
+    connect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+  }
+
   export type VendorUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<VendorCreateWithoutUserInput, VendorUncheckedCreateWithoutUserInput>
     connectOrCreate?: VendorCreateOrConnectWithoutUserInput
@@ -33765,6 +37911,13 @@ export namespace Prisma {
     connectOrCreate?: ContentPostCreateOrConnectWithoutAuthorInput | ContentPostCreateOrConnectWithoutAuthorInput[]
     createMany?: ContentPostCreateManyAuthorInputEnvelope
     connect?: ContentPostWhereUniqueInput | ContentPostWhereUniqueInput[]
+  }
+
+  export type PushDeviceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<PushDeviceCreateWithoutUserInput, PushDeviceUncheckedCreateWithoutUserInput> | PushDeviceCreateWithoutUserInput[] | PushDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PushDeviceCreateOrConnectWithoutUserInput | PushDeviceCreateOrConnectWithoutUserInput[]
+    createMany?: PushDeviceCreateManyUserInputEnvelope
+    connect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -33901,6 +38054,20 @@ export namespace Prisma {
     deleteMany?: ContentPostScalarWhereInput | ContentPostScalarWhereInput[]
   }
 
+  export type PushDeviceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PushDeviceCreateWithoutUserInput, PushDeviceUncheckedCreateWithoutUserInput> | PushDeviceCreateWithoutUserInput[] | PushDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PushDeviceCreateOrConnectWithoutUserInput | PushDeviceCreateOrConnectWithoutUserInput[]
+    upsert?: PushDeviceUpsertWithWhereUniqueWithoutUserInput | PushDeviceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PushDeviceCreateManyUserInputEnvelope
+    set?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    disconnect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    delete?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    connect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    update?: PushDeviceUpdateWithWhereUniqueWithoutUserInput | PushDeviceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PushDeviceUpdateManyWithWhereWithoutUserInput | PushDeviceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PushDeviceScalarWhereInput | PushDeviceScalarWhereInput[]
+  }
+
   export type VendorUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<VendorCreateWithoutUserInput, VendorUncheckedCreateWithoutUserInput>
     connectOrCreate?: VendorCreateOrConnectWithoutUserInput
@@ -34013,6 +38180,34 @@ export namespace Prisma {
     update?: ContentPostUpdateWithWhereUniqueWithoutAuthorInput | ContentPostUpdateWithWhereUniqueWithoutAuthorInput[]
     updateMany?: ContentPostUpdateManyWithWhereWithoutAuthorInput | ContentPostUpdateManyWithWhereWithoutAuthorInput[]
     deleteMany?: ContentPostScalarWhereInput | ContentPostScalarWhereInput[]
+  }
+
+  export type PushDeviceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PushDeviceCreateWithoutUserInput, PushDeviceUncheckedCreateWithoutUserInput> | PushDeviceCreateWithoutUserInput[] | PushDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PushDeviceCreateOrConnectWithoutUserInput | PushDeviceCreateOrConnectWithoutUserInput[]
+    upsert?: PushDeviceUpsertWithWhereUniqueWithoutUserInput | PushDeviceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PushDeviceCreateManyUserInputEnvelope
+    set?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    disconnect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    delete?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    connect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
+    update?: PushDeviceUpdateWithWhereUniqueWithoutUserInput | PushDeviceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PushDeviceUpdateManyWithWhereWithoutUserInput | PushDeviceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PushDeviceScalarWhereInput | PushDeviceScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutPushDevicesInput = {
+    create?: XOR<UserCreateWithoutPushDevicesInput, UserUncheckedCreateWithoutPushDevicesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPushDevicesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutPushDevicesNestedInput = {
+    create?: XOR<UserCreateWithoutPushDevicesInput, UserUncheckedCreateWithoutPushDevicesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPushDevicesInput
+    upsert?: UserUpsertWithoutPushDevicesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPushDevicesInput, UserUpdateWithoutPushDevicesInput>, UserUncheckedUpdateWithoutPushDevicesInput>
   }
 
   export type VendorCreateNestedManyWithoutCategoryInput = {
@@ -34772,6 +38967,18 @@ export namespace Prisma {
     connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
   }
 
+  export type WeddingWebsiteCreateNestedOneWithoutWeddingInput = {
+    create?: XOR<WeddingWebsiteCreateWithoutWeddingInput, WeddingWebsiteUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingWebsiteCreateOrConnectWithoutWeddingInput
+    connect?: WeddingWebsiteWhereUniqueInput
+  }
+
+  export type WeddingInvitationCreateNestedOneWithoutWeddingInput = {
+    create?: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingInvitationCreateOrConnectWithoutWeddingInput
+    connect?: WeddingInvitationWhereUniqueInput
+  }
+
   export type WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput = {
     create?: XOR<WeddingMemberCreateWithoutWeddingInput, WeddingMemberUncheckedCreateWithoutWeddingInput> | WeddingMemberCreateWithoutWeddingInput[] | WeddingMemberUncheckedCreateWithoutWeddingInput[]
     connectOrCreate?: WeddingMemberCreateOrConnectWithoutWeddingInput | WeddingMemberCreateOrConnectWithoutWeddingInput[]
@@ -34805,6 +39012,18 @@ export namespace Prisma {
     connectOrCreate?: BudgetItemCreateOrConnectWithoutWeddingInput | BudgetItemCreateOrConnectWithoutWeddingInput[]
     createMany?: BudgetItemCreateManyWeddingInputEnvelope
     connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+  }
+
+  export type WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput = {
+    create?: XOR<WeddingWebsiteCreateWithoutWeddingInput, WeddingWebsiteUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingWebsiteCreateOrConnectWithoutWeddingInput
+    connect?: WeddingWebsiteWhereUniqueInput
+  }
+
+  export type WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput = {
+    create?: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingInvitationCreateOrConnectWithoutWeddingInput
+    connect?: WeddingInvitationWhereUniqueInput
   }
 
   export type UserUpdateOneRequiredWithoutWeddingNestedInput = {
@@ -34885,6 +39104,26 @@ export namespace Prisma {
     deleteMany?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
   }
 
+  export type WeddingWebsiteUpdateOneWithoutWeddingNestedInput = {
+    create?: XOR<WeddingWebsiteCreateWithoutWeddingInput, WeddingWebsiteUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingWebsiteCreateOrConnectWithoutWeddingInput
+    upsert?: WeddingWebsiteUpsertWithoutWeddingInput
+    disconnect?: WeddingWebsiteWhereInput | boolean
+    delete?: WeddingWebsiteWhereInput | boolean
+    connect?: WeddingWebsiteWhereUniqueInput
+    update?: XOR<XOR<WeddingWebsiteUpdateToOneWithWhereWithoutWeddingInput, WeddingWebsiteUpdateWithoutWeddingInput>, WeddingWebsiteUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type WeddingInvitationUpdateOneWithoutWeddingNestedInput = {
+    create?: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingInvitationCreateOrConnectWithoutWeddingInput
+    upsert?: WeddingInvitationUpsertWithoutWeddingInput
+    disconnect?: WeddingInvitationWhereInput | boolean
+    delete?: WeddingInvitationWhereInput | boolean
+    connect?: WeddingInvitationWhereUniqueInput
+    update?: XOR<XOR<WeddingInvitationUpdateToOneWithWhereWithoutWeddingInput, WeddingInvitationUpdateWithoutWeddingInput>, WeddingInvitationUncheckedUpdateWithoutWeddingInput>
+  }
+
   export type WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput = {
     create?: XOR<WeddingMemberCreateWithoutWeddingInput, WeddingMemberUncheckedCreateWithoutWeddingInput> | WeddingMemberCreateWithoutWeddingInput[] | WeddingMemberUncheckedCreateWithoutWeddingInput[]
     connectOrCreate?: WeddingMemberCreateOrConnectWithoutWeddingInput | WeddingMemberCreateOrConnectWithoutWeddingInput[]
@@ -34953,6 +39192,54 @@ export namespace Prisma {
     update?: BudgetItemUpdateWithWhereUniqueWithoutWeddingInput | BudgetItemUpdateWithWhereUniqueWithoutWeddingInput[]
     updateMany?: BudgetItemUpdateManyWithWhereWithoutWeddingInput | BudgetItemUpdateManyWithWhereWithoutWeddingInput[]
     deleteMany?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
+  }
+
+  export type WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput = {
+    create?: XOR<WeddingWebsiteCreateWithoutWeddingInput, WeddingWebsiteUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingWebsiteCreateOrConnectWithoutWeddingInput
+    upsert?: WeddingWebsiteUpsertWithoutWeddingInput
+    disconnect?: WeddingWebsiteWhereInput | boolean
+    delete?: WeddingWebsiteWhereInput | boolean
+    connect?: WeddingWebsiteWhereUniqueInput
+    update?: XOR<XOR<WeddingWebsiteUpdateToOneWithWhereWithoutWeddingInput, WeddingWebsiteUpdateWithoutWeddingInput>, WeddingWebsiteUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput = {
+    create?: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: WeddingInvitationCreateOrConnectWithoutWeddingInput
+    upsert?: WeddingInvitationUpsertWithoutWeddingInput
+    disconnect?: WeddingInvitationWhereInput | boolean
+    delete?: WeddingInvitationWhereInput | boolean
+    connect?: WeddingInvitationWhereUniqueInput
+    update?: XOR<XOR<WeddingInvitationUpdateToOneWithWhereWithoutWeddingInput, WeddingInvitationUpdateWithoutWeddingInput>, WeddingInvitationUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type WeddingCreateNestedOneWithoutWebsiteInput = {
+    create?: XOR<WeddingCreateWithoutWebsiteInput, WeddingUncheckedCreateWithoutWebsiteInput>
+    connectOrCreate?: WeddingCreateOrConnectWithoutWebsiteInput
+    connect?: WeddingWhereUniqueInput
+  }
+
+  export type WeddingUpdateOneRequiredWithoutWebsiteNestedInput = {
+    create?: XOR<WeddingCreateWithoutWebsiteInput, WeddingUncheckedCreateWithoutWebsiteInput>
+    connectOrCreate?: WeddingCreateOrConnectWithoutWebsiteInput
+    upsert?: WeddingUpsertWithoutWebsiteInput
+    connect?: WeddingWhereUniqueInput
+    update?: XOR<XOR<WeddingUpdateToOneWithWhereWithoutWebsiteInput, WeddingUpdateWithoutWebsiteInput>, WeddingUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type WeddingCreateNestedOneWithoutInvitationInput = {
+    create?: XOR<WeddingCreateWithoutInvitationInput, WeddingUncheckedCreateWithoutInvitationInput>
+    connectOrCreate?: WeddingCreateOrConnectWithoutInvitationInput
+    connect?: WeddingWhereUniqueInput
+  }
+
+  export type WeddingUpdateOneRequiredWithoutInvitationNestedInput = {
+    create?: XOR<WeddingCreateWithoutInvitationInput, WeddingUncheckedCreateWithoutInvitationInput>
+    connectOrCreate?: WeddingCreateOrConnectWithoutInvitationInput
+    upsert?: WeddingUpsertWithoutInvitationInput
+    connect?: WeddingWhereUniqueInput
+    update?: XOR<XOR<WeddingUpdateToOneWithWhereWithoutInvitationInput, WeddingUpdateWithoutInvitationInput>, WeddingUncheckedUpdateWithoutInvitationInput>
   }
 
   export type WeddingCreateNestedOneWithoutMembersInput = {
@@ -35402,6 +39689,29 @@ export namespace Prisma {
     _min?: NestedEnumRequestStatusFilter<$PrismaModel>
     _max?: NestedEnumRequestStatusFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumWeddingMemberRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.WeddingMemberRole | EnumWeddingMemberRoleFieldRefInput<$PrismaModel>
@@ -35542,29 +39852,6 @@ export namespace Prisma {
     _min?: NestedEnumContentStatusFilter<$PrismaModel>
     _max?: NestedEnumContentStatusFilter<$PrismaModel>
   }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type VendorCreateWithoutUserInput = {
     id?: string
@@ -35670,6 +39957,8 @@ export namespace Prisma {
     tasks?: TaskCreateNestedManyWithoutWeddingInput
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutUserInput = {
@@ -35689,6 +39978,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutUserInput = {
@@ -35925,6 +40216,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PushDeviceCreateWithoutUserInput = {
+    id?: string
+    token: string
+    platform?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PushDeviceUncheckedCreateWithoutUserInput = {
+    id?: string
+    token: string
+    platform?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PushDeviceCreateOrConnectWithoutUserInput = {
+    where: PushDeviceWhereUniqueInput
+    create: XOR<PushDeviceCreateWithoutUserInput, PushDeviceUncheckedCreateWithoutUserInput>
+  }
+
+  export type PushDeviceCreateManyUserInputEnvelope = {
+    data: PushDeviceCreateManyUserInput | PushDeviceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type VendorUpsertWithoutUserInput = {
     update: XOR<VendorUpdateWithoutUserInput, VendorUncheckedUpdateWithoutUserInput>
     create: XOR<VendorCreateWithoutUserInput, VendorUncheckedCreateWithoutUserInput>
@@ -36046,6 +40363,8 @@ export namespace Prisma {
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutUserInput = {
@@ -36065,6 +40384,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingMemberUpsertWithoutUserInput = {
@@ -36286,6 +40607,130 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"ContentPost"> | Date | string
   }
 
+  export type PushDeviceUpsertWithWhereUniqueWithoutUserInput = {
+    where: PushDeviceWhereUniqueInput
+    update: XOR<PushDeviceUpdateWithoutUserInput, PushDeviceUncheckedUpdateWithoutUserInput>
+    create: XOR<PushDeviceCreateWithoutUserInput, PushDeviceUncheckedCreateWithoutUserInput>
+  }
+
+  export type PushDeviceUpdateWithWhereUniqueWithoutUserInput = {
+    where: PushDeviceWhereUniqueInput
+    data: XOR<PushDeviceUpdateWithoutUserInput, PushDeviceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PushDeviceUpdateManyWithWhereWithoutUserInput = {
+    where: PushDeviceScalarWhereInput
+    data: XOR<PushDeviceUpdateManyMutationInput, PushDeviceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type PushDeviceScalarWhereInput = {
+    AND?: PushDeviceScalarWhereInput | PushDeviceScalarWhereInput[]
+    OR?: PushDeviceScalarWhereInput[]
+    NOT?: PushDeviceScalarWhereInput | PushDeviceScalarWhereInput[]
+    id?: StringFilter<"PushDevice"> | string
+    userId?: StringFilter<"PushDevice"> | string
+    token?: StringFilter<"PushDevice"> | string
+    platform?: StringFilter<"PushDevice"> | string
+    createdAt?: DateTimeFilter<"PushDevice"> | Date | string
+    updatedAt?: DateTimeFilter<"PushDevice"> | Date | string
+  }
+
+  export type UserCreateWithoutPushDevicesInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    createdAt?: Date | string
+    vendor?: VendorCreateNestedOneWithoutUserInput
+    wedding?: WeddingCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    reviews?: ReviewCreateNestedManyWithoutUserInput
+    requests?: RequestCreateNestedManyWithoutUserInput
+    requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
+    externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+  }
+
+  export type UserUncheckedCreateWithoutPushDevicesInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    createdAt?: Date | string
+    vendor?: VendorUncheckedCreateNestedOneWithoutUserInput
+    wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
+    requests?: RequestUncheckedCreateNestedManyWithoutUserInput
+    requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
+    externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+  }
+
+  export type UserCreateOrConnectWithoutPushDevicesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPushDevicesInput, UserUncheckedCreateWithoutPushDevicesInput>
+  }
+
+  export type UserUpsertWithoutPushDevicesInput = {
+    update: XOR<UserUpdateWithoutPushDevicesInput, UserUncheckedUpdateWithoutPushDevicesInput>
+    create: XOR<UserCreateWithoutPushDevicesInput, UserUncheckedCreateWithoutPushDevicesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPushDevicesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPushDevicesInput, UserUncheckedUpdateWithoutPushDevicesInput>
+  }
+
+  export type UserUpdateWithoutPushDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: VendorUpdateOneWithoutUserNestedInput
+    wedding?: WeddingUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    reviews?: ReviewUpdateManyWithoutUserNestedInput
+    requests?: RequestUpdateManyWithoutUserNestedInput
+    requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
+    externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPushDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: VendorUncheckedUpdateOneWithoutUserNestedInput
+    wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
+    requests?: RequestUncheckedUpdateManyWithoutUserNestedInput
+    requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
+    externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+  }
+
   export type VendorCreateWithoutCategoryInput = {
     id?: string
     name: string
@@ -36448,6 +40893,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutVendorInput = {
@@ -36467,6 +40913,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutVendorInput = {
@@ -36743,6 +41190,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutVendorInput = {
@@ -36762,6 +41210,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryUpsertWithoutVendorsInput = {
@@ -37982,6 +42431,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewsInput = {
@@ -38001,6 +42451,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewsInput = {
@@ -38129,6 +42580,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewsInput = {
@@ -38148,6 +42600,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutFavoritesInput = {
@@ -38167,6 +42620,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFavoritesInput = {
@@ -38186,6 +42640,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFavoritesInput = {
@@ -38308,6 +42763,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFavoritesInput = {
@@ -38327,6 +42783,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type VendorUpsertWithoutFavoritesInput = {
@@ -38439,6 +42896,7 @@ export namespace Prisma {
     requests?: RequestCreateNestedManyWithoutUserInput
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutExternalVendorsInput = {
@@ -38458,6 +42916,7 @@ export namespace Prisma {
     requests?: RequestUncheckedCreateNestedManyWithoutUserInput
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutExternalVendorsInput = {
@@ -38493,6 +42952,7 @@ export namespace Prisma {
     requests?: RequestUpdateManyWithoutUserNestedInput
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutExternalVendorsInput = {
@@ -38512,6 +42972,7 @@ export namespace Prisma {
     requests?: RequestUncheckedUpdateManyWithoutUserNestedInput
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutRequestsInput = {
@@ -38531,6 +42992,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRequestsInput = {
@@ -38550,6 +43012,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRequestsInput = {
@@ -38700,6 +43163,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRequestsInput = {
@@ -38719,6 +43183,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type VendorUpsertWithoutRequestsInput = {
@@ -38880,6 +43345,7 @@ export namespace Prisma {
     requests?: RequestCreateNestedManyWithoutUserInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRequestMessagesInput = {
@@ -38899,6 +43365,7 @@ export namespace Prisma {
     requests?: RequestUncheckedCreateNestedManyWithoutUserInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRequestMessagesInput = {
@@ -38973,6 +43440,7 @@ export namespace Prisma {
     requests?: RequestUpdateManyWithoutUserNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRequestMessagesInput = {
@@ -38992,6 +43460,7 @@ export namespace Prisma {
     requests?: RequestUncheckedUpdateManyWithoutUserNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutWeddingInput = {
@@ -39011,6 +43480,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeddingInput = {
@@ -39030,6 +43500,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeddingInput = {
@@ -39197,6 +43668,52 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type WeddingWebsiteCreateWithoutWeddingInput = {
+    id?: string
+    slug: string
+    templateId?: string
+    published?: boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingWebsiteUncheckedCreateWithoutWeddingInput = {
+    id?: string
+    slug: string
+    templateId?: string
+    published?: boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingWebsiteCreateOrConnectWithoutWeddingInput = {
+    where: WeddingWebsiteWhereUniqueInput
+    create: XOR<WeddingWebsiteCreateWithoutWeddingInput, WeddingWebsiteUncheckedCreateWithoutWeddingInput>
+  }
+
+  export type WeddingInvitationCreateWithoutWeddingInput = {
+    id?: string
+    templateId?: string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingInvitationUncheckedCreateWithoutWeddingInput = {
+    id?: string
+    templateId?: string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WeddingInvitationCreateOrConnectWithoutWeddingInput = {
+    where: WeddingInvitationWhereUniqueInput
+    create: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
+  }
+
   export type UserUpsertWithoutWeddingInput = {
     update: XOR<UserUpdateWithoutWeddingInput, UserUncheckedUpdateWithoutWeddingInput>
     create: XOR<UserCreateWithoutWeddingInput, UserUncheckedCreateWithoutWeddingInput>
@@ -39225,6 +43742,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeddingInput = {
@@ -39244,6 +43762,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingMemberUpsertWithWhereUniqueWithoutWeddingInput = {
@@ -39401,6 +43920,264 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
   }
 
+  export type WeddingWebsiteUpsertWithoutWeddingInput = {
+    update: XOR<WeddingWebsiteUpdateWithoutWeddingInput, WeddingWebsiteUncheckedUpdateWithoutWeddingInput>
+    create: XOR<WeddingWebsiteCreateWithoutWeddingInput, WeddingWebsiteUncheckedCreateWithoutWeddingInput>
+    where?: WeddingWebsiteWhereInput
+  }
+
+  export type WeddingWebsiteUpdateToOneWithWhereWithoutWeddingInput = {
+    where?: WeddingWebsiteWhereInput
+    data: XOR<WeddingWebsiteUpdateWithoutWeddingInput, WeddingWebsiteUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type WeddingWebsiteUpdateWithoutWeddingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingWebsiteUncheckedUpdateWithoutWeddingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingInvitationUpsertWithoutWeddingInput = {
+    update: XOR<WeddingInvitationUpdateWithoutWeddingInput, WeddingInvitationUncheckedUpdateWithoutWeddingInput>
+    create: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
+    where?: WeddingInvitationWhereInput
+  }
+
+  export type WeddingInvitationUpdateToOneWithWhereWithoutWeddingInput = {
+    where?: WeddingInvitationWhereInput
+    data: XOR<WeddingInvitationUpdateWithoutWeddingInput, WeddingInvitationUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type WeddingInvitationUpdateWithoutWeddingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingInvitationUncheckedUpdateWithoutWeddingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WeddingCreateWithoutWebsiteInput = {
+    id?: string
+    date: Date | string
+    city: string
+    guests: number
+    budget: number
+    partnerOneName?: string
+    partnerTwoName?: string
+    couplePhotoUrl?: string | null
+    planningStage?: string
+    cityUndecided?: boolean
+    guestsUndecided?: boolean
+    user: UserCreateNestedOneWithoutWeddingInput
+    members?: WeddingMemberCreateNestedManyWithoutWeddingInput
+    invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
+    tasks?: TaskCreateNestedManyWithoutWeddingInput
+    guestList?: GuestCreateNestedManyWithoutWeddingInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+  }
+
+  export type WeddingUncheckedCreateWithoutWebsiteInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    city: string
+    guests: number
+    budget: number
+    partnerOneName?: string
+    partnerTwoName?: string
+    couplePhotoUrl?: string | null
+    planningStage?: string
+    cityUndecided?: boolean
+    guestsUndecided?: boolean
+    members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
+    invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
+    tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
+    guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+  }
+
+  export type WeddingCreateOrConnectWithoutWebsiteInput = {
+    where: WeddingWhereUniqueInput
+    create: XOR<WeddingCreateWithoutWebsiteInput, WeddingUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type WeddingUpsertWithoutWebsiteInput = {
+    update: XOR<WeddingUpdateWithoutWebsiteInput, WeddingUncheckedUpdateWithoutWebsiteInput>
+    create: XOR<WeddingCreateWithoutWebsiteInput, WeddingUncheckedCreateWithoutWebsiteInput>
+    where?: WeddingWhereInput
+  }
+
+  export type WeddingUpdateToOneWithWhereWithoutWebsiteInput = {
+    where?: WeddingWhereInput
+    data: XOR<WeddingUpdateWithoutWebsiteInput, WeddingUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type WeddingUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    city?: StringFieldUpdateOperationsInput | string
+    guests?: IntFieldUpdateOperationsInput | number
+    budget?: IntFieldUpdateOperationsInput | number
+    partnerOneName?: StringFieldUpdateOperationsInput | string
+    partnerTwoName?: StringFieldUpdateOperationsInput | string
+    couplePhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    planningStage?: StringFieldUpdateOperationsInput | string
+    cityUndecided?: BoolFieldUpdateOperationsInput | boolean
+    guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWeddingNestedInput
+    members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
+    invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
+    tasks?: TaskUpdateManyWithoutWeddingNestedInput
+    guestList?: GuestUpdateManyWithoutWeddingNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+  }
+
+  export type WeddingUncheckedUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    city?: StringFieldUpdateOperationsInput | string
+    guests?: IntFieldUpdateOperationsInput | number
+    budget?: IntFieldUpdateOperationsInput | number
+    partnerOneName?: StringFieldUpdateOperationsInput | string
+    partnerTwoName?: StringFieldUpdateOperationsInput | string
+    couplePhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    planningStage?: StringFieldUpdateOperationsInput | string
+    cityUndecided?: BoolFieldUpdateOperationsInput | boolean
+    guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
+    invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
+    tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
+    guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+  }
+
+  export type WeddingCreateWithoutInvitationInput = {
+    id?: string
+    date: Date | string
+    city: string
+    guests: number
+    budget: number
+    partnerOneName?: string
+    partnerTwoName?: string
+    couplePhotoUrl?: string | null
+    planningStage?: string
+    cityUndecided?: boolean
+    guestsUndecided?: boolean
+    user: UserCreateNestedOneWithoutWeddingInput
+    members?: WeddingMemberCreateNestedManyWithoutWeddingInput
+    invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
+    tasks?: TaskCreateNestedManyWithoutWeddingInput
+    guestList?: GuestCreateNestedManyWithoutWeddingInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+  }
+
+  export type WeddingUncheckedCreateWithoutInvitationInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    city: string
+    guests: number
+    budget: number
+    partnerOneName?: string
+    partnerTwoName?: string
+    couplePhotoUrl?: string | null
+    planningStage?: string
+    cityUndecided?: boolean
+    guestsUndecided?: boolean
+    members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
+    invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
+    tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
+    guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+  }
+
+  export type WeddingCreateOrConnectWithoutInvitationInput = {
+    where: WeddingWhereUniqueInput
+    create: XOR<WeddingCreateWithoutInvitationInput, WeddingUncheckedCreateWithoutInvitationInput>
+  }
+
+  export type WeddingUpsertWithoutInvitationInput = {
+    update: XOR<WeddingUpdateWithoutInvitationInput, WeddingUncheckedUpdateWithoutInvitationInput>
+    create: XOR<WeddingCreateWithoutInvitationInput, WeddingUncheckedCreateWithoutInvitationInput>
+    where?: WeddingWhereInput
+  }
+
+  export type WeddingUpdateToOneWithWhereWithoutInvitationInput = {
+    where?: WeddingWhereInput
+    data: XOR<WeddingUpdateWithoutInvitationInput, WeddingUncheckedUpdateWithoutInvitationInput>
+  }
+
+  export type WeddingUpdateWithoutInvitationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    city?: StringFieldUpdateOperationsInput | string
+    guests?: IntFieldUpdateOperationsInput | number
+    budget?: IntFieldUpdateOperationsInput | number
+    partnerOneName?: StringFieldUpdateOperationsInput | string
+    partnerTwoName?: StringFieldUpdateOperationsInput | string
+    couplePhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    planningStage?: StringFieldUpdateOperationsInput | string
+    cityUndecided?: BoolFieldUpdateOperationsInput | boolean
+    guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWeddingNestedInput
+    members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
+    invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
+    tasks?: TaskUpdateManyWithoutWeddingNestedInput
+    guestList?: GuestUpdateManyWithoutWeddingNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+  }
+
+  export type WeddingUncheckedUpdateWithoutInvitationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    city?: StringFieldUpdateOperationsInput | string
+    guests?: IntFieldUpdateOperationsInput | number
+    budget?: IntFieldUpdateOperationsInput | number
+    partnerOneName?: StringFieldUpdateOperationsInput | string
+    partnerTwoName?: StringFieldUpdateOperationsInput | string
+    couplePhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    planningStage?: StringFieldUpdateOperationsInput | string
+    cityUndecided?: BoolFieldUpdateOperationsInput | boolean
+    guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
+    invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
+    tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
+    guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+  }
+
   export type WeddingCreateWithoutMembersInput = {
     id?: string
     date: Date | string
@@ -39418,6 +44195,8 @@ export namespace Prisma {
     tasks?: TaskCreateNestedManyWithoutWeddingInput
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutMembersInput = {
@@ -39437,6 +44216,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutMembersInput = {
@@ -39461,6 +44242,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeddingMemberInput = {
@@ -39480,6 +44262,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeddingMemberInput = {
@@ -39515,6 +44298,8 @@ export namespace Prisma {
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutMembersInput = {
@@ -39534,6 +44319,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type UserUpsertWithoutWeddingMemberInput = {
@@ -39564,6 +44351,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeddingMemberInput = {
@@ -39583,6 +44371,7 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingCreateWithoutInvitesInput = {
@@ -39602,6 +44391,8 @@ export namespace Prisma {
     tasks?: TaskCreateNestedManyWithoutWeddingInput
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutInvitesInput = {
@@ -39621,6 +44412,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutInvitesInput = {
@@ -39656,6 +44449,8 @@ export namespace Prisma {
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutInvitesInput = {
@@ -39675,6 +44470,8 @@ export namespace Prisma {
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutTasksInput = {
@@ -39694,6 +44491,8 @@ export namespace Prisma {
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutTasksInput = {
@@ -39713,6 +44512,8 @@ export namespace Prisma {
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutTasksInput = {
@@ -39748,6 +44549,8 @@ export namespace Prisma {
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutTasksInput = {
@@ -39767,6 +44570,8 @@ export namespace Prisma {
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutGuestListInput = {
@@ -39786,6 +44591,8 @@ export namespace Prisma {
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutGuestListInput = {
@@ -39805,6 +44612,8 @@ export namespace Prisma {
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutGuestListInput = {
@@ -39840,6 +44649,8 @@ export namespace Prisma {
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutGuestListInput = {
@@ -39859,6 +44670,8 @@ export namespace Prisma {
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutBudgetItemsInput = {
@@ -39878,6 +44691,8 @@ export namespace Prisma {
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
     guestList?: GuestCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutBudgetItemsInput = {
@@ -39897,6 +44712,8 @@ export namespace Prisma {
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutBudgetItemsInput = {
@@ -39932,6 +44749,8 @@ export namespace Prisma {
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutBudgetItemsInput = {
@@ -39951,6 +44770,8 @@ export namespace Prisma {
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type ContentPostCreateWithoutTopicInput = {
@@ -40063,6 +44884,7 @@ export namespace Prisma {
     requests?: RequestCreateNestedManyWithoutUserInput
     requestMessages?: RequestMessageCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContentPostsInput = {
@@ -40082,6 +44904,7 @@ export namespace Prisma {
     requests?: RequestUncheckedCreateNestedManyWithoutUserInput
     requestMessages?: RequestMessageUncheckedCreateNestedManyWithoutAuthorInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContentPostsInput = {
@@ -40148,6 +44971,7 @@ export namespace Prisma {
     requests?: RequestUpdateManyWithoutUserNestedInput
     requestMessages?: RequestMessageUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContentPostsInput = {
@@ -40167,6 +44991,7 @@ export namespace Prisma {
     requests?: RequestUncheckedUpdateManyWithoutUserNestedInput
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type FavoriteCreateManyUserInput = {
@@ -40239,6 +45064,14 @@ export namespace Prisma {
     featured?: boolean
     topicId: string
     publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PushDeviceCreateManyUserInput = {
+    id?: string
+    token: string
+    platform?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -40463,6 +45296,30 @@ export namespace Prisma {
     featured?: BoolFieldUpdateOperationsInput | boolean
     topicId?: StringFieldUpdateOperationsInput | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PushDeviceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PushDeviceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PushDeviceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

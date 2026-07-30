@@ -6,9 +6,14 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CityAutocomplete } from "@/components/city-autocomplete";
 import { LoadingButtonLabel } from "@/components/ui-loader";
+import { checkEmailAvailable } from "@/lib/auth-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { upsertWedding } from "@/lib/dashboard-api";
 import { getErrorMessage, toast } from "@/lib/toast";
+
+function looksLikeEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
 
 type PlanningStage =
   | "NOT_ENGAGED"
@@ -57,8 +62,12 @@ export function RegisterForm() {
   const [guestsUndecided, setGuestsUndecided] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<
+    "idle" | "available" | "taken" | "invalid"
+  >("idle");
 
-  function nextStep() {
+  async function nextStep() {
     setError(null);
     if (
       step === 2 &&
@@ -67,9 +76,34 @@ export function RegisterForm() {
       toast.error("Заповни обидва імені та дату весілля");
       return;
     }
-    if (step === 3 && (!email.trim() || password.length < 6)) {
-      toast.error("Вкажи email і пароль щонайменше з 6 символів");
-      return;
+    if (step === 3) {
+      if (!email.trim() || password.length < 6) {
+        toast.error("Вкажи email і пароль щонайменше з 6 символів");
+        return;
+      }
+      if (!looksLikeEmail(email)) {
+        setEmailStatus("invalid");
+        toast.error("Вкажи коректний email");
+        return;
+      }
+      setCheckingEmail(true);
+      try {
+        const result = await checkEmailAvailable(email);
+        if (!result.available) {
+          setEmailStatus("taken");
+          setError("Цей email уже зайнятий. Увійди або обери інший.");
+          toast.error("Цей email уже зайнятий");
+          return;
+        }
+        setEmailStatus("available");
+      } catch (err) {
+        const message = getErrorMessage(err, "Не вдалось перевірити email");
+        setError(message);
+        toast.error(message);
+        return;
+      } finally {
+        setCheckingEmail(false);
+      }
     }
     if (step === 4 && !cityUndecided && !city.trim()) {
       toast.error("Вкажи місто або обери «Ще вирішуємо»");
@@ -225,8 +259,38 @@ export function RegisterForm() {
                 <AccountFields
                   email={email}
                   password={password}
-                  setEmail={setEmail}
+                  emailStatus={emailStatus}
+                  setEmail={(value) => {
+                    setEmail(value);
+                    setEmailStatus("idle");
+                    setError(null);
+                  }}
                   setPassword={setPassword}
+                  onEmailBlur={async () => {
+                    const value = email.trim();
+                    if (!value) {
+                      setEmailStatus("idle");
+                      return;
+                    }
+                    if (!looksLikeEmail(value)) {
+                      setEmailStatus("invalid");
+                      return;
+                    }
+                    setCheckingEmail(true);
+                    try {
+                      const result = await checkEmailAvailable(value);
+                      setEmailStatus(result.available ? "available" : "taken");
+                      if (!result.available) {
+                        setError(
+                          "Цей email уже зайнятий. Увійди або обери інший.",
+                        );
+                      }
+                    } catch {
+                      setEmailStatus("idle");
+                    } finally {
+                      setCheckingEmail(false);
+                    }
+                  }}
                 />
               </div>
             </>
@@ -300,10 +364,11 @@ export function RegisterForm() {
             {step < 5 ? (
               <button
                 type="button"
-                onClick={nextStep}
-                className="flex-1 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-sage-deep"
+                disabled={checkingEmail}
+                onClick={() => void nextStep()}
+                className="flex-1 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-sage-deep disabled:opacity-60"
               >
-                Далі
+                {checkingEmail ? "Перевіряємо email…" : "Далі"}
               </button>
             ) : (
               <div className="flex-1">
@@ -344,14 +409,27 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function AccountFields({
   email,
   password,
+  emailStatus,
   setEmail,
   setPassword,
+  onEmailBlur,
 }: {
   email: string;
   password: string;
+  emailStatus: "idle" | "available" | "taken" | "invalid";
   setEmail: (value: string) => void;
   setPassword: (value: string) => void;
+  onEmailBlur: () => void;
 }) {
+  const emailHint =
+    emailStatus === "available"
+      ? "Email вільний"
+      : emailStatus === "taken"
+        ? "Цей email уже зайнятий"
+        : emailStatus === "invalid"
+          ? "Схоже на некоректний email"
+          : null;
+
   return (
     <>
       <Field label="Email">
@@ -361,9 +439,25 @@ function AccountFields({
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className={inputClass}
+          onBlur={onEmailBlur}
+          className={`${inputClass} ${
+            emailStatus === "taken" || emailStatus === "invalid"
+              ? "border-red-300 focus:border-red-400"
+              : emailStatus === "available"
+                ? "border-sage focus:border-sage"
+                : ""
+          }`}
           placeholder="you@email.com"
         />
+        {emailHint ? (
+          <span
+            className={`mt-2 block text-xs ${
+              emailStatus === "available" ? "text-sage-deep" : "text-red-600"
+            }`}
+          >
+            {emailHint}
+          </span>
+        ) : null}
       </Field>
       <Field label="Пароль">
         <input

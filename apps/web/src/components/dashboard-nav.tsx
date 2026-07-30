@@ -22,12 +22,11 @@ const COUPLE_PRIMARY: NavLink[] = [
   { href: "/budget", label: "Бюджет" },
   { href: "/guests", label: "Гості", badgeKeys: ["newRsvp", "pendingRsvp"] },
   { href: "/seating", label: "Розсадка" },
-];
-
-const COUPLE_MORE: NavLink[] = [
   { href: "/invitations", label: "Запрошення" },
   { href: "/website", label: "Сайт" },
 ];
+
+const COUPLE_MORE: NavLink[] = [];
 
 const VENDOR_LINKS: NavLink[] = [
   { href: "/vendor/dashboard", label: "Огляд", badgeKeys: ["newRequests"] },
@@ -113,7 +112,7 @@ export function DashboardNav({ variant }: Props) {
     <NavShell summary={summary}>
       <nav
         aria-label="Навігація кабінету"
-        className="flex max-w-full flex-wrap gap-1 rounded-2xl bg-mist p-1.5"
+        className="flex max-w-full gap-1 overflow-x-auto rounded-2xl bg-mist p-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {COUPLE_PRIMARY.map((link) => (
           <NavItem
@@ -124,7 +123,8 @@ export function DashboardNav({ variant }: Props) {
           />
         ))}
 
-        <div ref={moreRef} className="relative">
+        {COUPLE_MORE.length > 0 ? (
+        <div ref={moreRef} className="relative shrink-0">
           <button
             type="button"
             aria-expanded={moreOpen}
@@ -184,6 +184,7 @@ export function DashboardNav({ variant }: Props) {
             </div>
           ) : null}
         </div>
+        ) : null}
       </nav>
     </NavShell>
   );
@@ -201,7 +202,7 @@ function NavItem({
   return (
     <Link
       href={link.href}
-      className={`relative inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3.5 text-sm font-medium transition ${
+      className={`relative inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-3.5 text-sm font-medium transition ${
         active
           ? "bg-sage text-white shadow-sm"
           : "text-ink-soft hover:bg-white/80 hover:text-ink"

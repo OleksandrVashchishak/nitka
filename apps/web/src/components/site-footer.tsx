@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const COLUMNS = [
   {
@@ -8,7 +11,7 @@ const COLUMNS = [
       { href: "/vesilnyy-plan", label: "План весілля" },
       { href: "/plan-dnya-vesillya", label: "План дня весілля" },
       { href: "/vesilnyy-byudzhet", label: "Бюджет весілля" },
-      { href: "/spysok-gostey", label: "Гості та RSVP" },
+      { href: "/spysok-gostey", label: "Гості та запрошення" },
       { href: "/rozsadka-gostey", label: "Розсадка гостей" },
       { href: "/zaprosinnya", label: "Онлайн-запрошення" },
       { href: "/vesilnyy-sayt", label: "Весільний сайт" },
@@ -23,7 +26,7 @@ const COLUMNS = [
       { href: "/vesilnyy-plan", label: "План весілля" },
       { href: "/plan-dnya-vesillya", label: "План дня весілля" },
       { href: "/vesilnyy-byudzhet", label: "Бюджет весілля" },
-      { href: "/spysok-gostey", label: "Гості та RSVP" },
+      { href: "/spysok-gostey", label: "Гості та запрошення" },
       { href: "/rozsadka-gostey", label: "Розсадка гостей" },
       { href: "/zaprosinnya", label: "Онлайн-запрошення" },
       { href: "/vesilnyy-sayt", label: "Весільний сайт" },
@@ -99,4 +102,10 @@ export function SiteFooter() {
       </div>
     </footer>
   );
+}
+
+export function SiteFooterWrapper() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/w/") || pathname.startsWith("/rsvp/")) return null;
+  return <SiteFooter />;
 }

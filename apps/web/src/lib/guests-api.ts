@@ -54,6 +54,23 @@ export type PublicInvite = {
     date: string;
     city: string;
     coupleName: string;
+    websiteUrl?: string | null;
+  };
+  invitation?: {
+    templateId: string;
+    content: {
+      headline: string;
+      opener: string;
+      body: string;
+      dateLabel: string;
+      timeLabel: string;
+      venue: string;
+      address: string;
+      dressCode: string;
+      rsvpNote: string;
+      coverImageUrl: string;
+      showWebsiteLink: boolean;
+    };
   };
 };
 
@@ -151,7 +168,7 @@ export async function submitPublicRsvp(
         ? body.message
         : Array.isArray(body?.message)
           ? body.message.join(", ")
-          : "Не вдалось надіслати RSVP",
+          : "Не вдалось надіслати запрошення",
     );
   }
   return res.json();

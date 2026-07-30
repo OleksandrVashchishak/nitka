@@ -2,7 +2,7 @@
 
 import { PageLoader } from "@/components/ui-loader";
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   createGuest,
   deleteGuest,
@@ -18,6 +18,8 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
 import { toast } from "@/lib/toast";
 
+type ViewMode = "sides" | "alpha" | "table";
+
 const STATUS_LABEL: Record<RsvpStatus, string> = {
   PENDING: "Очікує",
   YES: "Йде",
@@ -28,47 +30,330 @@ const STATUS_LABEL: Record<RsvpStatus, string> = {
 const SIDE_LABEL: Record<GuestSide, string> = {
   BRIDE: "Наречена",
   GROOM: "Наречений",
-  BOTH: "Обидві сторони",
+  BOTH: "Спільні",
   OTHER: "Інше",
 };
 
-const FILTERS: Array<RsvpStatus | "ALL"> = [
-  "ALL",
-  "PENDING",
-  "YES",
-  "NO",
-  "MAYBE",
-];
-
-const emptyForm = {
-  name: "",
-  email: "",
-  phone: "",
-  side: "BOTH" as GuestSide,
-  rsvpStatus: "PENDING" as RsvpStatus,
-  plusOne: false,
-  plusOneName: "",
-  plusOneAttending: false,
-  allergies: "",
-  tableLabel: "",
-  notes: "",
+const STATUS_BTN: Record<RsvpStatus, { idle: string; active: string }> = {
+  PENDING: {
+    idle: "border-line text-ink-soft hover:border-ink/30 hover:bg-mist hover:text-ink",
+    active: "border-ink/20 bg-mist text-ink",
+  },
+  YES: {
+    idle: "border-line text-ink-soft hover:border-sage/40 hover:bg-sage/10 hover:text-sage-deep",
+    active: "border-sage/40 bg-sage/15 text-sage-deep",
+  },
+  NO: {
+    idle: "border-line text-ink-soft hover:border-red-200 hover:bg-red-50 hover:text-red-700",
+    active: "border-red-200 bg-red-50 text-red-700",
+  },
+  MAYBE: {
+    idle: "border-line text-ink-soft hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800",
+    active: "border-amber-200 bg-amber-50 text-amber-800",
+  },
 };
+
+const chipBtn =
+  "inline-flex cursor-pointer items-center border px-2.5 py-1 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
+
+function GuestNameRow({
+  guest,
+  origin,
+  busy,
+  bare = false,
+  onRename,
+  onDelete,
+  onStatus,
+  onTogglePlusOne,
+  onCopy,
+  onShare,
+}: {
+  guest: Guest;
+  origin: string;
+  busy: boolean;
+  bare?: boolean;
+  onRename: (id: string, name: string) => Promise<void>;
+  onDelete: (id: string) => void;
+  onStatus: (guest: Guest, status: RsvpStatus) => void;
+  onTogglePlusOne: (guest: Guest) => void;
+  onCopy: (guest: Guest) => void;
+  onShare: (guest: Guest) => void;
+}) {
+  const [value, setValue] = useState(guest.name);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) setValue(guest.name);
+  }, [guest.name, focused]);
+
+  async function commit() {
+    const next = value.trim();
+    if (next.length < 2) {
+      setValue(guest.name);
+      return;
+    }
+    if (next === guest.name) return;
+    await onRename(guest.id, next);
+  }
+
+  function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.currentTarget.blur();
+    }
+    if (e.key === "Escape") {
+      setValue(guest.name);
+      e.currentTarget.blur();
+    }
+  }
+
+  return (
+    <div
+      className={
+        bare
+          ? "group"
+          : "group border-b border-line/80 py-3 last:border-b-0"
+      }
+    >
+      <div className="flex items-baseline gap-2">
+        <input
+          value={value}
+          disabled={busy}
+          onChange={(e) => setValue(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => {
+            setFocused(false);
+            void commit();
+          }}
+          onKeyDown={onKeyDown}
+          className="min-w-0 flex-1 cursor-text bg-transparent font-[family-name:var(--font-display)] text-xl text-ink outline-none placeholder:text-ink-soft/40 disabled:opacity-50"
+          aria-label="Імʼя гостя"
+        />
+        <button
+          type="button"
+          onClick={() => onDelete(guest.id)}
+          className="shrink-0 cursor-pointer px-1.5 py-0.5 text-sm text-ink-soft opacity-0 transition hover:bg-red-50 hover:text-red-700 group-hover:opacity-100"
+          aria-label="Видалити"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        {(["YES", "MAYBE", "NO", "PENDING"] as const).map((status) => {
+          const active = guest.rsvpStatus === status;
+          return (
+            <button
+              key={status}
+              type="button"
+              disabled={busy}
+              onClick={() => onStatus(guest, status)}
+              className={`${chipBtn} ${
+                active ? STATUS_BTN[status].active : STATUS_BTN[status].idle
+              }`}
+            >
+              {STATUS_LABEL[status]}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onTogglePlusOne(guest)}
+          className={`${chipBtn} ${
+            guest.plusOne
+              ? "border-sage/40 bg-sage/15 text-sage-deep"
+              : "border-line text-ink-soft hover:border-sage/40 hover:bg-sage/10 hover:text-sage-deep"
+          }`}
+        >
+          {guest.plusOne ? "+1 так" : "+1"}
+        </button>
+        {origin ? (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => onShare(guest)}
+              className={`${chipBtn} border-sage bg-sage text-white hover:bg-sage-deep`}
+            >
+              Поділитись
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => onCopy(guest)}
+              className={`${chipBtn} border-line text-ink-soft hover:border-sage/40 hover:bg-mist hover:text-ink`}
+            >
+              Запрошення
+            </button>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function QuickAdd({
+  side,
+  busy,
+  onAdd,
+}: {
+  side: GuestSide;
+  busy: boolean;
+  onAdd: (side: GuestSide, name: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  async function submit() {
+    const next = name.trim();
+    if (next.length < 2) return;
+    await onAdd(side, next);
+    setName("");
+    inputRef.current?.focus();
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => setOpen(true)}
+        className="mt-4 inline-flex cursor-pointer items-center gap-2 border border-sage bg-white px-4 py-2.5 text-sm font-semibold text-sage transition hover:bg-sage hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <span className="text-base leading-none">+</span>
+        Додати гостя
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2 border border-sage/30 bg-mist/60 p-3">
+      <input
+        ref={inputRef}
+        value={name}
+        disabled={busy}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            void submit();
+          }
+          if (e.key === "Escape") {
+            setOpen(false);
+            setName("");
+          }
+        }}
+        placeholder="Імʼя гостя"
+        className="min-w-[160px] flex-1 cursor-text border border-line bg-white px-3 py-2 font-[family-name:var(--font-display)] text-lg text-ink outline-none placeholder:text-ink-soft/45 focus:border-sage"
+      />
+      <button
+        type="button"
+        disabled={busy || name.trim().length < 2}
+        onClick={() => void submit()}
+        className="cursor-pointer bg-sage px-4 py-2 text-sm font-semibold text-white transition hover:bg-sage-deep disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Додати
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(false);
+          setName("");
+        }}
+        className="cursor-pointer px-3 py-2 text-sm text-ink-soft transition hover:bg-white hover:text-ink"
+      >
+        Скасувати
+      </button>
+    </div>
+  );
+}
+
+function SideColumn({
+  title,
+  hint,
+  guests,
+  side,
+  origin,
+  busy,
+  onAdd,
+  onRename,
+  onDelete,
+  onStatus,
+  onTogglePlusOne,
+  onCopy,
+  onShare,
+}: {
+  title: string;
+  hint: string;
+  guests: Guest[];
+  side: GuestSide;
+  origin: string;
+  busy: boolean;
+  onAdd: (side: GuestSide, name: string) => Promise<void>;
+  onRename: (id: string, name: string) => Promise<void>;
+  onDelete: (id: string) => void;
+  onStatus: (guest: Guest, status: RsvpStatus) => void;
+  onTogglePlusOne: (guest: Guest) => void;
+  onCopy: (guest: Guest) => void;
+  onShare: (guest: Guest) => void;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="mb-4">
+        <p className="text-xs uppercase tracking-[0.16em] text-ink-soft">
+          {hint}
+        </p>
+        <h2 className="mt-1 font-[family-name:var(--font-display)] text-2xl text-ink md:text-3xl">
+          {title}
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">{guests.length} гостей</p>
+      </div>
+
+      <div>
+        {guests.length === 0 ? (
+          <p className="border-b border-dashed border-line py-3 text-sm text-ink-soft/70">
+            Поки порожньо — додай перше імʼя
+          </p>
+        ) : (
+          guests.map((guest) => (
+            <GuestNameRow
+              key={guest.id}
+              guest={guest}
+              origin={origin}
+              busy={busy}
+              onRename={onRename}
+              onDelete={onDelete}
+              onStatus={onStatus}
+              onTogglePlusOne={onTogglePlusOne}
+              onCopy={onCopy}
+              onShare={onShare}
+            />
+          ))
+        )}
+      </div>
+
+      <QuickAdd side={side} busy={busy} onAdd={onAdd} />
+    </div>
+  );
+}
 
 function GuestsInner() {
   const [data, setData] = useState<GuestListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<RsvpStatus | "ALL">("ALL");
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [needWedding, setNeedWedding] = useState(false);
-  const [justCreated, setJustCreated] = useState<Guest | null>(null);
+  const [view, setView] = useState<ViewMode>("sides");
+  const [busy, setBusy] = useState(false);
   const [origin, setOrigin] = useState("");
-  const [expandedLinkId, setExpandedLinkId] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<RsvpStatus | "ALL">("ALL");
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -101,45 +386,132 @@ function GuestsInner() {
     void load();
   }, []);
 
-  const filtered = useMemo(() => {
-    if (!data) return [];
-    if (filter === "ALL") return data.guests;
-    return data.guests.filter((g) => g.rsvpStatus === filter);
-  }, [data, filter]);
+  const brideGuests = useMemo(
+    () => data?.guests.filter((g) => g.side === "BRIDE") ?? [],
+    [data],
+  );
+  const groomGuests = useMemo(
+    () => data?.guests.filter((g) => g.side === "GROOM") ?? [],
+    [data],
+  );
+  const sharedGuests = useMemo(
+    () =>
+      data?.guests.filter((g) => g.side === "BOTH" || g.side === "OTHER") ?? [],
+    [data],
+  );
 
-  function startEdit(guest: Guest) {
-    setEditingId(guest.id);
-    setJustCreated(null);
-    setForm({
-      name: guest.name,
-      email: guest.email ?? "",
-      phone: guest.phone ?? "",
-      side: guest.side,
-      rsvpStatus: guest.rsvpStatus,
-      plusOne: guest.plusOne,
-      plusOneName: guest.plusOneName ?? "",
-      plusOneAttending: guest.plusOneAttending === true,
-      allergies: guest.allergies ?? "",
-      tableLabel: guest.tableLabel ?? "",
-      notes: guest.notes ?? "",
+  const alphaGuests = useMemo(() => {
+    if (!data) return [];
+    return [...data.guests].sort((a, b) =>
+      a.name.localeCompare(b.name, "uk"),
+    );
+  }, [data]);
+
+  const tableGuests = useMemo(() => {
+    if (!data) return [];
+    const q = query.trim().toLowerCase();
+    return data.guests.filter((g) => {
+      if (filter !== "ALL" && g.rsvpStatus !== filter) return false;
+      if (!q) return true;
+      return g.name.toLowerCase().includes(q);
     });
-    requestAnimationFrame(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+  }, [data, filter, query]);
+
+  const brideCount = brideGuests.length;
+  const groomCount = groomGuests.length;
+  const ratio =
+    brideCount === 0 && groomCount === 0
+      ? "0/0"
+      : `${brideCount}/${groomCount}`;
+
+  async function addGuest(side: GuestSide, name: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await createGuest({ name, side, rsvpStatus: "PENDING" });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не додано");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function resetForm() {
-    setEditingId(null);
-    setForm(emptyForm);
+  async function renameGuest(id: string, name: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await updateGuest(id, { name });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeGuest(id: string) {
+    const guest = data?.guests.find((g) => g.id === id);
+    if (!confirm(`Видалити «${guest?.name ?? "гостя"}»?`)) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await deleteGuest(id);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не видалено");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function setStatus(guest: Guest, rsvpStatus: RsvpStatus) {
+    setBusy(true);
+    setError(null);
+    try {
+      await updateGuest(guest.id, { rsvpStatus });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function togglePlusOne(guest: Guest) {
+    setBusy(true);
+    setError(null);
+    try {
+      await updateGuest(guest.id, {
+        plusOne: !guest.plusOne,
+        plusOneName: !guest.plusOne ? guest.plusOneName : undefined,
+      });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function moveSide(guest: Guest, side: GuestSide) {
+    if (guest.side === side) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await updateGuest(guest.id, { side });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function copyLink(guest: Guest) {
-    const url = guestRsvpUrl(guest);
     try {
-      await navigator.clipboard.writeText(url);
-      setCopiedId(guest.id);
-      toast.success("Скопійовано", "RSVP-посилання в буфері");
-      setTimeout(() => setCopiedId(null), 2500);
+      await navigator.clipboard.writeText(guestRsvpUrl(guest));
+      toast.success("Скопійовано", `Запрошення для ${guest.name}`);
     } catch {
       setError("Не вдалось скопіювати лінк");
     }
@@ -150,14 +522,13 @@ function GuestsInner() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: `RSVP · ${guest.name}`,
+          title: `Запрошення · ${guest.name}`,
           text: "Підтверди участь у весіллі",
           url,
         });
-        toast.success("Поділились", `Лінк для ${guest.name}`);
         return;
       } catch {
-        // cancelled — fall through
+        // cancelled
       }
     }
     await copyLink(guest);
@@ -165,13 +536,10 @@ function GuestsInner() {
 
   async function copyAllLinks() {
     if (!data?.guests.length || !origin) return;
-    const lines = data.guests.map(
-      (guest) => `${guest.name}: ${guestRsvpUrl(guest)}`,
-    );
-    const text = lines.join("\n");
+    const lines = data.guests.map((g) => `${g.name}: ${guestRsvpUrl(g)}`);
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success("Усі лінки", `${lines.length} рядків у буфері`);
+      await navigator.clipboard.writeText(lines.join("\n"));
+      toast.success("Усі лінки", `${lines.length} рядків`);
     } catch {
       setError("Не вдалось скопіювати лінки");
     }
@@ -213,24 +581,17 @@ function GuestsInner() {
 
     const headerCells = split(lines[0]).map((c) => c.toLowerCase());
     const hasHeader = headerCells.some((c) =>
-      ["name", "імя", "ім'я", "імʼя", "гость", "email", "телефон", "phone"].includes(
+      ["name", "імя", "ім'я", "імʼя", "гость", "guest", "сторона", "side"].includes(
         c,
       ),
     );
     const rows = hasHeader ? lines.slice(1) : lines;
-
     const idx = (aliases: string[]) =>
       headerCells.findIndex((c) => aliases.includes(c));
-
     const nameIdx = hasHeader
       ? Math.max(0, idx(["name", "імя", "ім'я", "імʼя", "гость", "guest"]))
       : 0;
-    const emailIdx = hasHeader ? idx(["email", "пошта", "e-mail"]) : 1;
-    const phoneIdx = hasHeader
-      ? idx(["phone", "телефон", "tel", "mobile"])
-      : 2;
-    const sideIdx = hasHeader ? idx(["side", "сторона"]) : -1;
-    const plusIdx = hasHeader ? idx(["plusone", "plus_one", "+1", "плюс"]) : -1;
+    const sideIdx = hasHeader ? idx(["side", "сторона"]) : 1;
 
     const sideMap: Record<string, GuestSide> = {
       bride: "BRIDE",
@@ -239,6 +600,7 @@ function GuestsInner() {
       наречений: "GROOM",
       both: "BOTH",
       обидві: "BOTH",
+      спільні: "BOTH",
       other: "OTHER",
       інше: "OTHER",
     };
@@ -248,20 +610,11 @@ function GuestsInner() {
         const cells = split(line);
         const name = (cells[nameIdx] ?? "").trim();
         if (name.length < 2) return null;
-        const email = emailIdx >= 0 ? cells[emailIdx]?.trim() : undefined;
-        const phone = phoneIdx >= 0 ? cells[phoneIdx]?.trim() : undefined;
-        const sideRaw = sideIdx >= 0 ? cells[sideIdx]?.trim().toLowerCase() : "";
-        const plusRaw = plusIdx >= 0 ? cells[plusIdx]?.trim().toLowerCase() : "";
+        const sideRaw =
+          sideIdx >= 0 ? cells[sideIdx]?.trim().toLowerCase() : "";
         return {
           name,
-          email: email || undefined,
-          phone: phone || undefined,
           side: sideRaw ? sideMap[sideRaw] : undefined,
-          plusOne:
-            plusRaw === "1" ||
-            plusRaw === "true" ||
-            plusRaw === "так" ||
-            plusRaw === "yes",
         };
       })
       .filter((row): row is NonNullable<typeof row> => Boolean(row));
@@ -275,76 +628,16 @@ function GuestsInner() {
       const text = await file.text();
       const rows = parseCsv(text);
       if (rows.length === 0) {
-        throw new Error("У CSV немає валідних рядків (потрібна колонка з іменем)");
+        throw new Error("У CSV немає валідних рядків");
       }
       const result = await importGuests(rows);
-      toast.success("Імпорт", `Додано ${result.imported} гостей`);
+      toast.success("Імпорт", `Додано ${result.imported}`);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Імпорт не вдався");
     } finally {
       setImporting(false);
       if (csvInputRef.current) csvInputRef.current.value = "";
-    }
-  }
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
-    try {
-      const payload = {
-        name: form.name,
-        email: form.email || undefined,
-        phone: form.phone || undefined,
-        side: form.side,
-        rsvpStatus: form.rsvpStatus,
-        plusOne: form.plusOne,
-        plusOneName: form.plusOne ? form.plusOneName || undefined : undefined,
-        plusOneAttending: form.plusOne ? form.plusOneAttending : null,
-        allergies: form.allergies || undefined,
-        tableLabel: form.tableLabel || undefined,
-        notes: form.notes || undefined,
-      };
-
-      if (editingId) {
-        await updateGuest(editingId, payload);
-        setJustCreated(null);
-        toast.success("Оновлено", form.name);
-      } else {
-        const created = await createGuest(payload);
-        setJustCreated(created);
-        toast.success("Гостя додано", "Поділись RSVP-лінком нижче");
-      }
-      resetForm();
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не збережено");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function onDelete(id: string) {
-    const guest = data?.guests.find((g) => g.id === id);
-    if (!confirm(`Видалити гостя «${guest?.name ?? "без імені"}»?`)) return;
-    setError(null);
-    try {
-      await deleteGuest(id);
-      if (editingId === id) resetForm();
-      if (justCreated?.id === id) setJustCreated(null);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не видалено");
-    }
-  }
-
-  async function onQuickStatus(guest: Guest, rsvpStatus: RsvpStatus) {
-    try {
-      await updateGuest(guest.id, { rsvpStatus });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
     }
   }
 
@@ -359,14 +652,13 @@ function GuestsInner() {
         <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
           Гості
         </h1>
-        <div className="mt-6 rounded-2xl border border-line bg-mist px-6 py-10">
+        <div className="mt-6 border border-line bg-mist px-6 py-10">
           <p className="text-ink-soft">
-            Спочатку створи весілля (дата / місто) у кабінеті — і тоді можна
-            збирати список гостей.
+            Спочатку створи весілля у кабінеті.
           </p>
           <Link
             href="/dashboard"
-            className="mt-4 inline-flex rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
+            className="mt-4 inline-flex cursor-pointer bg-sage px-5 py-3 text-sm font-semibold text-white transition hover:bg-sage-deep"
           >
             До кабінету
           </Link>
@@ -376,405 +668,277 @@ function GuestsInner() {
   }
 
   const stats = data?.stats;
+  const rowProps = {
+    origin,
+    busy,
+    onRename: renameGuest,
+    onDelete: removeGuest,
+    onStatus: setStatus,
+    onTogglePlusOne: togglePlusOne,
+    onCopy: copyLink,
+    onShare: shareLink,
+  };
 
   return (
     <>
       <DashboardNav variant="COUPLE" />
-      <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-        Гості & RSVP
-      </h1>
-      <p className="mt-2 max-w-2xl text-ink-soft">
-        Додай гостя → скопіюй або шарь персональне посилання в Telegram /
-        WhatsApp. Відповідь зʼявиться тут автоматично.
-      </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={!data?.guests.length || !origin}
-          onClick={() => void copyAllLinks()}
-          className="rounded-full border border-sage px-4 py-2.5 text-sm font-semibold text-sage-deep hover:bg-mist disabled:opacity-50"
-        >
-          Скопіювати всі RSVP-лінки
-        </button>
-        <button
-          type="button"
-          disabled={importing}
-          onClick={() => csvInputRef.current?.click()}
-          className="rounded-full border border-line px-4 py-2.5 text-sm text-ink-soft hover:border-sage/40 disabled:opacity-50"
-        >
-          {importing ? "Імпортуємо…" : "Імпорт CSV"}
-        </button>
-        <input
-          ref={csvInputRef}
-          type="file"
-          accept=".csv,text/csv"
-          className="hidden"
-          onChange={(e) => void onCsvFile(e.target.files?.[0])}
-        />
-        <span className="self-center text-xs text-ink-soft">
-          CSV: імʼя, email, телефон (заголовок опційний)
-        </span>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
+            Гості
+          </h1>
+          <p className="mt-2 max-w-lg text-ink-soft">
+            Набивай імена по сторонах — Enter додає наступного. Запрошення і статуси
+            одразу під кожним гостем.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={importing}
+            onClick={() => csvInputRef.current?.click()}
+            className="cursor-pointer border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {importing ? "Імпорт…" : "Імпорт CSV"}
+          </button>
+          <button
+            type="button"
+            disabled={!data?.guests.length || !origin}
+            onClick={() => void copyAllLinks()}
+            className="cursor-pointer border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Усі запрошення
+          </button>
+          <input
+            ref={csvInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => void onCsvFile(e.target.files?.[0])}
+          />
+        </div>
       </div>
 
       {error ? (
-        <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       ) : null}
 
-      {stats ? (
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          {[
-            { label: "Усього", value: stats.total, highlight: false },
-            { label: "Йдуть", value: stats.yes, highlight: false },
-            { label: "Можливо", value: stats.maybe, highlight: false },
-            { label: "Не йдуть", value: stats.no, highlight: false },
-            {
-              label: "Ще не відповіли",
-              value: stats.pending,
-              highlight: true,
-            },
-            { label: "Очікуємо (з +1)", value: stats.headcount, highlight: false },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className={
-                item.highlight
-                  ? "rounded-2xl border border-sage/40 bg-sage-deep px-4 py-4 text-white"
-                  : "rounded-2xl border border-line bg-mist px-4 py-4"
-              }
+      <div className="mt-8 flex flex-wrap items-center justify-end gap-3 border-b border-line pb-3">
+        <div className="inline-flex border border-line bg-white p-0.5">
+          {(
+            [
+              { id: "sides", label: "Дві сторони" },
+              { id: "alpha", label: "За абеткою" },
+              { id: "table", label: "Таблиця" },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setView(item.id)}
+              className={`cursor-pointer px-3 py-2 text-sm transition ${
+                view === item.id
+                  ? "bg-sage text-white"
+                  : "text-ink-soft hover:bg-mist hover:text-ink"
+              }`}
             >
-              <p
-                className={
-                  item.highlight
-                    ? "text-xs text-white/70"
-                    : "text-xs text-ink-soft"
-                }
-              >
-                {item.label}
-              </p>
-              <p
-                className={
-                  item.highlight
-                    ? "mt-1 font-[family-name:var(--font-display)] text-3xl"
-                    : "mt-1 font-[family-name:var(--font-display)] text-3xl text-ink"
-                }
-              >
-                {item.value}
-              </p>
-            </div>
+              {item.label}
+            </button>
           ))}
         </div>
-      ) : null}
-
-      {justCreated && origin ? (
-        <div className="mt-6 rounded-2xl border border-sage/40 bg-sage/10 p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
-            Посилання для гостя
-          </p>
-          <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl text-ink">
-            {justCreated.name}
-          </h2>
-          <p className="mt-1 break-all rounded-xl bg-white px-3 py-2 text-sm text-ink-soft">
-            {guestRsvpUrl(justCreated)}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => void shareLink(justCreated)}
-              className="rounded-full bg-sage px-4 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep"
-            >
-              Поділитись
-            </button>
-            <button
-              type="button"
-              onClick={() => void copyLink(justCreated)}
-              className="rounded-full border border-sage px-4 py-2.5 text-sm font-semibold text-sage-deep hover:bg-white"
-            >
-              {copiedId === justCreated.id ? "Скопійовано" : "Копіювати лінк"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setJustCreated(null)}
-              className="rounded-full border border-line px-4 py-2.5 text-sm text-ink-soft"
-            >
-              Закрити
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      <form
-        ref={formRef}
-        onSubmit={onSubmit}
-        className="mt-8 space-y-4 rounded-2xl border border-line bg-white p-5 md:p-6"
-      >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
-            {editingId ? "Редагувати гостя" : "Додати гостя"}
-          </h2>
-          {editingId ? (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="text-sm text-ink-soft underline-offset-4 hover:underline"
-            >
-              Скасувати
-            </button>
-          ) : null}
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <input
-            required
-            minLength={2}
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            placeholder="Імʼя"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            placeholder="Email"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <input
-            value={form.phone}
-            onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-            placeholder="Телефон"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <select
-            value={form.side}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, side: e.target.value as GuestSide }))
-            }
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          >
-            {Object.entries(SIDE_LABEL).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={form.rsvpStatus}
-            onChange={(e) =>
-              setForm((f) => ({
-                ...f,
-                rsvpStatus: e.target.value as RsvpStatus,
-              }))
-            }
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          >
-            {Object.entries(STATUS_LABEL).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <input
-            value={form.tableLabel}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, tableLabel: e.target.value }))
-            }
-            placeholder="Стіл (напр. Стіл 5)"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-        </div>
-
-        <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
-            checked={form.plusOne}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, plusOne: e.target.checked }))
-            }
-            className="size-4 accent-[var(--sage)]"
-          />
-          Дозволити +1
-        </label>
-
-        {form.plusOne ? (
-          <div className="grid gap-3 md:grid-cols-2">
-            <input
-              value={form.plusOneName}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, plusOneName: e.target.value }))
-              }
-              placeholder="Імʼя +1"
-              className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-            />
-            <label className="flex items-center gap-2 rounded-xl border border-line px-4 py-3 text-sm text-ink">
-              <input
-                type="checkbox"
-                checked={form.plusOneAttending}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    plusOneAttending: e.target.checked,
-                  }))
-                }
-                className="size-4 accent-[var(--sage)]"
-              />
-              +1 теж йде
-            </label>
-          </div>
-        ) : null}
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <input
-            value={form.allergies}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, allergies: e.target.value }))
-            }
-            placeholder="Алергії / дієта"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-          <input
-            value={form.notes}
-            onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-            placeholder="Нотатки"
-            className="rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
-        >
-          {saving ? "Зберігаємо..." : editingId ? "Оновити" : "Додати гостя"}
-        </button>
-      </form>
-
-      <div className="mt-8 flex flex-wrap gap-2">
-        {FILTERS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setFilter(item)}
-            className={
-              filter === item
-                ? "rounded-full bg-sage px-4 py-2 text-sm font-medium text-white"
-                : "rounded-full border border-line bg-white px-4 py-2 text-sm text-ink-soft hover:border-sage/40"
-            }
-          >
-            {item === "ALL"
-              ? "Усі"
-              : item === "PENDING"
-                ? `Ще не відповіли${stats ? ` (${stats.pending})` : ""}`
-                : STATUS_LABEL[item]}
-          </button>
-        ))}
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="mt-6 text-ink-soft">Поки немає гостей у цьому фільтрі.</p>
-      ) : (
-        <ul className="mt-6 space-y-3">
-          {filtered.map((guest) => (
-            <li
-              key={guest.id}
-              className="rounded-2xl border border-line bg-white p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-[family-name:var(--font-display)] text-2xl text-ink">
-                    {guest.name}
-                    {guest.plusOne ? (
-                      <span className="ml-2 text-base text-ink-soft">
-                        +1
-                        {guest.plusOneName ? ` (${guest.plusOneName})` : ""}
+      {view === "sides" ? (
+        <div className="mt-8">
+          <div className="grid gap-10 md:grid-cols-2 md:gap-0">
+            <div className="md:pr-10">
+              <SideColumn
+                title="Гості нареченої"
+                hint="Сторона нареченої"
+                guests={brideGuests}
+                side="BRIDE"
+                onAdd={addGuest}
+                {...rowProps}
+              />
+            </div>
+            <div className="md:border-l md:border-line md:pl-10">
+              <SideColumn
+                title="Гості нареченого"
+                hint="Сторона нареченого"
+                guests={groomGuests}
+                side="GROOM"
+                onAdd={addGuest}
+                {...rowProps}
+              />
+            </div>
+          </div>
+
+          <div className="mt-12 border-t border-line pt-8">
+            <SideColumn
+              title="Спільні / інші"
+              hint="Не привʼязані до однієї сторони"
+              guests={sharedGuests}
+              side="BOTH"
+              onAdd={addGuest}
+              {...rowProps}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {view === "alpha" ? (
+        <div className="mt-8 max-w-xl">
+          {alphaGuests.length === 0 ? (
+            <p className="text-sm text-ink-soft">Список порожній.</p>
+          ) : (
+            alphaGuests.map((guest) => (
+              <div
+                key={guest.id}
+                className="border-b border-line/80 py-2.5 last:border-b-0"
+              >
+                <GuestNameRow guest={guest} bare {...rowProps} />
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {(["BRIDE", "GROOM", "BOTH"] as const).map((side) => (
+                    <button
+                      key={side}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void moveSide(guest, side)}
+                      className={`${chipBtn} ${
+                        guest.side === side
+                          ? "border-sage/40 bg-sage/15 text-sage-deep"
+                          : "border-line text-ink-soft hover:border-sage/40 hover:bg-mist hover:text-ink"
+                      }`}
+                    >
+                      {SIDE_LABEL[side]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+          <div className="mt-4 grid gap-6 sm:grid-cols-2">
+            <QuickAdd side="BRIDE" busy={busy} onAdd={addGuest} />
+            <QuickAdd side="GROOM" busy={busy} onAdd={addGuest} />
+          </div>
+        </div>
+      ) : null}
+
+      {view === "table" ? (
+        <div className="mt-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-1">
+              {(
+                ["ALL", "PENDING", "YES", "MAYBE", "NO"] as const
+              ).map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setFilter(item)}
+                  className={`cursor-pointer px-3 py-1.5 text-sm transition ${
+                    filter === item
+                      ? "bg-sage text-white"
+                      : "text-ink-soft hover:bg-mist hover:text-ink"
+                  }`}
+                >
+                  {item === "ALL" ? "Усі" : STATUS_LABEL[item]}
+                </button>
+              ))}
+            </div>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Пошук…"
+              className="w-full max-w-xs border border-line bg-white px-3 py-2 text-sm outline-none focus:border-sage sm:w-48"
+            />
+          </div>
+
+          <div className="overflow-x-auto border border-line bg-white">
+            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-line text-xs uppercase tracking-[0.12em] text-ink-soft">
+                  <th className="px-4 py-3 font-medium">Гість</th>
+                  <th className="px-4 py-3 font-medium">Сторона</th>
+                  <th className="px-4 py-3 font-medium">Запрошення</th>
+                  <th className="px-4 py-3 font-medium" />
+                </tr>
+              </thead>
+              <tbody>
+                {tableGuests.map((guest) => (
+                  <tr
+                    key={guest.id}
+                    className="border-b border-line/70 last:border-b-0"
+                  >
+                    <td className="px-4 py-3">
+                      <GuestNameRow guest={guest} bare {...rowProps} />
+                    </td>
+                    <td className="px-4 py-3 text-ink-soft">
+                      <select
+                        value={guest.side}
+                        disabled={busy}
+                        onChange={(e) =>
+                          void moveSide(guest, e.target.value as GuestSide)
+                        }
+                        className="cursor-pointer border border-transparent bg-transparent py-1 outline-none hover:border-line focus:border-sage"
+                      >
+                        {Object.entries(SIDE_LABEL).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`${chipBtn} ${STATUS_BTN[guest.rsvpStatus].active}`}>
+                        {STATUS_LABEL[guest.rsvpStatus]}
                       </span>
-                    ) : null}
-                  </h3>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    {SIDE_LABEL[guest.side]}
-                    {guest.tableLabel ? ` · ${guest.tableLabel}` : ""}
-                    {guest.email ? ` · ${guest.email}` : ""}
-                  </p>
-                  {guest.allergies ? (
-                    <p className="mt-2 text-sm text-ink">
-                      Алергії: {guest.allergies}
-                    </p>
-                  ) : null}
-                </div>
-                <span className="rounded-full bg-mist px-3 py-1 text-sm text-sage-deep">
-                  {STATUS_LABEL[guest.rsvpStatus]}
-                </span>
-              </div>
-
-              {origin ? (
-                <div className="mt-3">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedLinkId((current) =>
-                        current === guest.id ? null : guest.id,
-                      )
-                    }
-                    className="text-xs font-medium text-sage-deep underline-offset-4 hover:underline"
-                  >
-                    {expandedLinkId === guest.id
-                      ? "Сховати лінк"
-                      : "Показати лінк"}
-                  </button>
-                  {expandedLinkId === guest.id ? (
-                    <p className="mt-2 break-all rounded-xl bg-mist px-3 py-2 text-xs text-ink">
-                      {guestRsvpUrl(guest)}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {(["YES", "MAYBE", "NO", "PENDING"] as const).map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => void onQuickStatus(guest, status)}
-                    className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-sage/40"
-                  >
-                    {STATUS_LABEL[status]}
-                  </button>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => void removeGuest(guest.id)}
+                        className="cursor-pointer px-2 py-1 text-xs text-ink-soft transition hover:bg-red-50 hover:text-red-700"
+                      >
+                        Видалити
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => void shareLink(guest)}
-                  className="rounded-full bg-sage px-3 py-1.5 text-xs font-medium text-white hover:bg-sage-deep"
-                >
-                  Поділитись
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void copyLink(guest)}
-                  className="rounded-full border border-sage px-3 py-1.5 text-xs font-medium text-sage-deep hover:bg-mist"
-                >
-                  {copiedId === guest.id ? "Скопійовано" : "Копіювати"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => startEdit(guest)}
-                  className="rounded-full border border-line px-3 py-1.5 text-xs text-ink hover:border-sage/40"
-                >
-                  Змінити
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void onDelete(guest.id)}
-                  className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-red-300"
-                >
-                  Видалити
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+              </tbody>
+            </table>
+            {tableGuests.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-ink-soft">
+                Нікого немає.
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-14 border-t border-line pt-10 text-center">
+        <p className="text-xs uppercase tracking-[0.16em] text-ink-soft">
+          Співвідношення за сторонами
+        </p>
+        <p className="mt-2 font-[family-name:var(--font-display)] text-5xl text-ink md:text-6xl">
+          {ratio}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-ink-soft">
+          <span>Наречена {brideCount}</span>
+          <span>Наречений {groomCount}</span>
+          <span>Спільні {sharedGuests.length}</span>
+          {stats ? (
+            <>
+              <span>Усього {stats.total}</span>
+              <span>Йдуть {stats.yes}</span>
+              <span>Чекаємо {stats.pending}</span>
+              <span>З +1 · {stats.headcount}</span>
+            </>
+          ) : null}
+        </div>
+      </div>
     </>
   );
 }
@@ -783,7 +947,7 @@ export function GuestsPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
       <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-5xl">
           <GuestsInner />
         </div>
       </section>

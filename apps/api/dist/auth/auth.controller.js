@@ -16,6 +16,7 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const current_user_decorator_1 = require("./current-user.decorator");
+const check_email_dto_1 = require("./dto/check-email.dto");
 const login_dto_1 = require("./dto/login.dto");
 const refresh_dto_1 = require("./dto/refresh.dto");
 const register_dto_1 = require("./dto/register.dto");
@@ -23,6 +24,9 @@ const jwt_auth_guard_1 = require("./jwt-auth.guard");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
+    }
+    checkEmail(query) {
+        return this.authService.checkEmail(query.email);
     }
     register(dto) {
         return this.authService.register(dto);
@@ -41,6 +45,13 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
+__decorate([
+    (0, common_1.Get)('check-email'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [check_email_dto_1.CheckEmailDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "checkEmail", null);
 __decorate([
     (0, common_1.Post)('register'),
     __param(0, (0, common_1.Body)()),

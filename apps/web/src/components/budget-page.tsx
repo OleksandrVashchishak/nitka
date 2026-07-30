@@ -2,7 +2,7 @@
 
 import { PageLoader } from "@/components/ui-loader";
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   BUDGET_CATEGORIES,
   categoryLabel,
@@ -21,14 +21,9 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("uk-UA").format(value);
 }
 
-const emptyItem = {
-  category: "other",
-  title: "",
-  estimated: 0,
-  actual: 0,
-  paid: false,
-  notes: "",
-};
+function paidAmount(item: BudgetItem) {
+  return item.paid ? item.actual : 0;
+}
 
 function BudgetInner() {
   const [data, setData] = useState<BudgetResponse | null>(null);
@@ -37,11 +32,21 @@ function BudgetInner() {
   const [needWedding, setNeedWedding] = useState(false);
   const [plan, setPlan] = useState(300000);
   const [savingPlan, setSavingPlan] = useState(false);
-  const [form, setForm] = useState(emptyItem);
-  const [editForm, setEditForm] = useState(emptyItem);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [mode, setMode] = useState<"budget" | "payments">("budget");
+  const [adding, setAdding] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newEstimated, setNewEstimated] = useState(0);
   const [savingItem, setSavingItem] = useState(false);
-  const [savingEdit, setSavingEdit] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState({
+    title: "",
+    estimated: 0,
+    actual: 0,
+  });
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategorySlug, setNewCategorySlug] = useState("other");
 
   async function load() {
     setLoading(true);
@@ -51,6 +56,10 @@ function BudgetInner() {
       const res = await getBudget();
       setData(res);
       setPlan(res.wedding.budget);
+      setSelectedCategory((prev) => {
+        if (prev && res.categories.some((c) => c.category === prev)) return prev;
+        return res.categories[0]?.category ?? null;
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Помилка";
       if (message.toLowerCase().includes("весілля")) {
@@ -67,6 +76,26 @@ function BudgetInner() {
     void load();
   }, []);
 
+  const categories = useMemo(() => {
+    if (!data) return [];
+    return data.categories.map((group) => ({
+      ...group,
+      paid: group.items.reduce((sum, item) => sum + paidAmount(item), 0),
+      label: categoryLabel(group.category),
+    }));
+  }, [data]);
+
+  const active = categories.find((c) => c.category === selectedCategory) ?? null;
+  const activeItems = useMemo(() => {
+    if (!active) return [];
+    if (mode === "payments") return active.items.filter((item) => item.paid);
+    return active.items;
+  }, [active, mode]);
+
+  const unusedCategories = BUDGET_CATEGORIES.filter(
+    (c) => !categories.some((g) => g.category === c.value),
+  );
+
   async function onSavePlan(e: FormEvent) {
     e.preventDefault();
     setSavingPlan(true);
@@ -81,87 +110,123 @@ function BudgetInner() {
     }
   }
 
-  function startEdit(item: BudgetItem) {
-    setEditingId(item.id);
-    setEditForm({
-      category: item.category,
-      title: item.title,
-      estimated: item.estimated,
-      actual: item.actual,
-      paid: item.paid,
-      notes: item.notes ?? "",
-    });
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setEditForm(emptyItem);
-  }
-
-  async function onAddItem(e: FormEvent) {
+  async function onAddExpense(e: FormEvent) {
     e.preventDefault();
+    if (!selectedCategory || !newTitle.trim()) return;
     setSavingItem(true);
     setError(null);
     try {
       const res = await createBudgetItem({
-        category: form.category,
-        title: form.title,
-        estimated: form.estimated,
-        actual: form.actual,
-        paid: form.paid,
-        notes: form.notes || undefined,
+        category: selectedCategory,
+        title: newTitle.trim(),
+        estimated: newEstimated,
+        actual: 0,
+        paid: false,
       });
       setData(res);
-      setForm(emptyItem);
+      setNewTitle("");
+      setNewEstimated(0);
+      setAdding(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не збережено статтю");
+      setError(err instanceof Error ? err.message : "Не додано витрату");
     } finally {
       setSavingItem(false);
     }
   }
 
-  async function onSaveEdit(e: FormEvent) {
+  async function onCreateCategory(e: FormEvent) {
     e.preventDefault();
-    if (!editingId) return;
-    setSavingEdit(true);
+    setSavingItem(true);
     setError(null);
     try {
-      const res = await updateBudgetItem(editingId, {
-        category: editForm.category,
-        title: editForm.title,
-        estimated: editForm.estimated,
-        actual: editForm.actual,
-        paid: editForm.paid,
-        notes: editForm.notes || undefined,
+      const res = await createBudgetItem({
+        category: newCategorySlug,
+        title: categoryLabel(newCategorySlug),
+        estimated: 0,
+        actual: 0,
+        paid: false,
       });
       setData(res);
-      cancelEdit();
+      setSelectedCategory(newCategorySlug);
+      setShowNewCategory(false);
+      setAdding(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено статтю");
+      setError(err instanceof Error ? err.message : "Не створено категорію");
     } finally {
-      setSavingEdit(false);
+      setSavingItem(false);
     }
   }
 
-  async function onDelete(id: string) {
-    const item = data?.items.find((row) => row.id === id);
-    if (!confirm(`Видалити статтю «${item?.title ?? "бюджет"}»?`)) return;
+  function startEdit(item: BudgetItem) {
+    setEditingId(item.id);
+    setEditDraft({
+      title: item.title,
+      estimated: item.estimated,
+      actual: item.actual,
+    });
+    setMenuOpenId(null);
+  }
+
+  async function saveEdit(itemId: string) {
     setError(null);
     try {
-      const res = await deleteBudgetItem(id);
+      const res = await updateBudgetItem(itemId, {
+        title: editDraft.title.trim(),
+        estimated: editDraft.estimated,
+        actual: editDraft.actual,
+      });
       setData(res);
-      if (editingId === id) cancelEdit();
+      setEditingId(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не видалено");
+      setError(err instanceof Error ? err.message : "Не оновлено");
     }
   }
 
   async function onTogglePaid(item: BudgetItem) {
+    setMenuOpenId(null);
     try {
       const res = await updateBudgetItem(item.id, { paid: !item.paid });
       setData(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не оновлено");
+    }
+  }
+
+  async function onDelete(id: string) {
+    const item = data?.items.find((row) => row.id === id);
+    if (!confirm(`Видалити «${item?.title ?? "витрату"}»?`)) return;
+    setMenuOpenId(null);
+    setError(null);
+    try {
+      const res = await deleteBudgetItem(id);
+      setData(res);
+      if (editingId === id) setEditingId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не видалено");
+    }
+  }
+
+  async function onRemoveCategory() {
+    if (!active) return;
+    if (
+      !confirm(
+        `Видалити категорію «${active.label}» і всі ${active.items.length} витрати?`,
+      )
+    ) {
+      return;
+    }
+    setError(null);
+    try {
+      let res: BudgetResponse | null = null;
+      for (const item of active.items) {
+        res = await deleteBudgetItem(item.id);
+      }
+      if (res) {
+        setData(res);
+        setSelectedCategory(res.categories[0]?.category ?? null);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не видалено категорію");
     }
   }
 
@@ -176,13 +241,13 @@ function BudgetInner() {
         <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
           Бюджет
         </h1>
-        <div className="mt-6 rounded-2xl border border-line bg-mist px-6 py-10">
+        <div className="mt-6 border border-line bg-mist px-6 py-10">
           <p className="text-ink-soft">
             Спочатку створи весілля з загальним бюджетом у кабінеті.
           </p>
           <Link
             href="/dashboard"
-            className="mt-4 inline-flex rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
+            className="mt-4 inline-flex bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
           >
             До кабінету
           </Link>
@@ -196,389 +261,468 @@ function BudgetInner() {
   return (
     <>
       <DashboardNav variant="COUPLE" />
-      <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-        Бюджет
-      </h1>
-      <p className="mt-2 max-w-2xl text-ink-soft">
-        Заплановано vs витрачено по категоріях. Базовий розклад створюється
-        автоматично від загального бюджету весілля.
-      </p>
+
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
+            Бюджет
+          </h1>
+          <p className="mt-2 max-w-xl text-ink-soft">
+            Категорії зліва, витрати справа — як у нормальному кошторисі, без
+            каші.
+          </p>
+        </div>
+        {summary ? (
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
+              Загальний план
+            </p>
+            <p className="font-[family-name:var(--font-display)] text-3xl text-ink">
+              {formatMoney(summary.totalBudget)} грн
+            </p>
+            <p className="mt-1 text-sm text-ink-soft">
+              витрачено {formatMoney(summary.actual)} · залишок{" "}
+              {formatMoney(summary.remaining)}
+            </p>
+          </div>
+        ) : null}
+      </div>
 
       {error ? (
-        <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       ) : null}
 
-      {summary ? (
-        <section className="mt-8 overflow-hidden rounded-2xl border border-line bg-sage-deep text-white">
-          <div className="p-6 md:p-8">
-            <p className="text-sm uppercase tracking-[0.14em] text-white/65">
-              Загальний план
-            </p>
-            <p className="mt-2 font-[family-name:var(--font-display)] text-4xl md:text-5xl">
-              {formatMoney(summary.totalBudget)} грн
-            </p>
-            <div className="mt-6 h-3 overflow-hidden rounded-full bg-white/15">
-              <div
-                className="h-full rounded-full bg-white transition-all"
-                style={{ width: `${summary.progress}%` }}
-              />
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl bg-white/10 px-4 py-3">
-                <p className="text-xs text-white/65">Розписано</p>
-                <p className="mt-1 text-lg">{formatMoney(summary.estimated)} грн</p>
-              </div>
-              <div className="rounded-xl bg-white/10 px-4 py-3">
-                <p className="text-xs text-white/65">Витрачено</p>
-                <p className="mt-1 text-lg">{formatMoney(summary.actual)} грн</p>
-              </div>
-              <div className="rounded-xl bg-white/10 px-4 py-3">
-                <p className="text-xs text-white/65">Сплачено</p>
-                <p className="mt-1 text-lg">{formatMoney(summary.paid)} грн</p>
-              </div>
-              <div className="rounded-xl bg-white/10 px-4 py-3">
-                <p className="text-xs text-white/65">Залишок</p>
-                <p className="mt-1 text-lg">
-                  {formatMoney(summary.remaining)} грн
-                </p>
-              </div>
-            </div>
-            {summary.estimatedDiff !== 0 ? (
-              <p className="mt-4 text-sm text-white/75">
-                {summary.estimatedDiff > 0
-                  ? `Ще не розписано ${formatMoney(summary.estimatedDiff)} грн у статтях.`
-                  : `Статті перевищують план на ${formatMoney(Math.abs(summary.estimatedDiff))} грн.`}
-              </p>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
       <form
         onSubmit={onSavePlan}
-        className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-line bg-white p-5"
+        className="mt-6 flex flex-wrap items-end gap-3 border border-line bg-white p-4"
       >
-        <div className="min-w-[200px] flex-1">
-          <label className="mb-1 block text-sm text-ink-soft">
-            Оновити загальний бюджет
-          </label>
+        <label className="min-w-[200px] flex-1">
+          <span className="mb-1 block text-sm text-ink-soft">
+            Загальний бюджет, грн
+          </span>
           <input
             type="number"
             min={0}
             required
             value={plan}
             onChange={(e) => setPlan(Number(e.target.value))}
-            className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
+            className="w-full border border-line px-4 py-2.5 outline-none focus:border-sage"
           />
-        </div>
+        </label>
         <button
           type="submit"
           disabled={savingPlan}
-          className="rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+          className="bg-sage px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
         >
-          {savingPlan ? "Зберігаємо..." : "Зберегти план"}
+          {savingPlan ? "Зберігаємо…" : "Оновити план"}
         </button>
       </form>
 
-      <form
-        onSubmit={onAddItem}
-        className="mt-6 space-y-4 rounded-2xl border border-line bg-white p-5 md:p-6"
-      >
-        <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
-          Додати статтю
-        </h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="block">
-            <span className="mb-1 block text-sm text-ink-soft">Категорія</span>
-            <select
-              value={form.category}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, category: e.target.value }))
-              }
-              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-            >
-              {BUDGET_CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-sm text-ink-soft">Назва</span>
-            <input
-              required
-              minLength={2}
-              value={form.title}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, title: e.target.value }))
-              }
-              placeholder="Напр. Фотограф"
-              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-sm text-ink-soft">
-              Заплановано, грн
-            </span>
-            <input
-              type="number"
-              min={0}
-              required
-              value={form.estimated}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, estimated: Number(e.target.value) }))
-              }
-              placeholder="Скільки плануєш витратити"
-              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-sm text-ink-soft">
-              Витрачено, грн
-            </span>
-            <input
-              type="number"
-              min={0}
-              required
-              value={form.actual}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, actual: Number(e.target.value) }))
-              }
-              placeholder="Скільки вже витрачено"
-              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-            />
-          </label>
-        </div>
-        <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-          <label className="block">
-            <span className="mb-1 block text-sm text-ink-soft">Нотатки</span>
-            <input
-              value={form.notes}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, notes: e.target.value }))
-              }
-              placeholder="Підрядник, коментар…"
-              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
-            />
-          </label>
-          <label className="mt-auto flex items-center gap-2 rounded-xl border border-line px-4 py-3 text-sm text-ink">
-            <input
-              type="checkbox"
-              checked={form.paid}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, paid: e.target.checked }))
-              }
-              className="size-4 accent-[var(--sage)]"
-            />
-            Сплачено
-          </label>
-        </div>
-        <button
-          type="submit"
-          disabled={savingItem}
-          className="rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
-        >
-          {savingItem ? "Зберігаємо..." : "Додати статтю"}
-        </button>
-      </form>
-
-      <div className="mt-8 space-y-6">
-        {data?.categories.map((group) => (
-          <section
-            key={group.category}
-            className="rounded-2xl border border-line bg-mist p-5 md:p-6"
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+        <div className="inline-flex border border-line bg-white p-1">
+          <button
+            type="button"
+            onClick={() => setMode("budget")}
+            className={`px-4 py-2 text-sm font-medium transition ${
+              mode === "budget"
+                ? "bg-sage text-white"
+                : "text-ink-soft hover:text-ink"
+            }`}
           >
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
-                {categoryLabel(group.category)}
-              </h2>
-              <p className="text-sm text-ink-soft">
-                заплановано {formatMoney(group.estimated)} · витрачено{" "}
-                {formatMoney(group.actual)} грн
-              </p>
-            </div>
-            <ul className="mt-4 space-y-3">
-              {group.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-xl border border-line bg-white p-4"
+            Бюджет
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("payments")}
+            className={`px-4 py-2 text-sm font-medium transition ${
+              mode === "payments"
+                ? "bg-sage text-white"
+                : "text-ink-soft hover:text-ink"
+            }`}
+          >
+            Платежі
+          </button>
+        </div>
+        {summary ? (
+          <div className="h-2 w-full max-w-xs overflow-hidden bg-mist sm:w-48">
+            <div
+              className="h-full bg-sage transition-all"
+              style={{ width: `${summary.progress}%` }}
+            />
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-6 grid gap-0 border border-line bg-white lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="border-b border-line lg:border-b-0 lg:border-r">
+          <div className="border-b border-line p-3">
+            {showNewCategory ? (
+              <form onSubmit={onCreateCategory} className="space-y-2">
+                <select
+                  value={newCategorySlug}
+                  onChange={(e) => setNewCategorySlug(e.target.value)}
+                  className="w-full border border-line px-3 py-2 text-sm outline-none focus:border-sage"
                 >
-                  {editingId === item.id ? (
-                    <form onSubmit={onSaveEdit} className="space-y-3">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <label className="block">
-                          <span className="mb-1 block text-xs text-ink-soft">
-                            Категорія
-                          </span>
-                          <select
-                            value={editForm.category}
-                            onChange={(e) =>
-                              setEditForm((f) => ({
-                                ...f,
-                                category: e.target.value,
-                              }))
-                            }
-                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
-                          >
-                            {BUDGET_CATEGORIES.map((c) => (
-                              <option key={c.value} value={c.value}>
-                                {c.label}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label className="block">
-                          <span className="mb-1 block text-xs text-ink-soft">
-                            Назва
-                          </span>
-                          <input
-                            required
-                            minLength={2}
-                            value={editForm.title}
-                            onChange={(e) =>
-                              setEditForm((f) => ({
-                                ...f,
-                                title: e.target.value,
-                              }))
-                            }
-                            placeholder="Назва"
-                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
-                          />
-                        </label>
-                        <label className="block">
-                          <span className="mb-1 block text-xs text-ink-soft">
-                            Заплановано, грн
-                          </span>
-                          <input
-                            type="number"
-                            min={0}
-                            required
-                            value={editForm.estimated}
-                            onChange={(e) =>
-                              setEditForm((f) => ({
-                                ...f,
-                                estimated: Number(e.target.value),
-                              }))
-                            }
-                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
-                          />
-                        </label>
-                        <label className="block">
-                          <span className="mb-1 block text-xs text-ink-soft">
-                            Витрачено, грн
-                          </span>
-                          <input
-                            type="number"
-                            min={0}
-                            required
-                            value={editForm.actual}
-                            onChange={(e) =>
-                              setEditForm((f) => ({
-                                ...f,
-                                actual: Number(e.target.value),
-                              }))
-                            }
-                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
-                          />
-                        </label>
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                        <label className="block">
-                          <span className="mb-1 block text-xs text-ink-soft">
-                            Нотатки
-                          </span>
-                          <input
-                            value={editForm.notes}
-                            onChange={(e) =>
-                              setEditForm((f) => ({
-                                ...f,
-                                notes: e.target.value,
-                              }))
-                            }
-                            placeholder="Підрядник, коментар…"
-                            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-sage"
-                          />
-                        </label>
-                        <label className="mt-auto flex items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm text-ink">
-                          <input
-                            type="checkbox"
-                            checked={editForm.paid}
-                            onChange={(e) =>
-                              setEditForm((f) => ({
-                                ...f,
-                                paid: e.target.checked,
-                              }))
-                            }
-                            className="size-4 accent-[var(--sage)]"
-                          />
-                          Сплачено
-                        </label>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="submit"
-                          disabled={savingEdit}
-                          className="rounded-full bg-sage px-4 py-2 text-xs font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+                  {(unusedCategories.length
+                    ? unusedCategories
+                    : BUDGET_CATEGORIES
+                  ).map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={savingItem}
+                    className="flex-1 bg-sage px-3 py-2 text-xs font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+                  >
+                    Додати
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCategory(false)}
+                    className="px-3 py-2 text-xs text-ink-soft"
+                  >
+                    Скасувати
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowNewCategory(true)}
+                className="flex w-full items-center gap-2 px-2 py-2 text-left text-sm font-medium text-sage hover:bg-mist"
+              >
+                <span className="text-lg leading-none">+</span>
+                Нова категорія
+              </button>
+            )}
+          </div>
+
+          <nav className="max-h-[70vh] overflow-y-auto">
+            {categories.map((group) => {
+              const selected = group.category === selectedCategory;
+              const amount =
+                mode === "payments" ? group.paid : group.estimated;
+              return (
+                <button
+                  key={group.category}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(group.category);
+                    setAdding(false);
+                    setEditingId(null);
+                    setMenuOpenId(null);
+                  }}
+                  className={`flex w-full items-center justify-between gap-3 border-b border-line px-4 py-3 text-left transition ${
+                    selected
+                      ? "bg-mist"
+                      : "bg-white hover:bg-paper"
+                  }`}
+                >
+                  <span
+                    className={`text-sm ${selected ? "font-semibold text-ink" : "text-ink-soft"}`}
+                  >
+                    {group.label}
+                  </span>
+                  <span className="shrink-0 text-sm tabular-nums text-ink">
+                    {formatMoney(amount)} ₴
+                  </span>
+                </button>
+              );
+            })}
+            {categories.length === 0 ? (
+              <p className="px-4 py-8 text-sm text-ink-soft">
+                Поки немає категорій. Додай першу.
+              </p>
+            ) : null}
+          </nav>
+        </aside>
+
+        <section className="min-h-[420px] p-4 md:p-6">
+          {!active ? (
+            <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-ink-soft">
+              Обери категорію зліва
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-[family-name:var(--font-display)] text-3xl text-ink">
+                    {active.label}
+                  </h2>
+                  <p className="mt-1 text-sm text-ink-soft">
+                    Заплановано: {formatMoney(active.estimated)} ₴ · Фінально:{" "}
+                    {formatMoney(active.actual)} ₴ · Сплачено:{" "}
+                    {formatMoney(active.paid)} ₴
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void onRemoveCategory()}
+                  className="text-sm text-ink-soft underline-offset-2 hover:text-ink hover:underline"
+                >
+                  Видалити
+                </button>
+              </div>
+
+              <div className="mt-4 h-2 overflow-hidden bg-mist">
+                <div
+                  className="h-full bg-sage transition-all"
+                  style={{
+                    width: `${
+                      active.estimated > 0
+                        ? Math.min(
+                            100,
+                            Math.round((active.actual / active.estimated) * 100),
+                          )
+                        : 0
+                    }%`,
+                  }}
+                />
+              </div>
+
+              <div className="mt-6 overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-line text-xs uppercase tracking-[0.12em] text-ink-soft">
+                      <th className="pb-3 pr-3 font-medium">Витрата</th>
+                      <th className="pb-3 pr-3 font-medium">Заплановано</th>
+                      <th className="pb-3 pr-3 font-medium">Фінально</th>
+                      <th className="pb-3 pr-3 font-medium">Сплачено</th>
+                      <th className="pb-3 font-medium" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeItems.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="py-8 text-center text-sm text-ink-soft"
                         >
-                          {savingEdit ? "Зберігаємо..." : "Зберегти"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={cancelEdit}
-                          className="rounded-full border border-line px-4 py-2 text-xs text-ink-soft hover:border-sage/40"
+                          {mode === "payments"
+                            ? "У цій категорії ще немає сплачених витрат."
+                            : "Поки порожньо — додай першу витрату."}
+                        </td>
+                      </tr>
+                    ) : null}
+                    {activeItems.map((item) => {
+                      const isEditing = editingId === item.id;
+                      return (
+                        <tr
+                          key={item.id}
+                          className="border-b border-line/70 align-middle"
                         >
-                          Скасувати
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-ink">{item.title}</p>
-                        <p className="mt-1 text-sm text-ink-soft">
-                          Заплановано {formatMoney(item.estimated)} · витрачено{" "}
-                          {formatMoney(item.actual)} грн
-                          {item.paid ? " · сплачено" : ""}
-                        </p>
-                        {item.notes ? (
-                          <p className="mt-1 text-sm text-ink-soft">
-                            {item.notes}
-                          </p>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => void onTogglePaid(item)}
-                          className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-sage/40"
-                        >
-                          {item.paid ? "Не сплачено" : "Позначити сплачено"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => startEdit(item)}
-                          className="rounded-full border border-line px-3 py-1.5 text-xs text-ink hover:border-sage/40"
-                        >
-                          Змінити
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void onDelete(item.id)}
-                          className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft hover:border-red-300"
-                        >
-                          Видалити
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+                          <td className="py-3 pr-3">
+                            {isEditing ? (
+                              <input
+                                value={editDraft.title}
+                                onChange={(e) =>
+                                  setEditDraft((d) => ({
+                                    ...d,
+                                    title: e.target.value,
+                                  }))
+                                }
+                                className="w-full border border-line px-2 py-1.5 outline-none focus:border-sage"
+                              />
+                            ) : (
+                              <span className="text-ink">{item.title}</span>
+                            )}
+                          </td>
+                          <td className="py-3 pr-3 tabular-nums">
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                min={0}
+                                value={editDraft.estimated}
+                                onChange={(e) =>
+                                  setEditDraft((d) => ({
+                                    ...d,
+                                    estimated: Number(e.target.value),
+                                  }))
+                                }
+                                className="w-28 border border-line px-2 py-1.5 outline-none focus:border-sage"
+                              />
+                            ) : (
+                              `${formatMoney(item.estimated)} ₴`
+                            )}
+                          </td>
+                          <td className="py-3 pr-3 tabular-nums">
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                min={0}
+                                value={editDraft.actual}
+                                onChange={(e) =>
+                                  setEditDraft((d) => ({
+                                    ...d,
+                                    actual: Number(e.target.value),
+                                  }))
+                                }
+                                className="w-28 border border-line px-2 py-1.5 outline-none focus:border-sage"
+                              />
+                            ) : (
+                              `${formatMoney(item.actual)} ₴`
+                            )}
+                          </td>
+                          <td className="py-3 pr-3">
+                            <button
+                              type="button"
+                              onClick={() => void onTogglePaid(item)}
+                              className={`tabular-nums ${
+                                item.paid
+                                  ? "font-medium text-sage"
+                                  : "text-ink-soft"
+                              }`}
+                              title={
+                                item.paid
+                                  ? "Натисни, щоб зняти оплату"
+                                  : "Позначити сплаченим"
+                              }
+                            >
+                              {formatMoney(paidAmount(item))} ₴
+                            </button>
+                          </td>
+                          <td className="relative py-3 text-right">
+                            {isEditing ? (
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => void saveEdit(item.id)}
+                                  className="text-xs font-semibold text-sage"
+                                >
+                                  Зберегти
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingId(null)}
+                                  className="text-xs text-ink-soft"
+                                >
+                                  Скасувати
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setMenuOpenId((id) =>
+                                      id === item.id ? null : item.id,
+                                    )
+                                  }
+                                  className="px-2 py-1 text-ink-soft hover:text-ink"
+                                  aria-label="Дії"
+                                >
+                                  ···
+                                </button>
+                                {menuOpenId === item.id ? (
+                                  <div className="absolute right-0 z-10 mt-1 min-w-[140px] border border-line bg-white py-1 shadow-sm">
+                                    <button
+                                      type="button"
+                                      onClick={() => startEdit(item)}
+                                      className="block w-full px-3 py-2 text-left text-sm hover:bg-mist"
+                                    >
+                                      Редагувати
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => void onTogglePaid(item)}
+                                      className="block w-full px-3 py-2 text-left text-sm hover:bg-mist"
+                                    >
+                                      {item.paid
+                                        ? "Не сплачено"
+                                        : "Сплачено"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => void onDelete(item.id)}
+                                      className="block w-full px-3 py-2 text-left text-sm text-red-700 hover:bg-mist"
+                                    >
+                                      Видалити
+                                    </button>
+                                  </div>
+                                ) : null}
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="text-sm font-semibold text-ink">
+                      <td className="pt-4 pr-3">Разом</td>
+                      <td className="pt-4 pr-3 tabular-nums">
+                        {formatMoney(active.estimated)} ₴
+                      </td>
+                      <td className="pt-4 pr-3 tabular-nums">
+                        {formatMoney(active.actual)} ₴
+                      </td>
+                      <td className="pt-4 pr-3 tabular-nums">
+                        {formatMoney(active.paid)} ₴
+                      </td>
+                      <td />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {adding ? (
+                <form
+                  onSubmit={onAddExpense}
+                  className="mt-4 grid gap-3 border border-line bg-mist p-4 sm:grid-cols-[1fr_140px_auto]"
+                >
+                  <input
+                    required
+                    minLength={2}
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="Назва витрати"
+                    className="border border-line bg-white px-3 py-2 outline-none focus:border-sage"
+                    autoFocus
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    value={newEstimated}
+                    onChange={(e) => setNewEstimated(Number(e.target.value))}
+                    placeholder="Сума"
+                    className="border border-line bg-white px-3 py-2 outline-none focus:border-sage"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={savingItem}
+                      className="bg-sage px-4 py-2 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+                    >
+                      Додати
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdding(false)}
+                      className="px-3 py-2 text-sm text-ink-soft"
+                    >
+                      Скасувати
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAdding(true)}
+                  className="mt-4 flex items-center gap-2 text-sm font-medium text-sage hover:text-sage-deep"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  Додати витрату
+                </button>
+              )}
+            </>
+          )}
+        </section>
       </div>
     </>
   );

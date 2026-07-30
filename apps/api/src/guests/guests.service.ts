@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { RsvpStatus } from '@prisma/client';
+import { InvitationsService } from '../invitations/invitations.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
@@ -15,7 +17,11 @@ import {
 
 @Injectable()
 export class GuestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+    private readonly invitations: InvitationsService,
+  ) {}
 
   private async getWeddingForUser(userId: string) {
     const { wedding } = await requireWeddingForUser(this.prisma, userId);
@@ -187,11 +193,13 @@ export class GuestsService {
       include: {
         wedding: {
           select: {
+            id: true,
             date: true,
             city: true,
             partnerOneName: true,
             partnerTwoName: true,
             user: { select: { name: true } },
+            website: { select: { slug: true, published: true } },
           },
         },
       },
@@ -204,7 +212,13 @@ export class GuestsService {
       .map((name) => name.trim())
       .filter(Boolean);
     const coupleName =
-      partners.length > 0 ? partners.join(' & ') : guest.wedding.user.name;
+      partners.length > 0 ? partners.join(' і ') : guest.wedding.user.name;
+
+    const design = await this.invitations.getDesignForWedding(guest.wedding.id);
+    const websiteUrl =
+      guest.wedding.website?.published && guest.wedding.website.slug
+        ? `/w/${guest.wedding.website.slug}`
+        : null;
 
     return {
       token: guest.inviteToken,
@@ -221,7 +235,9 @@ export class GuestsService {
         date: guest.wedding.date,
         city: guest.wedding.city,
         coupleName,
+        websiteUrl,
       },
+      invitation: design,
     };
   }
 
@@ -232,6 +248,7 @@ export class GuestsService {
 
     const guest = await this.prisma.guest.findUnique({
       where: { inviteToken: token },
+      include: { wedding: { select: { userId: true } } },
     });
     if (!guest) {
       throw new NotFoundException('Запрошення не знайдено');
@@ -241,7 +258,7 @@ export class GuestsService {
       throw new BadRequestException('Plus one не передбачено');
     }
 
-    return this.prisma.guest.update({
+    const updated = await this.prisma.guest.update({
       where: { inviteToken: token },
       data: {
         rsvpStatus: dto.rsvpStatus,
@@ -264,7 +281,25 @@ export class GuestsService {
         plusOneName: true,
         plusOneAttending: true,
         allergies: true,
+        weddingId: true,
       },
     });
+
+    const statusLabel =
+      updated.rsvpStatus === 'YES'
+        ? 'Так'
+        : updated.rsvpStatus === 'NO'
+          ? 'Ні'
+          : updated.rsvpStatus === 'MAYBE'
+            ? 'Може'
+            : 'Очікуємо';
+
+    void this.notifications.notifyWeddingMembers(updated.weddingId, {
+      title: 'Відповідь на запрошення',
+      body: `${updated.name}: ${statusLabel}`,
+      data: { type: 'invite_reply' },
+    });
+
+    return updated;
   }
 }

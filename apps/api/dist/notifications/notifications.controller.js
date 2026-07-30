@@ -19,9 +19,26 @@ const current_user_decorator_1 = require("../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const prisma_service_1 = require("../prisma/prisma.service");
+const wedding_access_1 = require("../weddings/wedding-access");
+const register_push_dto_1 = require("./dto/register-push.dto");
+const notifications_service_1 = require("./notifications.service");
 let NotificationsController = class NotificationsController {
-    constructor(prisma) {
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
+    }
+    registerPush(user, dto) {
+        return this.notifications.registerDevice(user.id, dto.token, dto.platform);
+    }
+    unregisterPush(user, dto) {
+        return this.notifications.unregisterDevice(user.id, dto.token);
+    }
+    runDueReminders(secret) {
+        const expected = process.env.CRON_SECRET;
+        if (expected && secret !== expected) {
+            throw new common_1.UnauthorizedException('Invalid cron secret');
+        }
+        return this.notifications.sendDueTaskReminders();
     }
     async summary(user) {
         if (user.role === 'VENDOR') {
@@ -54,9 +71,8 @@ let NotificationsController = class NotificationsController {
                 items,
             };
         }
-        const wedding = await this.prisma.wedding.findUnique({
-            where: { userId: user.id },
-        });
+        const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, user.id);
+        const wedding = access?.wedding ?? null;
         const [pendingRsvp, newRsvp, waitingRequests, vendorReplied] = await Promise.all([
             wedding
                 ? this.prisma.guest.count({
@@ -94,13 +110,13 @@ let NotificationsController = class NotificationsController {
         const items = [
             {
                 key: 'newRsvp',
-                label: 'Нові RSVP',
+                label: 'Нові відповіді на запрошення',
                 count: newRsvp,
                 href: '/guests',
             },
             {
                 key: 'pendingRsvp',
-                label: 'Чекають відповіді',
+                label: 'Чекають відповіді на запрошення',
                 count: pendingRsvp,
                 href: '/guests',
             },
@@ -130,7 +146,35 @@ let NotificationsController = class NotificationsController {
 };
 exports.NotificationsController = NotificationsController;
 __decorate([
+    (0, common_1.Post)('push-token'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.VENDOR, client_1.Role.ADMIN),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, register_push_dto_1.RegisterPushDto]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "registerPush", null);
+__decorate([
+    (0, common_1.Delete)('push-token'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.VENDOR, client_1.Role.ADMIN),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, register_push_dto_1.RegisterPushDto]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "unregisterPush", null);
+__decorate([
+    (0, common_1.Post)('reminders/due'),
+    __param(0, (0, common_1.Headers)('x-cron-secret')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "runDueReminders", null);
+__decorate([
     (0, common_1.Get)('summary'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.VENDOR, client_1.Role.ADMIN),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
@@ -139,7 +183,7 @@ __decorate([
 ], NotificationsController.prototype, "summary", null);
 exports.NotificationsController = NotificationsController = __decorate([
     (0, common_1.Controller)('notifications'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], NotificationsController);
 //# sourceMappingURL=notifications.controller.js.map

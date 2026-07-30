@@ -23,7 +23,7 @@ export const PRODUCT_NAV = [
   },
   {
     id: "guests",
-    label: "Гості та RSVP",
+    label: "Гості та запрошення",
     shortLabel: "Гості",
     guestHref: "/spysok-gostey",
     coupleHref: "/guests",

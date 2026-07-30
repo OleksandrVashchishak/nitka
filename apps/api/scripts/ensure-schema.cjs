@@ -12,6 +12,7 @@ END $$`,
 
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS status "TaskStatus"`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS due_date TIMESTAMP(3)`,
+  `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS due_reminded_at TIMESTAMP(3)`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS is_custom BOOLEAN NOT NULL DEFAULT false`,
 
@@ -88,6 +89,7 @@ END $$`,
   `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS planning_stage TEXT NOT NULL DEFAULT 'EXPLORING'`,
   `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS city_undecided BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS guests_undecided BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS day_plan JSONB`,
 
   `CREATE TABLE IF NOT EXISTS wedding_members (
   id TEXT PRIMARY KEY,
@@ -144,6 +146,29 @@ END $$`,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`,
   `CREATE INDEX IF NOT EXISTS budget_items_wedding_id_idx ON budget_items(wedding_id)`,
+
+  `CREATE TABLE IF NOT EXISTS wedding_websites (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  template_id TEXT NOT NULL DEFAULT 'classic',
+  published BOOLEAN NOT NULL DEFAULT false,
+  content JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS wedding_websites_wedding_id_key ON wedding_websites(wedding_id)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS wedding_websites_slug_key ON wedding_websites(slug)`,
+
+  `CREATE TABLE IF NOT EXISTS wedding_invitations (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  template_id TEXT NOT NULL DEFAULT 'sage-linen',
+  content JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS wedding_invitations_wedding_id_key ON wedding_invitations(wedding_id)`,
 ];
 
 async function main() {

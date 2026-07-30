@@ -279,7 +279,7 @@ function CoupleDashboardInner() {
                 href: "/guests",
                 icon: "👥",
                 title: "Оновити гостей",
-                hint: "Список та RSVP",
+                hint: "Список та запрошення",
               },
               {
                 href: "/budget",

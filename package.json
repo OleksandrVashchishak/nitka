@@ -1,0 +1,12 @@
+{
+  "name": "wedding",
+  "private": true,
+  "scripts": {
+    "docker:up": "node scripts/docker.cjs up",
+    "docker:down": "node scripts/docker.cjs down",
+    "docker:status": "node scripts/docker.cjs status",
+    "docker:smoke": "node scripts/docker.cjs smoke",
+    "docker:reset": "node scripts/docker.cjs reset",
+    "docker:rebuild-api": "node scripts/docker.cjs rebuild-api"
+  }
+}

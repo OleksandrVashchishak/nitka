@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    mem_limit: 512m
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U wedding -d wedding"]
       interval: 5s
@@ -20,15 +21,33 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
-    restart: unless-stopped
+    # restart limited — crash-loop раніше валив увесь Docker Desktop
+    restart: on-failure:3
+    # Ліміт щоб процес не з’їв усю Docker VM
+    # heap має бути суттєво менший за mem_limit (native + prisma engines).
+    mem_limit: 2560m
     environment:
       NODE_ENV: development
       PORT: 3001
       DATABASE_URL: postgresql://wedding:wedding@db:5432/wedding?schema=public
       JWT_SECRET: dev-jwt-secret-change-me
       JWT_REFRESH_SECRET: dev-jwt-refresh-secret-change-me
-      CORS_ORIGIN: http://localhost:3000
+      CORS_ORIGIN: http://localhost:3000,http://localhost:8081,http://127.0.0.1:8081,http://172.20.10.2:8081,http://172.20.10.2:3000,exp://172.20.10.2:8081
       PUBLIC_API_URL: http://localhost:3001
+      WEB_APP_URL: http://localhost:3000
+      # Лог листів у консоль API без реального SMTP
+      EMAIL_LOG: "1"
+      # EMAIL_FROM: NITKA <noreply@nitka.ua>
+      # SMTP_HOST:
+      # SMTP_PORT: 587
+      # SMTP_SECURE: "0"
+      # SMTP_USER:
+      # SMTP_PASS:
+      NODE_OPTIONS: --max-old-space-size=1536
+      # Windows bind mounts: polling для tsc --watch
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
+      TSC_WATCHFILE: UseFsEventsWithFallbackDynamicPolling
       # Optional Cloudinary (якщо порожньо — локальні uploads/):
       # CLOUDINARY_CLOUD_NAME:
       # CLOUDINARY_API_KEY:
@@ -43,18 +62,31 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "rm -f tsconfig.build.tsbuildinfo tsconfig.tsbuildinfo && npx prisma db push --accept-data-loss && npm run start:dev"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1:3001/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 24
+      start_period: 180s
+    # Ніякого prisma CLI в контейнері (fork-bomb). Client з vendored debian engine у image.
+    command: sh -c "node scripts/start-render.js"
 
   web:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
     restart: unless-stopped
+    mem_limit: 2560m
     environment:
       NODE_ENV: development
       API_URL: http://api:3001
       NEXT_PUBLIC_API_URL: http://localhost:3001
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NODE_OPTIONS: --max-old-space-size=2048
       # Windows bind mounts: без polling HMR часто «глухий»
       WATCHPACK_POLLING: "true"
       WATCHPACK_POLL_INTERVAL: "1000"
@@ -67,9 +99,11 @@ services:
       - ./apps/web:/app
       - /app/node_modules
     depends_on:
-      - api
-    # webpack+poll стабільніший за turbopack на Win mounts; .next чистимо на старті
-    command: sh -c "rm -rf .next && npm run dev:docker"
+      api:
+        condition: service_healthy
+    # webpack+poll стабільніший за turbopack на Win mounts
+    # .next НЕ чистимо на кожен старт (cold compile = OOM); при глюках: rm -rf apps/web/.next
+    command: sh -c "npm run dev:docker"
 
 volumes:
   postgres_data:

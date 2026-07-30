@@ -5,8 +5,8 @@ export declare class CategoriesService implements OnModuleInit {
     constructor(prisma: PrismaService);
     onModuleInit(): Promise<void>;
     findAll(): import(".prisma/client").Prisma.PrismaPromise<{
-        name: string;
         id: string;
+        name: string;
         slug: string;
         description: string;
         sortOrder: number;

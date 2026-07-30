@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
-import { getMyWedding, upsertWedding } from "@/lib/dashboard-api";
+import { getMyWedding, getDayPlan, upsertDayPlan, upsertWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
 
 type EventIcon =
@@ -80,19 +80,41 @@ function storageKey(weddingId: string) {
   return `nitka-day-plan:v1:${weddingId}`;
 }
 
-function loadPlan(weddingId: string): PlanState | null {
+const ICON_IDS = new Set(ICONS.map((i) => i.id));
+
+function normalizeIcon(icon: unknown): EventIcon {
+  return typeof icon === "string" && ICON_IDS.has(icon as EventIcon)
+    ? (icon as EventIcon)
+    : "clock";
+}
+
+function normalizeEvents(events: Array<Partial<DayEvent> & { id: string; title: string; durationMin: number }>): DayEvent[] {
+  return events.map((e) => ({
+    id: e.id,
+    title: e.title,
+    durationMin: clampDuration(Number(e.durationMin)),
+    icon: normalizeIcon(e.icon),
+    startMin: e.startMin == null ? null : Number(e.startMin),
+  }));
+}
+
+function loadLocalPlan(weddingId: string): PlanState | null {
   try {
     const raw = localStorage.getItem(storageKey(weddingId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PlanState;
     if (parsed.version !== 1 || !Array.isArray(parsed.events)) return null;
-    return parsed;
+    return {
+      version: 1,
+      use24h: parsed.use24h !== false,
+      events: normalizeEvents(parsed.events),
+    };
   } catch {
     return null;
   }
 }
 
-function savePlan(weddingId: string, plan: PlanState) {
+function saveLocalPlan(weddingId: string, plan: PlanState) {
   localStorage.setItem(storageKey(weddingId), JSON.stringify(plan));
 }
 
@@ -168,6 +190,8 @@ function DayPlanInner() {
   const [events, setEvents] = useState<DayEvent[]>(defaultEvents);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [savingDate, setSavingDate] = useState(false);
+  const [syncHint, setSyncHint] = useState("Синхронізовано між пристроями");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -181,10 +205,36 @@ function DayPlanInner() {
         }
         setWeddingId(wedding.id);
         setWeddingDate(wedding.date.slice(0, 10));
-        const saved = loadPlan(wedding.id);
-        if (saved) {
-          setUse24h(saved.use24h);
-          setEvents(saved.events.length ? saved.events : defaultEvents());
+
+        const local = loadLocalPlan(wedding.id);
+        let applied: PlanState | null = null;
+
+        try {
+          const res = await getDayPlan();
+          const server = res?.dayPlan;
+          if (server?.version === 1 && Array.isArray(server.events) && server.events.length) {
+            applied = {
+              version: 1,
+              use24h: server.use24h !== false,
+              events: normalizeEvents(server.events),
+            };
+            setSyncHint("Синхронізовано між пристроями");
+          } else if (local?.events.length) {
+            applied = local;
+            await upsertDayPlan(local).catch(() => undefined);
+            setSyncHint("Підтягнуто з цього браузера · синк…");
+          }
+        } catch {
+          if (local) {
+            applied = local;
+            setSyncHint("Офлайн — локальна копія");
+          }
+        }
+
+        if (applied) {
+          setUse24h(applied.use24h);
+          setEvents(applied.events.length ? applied.events : defaultEvents());
+          saveLocalPlan(wedding.id, applied);
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Помилка";
@@ -194,14 +244,22 @@ function DayPlanInner() {
         setError(message);
       } finally {
         setLoading(false);
+        setHydrated(true);
       }
     })();
   }, []);
 
   useEffect(() => {
-    if (!weddingId) return;
-    savePlan(weddingId, { version: 1, use24h, events });
-  }, [weddingId, use24h, events]);
+    if (!weddingId || !hydrated) return;
+    const plan: PlanState = { version: 1, use24h, events };
+    saveLocalPlan(weddingId, plan);
+    const t = window.setTimeout(() => {
+      void upsertDayPlan(plan)
+        .then(() => setSyncHint("Синхронізовано між пристроями"))
+        .catch(() => setSyncHint("Офлайн — збережено локально"));
+    }, 450);
+    return () => window.clearTimeout(t);
+  }, [weddingId, use24h, events, hydrated]);
 
   const timeline = useMemo(
     () => withComputedStarts(events),
@@ -315,6 +373,7 @@ function DayPlanInner() {
           Склади розклад весільного дня: час, тривалість і назви блоків. Можна
           редагувати й додавати нові.
         </p>
+        <p className="mt-2 text-xs text-ink-soft/80">{syncHint}</p>
       </div>
 
       <form
