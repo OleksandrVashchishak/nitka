@@ -170,7 +170,7 @@ export default function VendorRequestDetailScreen() {
               />
             </>
           )}
-        </ScrollView>
+        </FormScroll>
       </Screen>
     </>
   );
