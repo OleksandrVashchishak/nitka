@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
+import { FataMobileMenu } from "@/components/fata-mobile-menu";
 import "@/app/hero-artboard.css";
 import "@/app/landing-rest.css";
 
@@ -240,15 +241,6 @@ function CrossOut() {
   );
 }
 
-function WrapWords({ text }: { text: string }) {
-  return text.split(" ").map((word, i) => (
-    <span key={`${word}-${i}`}>
-      {i > 0 ? " " : null}
-      <span className="fata-nowrap">{word}</span>
-    </span>
-  ));
-}
-
 function ComparePair({
   row,
   crossBefore = false,
@@ -267,7 +259,7 @@ function ComparePair({
         <p className="fata-kicker">Було</p>
         <h3 className="fata-compare-title">
           {crossBefore ? <CrossOut /> : null}
-          <WrapWords text={row.beforeTitle} />
+          {row.beforeTitle}
         </h3>
         <p className="fata-compare-copy">{row.beforeText}</p>
       </div>
@@ -276,7 +268,7 @@ function ComparePair({
         <p className="fata-kicker">Стало</p>
         <h3 className="fata-compare-title">
           <Scribble />
-          <WrapWords text={row.afterTitle} />
+          {row.afterTitle}
         </h3>
         <p className="fata-compare-copy">{row.afterText}</p>
       </div>
@@ -323,7 +315,7 @@ function AuthButtons({
         Увійти
       </Link>
       <Link href="/register" className={startClass}>
-        Розпочати
+        Реєстрація
       </Link>
     </>
   );
@@ -398,24 +390,15 @@ function HeroArtboard() {
           <button
             type="button"
             className="fata-m-burger"
-            aria-label={open ? "Закрити меню" : "Меню"}
+            aria-label="Меню"
             aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen(true)}
           >
             <span />
             <span />
           </button>
         </div>
-        {open ? (
-          <nav className="fata-m-nav" aria-label="Основне меню">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
-                {item.label}
-              </Link>
-            ))}
-            <AuthButtons loginClass="fata-m-nav-login" startClass="fata-m-nav-start" />
-          </nav>
-        ) : null}
+        <FataMobileMenu open={open} onClose={() => setOpen(false)} />
         <p className="fata-m-kicker">
           Єдина платформа <em>для всіх весільних завдань</em>
         </p>
@@ -510,26 +493,26 @@ export function HomeLanding() {
       <section className="fata-mobile">
         <div className="fata-mobile-band" />
         <div className="fata-shell fata-mobile-stage">
-        <div className="fata-mobile-copy">
-          <p>
-            Зустріч із флористом? Примірка сукні чи дегустація меню?
-            <br />
-            Усі деталі, контакти підрядників, списки та кошторис — у твоєму
-            смартфоні.
-          </p>
-        </div>
-        <div className="fata-phone">
-          <Image
-            src="/landing/phone.png"
-            alt="Мобільний застосунок fata.studio"
-            width={373}
-            height={773}
-            sizes="373px"
-          />
-        </div>
-        <Link href="/register" className="fata-dl">
-          Скачати мобільний застосунок
-        </Link>
+          <div className="fata-phone">
+            <Image
+              src="/landing/phone.png"
+              alt="Мобільний застосунок fata.studio"
+              width={373}
+              height={773}
+              sizes="(max-width: 1023px) 220px, 373px"
+            />
+          </div>
+          <div className="fata-mobile-copy">
+            <p>
+              Зустріч із флористом? Примірка сукні чи дегустація меню?
+              <br />
+              Усі деталі, контакти підрядників, списки та кошторис — у твоєму
+              смартфоні.
+            </p>
+          </div>
+          <Link href="/register" className="fata-dl">
+            Скачати мобільний застосунок
+          </Link>
         </div>
       </section>
 

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { BrandLogo } from "@/components/brand-logo";
+import { FataMobileMenu } from "@/components/fata-mobile-menu";
 
 const MARKETING_NAV = [
   { href: "/vesilnyy-plan", label: "Чеклісти" },
@@ -93,14 +94,16 @@ export function SiteHeader() {
         <nav className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
-            className={`lg:hidden ${navLinkClass} px-2 py-1`}
+            className="relative flex h-[18px] w-7 text-ink lg:hidden"
+            aria-label="Меню"
             aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((o) => !o)}
+            onClick={() => setMobileOpen(true)}
           >
-            Меню
+            <span className="absolute inset-x-0 top-[3px] h-px bg-current" />
+            <span className="absolute inset-x-0 top-[13px] h-px bg-current" />
           </button>
           {hydrated && user ? (
-            <div ref={menuRef} className="relative">
+            <div ref={menuRef} className="relative hidden lg:block">
               <button
                 type="button"
                 onClick={() => setMenuOpen((open) => !open)}
@@ -145,7 +148,7 @@ export function SiteHeader() {
               ) : null}
             </div>
           ) : hydrated ? (
-            <>
+            <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
               <Link
                 href="/login"
                 className={
@@ -166,34 +169,14 @@ export function SiteHeader() {
               >
                 Розпочати
               </Link>
-            </>
+            </div>
           ) : (
-            <div className="h-10 w-28 animate-pulse rounded-full bg-black/10" />
+            <div className="hidden h-10 w-28 animate-pulse rounded-full bg-black/10 lg:block" />
           )}
         </nav>
       </div>
 
-      {mobileOpen ? (
-        <div
-          className={
-            isHome
-              ? "border-t border-white/15 bg-wine/95 px-5 py-4 backdrop-blur lg:hidden"
-              : "border-t border-line bg-paper px-5 py-4 lg:hidden"
-          }
-        >
-          <nav className="flex flex-col gap-3">
-            {MARKETING_NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={isHome ? "text-white" : "text-ink"}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      ) : null}
+      <FataMobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   );
 }
