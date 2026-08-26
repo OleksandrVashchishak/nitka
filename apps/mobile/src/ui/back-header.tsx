@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "@/theme";
+import { colors, fonts } from "@/theme";
 
 export function BackHeader({
   title,
@@ -34,16 +34,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
-    backgroundColor: colors.paper,
+    backgroundColor: colors.mist,
     gap: 8,
   },
   backBtn: { minWidth: 72 },
-  backText: { color: colors.primary, fontWeight: "600", fontSize: 15 },
+  backText: {
+    color: colors.primary,
+    fontFamily: fonts.sansSemi,
+    fontSize: 15,
+  },
   title: {
     flex: 1,
     textAlign: "center",
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: fonts.sansBold,
     color: colors.ink,
   },
   spacer: { minWidth: 72 },

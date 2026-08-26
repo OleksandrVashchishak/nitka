@@ -9,7 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, radius, shadows, spacing } from "@/theme";
+import { colors, fonts, radius, shadows, spacing } from "@/theme";
 
 /* ─── Typography ──────────────────────────────────────────── */
 
@@ -308,7 +308,7 @@ export function Badge({
   const map = {
     ok: { bg: colors.successMuted, fg: "#15803d" },
     warn: { bg: colors.warnMuted, fg: "#92400e" },
-    sage: { bg: colors.primaryMuted, fg: colors.primaryDeep },
+    sage: { bg: colors.primaryMuted, fg: colors.primary },
     muted: { bg: colors.blush, fg: colors.inkSoft },
   };
   const c = map[tone];
@@ -363,37 +363,39 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   largeTitle: {
-    fontSize: 34,
-    fontWeight: "800",
+    fontSize: 32,
+    fontFamily: fonts.displayBold,
     color: colors.ink,
-    letterSpacing: -0.8,
+    letterSpacing: -0.4,
   },
   headerSub: {
-    marginTop: 2,
+    marginTop: 4,
     fontSize: 15,
+    fontFamily: fonts.sans,
     color: colors.inkSoft,
   },
   title: {
-    fontSize: 34,
-    fontWeight: "800",
+    fontSize: 32,
+    fontFamily: fonts.displayBold,
     color: colors.ink,
     marginBottom: 2,
-    letterSpacing: -0.8,
+    letterSpacing: -0.4,
     paddingHorizontal: 4,
   },
   subtitle: {
     fontSize: 15,
+    fontFamily: fonts.sans,
     color: colors.inkSoft,
     marginBottom: spacing.md,
     lineHeight: 21,
     paddingHorizontal: 4,
   },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 12,
+    fontFamily: fonts.sansSemi,
     color: colors.inkSoft,
     textTransform: "uppercase",
-    letterSpacing: 0.6,
+    letterSpacing: 1.2,
     marginTop: spacing.lg,
     marginBottom: 8,
     paddingHorizontal: 4,
@@ -411,17 +413,21 @@ const styles = StyleSheet.create({
   btnSm: { minHeight: 40, paddingVertical: 10, paddingHorizontal: 18 },
   btnGhost: {
     backgroundColor: "transparent",
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.line,
   },
   btnSoft: { backgroundColor: colors.primaryMuted },
   btnDanger: { backgroundColor: colors.danger },
   btnDisabled: { opacity: 0.4 },
   btnPressed: { opacity: 0.7 },
-  btnText: { color: colors.white, fontWeight: "700", fontSize: 16 },
+  btnText: {
+    color: colors.white,
+    fontFamily: fonts.sansBold,
+    fontSize: 16,
+  },
   btnTextSm: { fontSize: 14 },
-  btnTextGhost: { color: colors.ink },
-  btnTextSoft: { color: colors.primary },
+  btnTextGhost: { color: colors.ink, fontFamily: fonts.sansSemi },
+  btnTextSoft: { color: colors.primary, fontFamily: fonts.sansSemi },
 
   fab: {
     position: "absolute",
@@ -435,45 +441,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   fabPressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
-  fabText: { color: colors.white, fontWeight: "700", fontSize: 16 },
+  fabText: {
+    color: colors.white,
+    fontFamily: fonts.sansBold,
+    fontSize: 16,
+  },
 
   field: { marginBottom: 14 },
   label: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.sansSemi,
     color: colors.inkSoft,
     marginBottom: 6,
   },
   input: {
-    borderWidth: 0,
-    backgroundColor: colors.blush,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.paper,
     borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 14,
     minHeight: 48,
-    fontSize: 17,
+    fontSize: 16,
+    fontFamily: fonts.sans,
     color: colors.ink,
   },
 
   card: {
     backgroundColor: colors.paper,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
 
   listGroupWrap: { marginBottom: 20 },
   listGroupHeader: {
-    fontSize: 13,
-    fontWeight: "500",
+    fontSize: 12,
+    fontFamily: fonts.sansSemi,
     color: colors.inkSoft,
     textTransform: "uppercase",
-    letterSpacing: 0.4,
+    letterSpacing: 1.2,
     marginBottom: 6,
     paddingHorizontal: 16,
   },
   listGroupFooter: {
     fontSize: 13,
+    fontFamily: fonts.sans,
     color: colors.inkMuted,
     marginTop: 6,
     paddingHorizontal: 16,
@@ -482,6 +497,8 @@ const styles = StyleSheet.create({
   listGroup: {
     backgroundColor: colors.paper,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
     overflow: "hidden",
   },
   listRow: {
@@ -513,9 +530,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.line,
   },
-  rowTitle: { fontSize: 17, fontWeight: "400", color: colors.ink },
+  rowTitle: {
+    fontSize: 16,
+    fontFamily: fonts.sansMedium,
+    color: colors.ink,
+  },
   rowDestructive: { color: colors.danger },
-  rowSub: { marginTop: 2, fontSize: 13, color: colors.inkSoft },
+  rowSub: {
+    marginTop: 2,
+    fontSize: 13,
+    fontFamily: fonts.sans,
+    color: colors.inkSoft,
+  },
   rowArrow: {
     fontSize: 22,
     color: colors.inkMuted,
@@ -524,9 +550,14 @@ const styles = StyleSheet.create({
   },
 
   empty: { paddingVertical: 64, alignItems: "center", paddingHorizontal: 32 },
-  emptyTitle: { fontSize: 18, fontWeight: "700", color: colors.ink },
+  emptyTitle: {
+    fontSize: 18,
+    fontFamily: fonts.displayBold,
+    color: colors.ink,
+  },
   emptyHint: {
     marginTop: 8,
+    fontFamily: fonts.sans,
     color: colors.inkSoft,
     textAlign: "center",
     lineHeight: 21,
@@ -544,11 +575,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     marginHorizontal: 4,
   },
-  errorText: { color: colors.danger, fontSize: 14, fontWeight: "500" },
+  errorText: {
+    color: colors.danger,
+    fontSize: 14,
+    fontFamily: fonts.sansMedium,
+  },
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: radius.full,
   },
-  badgeText: { fontSize: 12, fontWeight: "700", letterSpacing: 0.2 },
+  badgeText: {
+    fontSize: 12,
+    fontFamily: fonts.sansBold,
+    letterSpacing: 0.2,
+  },
 });

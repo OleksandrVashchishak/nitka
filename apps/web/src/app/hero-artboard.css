@@ -1,0 +1,515 @@
+/* Pixel-locked Figma artboard 1440×930 for home header + hero */
+
+.fata-hero {
+  position: relative;
+  background: #61040f;
+  width: 100%;
+  overflow: hidden;
+}
+
+.fata-hero-stage {
+  position: relative;
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  height: calc(min(100vw, 1440px) * 930 / 1440);
+  max-height: 930px;
+}
+
+.fata-hero-board {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  width: 1440px;
+  height: 930px;
+  margin-left: -720px;
+  transform: scale(calc(min(100vw, 1440px) / 1440));
+  transform-origin: top center;
+  color: #f0febb;
+}
+
+@media (min-width: 1440px) {
+  .fata-hero-stage {
+    height: 930px;
+  }
+
+  .fata-hero-board {
+    transform: none;
+  }
+}
+
+.fata-hero-board a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fata-logo {
+  position: absolute;
+  left: 76px;
+  top: 47px;
+  width: 154px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.fata-logo img {
+  display: block;
+  width: 154px;
+  height: 32px;
+}
+
+.fata-nav {
+  position: absolute;
+  left: 269px;
+  top: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fata-hero-board .fata-nav a {
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #f0febb;
+  white-space: nowrap;
+}
+
+.fata-auth {
+  position: absolute;
+  left: 1077px;
+  top: 37px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.fata-btn {
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  border-radius: 40px;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+}
+
+.fata-hero-board a.fata-btn-login {
+  border: 1px solid #f0febb;
+  background: #61040f;
+  color: #f0febb;
+}
+
+.fata-hero-board a.fata-btn-start {
+  background: #f0febb;
+  color: #61040f;
+}
+
+.fata-tagline {
+  position: absolute;
+  left: 77px;
+  top: 309px;
+  margin: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f0febb;
+  white-space: nowrap;
+}
+
+.fata-tagline em {
+  font-style: italic;
+  font-weight: 700;
+  color: #f0febb;
+}
+
+.fata-title {
+  position: absolute;
+  left: 76px;
+  top: 358px;
+  margin: 0;
+  width: 900px;
+}
+
+.fata-title-serif {
+  display: block;
+  line-height: 0.8;
+  white-space: nowrap;
+}
+
+.fata-title-you {
+  font-family: var(--font-display), sans-serif;
+  font-size: 77.232px;
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0;
+  color: #f0febb;
+}
+
+.fata-title-fill {
+  font-family: var(--font-mak), serif;
+  font-size: 80px;
+  font-weight: 300;
+  font-style: normal;
+  text-transform: uppercase;
+  color: #ff4200;
+}
+
+.fata-title-sans {
+  display: block;
+  font-family: var(--font-display), sans-serif;
+  font-size: 77.232px;
+  font-weight: 400;
+  line-height: 0.8;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #f0febb;
+}
+
+.fata-desc {
+  position: absolute;
+  left: 77px;
+  top: 496px;
+  width: 503px;
+  margin: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f0febb;
+}
+
+.fata-hero-board a.fata-cta {
+  position: absolute;
+  left: 75px;
+  top: 582px;
+  height: 56px;
+  padding: 14px 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  background: #f0febb;
+  color: #61040f;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+}
+
+.fata-photo {
+  position: absolute;
+  left: 950px;
+  top: 123px;
+  z-index: 1;
+  width: 555px;
+  height: 808px;
+  overflow: hidden;
+}
+
+.fata-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: bottom center;
+}
+
+.fata-hero-mobile {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .fata-hero {
+    overflow-x: clip;
+  }
+
+  .fata-hero-stage,
+  .fata-hero-board,
+  .fata-photo {
+    display: none;
+  }
+
+  .fata-hero-mobile {
+    --m-pad: clamp(16px, 5.13vw, 28px);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 720px;
+    margin-inline: auto;
+    padding: 16px var(--m-pad) 28px;
+    overflow-x: clip;
+    color: #fff;
+  }
+
+  .fata-hero-mobile *,
+  .fata-hero-mobile *::before,
+  .fata-hero-mobile *::after {
+    box-sizing: border-box;
+  }
+
+  .fata-m-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 32px;
+  }
+
+  .fata-m-logo,
+  .fata-m-logo.fata-logo {
+    position: static;
+    width: auto;
+    height: auto;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .fata-m-logo img {
+    display: block;
+    width: clamp(118px, 39vw, 154px);
+    height: auto;
+    max-width: 100%;
+  }
+
+  .fata-m-burger {
+    position: relative;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .fata-m-burger span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: #fff;
+    border-radius: 1px;
+    transition: transform 0.2s ease, top 0.2s ease;
+  }
+
+  .fata-m-burger span:first-child {
+    top: 4px;
+  }
+
+  .fata-m-burger span:last-child {
+    top: 12px;
+  }
+
+  .fata-hero-mobile.is-open .fata-m-burger span:first-child {
+    top: 8px;
+    transform: rotate(25deg);
+  }
+
+  .fata-hero-mobile.is-open .fata-m-burger span:last-child {
+    top: 8px;
+    transform: rotate(-25deg);
+  }
+
+  .fata-m-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 16px 0 8px;
+    padding: 16px 0 8px;
+    border-top: 1px solid rgb(255 255 255 / 18%);
+  }
+
+  .fata-m-nav a {
+    color: #f0febb;
+    font-family: var(--font-akzidenz), sans-serif;
+    font-size: 16px;
+    font-style: italic;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .fata-m-nav-start {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 40px;
+    background: #f0febb;
+    color: #61040f !important;
+    font-style: italic;
+    font-weight: 500;
+    width: fit-content;
+  }
+
+  .fata-m-kicker {
+    margin: 28px 0 0;
+    font-family: var(--font-sans), sans-serif;
+    font-size: clamp(13px, 3.6vw, 16px);
+    line-height: 1.45;
+    font-weight: 400;
+    color: #fff;
+    overflow-wrap: break-word;
+  }
+
+  .fata-m-kicker em {
+    font-style: italic;
+    font-weight: 700;
+    color: #f0febb;
+  }
+
+  .fata-m-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 14px 0 0;
+    max-width: 100%;
+  }
+
+  .fata-m-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 100%;
+  }
+
+  .fata-m-you {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 300;
+    font-style: italic;
+    color: #fff;
+    font-size: clamp(38px, 14vw, 72px);
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    min-width: 0;
+  }
+
+  .fata-m-fill {
+    font-family: var(--font-mak), serif;
+    font-weight: 300;
+    font-style: normal;
+    text-transform: uppercase;
+    color: #ff4200;
+    font-size: clamp(40px, 15.6vw, 80px);
+    line-height: 0.86;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .fata-m-sans {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-akzidenz), sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #f0febb;
+    font-size: clamp(26px, 10.4vw, 56px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .fata-m-desc {
+    margin: 18px 0 0;
+    max-width: 36em;
+    font-family: var(--font-sans), sans-serif;
+    font-size: clamp(13px, 3.6vw, 16px);
+    line-height: 1.5;
+    color: #fff;
+    overflow-wrap: break-word;
+  }
+
+  .fata-m-photo {
+    position: relative;
+    width: 100%;
+    margin-top: 22px;
+    aspect-ratio: 350 / 400;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #4a030b;
+  }
+
+  .fata-m-photo img {
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  .fata-m-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 56px;
+    margin-top: 16px;
+    padding: 14px 24px;
+    border-radius: 40px;
+    background: #f0febb;
+    color: #61040f;
+    font-family: var(--font-akzidenz), sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  @media (min-width: 480px) {
+    .fata-hero-mobile {
+      padding-top: 20px;
+      padding-bottom: 36px;
+    }
+
+    .fata-m-kicker {
+      margin-top: 36px;
+    }
+
+    .fata-m-photo {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .fata-m-top {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: 0.22em;
+    }
+
+    .fata-m-you,
+    .fata-m-fill {
+      font-size: clamp(48px, 9.4vw, 76px);
+    }
+
+    .fata-m-sans {
+      font-size: clamp(32px, 6.6vw, 56px);
+    }
+
+    .fata-m-photo {
+      max-height: 560px;
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  @media (min-width: 840px) {
+    .fata-hero-mobile {
+      padding-top: 24px;
+    }
+
+    .fata-m-cta {
+      max-width: 420px;
+    }
+  }
+}

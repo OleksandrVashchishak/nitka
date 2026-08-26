@@ -13,6 +13,8 @@ type Props = {
   guestName?: string;
   websiteUrl?: string | null;
   compact?: boolean;
+  /** Hide site link in print (QR/URL less useful on paper). */
+  hideWebsiteLinkOnPrint?: boolean;
 };
 
 function MetaRow({
@@ -49,6 +51,7 @@ export function InvitationCard({
   guestName,
   websiteUrl,
   compact = false,
+  hideWebsiteLinkOnPrint = false,
 }: Props) {
   const theme = getInvitationTheme(templateId);
   const headlineClass =
@@ -170,7 +173,11 @@ export function InvitationCard({
         ) : null}
 
         {content.showWebsiteLink && websiteUrl ? (
-          <p className="mt-8 text-center">
+          <p
+            className={`mt-8 text-center${
+              hideWebsiteLinkOnPrint ? " no-print" : ""
+            }`}
+          >
             <a
               href={websiteUrl}
               className="text-xs uppercase tracking-[0.18em] underline-offset-4 hover:underline"

@@ -6,6 +6,12 @@ import { PageLoader } from "@/components/ui-loader";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
 import {
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabCard,
+} from "@/components/couple-cabinet-ui";
+import {
   createExternalVendor,
   getVendorPipeline,
   removeExternalVendor,
@@ -198,22 +204,20 @@ function MyVendorsInner() {
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Мої підрядники
-          </h1>
-          <p className="mt-2 text-sm uppercase tracking-[0.12em] text-ink-soft">
-            {categoriesWithHire} з {totalCategories} категорій обрано
-          </p>
-          <div className="mt-3 h-1.5 w-56 overflow-hidden rounded-full bg-mist">
+          <CabinetHeader
+            title="Підрядники"
+            description={`${categoriesWithHire} з ${totalCategories} категорій обрано`}
+          />
+          <div className="mt-3 h-1.5 w-56 overflow-hidden rounded-full bg-black/10">
             <div
-              className="h-full rounded-full bg-sage transition-all"
+              className="h-full rounded-full bg-[#c45b4a] transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-full border border-line bg-white p-1">
+          <div className={`${cabCard} flex p-1`}>
             {(
               [
                 { id: "all" as const, label: "Усі" },
@@ -233,8 +237,8 @@ function MyVendorsInner() {
                 onClick={() => setFilter(item.id)}
                 className={`rounded-full px-3 py-1.5 text-sm transition ${
                   filter === item.id
-                    ? "bg-sage text-white"
-                    : "text-ink-soft hover:text-ink"
+                    ? "bg-[#1a1a1a] text-white"
+                    : "text-[#8a877f] hover:text-[#1a1a1a]"
                 }`}
               >
                 {item.label}
@@ -244,7 +248,7 @@ function MyVendorsInner() {
           <button
             type="button"
             onClick={() => openAdd()}
-            className="rounded-full bg-sage px-4 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep"
+            className={cabBtn}
           >
             + Додати підрядника
           </button>
@@ -270,7 +274,7 @@ function MyVendorsInner() {
           return (
             <article
               key={cat.slug}
-              className="flex flex-col rounded-2xl border border-line bg-mist/80 p-5 transition hover:border-sage/30 hover:bg-white"
+              className={`${cabCard} flex flex-col p-5 transition hover:bg-[#faf8f2]`}
             >
               <button
                 type="button"
@@ -513,11 +517,9 @@ function MyVendorsInner() {
 export function CoupleMyVendorsPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <MyVendorsInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <MyVendorsInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

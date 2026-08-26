@@ -16,11 +16,18 @@ export class ContentController {
     return this.contentService.getTopicBySlug(slug);
   }
 
+  @Get('cities')
+  listCities() {
+    return this.contentService.listPublishedCities();
+  }
+
   @Get()
   list(
     @Query('topic') topic?: string,
     @Query('kind') kind?: ContentKind,
     @Query('featured') featured?: string,
+    @Query('q') q?: string,
+    @Query('city') city?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -28,6 +35,8 @@ export class ContentController {
       topic,
       kind,
       featured: featured === '1' || featured === 'true',
+      q,
+      city,
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
     });

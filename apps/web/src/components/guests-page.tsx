@@ -18,6 +18,14 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { InviteShareLinks } from "@/components/invite-share-links";
 import { RequireAuth } from "@/components/require-auth";
 import { toast } from "@/lib/toast";
+import {
+  CabinetEmpty,
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabBtnGhost,
+  cabCard,
+} from "@/components/couple-cabinet-ui";
 
 type ViewMode = "sides" | "alpha" | "table";
 
@@ -494,7 +502,7 @@ function GuestsInner() {
     try {
       await updateGuest(guest.id, {
         plusOne: !guest.plusOne,
-        plusOneName: !guest.plusOne ? guest.plusOneName : undefined,
+        plusOneName: !guest.plusOne ? guest.plusOneName ?? undefined : undefined,
       });
       await load();
     } catch (err) {
@@ -659,20 +667,16 @@ function GuestsInner() {
     return (
       <>
         <DashboardNav variant="COUPLE" />
-        <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
-          Гості
-        </h1>
-        <div className="mt-6 border border-line bg-mist px-6 py-10">
-          <p className="text-ink-soft">
-            Спочатку створи весілля у кабінеті.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-4 inline-flex cursor-pointer bg-sage px-5 py-3 text-sm font-semibold text-white transition hover:bg-sage-deep"
-          >
-            До кабінету
-          </Link>
-        </div>
+        <CabinetHeader title="Гості" description="Спочатку створи весілля в кабінеті." />
+        <CabinetEmpty
+          action={
+            <Link href="/dashboard" className={cabBtn}>
+              До кабінету
+            </Link>
+          }
+        >
+          Без весілля список гостей ще не відкривається.
+        </CabinetEmpty>
       </>
     );
   }
@@ -694,21 +698,16 @@ function GuestsInner() {
       <DashboardNav variant="COUPLE" />
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Гості
-          </h1>
-          <p className="mt-2 max-w-lg text-ink-soft">
-            Набивай імена по сторонах — Enter додає наступного. Запрошення і статуси
-            одразу під кожним гостем.
-          </p>
-        </div>
+        <CabinetHeader
+          title="Гості"
+          description="Набивай імена по сторонах — Enter додає наступного. Запрошення і статуси одразу під кожним гостем."
+        />
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             disabled={importing}
             onClick={() => csvInputRef.current?.click()}
-            className="cursor-pointer border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className={cabBtnGhost}
           >
             {importing ? "Імпорт…" : "Імпорт CSV"}
           </button>
@@ -716,7 +715,7 @@ function GuestsInner() {
             type="button"
             disabled={!data?.guests.length || !origin}
             onClick={() => void copyAllLinks()}
-            className="cursor-pointer border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className={cabBtnGhost}
           >
             Усі запрошення
           </button>
@@ -736,8 +735,8 @@ function GuestsInner() {
         </p>
       ) : null}
 
-      <div className="mt-8 flex flex-wrap items-center justify-end gap-3 border-b border-line pb-3">
-        <div className="inline-flex border border-line bg-white p-0.5">
+      <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
+        <div className={`${cabCard} inline-flex p-1`}>
           {(
             [
               { id: "sides", label: "Дві сторони" },
@@ -749,10 +748,10 @@ function GuestsInner() {
               key={item.id}
               type="button"
               onClick={() => setView(item.id)}
-              className={`cursor-pointer px-3 py-2 text-sm transition ${
+              className={`cursor-pointer rounded-full px-3 py-2 text-sm transition ${
                 view === item.id
-                  ? "bg-sage text-white"
-                  : "text-ink-soft hover:bg-mist hover:text-ink"
+                  ? "bg-[#1a1a1a] text-white"
+                  : "text-[#8a877f] hover:text-[#1a1a1a]"
               }`}
             >
               {item.label}
@@ -763,8 +762,8 @@ function GuestsInner() {
 
       {view === "sides" ? (
         <div className="mt-8">
-          <div className="grid gap-10 md:grid-cols-2 md:gap-0">
-            <div className="md:pr-10">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className={`${cabCard} p-6`}>
               <SideColumn
                 title="Гості нареченої"
                 hint="Сторона нареченої"
@@ -774,7 +773,7 @@ function GuestsInner() {
                 {...rowProps}
               />
             </div>
-            <div className="md:border-l md:border-line md:pl-10">
+            <div className={`${cabCard} p-6`}>
               <SideColumn
                 title="Гості нареченого"
                 hint="Сторона нареченого"
@@ -786,7 +785,7 @@ function GuestsInner() {
             </div>
           </div>
 
-          <div className="mt-12 border-t border-line pt-8">
+          <div className={`${cabCard} mt-4 p-6`}>
             <SideColumn
               title="Спільні / інші"
               hint="Не привʼязані до однієї сторони"
@@ -956,11 +955,9 @@ function GuestsInner() {
 export function GuestsPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-5xl">
-          <GuestsInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <GuestsInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

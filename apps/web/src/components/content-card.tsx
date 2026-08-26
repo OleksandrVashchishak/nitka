@@ -2,17 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   contentHref,
-  contentKindLabel,
   contentTopicHref,
   type ContentPost,
 } from "@/lib/content-api";
 
 function formatDate(value?: string | null) {
   if (!value) return null;
-  // UTC — щоб SSR і клієнт не розʼїжджались по timezone
   return new Intl.DateTimeFormat("uk-UA", {
-    day: "numeric",
-    month: "long",
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(value));
@@ -20,73 +18,63 @@ function formatDate(value?: string | null) {
 
 export function ContentCard({
   post,
-  large = false,
 }: {
   post: ContentPost;
   large?: boolean;
 }) {
   const date = formatDate(post.publishedAt);
+  const tags = [post.topic.name, post.city || "Всі міста"].filter(Boolean);
+
   return (
-    <article className="group">
+    <article className="group flex flex-col">
       <Link href={contentHref(post)} className="block">
-        <div
-          className={`relative overflow-hidden rounded-2xl bg-sage/15 ${
-            large ? "aspect-[16/10] md:aspect-[5/3]" : "aspect-[16/10]"
-          }`}
-        >
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#f3f3f3]">
           {post.coverUrl ? (
             <Image
               src={post.coverUrl}
               alt={post.title}
               fill
-              className="object-cover transition duration-700 group-hover:scale-105"
-              sizes={
-                large
-                  ? "(max-width: 768px) 100vw, 50vw"
-                  : "(max-width: 768px) 100vw, 33vw"
-              }
+              className="object-cover transition duration-500 group-hover:scale-[1.03]"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-sage/40 via-mist to-paper" />
+            <div className="absolute inset-0 bg-[#ececec]" />
           )}
         </div>
-        <div className="mt-4">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-ink-soft">
-            <span className="font-medium text-sage-deep">
-              {contentKindLabel(post.kind)}
-            </span>
-            <span>·</span>
-            <span>{post.topic.name}</span>
-            {date ? (
-              <>
-                <span>·</span>
-                <time dateTime={post.publishedAt ?? undefined}>{date}</time>
-              </>
-            ) : null}
-          </div>
-          <h3
-            className={`mt-2 font-[family-name:var(--font-display)] text-ink transition group-hover:text-sage-deep ${
-              large ? "text-3xl md:text-4xl" : "text-2xl"
-            }`}
-          >
-            {post.title}
-          </h3>
-          {post.excerpt ? (
-            <p
-              className={`mt-2 text-sm leading-6 text-ink-soft ${
-                large ? "line-clamp-3 md:text-base" : "line-clamp-2"
-              }`}
-            >
-              {post.excerpt}
-            </p>
-          ) : null}
-        </div>
       </Link>
-      <Link
-        href={contentTopicHref(post.topic)}
-        className="mt-3 inline-block text-xs font-medium text-ink-soft hover:text-sage-deep"
-      >
-        Усі в «{post.topic.name}»
+      <div className="mt-3 flex items-start justify-between gap-3 text-[11px] uppercase tracking-[0.08em] text-[#8a8a8a]">
+        <p className="min-w-0">
+          {tags.map((tag, index) => (
+            <span key={tag}>
+              {index > 0 ? " | " : null}
+              {post.topic.name === tag ? (
+                <Link href={contentTopicHref(post.topic)} className="hover:text-ink">
+                  {tag}
+                </Link>
+              ) : (
+                tag
+              )}
+            </span>
+          ))}
+        </p>
+        {date ? (
+          <time dateTime={post.publishedAt ?? undefined} className="shrink-0">
+            {date}
+          </time>
+        ) : null}
+      </div>
+      <Link href={contentHref(post)} className="mt-3 block">
+        <h3 className="font-[family-name:var(--font-display)] text-[28px] font-medium leading-[1.15] text-ink">
+          {post.title}
+        </h3>
+        {post.excerpt ? (
+          <p className="mt-3 line-clamp-3 text-[15px] leading-6 text-[#6f6f6f]">
+            {post.excerpt}
+          </p>
+        ) : null}
+        <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#ff4200]">
+          Читати статтю <span aria-hidden>&gt;</span>
+        </span>
       </Link>
     </article>
   );

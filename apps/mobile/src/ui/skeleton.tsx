@@ -121,7 +121,7 @@ export function SkeletonScreen({
 const styles = StyleSheet.create({
   pad: { padding: spacing.lg, gap: 4 },
   bone: {
-    backgroundColor: colors.mist ?? colors.line,
+    backgroundColor: colors.blush,
     borderRadius: radius.sm,
   },
   countdown: {

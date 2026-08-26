@@ -20,7 +20,7 @@ import {
   getDashboardInsights,
   getMyWedding,
 } from "@/lib/weddings-api";
-import { colors, radius, spacing } from "@/theme";
+import { colors, fonts, radius, spacing } from "@/theme";
 import {
   Button,
   ErrorBox,
@@ -397,34 +397,58 @@ const styles = StyleSheet.create({
     gap: 14,
     backgroundColor: colors.paper,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: 18,
     marginBottom: 20,
   },
   countNum: {
-    fontSize: 44,
-    fontWeight: "800",
-    color: colors.primaryDeep,
+    fontSize: 48,
+    fontFamily: fonts.displayBold,
+    color: colors.primary,
     letterSpacing: -1,
   },
-  countLabel: { fontSize: 17, fontWeight: "700", color: colors.ink },
-  countHint: { fontSize: 13, color: colors.inkSoft, marginTop: 2 },
+  countLabel: {
+    fontSize: 17,
+    fontFamily: fonts.sansBold,
+    color: colors.ink,
+  },
+  countHint: {
+    fontSize: 13,
+    fontFamily: fonts.sans,
+    color: colors.inkSoft,
+    marginTop: 2,
+  },
   metrics: { gap: 10, paddingBottom: 8, paddingRight: 8 },
   metric: {
     width: 132,
     backgroundColor: colors.paper,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: 14,
   },
   metricPressed: { opacity: 0.7 },
-  metricLabel: { fontSize: 12, color: colors.inkSoft, fontWeight: "600" },
+  metricLabel: {
+    fontSize: 11,
+    color: colors.inkSoft,
+    fontFamily: fonts.sansSemi,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
   metricValue: {
     fontSize: 26,
-    fontWeight: "800",
+    fontFamily: fonts.displayBold,
     color: colors.ink,
     marginTop: 4,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
-  metricHint: { fontSize: 12, color: colors.inkMuted, marginTop: 2 },
+  metricHint: {
+    fontSize: 12,
+    fontFamily: fonts.sans,
+    color: colors.inkMuted,
+    marginTop: 2,
+  },
   ring: { alignItems: "flex-end", minWidth: 64 },
   ringTrack: {
     width: 56,
@@ -435,5 +459,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   ringFill: { height: "100%", backgroundColor: colors.primary },
-  ringText: { fontSize: 12, fontWeight: "700", color: colors.inkSoft },
+  ringText: {
+    fontSize: 12,
+    fontFamily: fonts.sansBold,
+    color: colors.inkSoft,
+  },
 });

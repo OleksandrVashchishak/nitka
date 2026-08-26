@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { DashboardNav } from "@/components/dashboard-nav";
+import {
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabBtnGhost,
+  cabCard,
+} from "@/components/couple-cabinet-ui";
 import { InvitationCard } from "@/components/invitation-card";
 import { RequireAuth } from "@/components/require-auth";
 import { PageLoader, LoadingButtonLabel } from "@/components/ui-loader";
@@ -92,10 +99,23 @@ function InvitationsEditorInner() {
     normalizeInvitationContent(null),
   );
   const [origin, setOrigin] = useState("");
+  const [printGuestName, setPrintGuestName] = useState("");
 
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
+
+  function printInvitation() {
+    document.body.classList.add("printing-invitation");
+    const cleanup = () => {
+      document.body.classList.remove("printing-invitation");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    // fallback if afterprint never fires (some browsers)
+    window.setTimeout(cleanup, 60_000);
+    window.print();
+  }
 
   useEffect(() => {
     void (async () => {
@@ -160,42 +180,39 @@ function InvitationsEditorInner() {
 
   return (
     <>
-      <DashboardNav variant="COUPLE" />
+      <div className="no-print">
+        <DashboardNav variant="COUPLE" />
+      </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Запрошення
-          </h1>
-          <p className="mt-2 max-w-xl text-ink-soft">
-            Обери стиль і текст — гості побачать листівку за персональним
-            лінком. Роздача — у розділі Гості.
-          </p>
-        </div>
+      <div className="no-print flex flex-wrap items-end justify-between gap-4">
+        <CabinetHeader
+          title="Запрошення"
+          description="Обери стиль і текст — гості побачать листівку за персональним лінком. Роздача — у розділі Гості."
+        />
         <div className="flex flex-wrap gap-2">
-          <Link
-            href="/guests"
-            className="border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink"
-          >
+          <Link href="/guests" className={cabBtnGhost}>
             До гостей
           </Link>
+          <button type="button" onClick={printInvitation} className={cabBtnGhost}>
+            Друк / PDF
+          </button>
           <button
             type="button"
             disabled={saving}
             onClick={() => void onSave()}
-            className="cursor-pointer bg-sage px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sage-deep disabled:opacity-60"
+            className={cabBtn}
           >
             <LoadingButtonLabel loading={saving}>Зберегти</LoadingButtonLabel>
           </button>
         </div>
       </div>
 
-      <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <div className="invitations-editor-layout mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <form
           onSubmit={(e) => void onSave(e)}
-          className="order-2 min-w-0 space-y-6 lg:order-1"
+          className="no-print order-2 min-w-0 space-y-6 lg:order-1"
         >
-          <section className="border border-line bg-white p-4 sm:p-5">
+          <section className={`${cabCard} p-4 sm:p-5`}>
             <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
               Темплейт
             </p>
@@ -342,7 +359,7 @@ function InvitationsEditorInner() {
             </label>
           </section>
 
-          <section className="border border-line bg-white p-4 sm:p-5">
+          <section className={`${cabCard} p-4 sm:p-5`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
                 Роздати гостям
@@ -390,11 +407,31 @@ function InvitationsEditorInner() {
         </form>
 
         <div className="order-1 min-w-0 lg:order-2 lg:sticky lg:top-24 lg:self-start">
-          <p className="mb-3 text-xs uppercase tracking-[0.14em] text-ink-soft">
-            Превʼю листівки
-          </p>
+          <div className="no-print mb-3 flex flex-wrap items-end justify-between gap-3">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
+              Превʼю листівки
+            </p>
+            <button
+              type="button"
+              onClick={printInvitation}
+              className="cursor-pointer text-xs font-medium uppercase tracking-[0.12em] text-sage-deep hover:underline"
+            >
+              Друк / PDF
+            </button>
+          </div>
+          <label className="no-print mb-3 block">
+            <span className="text-[10px] uppercase tracking-[0.14em] text-ink-soft">
+              Імʼя на друк (опційно)
+            </span>
+            <input
+              value={printGuestName}
+              onChange={(e) => setPrintGuestName(e.target.value)}
+              placeholder="Напр. Олено"
+              className="mt-1.5 w-full border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-sage"
+            />
+          </label>
           <div
-            className="overflow-hidden border border-line shadow-sm"
+            className="print-invitation-sheet overflow-hidden border border-line shadow-sm"
             style={{
               background: INVITATION_THEMES.find((t) => t.id === templateId)
                 ?.colors.bg,
@@ -403,10 +440,16 @@ function InvitationsEditorInner() {
             <InvitationCard
               templateId={templateId}
               content={content}
-              guestName="Олени"
+              guestName={
+                printGuestName.trim() || undefined
+              }
               websiteUrl={data.website?.url ?? null}
+              hideWebsiteLinkOnPrint
             />
           </div>
+          <p className="no-print mt-2 text-xs text-ink-soft">
+            У діалозі друку обери принтер або «Зберегти як PDF». Формат — A5.
+          </p>
         </div>
       </div>
     </>
@@ -416,11 +459,9 @@ function InvitationsEditorInner() {
 export function InvitationsEditorPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-10 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <InvitationsEditorInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <InvitationsEditorInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

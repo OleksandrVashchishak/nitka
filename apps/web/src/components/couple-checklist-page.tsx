@@ -6,6 +6,13 @@ import { PageLoader } from "@/components/ui-loader";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
 import {
+  CabinetEmpty,
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabCard,
+} from "@/components/couple-cabinet-ui";
+import {
   createTask,
   deleteTask,
   getMyWedding,
@@ -240,21 +247,16 @@ function ChecklistInner() {
     return (
       <>
         <DashboardNav variant="COUPLE" />
-        <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
-          Чекліст
-        </h1>
-        <div className="mt-6 rounded-2xl border border-line bg-mist px-6 py-10">
-          <p className="text-ink-soft">
-            Спочатку збережи дату й місто весілля в огляді — тоді зʼявиться
-            чекліст по місяцях.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-4 inline-flex rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
-          >
-            До огляду
-          </Link>
-        </div>
+        <CabinetHeader title="Мої задачі" description="Спочатку збережи дату весілля — тоді відкриється чекліст по місяцях." />
+        <CabinetEmpty
+          action={
+            <Link href="/dashboard" className={cabBtn}>
+              До огляду
+            </Link>
+          }
+        >
+          Дата й місто ще не збережені в кабінеті.
+        </CabinetEmpty>
         {error ? (
           <p className="mt-4 text-sm text-red-700">{error}</p>
         ) : null}
@@ -267,26 +269,26 @@ function ChecklistInner() {
       <DashboardNav variant="COUPLE" />
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Чекліст
-          </h1>
-          <p className="mt-2 text-ink-soft">
-            Виконано{" "}
-            <span className="font-semibold text-ink">
-              {doneCount} з {totalCount}
-            </span>{" "}
-            задач
-          </p>
-        </div>
+        <CabinetHeader
+          title="Мої задачі"
+          description={
+            <>
+              Виконано{" "}
+              <strong className="font-medium text-[#1a1a1a]">
+                {doneCount} з {totalCount}
+              </strong>{" "}
+              задач
+            </>
+          }
+        />
         <div className="min-w-[200px] flex-1 sm:max-w-xs">
-          <div className="h-2 overflow-hidden rounded-full bg-mist">
+          <div className="h-1.5 overflow-hidden rounded-full bg-black/10">
             <div
-              className="h-full rounded-full bg-sage transition-all"
+              className="h-full rounded-full bg-[#c45b4a] transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="mt-1 text-right text-xs text-ink-soft">{progress}%</p>
+          <p className="mt-1 text-right text-xs text-[#8a877f]">{progress}%</p>
         </div>
       </div>
 
@@ -296,8 +298,8 @@ function ChecklistInner() {
         </p>
       ) : null}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className="space-y-8 lg:sticky lg:top-6 lg:self-start">
+      <div className="mt-8 grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <aside className={`${cabCard} space-y-8 p-5 lg:sticky lg:top-6 lg:self-start`}>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
               Статус
@@ -404,7 +406,7 @@ function ChecklistInner() {
         <div className="min-w-0">
           <form
             onSubmit={onAdd}
-            className="flex items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3"
+            className={`${cabCard} flex items-center gap-3 px-4 py-3`}
           >
             <span className="flex size-8 items-center justify-center rounded-full border border-dashed border-sage/50 text-lg text-sage-deep">
               +
@@ -418,7 +420,7 @@ function ChecklistInner() {
             <button
               type="submit"
               disabled={adding || !newTitle.trim()}
-              className="rounded-full bg-sage px-4 py-2 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-50"
+              className={`${cabBtn} disabled:opacity-50`}
             >
               {adding ? "…" : "Додати"}
             </button>
@@ -432,10 +434,10 @@ function ChecklistInner() {
             <div className="mt-8 space-y-10">
               {grouped.map(([label, tasks]) => (
                 <section key={label}>
-                  <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink md:text-3xl">
+                  <h2 className="font-[family-name:var(--font-display)] text-2xl text-[#1a1a1a] md:text-3xl">
                     {label}
                   </h2>
-                  <ul className="mt-4 divide-y divide-line rounded-2xl border border-line bg-white">
+                  <ul className={`${cabCard} mt-4 divide-y divide-[#eeeae2]`}>
                     {tasks.map((task) => {
                       const done = task.status === "DONE";
                       const href = hrefForPlanKey(task.categorySlug ?? "");
@@ -562,11 +564,9 @@ function ChecklistInner() {
 export function CoupleChecklistPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <ChecklistInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <ChecklistInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

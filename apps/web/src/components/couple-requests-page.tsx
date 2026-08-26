@@ -9,6 +9,11 @@ import {
   type CoupleRequest,
 } from "@/lib/dashboard-api";
 import { DashboardNav } from "@/components/dashboard-nav";
+import {
+  CabinetHeader,
+  CabinetStat,
+  CoupleCabinetFrame,
+} from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
 import { RequestThread } from "@/components/request-thread";
 import { vendorHref } from "@/lib/vendor-href";
@@ -126,33 +131,16 @@ function RequestsInner() {
   return (
     <>
       <DashboardNav variant="COUPLE" />
-      <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-        Inbox заявок
-      </h1>
-      <p className="mt-2 text-ink-soft">
-        Діалог з підрядником: надіслано → відповідь з контактом → домовленість.
-      </p>
+      <CabinetHeader
+        title="Заявки"
+        description="Діалог з підрядником: надіслано → відповідь з контактом → домовленість."
+      />
 
       {!loading && items.length > 0 ? (
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-line bg-mist px-4 py-4">
-            <p className="text-xs text-ink-soft">Усього</p>
-            <p className="mt-1 font-[family-name:var(--font-display)] text-3xl">
-              {items.length}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-line bg-mist px-4 py-4">
-            <p className="text-xs text-ink-soft">Очікують</p>
-            <p className="mt-1 font-[family-name:var(--font-display)] text-3xl">
-              {waiting}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-line bg-mist px-4 py-4">
-            <p className="text-xs text-ink-soft">Є відповідь</p>
-            <p className="mt-1 font-[family-name:var(--font-display)] text-3xl">
-              {replied}
-            </p>
-          </div>
+          <CabinetStat value={String(items.length)} label="Усього" />
+          <CabinetStat value={String(waiting)} label="Очікують" />
+          <CabinetStat value={String(replied)} label="Є відповідь" />
         </div>
       ) : null}
 
@@ -259,11 +247,9 @@ function RequestsInner() {
 export function CoupleRequestsPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <RequestsInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <RequestsInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

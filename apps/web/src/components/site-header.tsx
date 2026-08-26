@@ -5,31 +5,57 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
-import { PRODUCT_NAV } from "@/lib/product-routes";
+import { BrandLogo } from "@/components/brand-logo";
+
+const MARKETING_NAV = [
+  { href: "/vesilnyy-plan", label: "Чеклісти" },
+  { href: "/rozsadka-gostey", label: "Конструктор розсадки" },
+  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
+  { href: "/zaprosinnya", label: "Сайт-запрошення" },
+  { href: "/spysok-gostey", label: "Список гостей" },
+  { href: "/content", label: "Ідеї" },
+] as const;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  if (pathname.startsWith("/w/") || pathname.startsWith("/rsvp/")) return null;
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/w/") ||
+    pathname.startsWith("/rsvp/") ||
+    pathname === "/tasks" ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/checklist") ||
+    pathname.startsWith("/day-plan") ||
+    pathname.startsWith("/budget") ||
+    pathname.startsWith("/guests") ||
+    pathname.startsWith("/seating") ||
+    pathname.startsWith("/invitations") ||
+    pathname.startsWith("/website") ||
+    pathname.startsWith("/my-vendors") ||
+    pathname.startsWith("/favorites") ||
+    pathname.startsWith("/requests")
+  )
+    return null;
+
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const hydrated = useAuthStore((s) => s.hydrated);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const toolsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMenuOpen(false);
-    setToolsOpen(false);
+    setMobileOpen(false);
   }, [pathname]);
 
   useEffect(() => {
     function onDocClick(event: MouseEvent) {
       const target = event.target as Node;
       if (!menuRef.current?.contains(target)) setMenuOpen(false);
-      if (!toolsRef.current?.contains(target)) setToolsOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
@@ -37,10 +63,9 @@ export function SiteHeader() {
 
   const dashboardHref = getHomePath(user?.role);
   const initial = (user?.name?.trim()?.[0] ?? "N").toUpperCase();
-  const isCouple = user?.role === "COUPLE" || user?.role === "ADMIN";
 
   const navLinkClass = isHome
-    ? "text-sm font-medium text-white/90 transition hover:text-white"
+    ? "text-[13px] font-medium text-white/90 transition hover:text-white"
     : "text-sm font-medium text-ink-soft transition hover:text-ink";
 
   return (
@@ -51,130 +76,82 @@ export function SiteHeader() {
           : "sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur-md"
       }
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-4 md:px-8">
-        <div className="flex items-center gap-5 md:gap-8">
-          <Link
-            href="/"
-            className={
-              isHome
-                ? "font-[family-name:var(--font-display)] text-2xl tracking-[0.02em] text-white"
-                : "font-[family-name:var(--font-display)] text-2xl tracking-[0.02em] text-ink"
-            }
-          >
-            NITKA
-          </Link>
-          <nav
-            aria-label="Основне меню"
-            className="flex items-center gap-4 sm:gap-5 md:gap-6"
-          >
-            <Link href="/content" className={navLinkClass}>
-              Ідеї
+      <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-5 py-5 md:px-10">
+        <BrandLogo light={isHome} />
+
+        <nav
+          aria-label="Основне меню"
+          className="hidden items-center gap-5 lg:flex xl:gap-7"
+        >
+          {MARKETING_NAV.map((item) => (
+            <Link key={item.href} href={item.href} className={navLinkClass}>
+              {item.label}
             </Link>
-            <div ref={toolsRef} className="relative">
+          ))}
+        </nav>
+
+        <nav className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            className={`lg:hidden ${navLinkClass} px-2 py-1`}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((o) => !o)}
+          >
+            Меню
+          </button>
+          {hydrated && user ? (
+            <div ref={menuRef} className="relative">
               <button
                 type="button"
-                onClick={() => {
-                  setToolsOpen((open) => !open);
-                  setMenuOpen(false);
-                }}
-                aria-expanded={toolsOpen}
-                aria-haspopup="menu"
-                className={`${navLinkClass} inline-flex items-center gap-1`}
+                onClick={() => setMenuOpen((open) => !open)}
+                className={
+                  isHome
+                    ? "inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
+                    : "inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-2.5 py-1.5 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/30"
+                }
               >
-                Інструменти
                 <span
-                  className={`text-[10px] transition ${toolsOpen ? "rotate-180" : ""}`}
-                  aria-hidden
+                  className={
+                    isHome
+                      ? "flex size-7 items-center justify-center rounded-full bg-cta font-[family-name:var(--font-display)] text-sm text-ink"
+                      : "flex size-7 items-center justify-center rounded-full bg-sage font-[family-name:var(--font-display)] text-sm text-white"
+                  }
                 >
-                  ▾
+                  {initial}
                 </span>
+                <span className="hidden pr-1 sm:inline">Кабінет</span>
               </button>
-              {toolsOpen ? (
-                <div
-                  role="menu"
-                  className="absolute left-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-white py-2 shadow-xl"
-                >
-                  {PRODUCT_NAV.map((item) => {
-                    const href = isCouple ? item.coupleHref : item.guestHref;
-                    return (
-                      <Link
-                        key={item.id}
-                        href={href}
-                        role="menuitem"
-                        className="block px-4 py-2.5 text-sm text-ink transition hover:bg-mist"
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
+              {menuOpen ? (
+                <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-2 shadow-xl">
+                  <div className="border-b border-line px-4 py-3">
+                    <p className="truncate text-sm font-semibold text-ink">
+                      {user.name}
+                    </p>
+                  </div>
+                  <Link
+                    href={dashboardHref}
+                    className="block px-4 py-2.5 text-sm text-ink transition hover:bg-mist"
+                  >
+                    {user.role === "ADMIN" ? "Адмінка" : "Кабінет"}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="block w-full px-4 py-2.5 text-left text-sm text-ink transition hover:bg-mist"
+                  >
+                    Вийти
+                  </button>
                 </div>
               ) : null}
             </div>
-          </nav>
-        </div>
-
-        <nav className="flex items-center gap-2 sm:gap-3">
-          {hydrated && user ? (
-            <>
-              <div ref={menuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((open) => !open)}
-                  className={
-                    isHome
-                      ? "inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
-                      : "inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-2.5 py-1.5 text-sm font-semibold text-ink shadow-sm transition hover:border-ink/30"
-                  }
-                >
-                  <span
-                    className={
-                      isHome
-                        ? "flex size-7 items-center justify-center rounded-full bg-white font-[family-name:var(--font-display)] text-sm text-sage-deep"
-                        : "flex size-7 items-center justify-center rounded-full bg-sage font-[family-name:var(--font-display)] text-sm text-white"
-                    }
-                  >
-                    {initial}
-                  </span>
-                  <span className="hidden pr-1 sm:inline">Ваш акаунт</span>
-                </button>
-
-                {menuOpen ? (
-                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-2 shadow-xl">
-                    <div className="border-b border-line px-4 py-3">
-                      <p className="truncate text-sm font-semibold text-ink">
-                        {user.name}
-                      </p>
-                      <p className="mt-0.5 text-xs text-ink-soft">
-                        {user.role === "ADMIN"
-                          ? "Адмін"
-                          : "Пара"}
-                      </p>
-                    </div>
-                    <Link
-                      href={dashboardHref}
-                      className="block px-4 py-2.5 text-sm text-ink transition hover:bg-mist"
-                    >
-                      {user.role === "ADMIN" ? "Адмінка" : "Кабінет"}
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => void logout()}
-                      className="block w-full px-4 py-2.5 text-left text-sm text-ink transition hover:bg-mist"
-                    >
-                      Вийти
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            </>
           ) : hydrated ? (
             <>
               <Link
                 href="/login"
                 className={
                   isHome
-                    ? "rounded-full border border-white bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white hover:text-ink"
-                    : "rounded-full border border-ink bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-mist"
+                    ? "rounded-full border border-white/80 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
+                    : "rounded-full border border-ink/20 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-mist"
                 }
               >
                 Увійти
@@ -183,11 +160,11 @@ export function SiteHeader() {
                 href="/register"
                 className={
                   isHome
-                    ? "rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-mist"
+                    ? "rounded-full bg-cta px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-white"
                     : "rounded-full bg-sage px-4 py-2 text-sm font-semibold text-white transition hover:bg-sage-deep"
                 }
               >
-                Реєстрація
+                Розпочати
               </Link>
             </>
           ) : (
@@ -195,6 +172,28 @@ export function SiteHeader() {
           )}
         </nav>
       </div>
+
+      {mobileOpen ? (
+        <div
+          className={
+            isHome
+              ? "border-t border-white/15 bg-wine/95 px-5 py-4 backdrop-blur lg:hidden"
+              : "border-t border-line bg-paper px-5 py-4 lg:hidden"
+          }
+        >
+          <nav className="flex flex-col gap-3">
+            {MARKETING_NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={isHome ? "text-white" : "text-ink"}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }

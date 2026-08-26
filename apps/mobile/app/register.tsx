@@ -13,7 +13,7 @@ import { checkEmailAvailable } from "@/lib/auth-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { href } from "@/lib/href";
 import { peekPendingPartnerInvite } from "@/lib/partner-invite-pending";
-import { colors } from "@/theme";
+import { colors, fonts } from "@/theme";
 import { Button, ErrorBox, Input, Title } from "@/ui";
 
 export default function RegisterScreen() {
@@ -133,18 +133,31 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.paper },
+  safe: { flex: 1, backgroundColor: colors.mist },
   flex: { flex: 1 },
   content: { padding: 24, paddingBottom: 40 },
   brand: {
-    fontSize: 28,
-    fontWeight: "700",
-    letterSpacing: 2,
+    fontFamily: fonts.displayBold,
+    fontSize: 32,
+    letterSpacing: 1,
     color: colors.primaryDeep,
     marginBottom: 12,
   },
-  hint: { color: colors.inkSoft, marginBottom: 16 },
-  emailWarn: { color: "#c45", fontSize: 13, marginTop: -4, marginBottom: 4 },
+  hint: {
+    fontFamily: fonts.sans,
+    color: colors.inkSoft,
+    marginBottom: 16,
+  },
+  emailWarn: {
+    fontFamily: fonts.sans,
+    color: colors.danger,
+    fontSize: 13,
+    marginTop: -4,
+    marginBottom: 4,
+  },
   link: { marginTop: 20, alignItems: "center" },
-  linkText: { color: colors.primary, fontWeight: "600" },
+  linkText: {
+    fontFamily: fonts.sansSemi,
+    color: colors.primary,
+  },
 });

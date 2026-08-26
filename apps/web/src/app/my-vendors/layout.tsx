@@ -1,1 +1,1 @@
-export { metadata, default } from "@/components/no-index-layout";
+export { metadata, default } from "@/components/couple-app-layout";

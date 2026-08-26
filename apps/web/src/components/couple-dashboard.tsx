@@ -2,7 +2,6 @@
 
 import { PageLoader } from "@/components/ui-loader";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import {
   createTask,
   deleteTask,
@@ -14,12 +13,10 @@ import {
 } from "@/lib/dashboard-api";
 import { CoupleProfileCard } from "@/components/couple-profile-card";
 import { DashboardNav } from "@/components/dashboard-nav";
-import { DashboardInsightsPanel } from "@/components/dashboard-insights";
-import { PartnerAccessCard } from "@/components/partner-access-card";
+import { CoupleOverview } from "@/components/couple-overview";
 import { RequireAuth } from "@/components/require-auth";
 import { WeddingPlanPanel } from "@/components/wedding-plan-panel";
 import { useAuthStore } from "@/lib/auth-store";
-import { PLAN_ITEMS } from "@/lib/wedding-plan";
 import { toast } from "@/lib/toast";
 
 function formatDateLong(value: string) {
@@ -53,6 +50,16 @@ function CoupleDashboardInner() {
   const [city, setCity] = useState("Київ");
   const [guests, setGuests] = useState(80);
   const [budget, setBudget] = useState(300000);
+  const [showPlan, setShowPlan] = useState(false);
+
+  useEffect(() => {
+    const syncHash = () => {
+      if (window.location.hash === "#wedding-plan") setShowPlan(true);
+    };
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -178,225 +185,87 @@ function CoupleDashboardInner() {
   }
 
   const left = wedding ? daysUntil(wedding.date) : daysUntil(date);
-  const done = wedding?.tasks.filter((t) => t.status === "DONE").length ?? 0;
-  const total = wedding?.tasks.length ?? 0;
   const fallbackNames = (user?.name ?? "")
     .split(/\s+(?:і|&|\+)\s+/i)
     .map((name) => name.trim());
   const partnerOneName =
     wedding?.partnerOneName || fallbackNames[0] || user?.name || "";
   const partnerTwoName = wedding?.partnerTwoName || fallbackNames[1] || "";
-  const nextTask = wedding?.tasks.find((task) => task.status !== "DONE");
-  const nextMeta = PLAN_ITEMS.find(
-    (item) => item.key === nextTask?.categorySlug,
-  );
 
   return (
     <>
       <DashboardNav variant="COUPLE" />
 
-      {wedding ? (
-        <CoupleProfileCard
-          partnerOneName={partnerOneName}
-          partnerTwoName={partnerTwoName}
-          photoUrl={wedding.couplePhotoUrl}
-          daysLeft={left}
-          onSave={onSaveProfile}
-        />
-      ) : null}
-
-      {wedding ? <PartnerAccessCard wedding={wedding} /> : null}
-
       {error ? (
-        <p className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mx-5 mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:mx-10">
           {error}
         </p>
       ) : null}
 
       {wedding ? (
-        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            {
-              label: "До весілля",
-              value:
-                left > 0 ? `${left} дн.` : left === 0 ? "Сьогодні" : "Вже було",
-              hint: formatDateLong(wedding.date),
-            },
-            {
-              label: "План",
-              value: `${done}/${total}`,
-              hint: `${Math.round((done / Math.max(total, 1)) * 100)}% виконано`,
-            },
-            {
-              label: "Гості",
-              value: String(wedding.guests),
-              hint: "у поточному плані",
-            },
-            {
-              label: "Бюджет",
-              value: `${formatMoney(wedding.budget)} ₴`,
-              hint: `${formatMoney(Math.round(wedding.budget / Math.max(wedding.guests, 1)))} ₴ на гостя`,
-            },
-          ].map((kpi) => (
-            <article
-              key={kpi.label}
-              className="rounded-2xl border border-line bg-white p-4 md:p-5"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
-                {kpi.label}
-              </p>
-              <p className="mt-2 font-[family-name:var(--font-display)] text-3xl text-ink">
-                {kpi.value}
-              </p>
-              <p className="mt-1 truncate text-xs text-ink-soft">{kpi.hint}</p>
-            </article>
-          ))}
-        </section>
-      ) : null}
-
-      {wedding ? (
-        <section className="mb-6 rounded-2xl border border-line bg-mist p-5 md:p-6">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
-                Швидкий старт
-              </p>
-              <h2 className="mt-1 font-[family-name:var(--font-display)] text-3xl text-ink">
-                З чого продовжимо?
-              </h2>
-            </div>
-            <p className="text-sm text-ink-soft">Швидкі дії без зайвих кліків</p>
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                href: "/checklist",
-                icon: nextMeta?.icon || "✓",
-                title: nextMeta?.title || "Відкрити чекліст",
-                hint: "Наступна ціль",
-              },
-              {
-                href: "/guests",
-                icon: "👥",
-                title: "Оновити гостей",
-                hint: "Список та запрошення",
-              },
-              {
-                href: "/budget",
-                icon: "₴",
-                title: "Перевірити бюджет",
-                hint: "Категорії й витрати",
-              },
-              {
-                href: "/checklist",
-                icon: "📅",
-                title: "Відкрити чекліст",
-                hint: "Дати та статуси",
-              },
-            ].map((action) => (
-              <Link
-                key={action.title}
-                href={action.href}
-                className="group flex items-center gap-3 rounded-xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-sage/40 hover:shadow-sm"
-              >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sage/10">
-                  {action.icon}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate font-medium text-ink">
-                    {action.title}
-                  </span>
-                  <span className="block truncate text-xs text-ink-soft">
-                    {action.hint}
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {wedding ? (
-        <section className="overflow-hidden rounded-2xl border border-line bg-sage-deep text-white">
-          <div className="flex flex-wrap items-end justify-between gap-4 p-5 md:p-6">
-            <div>
-              <p className="text-sm uppercase tracking-[0.16em] text-white/65">
-                Дата весілля
-              </p>
-              <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl md:text-3xl">
-                {formatDateLong(wedding.date)}
-              </h2>
-              <p className="mt-2 text-white/80">
-                {wedding.city} · {wedding.guests} гостей ·{" "}
-                {formatMoney(wedding.budget)} грн
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/checklist"
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-mist"
-              >
-                Чекліст
-              </Link>
-              <Link
-                href="/guests"
-                className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-              >
-                Гості
-              </Link>
-              <Link
-                href="/budget"
-                className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-              >
-                Бюджет
-              </Link>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {wedding ? null : (
-        <section className="mb-6 rounded-2xl border border-dashed border-sage/40 bg-sage/10 p-5 md:p-6">
+        <CoupleOverview
+          wedding={wedding}
+          greetingName={partnerOneName.split(" ")[0] || "там"}
+          partnerName={partnerTwoName.split(" ")[0]}
+          daysLeft={left}
+          onConfigure={() => setShowPlan(true)}
+          onTaskChange={(updated) =>
+            setWedding((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    tasks: prev.tasks.map((t) =>
+                      t.id === updated.id ? updated : t,
+                    ),
+                  }
+                : prev,
+            )
+          }
+        />
+      ) : (
+        <section className="px-5 py-16 md:px-10">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
             Початок
           </p>
-          <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-ink">
-            Збережи дату — відкриємо чекліст
+          <h2 className="mt-2 font-[family-name:var(--font-script)] text-4xl italic text-ink">
+            Збережи дату — відкриємо кабінет
           </h2>
           <p className="mt-2 max-w-xl text-sm text-ink-soft">
-            Обери день весілля нижче в плані. Після цього зʼявляться бюджет,
-            гості, прогрес і персональні задачі.
+            Обери день весілля нижче. Після цього зʼявляться бюджет, гості й задачі.
           </p>
-          <a
-            href="#wedding-plan"
-            className="mt-4 inline-flex rounded-full bg-sage px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep"
-          >
-            Обрати дату
-          </a>
         </section>
       )}
 
-      {wedding ? <DashboardInsightsPanel city={wedding.city} /> : null}
-
-      <div id="wedding-plan">
-        <WeddingPlanPanel
-          wedding={wedding}
-          date={date}
-          city={city}
-          guests={guests}
-          budget={budget}
-          saving={saving}
-          onDateChange={setDate}
-          onCityChange={setCity}
-          onGuestsChange={setGuests}
-          onBudgetChange={setBudget}
-          onPickDay={onPickDay}
-          onSave={onSave}
-          onUpdateTask={onUpdateTask}
-          onCreateTask={onCreateTask}
-          onDeleteTask={onDeleteTask}
-        />
-      </div>
+      {showPlan || !wedding ? (
+        <div id="wedding-plan" className="px-5 pb-16 md:px-10">
+          {wedding ? (
+            <CoupleProfileCard
+              partnerOneName={partnerOneName}
+              partnerTwoName={partnerTwoName}
+              photoUrl={wedding.couplePhotoUrl}
+              daysLeft={left}
+              onSave={onSaveProfile}
+            />
+          ) : null}
+          <WeddingPlanPanel
+            wedding={wedding}
+            date={date}
+            city={city}
+            guests={guests}
+            budget={budget}
+            saving={saving}
+            onDateChange={setDate}
+            onCityChange={setCity}
+            onGuestsChange={setGuests}
+            onBudgetChange={setBudget}
+            onPickDay={onPickDay}
+            onSave={onSave}
+            onUpdateTask={onUpdateTask}
+            onCreateTask={onCreateTask}
+            onDeleteTask={onDeleteTask}
+          />
+        </div>
+      ) : null}
     </>
   );
 }
@@ -404,11 +273,7 @@ function CoupleDashboardInner() {
 export function CoupleDashboard() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <CoupleDashboardInner />
-        </div>
-      </section>
+      <CoupleDashboardInner />
     </RequireAuth>
   );
 }

@@ -90,6 +90,8 @@ export async function getContentPosts(params?: {
   topic?: string;
   kind?: ContentKind;
   featured?: boolean;
+  q?: string;
+  city?: string;
   page?: number;
   limit?: number;
 }): Promise<ContentListResponse> {
@@ -97,6 +99,8 @@ export async function getContentPosts(params?: {
   if (params?.topic) query.set("topic", params.topic);
   if (params?.kind) query.set("kind", params.kind);
   if (params?.featured) query.set("featured", "1");
+  if (params?.q) query.set("q", params.q);
+  if (params?.city) query.set("city", params.city);
   if (params?.page) query.set("page", String(params.page));
   if (params?.limit) query.set("limit", String(params.limit));
   const qs = query.toString();
@@ -118,6 +122,12 @@ export async function getContentPost(
     fetchCache(30),
   );
   if (!res.ok) return null;
+  return res.json();
+}
+
+export async function getContentCities(): Promise<string[]> {
+  const res = await fetch(`${API_URL}/api/content/cities`, fetchCache(60));
+  if (!res.ok) return [];
   return res.json();
 }
 

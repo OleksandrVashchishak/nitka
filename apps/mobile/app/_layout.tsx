@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "@/lib/auth-store";
+import { useAppFonts } from "@/lib/use-app-fonts";
 import {
   attachPushResponseListener,
   registerForPushAsync,
@@ -14,6 +15,7 @@ import { ToastHost } from "@/ui/toast";
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
+  const { loaded: fontsLoaded } = useAppFonts();
   const hydrated = useAuthStore((s) => s.hydrated);
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -33,14 +35,14 @@ export default function RootLayout() {
     return attachPushResponseListener();
   }, []);
 
-  if (!hydrated) {
+  if (!hydrated || !fontsLoaded) {
     return (
       <View
         style={{
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: colors.paper,
+          backgroundColor: colors.mist,
         }}
       >
         <ActivityIndicator color={colors.primary} size="large" />
@@ -55,7 +57,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: colors.paper },
+            contentStyle: { backgroundColor: colors.mist },
           }}
         >
           <Stack.Screen name="index" />

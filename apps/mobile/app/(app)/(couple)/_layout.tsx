@@ -5,7 +5,7 @@ import { Platform } from "react-native";
 import { useAuthStore } from "@/lib/auth-store";
 import { href } from "@/lib/href";
 import { getNotificationsSummary } from "@/lib/misc-api";
-import { colors } from "@/theme";
+import { colors, fonts } from "@/theme";
 
 export default function CoupleLayout() {
   const user = useAuthStore((s) => s.user);
@@ -38,14 +38,14 @@ export default function CoupleLayout() {
         tabBarInactiveTintColor: colors.inkMuted,
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: "600",
+          fontFamily: fonts.sansSemi,
           marginBottom: Platform.OS === "ios" ? 0 : 4,
         },
         tabBarIconStyle: { marginTop: 2 },
         tabBarStyle: {
           backgroundColor: colors.paper,
           borderTopColor: colors.line,
-          borderTopWidth: StyleSheetHairline,
+          borderTopWidth: 0.5,
           height: Platform.OS === "ios" ? 88 : 64,
           paddingTop: 6,
           paddingBottom: Platform.OS === "ios" ? 28 : 8,
@@ -141,5 +141,3 @@ export default function CoupleLayout() {
     </Tabs>
   );
 }
-
-const StyleSheetHairline = 0.5;

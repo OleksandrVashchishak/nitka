@@ -26,7 +26,6 @@ export declare class GuestsController {
             createdAt: Date;
             email: string | null;
             weddingId: string;
-            notes: string | null;
             side: import(".prisma/client").$Enums.GuestSide;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             plusOne: boolean;
@@ -34,6 +33,7 @@ export declare class GuestsController {
             plusOneAttending: boolean | null;
             allergies: string | null;
             tableLabel: string | null;
+            notes: string | null;
             inviteToken: string;
             respondedAt: Date | null;
         }[];
@@ -45,7 +45,6 @@ export declare class GuestsController {
         createdAt: Date;
         email: string | null;
         weddingId: string;
-        notes: string | null;
         side: import(".prisma/client").$Enums.GuestSide;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         plusOne: boolean;
@@ -53,6 +52,7 @@ export declare class GuestsController {
         plusOneAttending: boolean | null;
         allergies: string | null;
         tableLabel: string | null;
+        notes: string | null;
         inviteToken: string;
         respondedAt: Date | null;
     }>;
@@ -65,7 +65,6 @@ export declare class GuestsController {
             createdAt: Date;
             email: string | null;
             weddingId: string;
-            notes: string | null;
             side: import(".prisma/client").$Enums.GuestSide;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             plusOne: boolean;
@@ -73,6 +72,7 @@ export declare class GuestsController {
             plusOneAttending: boolean | null;
             allergies: string | null;
             tableLabel: string | null;
+            notes: string | null;
             inviteToken: string;
             respondedAt: Date | null;
         }[];
@@ -84,7 +84,6 @@ export declare class GuestsController {
         createdAt: Date;
         email: string | null;
         weddingId: string;
-        notes: string | null;
         side: import(".prisma/client").$Enums.GuestSide;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         plusOne: boolean;
@@ -92,6 +91,7 @@ export declare class GuestsController {
         plusOneAttending: boolean | null;
         allergies: string | null;
         tableLabel: string | null;
+        notes: string | null;
         inviteToken: string;
         respondedAt: Date | null;
     }>;
@@ -101,8 +101,6 @@ export declare class GuestsController {
     getPublic(token: string): Promise<{
         token: string;
         name: string;
-        email: string | null;
-        phone: string | null;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         plusOne: boolean;
         plusOneName: string | null;

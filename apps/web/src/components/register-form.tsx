@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -22,35 +21,41 @@ type PlanningStage =
   | "PLANNING_WITH_VENUE"
   | "FINAL_DETAILS";
 
-const PLANNING_OPTIONS: Array<{
-  value: PlanningStage;
-  icon: string;
-  label: string;
-}> = [
-  { value: "NOT_ENGAGED", icon: "○", label: "Ще не заручені" },
-  { value: "EXPLORING", icon: "◇", label: "Щойно заручились і придивляємось" },
+const PLANNING_OPTIONS: Array<{ value: PlanningStage; label: string }> = [
+  { value: "NOT_ENGAGED", label: "Ще не заручені" },
+  {
+    value: "EXPLORING",
+    label: "Нещодавно заручилися та поки придивляємося",
+  },
   {
     value: "PLANNING_NO_VENUE",
-    icon: "☷",
-    label: "Плануємо, але ще не обрали локацію",
+    label: "Почали планувати, але ще не забронювали місце",
   },
   {
     value: "PLANNING_WITH_VENUE",
-    icon: "⌂",
-    label: "Плануємо й уже забронювали локацію",
+    label: "Плануємо весілля та вже забронювали місце",
   },
-  { value: "FINAL_DETAILS", icon: "✓", label: "Майже все готово — лишились деталі" },
+  {
+    value: "FINAL_DETAILS",
+    label: "Майже все готово, залишилися лише деталі",
+  },
 ];
 
+const STEPS = [
+  { n: 1, label: "Початок" },
+  { n: 2, label: "Основне" },
+  { n: 3, label: "Завершення" },
+] as const;
+
 const inputClass =
-  "w-full rounded-xl border border-line bg-white px-4 py-3 text-ink outline-none transition focus:border-sage";
+  "w-full rounded-full border border-black/10 bg-white px-5 py-3.5 text-[15px] text-[#1a1a1a] outline-none transition focus:border-[#1a1a1a]";
 
 export function RegisterForm() {
   const router = useRouter();
   const register = useAuthStore((s) => s.register);
   const [step, setStep] = useState(1);
   const [planningStage, setPlanningStage] =
-    useState<PlanningStage>("EXPLORING");
+    useState<PlanningStage>("PLANNING_WITH_VENUE");
   const [partnerOneName, setPartnerOneName] = useState("");
   const [partnerTwoName, setPartnerTwoName] = useState("");
   const [date, setDate] = useState("");
@@ -67,57 +72,61 @@ export function RegisterForm() {
     "idle" | "available" | "taken" | "invalid"
   >("idle");
 
-  async function nextStep() {
+  async function goNext() {
     setError(null);
-    if (
-      step === 2 &&
-      (!partnerOneName.trim() || !partnerTwoName.trim() || !date)
-    ) {
-      toast.error("Заповни обидва імені та дату весілля");
-      return;
+    if (step === 2) {
+      if (!partnerOneName.trim() || !partnerTwoName.trim() || !date) {
+        toast.error("Заповни обидва імені та дату весілля");
+        return;
+      }
+      if (!cityUndecided && !city.trim()) {
+        toast.error("Вкажи місто або обери «Ще вирішуємо»");
+        return;
+      }
+      if (!guestsUndecided && (!guests || Number(guests) < 1)) {
+        toast.error("Вкажи кількість гостей або обери «Ще вирішуємо»");
+        return;
+      }
     }
     if (step === 3) {
-      if (!email.trim() || password.length < 6) {
-        toast.error("Вкажи email і пароль щонайменше з 6 символів");
-        return;
-      }
-      if (!looksLikeEmail(email)) {
-        setEmailStatus("invalid");
-        toast.error("Вкажи коректний email");
-        return;
-      }
-      setCheckingEmail(true);
-      try {
-        const result = await checkEmailAvailable(email);
-        if (!result.available) {
-          setEmailStatus("taken");
-          setError("Цей email уже зайнятий. Увійди або обери інший.");
-          toast.error("Цей email уже зайнятий");
-          return;
-        }
-        setEmailStatus("available");
-      } catch (err) {
-        const message = getErrorMessage(err, "Не вдалось перевірити email");
-        setError(message);
-        toast.error(message);
-        return;
-      } finally {
-        setCheckingEmail(false);
-      }
-    }
-    if (step === 4 && !cityUndecided && !city.trim()) {
-      toast.error("Вкажи місто або обери «Ще вирішуємо»");
       return;
     }
-    setStep((current) => Math.min(current + 1, 5));
+    setStep((current) => Math.min(current + 1, 3));
   }
 
-  async function onCoupleSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!guestsUndecided && (!guests || Number(guests) < 1)) {
-      toast.error("Вкажи кількість гостей або обери «Ще вирішуємо»");
+    if (step !== 3) {
+      void goNext();
       return;
     }
+    if (!email.trim() || password.length < 6) {
+      toast.error("Вкажи email і пароль щонайменше з 6 символів");
+      return;
+    }
+    if (!looksLikeEmail(email)) {
+      setEmailStatus("invalid");
+      toast.error("Вкажи коректний email");
+      return;
+    }
+    setCheckingEmail(true);
+    try {
+      const result = await checkEmailAvailable(email);
+      if (!result.available) {
+        setEmailStatus("taken");
+        setError("Цей email уже зайнятий. Увійди або обери інший.");
+        toast.error("Цей email уже зайнятий");
+        return;
+      }
+    } catch (err) {
+      const message = getErrorMessage(err, "Не вдалось перевірити email");
+      setError(message);
+      toast.error(message);
+      return;
+    } finally {
+      setCheckingEmail(false);
+    }
+
     setError(null);
     setLoading(true);
     try {
@@ -148,77 +157,97 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="grid min-h-[700px] overflow-hidden rounded-[2rem] border border-line bg-white shadow-sm lg:grid-cols-[0.82fr_1.18fr]">
-      <div className="relative hidden min-h-[700px] lg:block">
-        <Image
-          src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1400&q=85"
-          alt="Щаслива пара"
-          fill
-          priority
-          className="object-cover"
-          sizes="40vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
-        <p className="absolute inset-x-10 top-1/2 -translate-y-1/2 text-center font-[family-name:var(--font-display)] text-4xl leading-tight text-white">
-          Для дня, з якого все починається
-        </p>
-        <p className="absolute inset-x-0 bottom-10 text-center font-[family-name:var(--font-display)] text-3xl tracking-[0.15em] text-white">
-          NITKA
-        </p>
-      </div>
+    <div className="flex min-h-screen flex-col bg-[#F6F3EC] text-[#1a1a1a]">
+      <header className="flex items-center justify-between px-6 py-6 md:px-10">
+        <Link href="/" className="inline-flex items-center" aria-label="fata.studio">
+          <span className="font-[family-name:var(--font-mak)] text-[26px] leading-none tracking-tight md:text-[28px]">
+            fata.studio
+          </span>
+        </Link>
+        <ol className="flex items-center gap-5 md:gap-8">
+          {STEPS.map((item) => {
+            const active = item.n === step;
+            const done = item.n < step;
+            return (
+              <li key={item.n} className="flex items-center gap-2">
+                <span
+                  className={`flex size-6 items-center justify-center rounded-full text-[12px] ${
+                    active || done
+                      ? "border border-[#1a1a1a] text-[#1a1a1a]"
+                      : "border border-[#1a1a1a]/25 text-[#1a1a1a]/35"
+                  }`}
+                >
+                  {item.n}
+                </span>
+                <span
+                  className={`hidden text-sm md:inline ${
+                    active ? "font-medium text-[#1a1a1a]" : "text-[#1a1a1a]/40"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </header>
 
-      <form onSubmit={onCoupleSubmit} className="flex min-h-[700px] flex-col px-6 py-8 md:px-14">
-        <div className="mx-auto mt-8 flex w-full max-w-xl items-center gap-2">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <div key={item} className="flex flex-1 items-center gap-2">
-              <span
-                className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                  item <= step ? "bg-ink text-white" : "border border-line text-ink-soft"
-                }`}
-              >
-                {item}
-              </span>
-              {item < 5 ? (
-                <span className={`h-px flex-1 ${item < step ? "bg-ink" : "bg-line"}`} />
-              ) : null}
-            </div>
-          ))}
-        </div>
-
-        <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center py-8">
+      <form onSubmit={onSubmit} className="flex flex-1 flex-col">
+        <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 pb-8 pt-10 md:pt-16">
           {step === 1 ? (
             <>
-              <StepHeading
-                title="Привіт! На якому ви етапі планування?"
-                subtitle="Тільки придивляєтесь чи вже рахуєте останні дні — підлаштуємо план під вас."
-              />
-              <div className="mt-7 space-y-3">
-                {PLANNING_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setPlanningStage(option.value)}
-                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition ${
-                      planningStage === option.value
-                        ? "border-ink bg-mist text-ink"
-                        : "border-line hover:border-sage"
-                    }`}
-                  >
-                    <span className="w-5 text-center text-base">{option.icon}</span>
-                    {option.label}
-                  </button>
-                ))}
+              <h1 className="text-center font-[family-name:var(--font-display)] text-[clamp(28px,4.2vw,44px)] font-medium leading-[1.15] tracking-tight">
+                На якому етапі планування весілля ви зараз?
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-center text-[15px] leading-6 text-[#5c574e]">
+                Ми допоможемо на будь-якому етапі — від перших ідей до останніх
+                штрихів.
+              </p>
+              <p className="mt-10 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-[#1a1a1a]">
+                В якому ви статусі?
+              </p>
+              <div className="mt-4 space-y-2.5">
+                {PLANNING_OPTIONS.map((option) => {
+                  const selected = planningStage === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setPlanningStage(option.value)}
+                      className={`flex w-full items-center gap-3 rounded-full px-5 py-3.5 text-left text-[15px] leading-snug transition ${
+                        selected
+                          ? "bg-[#F0FEBB] ring-1 ring-[#1a1a1a]"
+                          : "bg-white ring-1 ring-black/10 hover:ring-black/20"
+                      }`}
+                    >
+                      <span
+                        className={`flex size-[18px] shrink-0 items-center justify-center rounded-full border ${
+                          selected ? "border-[#1a1a1a]" : "border-[#1a1a1a]/30"
+                        }`}
+                        aria-hidden
+                      >
+                        {selected ? (
+                          <span className="size-2 rounded-full bg-[#61040f]" />
+                        ) : null}
+                      </span>
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             </>
           ) : null}
 
           {step === 2 ? (
             <>
-              <StepHeading
-                title="Як і будь-які класні стосунки, почнемо з основ"
-                subtitle="Розкажіть, як вас звати та коли плануєте святкувати."
-              />
-              <div className="mt-7 grid gap-4 sm:grid-cols-2">
+              <h1 className="text-center font-[family-name:var(--font-display)] text-[clamp(28px,4.2vw,40px)] font-medium leading-[1.15] tracking-tight">
+                Розкажіть головне про ваше весілля
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-center text-[15px] leading-6 text-[#5c574e]">
+                Імена, дата, місто й орієнтовна кількість гостей. Можна змінити
+                пізніше.
+              </p>
+              <div className="mt-10 grid gap-4 sm:grid-cols-2">
                 <Field label="Твоє імʼя">
                   <input
                     value={partnerOneName}
@@ -246,99 +275,34 @@ export function RegisterForm() {
                   />
                 </Field>
               </div>
-            </>
-          ) : null}
-
-          {step === 3 ? (
-            <>
-              <StepHeading
-                title="Створімо ваш акаунт"
-                subtitle="Збережемо план, обране та всі важливі деталі в одному місці."
-              />
-              <div className="mt-7 space-y-4">
-                <AccountFields
-                  email={email}
-                  password={password}
-                  emailStatus={emailStatus}
-                  setEmail={(value) => {
-                    setEmail(value);
-                    setEmailStatus("idle");
-                    setError(null);
-                  }}
-                  setPassword={setPassword}
-                  onEmailBlur={async () => {
-                    const value = email.trim();
-                    if (!value) {
-                      setEmailStatus("idle");
-                      return;
-                    }
-                    if (!looksLikeEmail(value)) {
-                      setEmailStatus("invalid");
-                      return;
-                    }
-                    setCheckingEmail(true);
-                    try {
-                      const result = await checkEmailAvailable(value);
-                      setEmailStatus(result.available ? "available" : "taken");
-                      if (!result.available) {
-                        setError(
-                          "Цей email уже зайнятий. Увійди або обери інший.",
-                        );
-                      }
-                    } catch {
-                      setEmailStatus("idle");
-                    } finally {
-                      setCheckingEmail(false);
-                    }
-                  }}
-                />
-              </div>
-            </>
-          ) : null}
-
-          {step === 4 ? (
-            <>
-              <StepHeading
-                title="Де ви святкуватимете?"
-                subtitle="Приблизний варіант теж ок — це допоможе точніше спланувати бюджет і день."
-              />
-              <div className="mt-7">
-                <Field label="Місто або найближчий населений пункт">
+              <div className="mt-4">
+                <Field label="Місто">
                   <CityAutocomplete
                     value={city}
                     disabled={cityUndecided}
                     onChange={setCity}
-                    className={`${inputClass} disabled:bg-mist disabled:opacity-60`}
+                    className={`${inputClass} disabled:bg-white/60 disabled:opacity-60`}
                     placeholder="Почни вводити місто…"
                   />
                 </Field>
-                <DecisionButton
+                <UndecidedToggle
                   active={cityUndecided}
                   onClick={() => setCityUndecided((value) => !value)}
                 />
               </div>
-            </>
-          ) : null}
-
-          {step === 5 ? (
-            <>
-              <StepHeading
-                title="Схоже, буде вечірка! Хто у списку?"
-                subtitle="Порада від NITKA: приблизна кількість допоможе точніше порахувати бюджет і знайти локацію."
-              />
-              <div className="mt-7">
-                <Field label="Кількість гостей — приблизна теж підійде">
+              <div className="mt-4">
+                <Field label="Кількість гостей">
                   <input
                     type="number"
                     min={1}
                     value={guests}
                     disabled={guestsUndecided}
                     onChange={(event) => setGuests(event.target.value)}
-                    className={`${inputClass} disabled:bg-mist disabled:opacity-60`}
+                    className={`${inputClass} disabled:bg-white/60 disabled:opacity-60`}
                     placeholder="80"
                   />
                 </Field>
-                <DecisionButton
+                <UndecidedToggle
                   active={guestsUndecided}
                   onClick={() => setGuestsUndecided((value) => !value)}
                 />
@@ -346,136 +310,121 @@ export function RegisterForm() {
             </>
           ) : null}
 
-          <ErrorMessage error={error} />
-
-          <div className="mt-7 flex items-center gap-3">
-            {step > 1 ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setError(null);
-                  setStep((current) => current - 1);
-                }}
-                className="rounded-full border border-line px-5 py-3 text-sm font-medium text-ink transition hover:border-sage"
-              >
-                Назад
-              </button>
-            ) : null}
-            {step < 5 ? (
-              <button
-                type="button"
-                disabled={checkingEmail}
-                onClick={() => void nextStep()}
-                className="flex-1 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-sage-deep disabled:opacity-60"
-              >
-                {checkingEmail ? "Перевіряємо email…" : "Далі"}
-              </button>
-            ) : (
-              <div className="flex-1">
-                <PrimaryButton loading={loading}>Почати планування</PrimaryButton>
+          {step === 3 ? (
+            <>
+              <h1 className="text-center font-[family-name:var(--font-display)] text-[clamp(28px,4.2vw,40px)] font-medium leading-[1.15] tracking-tight">
+                Створіть кабінет
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-center text-[15px] leading-6 text-[#5c574e]">
+                Збережемо план, гостей і бюджет в одному місці для вас обох.
+              </p>
+              <div className="mx-auto mt-10 w-full max-w-md space-y-4">
+                <Field label="Email">
+                  <input
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      setEmailStatus("idle");
+                      setError(null);
+                    }}
+                    className={`${inputClass} ${
+                      emailStatus === "taken" || emailStatus === "invalid"
+                        ? "border-red-300"
+                        : emailStatus === "available"
+                          ? "border-[#8a9a6b]"
+                          : ""
+                    }`}
+                    placeholder="you@email.com"
+                  />
+                </Field>
+                <Field label="Пароль">
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className={inputClass}
+                    placeholder="Мінімум 6 символів"
+                  />
+                </Field>
               </div>
-            )}
-          </div>
-          {step === 1 ? <LoginLink /> : null}
+            </>
+          ) : null}
+
+          {error ? (
+            <p className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+              {error}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="mx-auto flex w-full max-w-[720px] items-center justify-between px-5 pb-10">
+          {step === 1 ? (
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              className="text-[15px] text-[#61040f] underline underline-offset-4"
+            >
+              Пропустити
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                setStep((current) => Math.max(current - 1, 1));
+              }}
+              className="text-[15px] text-[#61040f] underline underline-offset-4"
+            >
+              Назад
+            </button>
+          )}
+          {step < 3 ? (
+            <button
+              type="button"
+              onClick={() => void goNext()}
+              className="rounded-full bg-[#61040f] px-10 py-3 text-[15px] font-medium text-white hover:bg-[#4a030c]"
+            >
+              Далі
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={loading || checkingEmail}
+              className="rounded-full bg-[#61040f] px-10 py-3 text-[15px] font-medium text-white hover:bg-[#4a030c] disabled:opacity-60"
+            >
+              <LoadingButtonLabel loading={loading || checkingEmail} loadingText="Створюємо…">
+                Створити кабінет
+              </LoadingButtonLabel>
+            </button>
+          )}
         </div>
       </form>
     </div>
   );
 }
 
-function StepHeading({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sage-deep">
-        Реєстрація пари
-      </p>
-      <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl leading-tight text-ink md:text-4xl">
-        {title}
-      </h1>
-      <p className="mt-3 text-sm leading-6 text-ink-soft">{subtitle}</p>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm text-ink-soft">{label}</span>
+      <span className="mb-2 block text-sm text-[#5c574e]">{label}</span>
       {children}
     </label>
   );
 }
 
-function AccountFields({
-  email,
-  password,
-  emailStatus,
-  setEmail,
-  setPassword,
-  onEmailBlur,
-}: {
-  email: string;
-  password: string;
-  emailStatus: "idle" | "available" | "taken" | "invalid";
-  setEmail: (value: string) => void;
-  setPassword: (value: string) => void;
-  onEmailBlur: () => void;
-}) {
-  const emailHint =
-    emailStatus === "available"
-      ? "Email вільний"
-      : emailStatus === "taken"
-        ? "Цей email уже зайнятий"
-        : emailStatus === "invalid"
-          ? "Схоже на некоректний email"
-          : null;
-
-  return (
-    <>
-      <Field label="Email">
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          onBlur={onEmailBlur}
-          className={`${inputClass} ${
-            emailStatus === "taken" || emailStatus === "invalid"
-              ? "border-red-300 focus:border-red-400"
-              : emailStatus === "available"
-                ? "border-sage focus:border-sage"
-                : ""
-          }`}
-          placeholder="you@email.com"
-        />
-        {emailHint ? (
-          <span
-            className={`mt-2 block text-xs ${
-              emailStatus === "available" ? "text-sage-deep" : "text-red-600"
-            }`}
-          >
-            {emailHint}
-          </span>
-        ) : null}
-      </Field>
-      <Field label="Пароль">
-        <input
-          type="password"
-          required
-          minLength={6}
-          autoComplete="new-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className={inputClass}
-          placeholder="Мінімум 6 символів"
-        />
-      </Field>
-    </>
-  );
-}
-
-function DecisionButton({
+function UndecidedToggle({
   active,
   onClick,
 }: {
@@ -486,60 +435,9 @@ function DecisionButton({
     <button
       type="button"
       onClick={onClick}
-      className={`mt-3 flex items-center gap-2 text-sm font-medium ${
-        active ? "text-sage-deep" : "text-ink"
-      }`}
+      className={`mt-3 text-sm ${active ? "text-[#61040f]" : "text-[#5c574e]"}`}
     >
-      <span
-        className={`flex size-5 items-center justify-center rounded border ${
-          active ? "border-sage bg-sage text-white" : "border-line"
-        }`}
-      >
-        {active ? "✓" : ""}
-      </span>
-      Ще вирішуємо
+      {active ? "✓ Ще вирішуємо" : "Ще вирішуємо"}
     </button>
-  );
-}
-
-function ErrorMessage({ error }: { error: string | null }) {
-  return error ? (
-    <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {error}
-    </p>
-  ) : null;
-}
-
-function PrimaryButton({
-  loading,
-  children,
-}: {
-  loading: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="submit"
-      disabled={loading}
-      className="w-full rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white transition hover:bg-sage-deep disabled:opacity-60"
-    >
-      <LoadingButtonLabel loading={loading} loadingText="Створюємо…">
-        {children}
-      </LoadingButtonLabel>
-    </button>
-  );
-}
-
-function LoginLink() {
-  return (
-    <p className="mt-6 text-center text-sm text-ink-soft">
-      Вже є акаунт?{" "}
-      <Link
-        href="/login"
-        className="font-medium text-sage-deep underline-offset-4 hover:underline"
-      >
-        Увійти
-      </Link>
-    </p>
   );
 }

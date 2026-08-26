@@ -33,6 +33,7 @@ export function ToastViewport() {
       className="pointer-events-none fixed inset-x-0 top-0 z-[80] flex flex-col items-end gap-3 p-4 sm:p-6"
       aria-live="polite"
       aria-relevant="additions"
+      data-toast-viewport
     >
       {items.map((item) => (
         <ToastCard

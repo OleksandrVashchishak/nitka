@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
       { source: "/favorites/:path*", destination: "/", permanent: false },
       { source: "/requests", destination: "/", permanent: false },
       { source: "/requests/:path*", destination: "/", permanent: false },
-      { source: "/my-vendors", destination: "/dashboard", permanent: false },
-      { source: "/my-vendors/:path*", destination: "/dashboard", permanent: false },
       { source: "/moyi-pidryadnyky", destination: "/vesilnyy-plan", permanent: false },
       { source: "/moyi-pidryadnyky/:path*", destination: "/vesilnyy-plan", permanent: false },
       { source: "/admin/vendors", destination: "/admin", permanent: false },

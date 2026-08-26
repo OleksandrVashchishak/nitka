@@ -2,103 +2,61 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const COLUMNS = [
-  {
-    title: "Пара",
-    links: [
-      { href: "/content", label: "Ідеї та поради" },
-      { href: "/vesilnyy-plan", label: "План весілля" },
-      { href: "/plan-dnya-vesillya", label: "План дня весілля" },
-      { href: "/vesilnyy-byudzhet", label: "Бюджет весілля" },
-      { href: "/spysok-gostey", label: "Гості та запрошення" },
-      { href: "/rozsadka-gostey", label: "Розсадка гостей" },
-      { href: "/zaprosinnya", label: "Онлайн-запрошення" },
-      { href: "/vesilnyy-sayt", label: "Весільний сайт" },
-      { href: "/register", label: "Зареєструватись" },
-      { href: "/dashboard", label: "Кабінет пари" },
-    ],
-  },
-  {
-    title: "NITKA",
-    links: [
-      { href: "/#how-it-works", label: "Як це працює" },
-      { href: "/vesilnyy-plan", label: "План весілля" },
-      { href: "/plan-dnya-vesillya", label: "План дня весілля" },
-      { href: "/vesilnyy-byudzhet", label: "Бюджет весілля" },
-      { href: "/spysok-gostey", label: "Гості та запрошення" },
-      { href: "/rozsadka-gostey", label: "Розсадка гостей" },
-      { href: "/zaprosinnya", label: "Онлайн-запрошення" },
-      { href: "/vesilnyy-sayt", label: "Весільний сайт" },
-      { href: "/content", label: "Ідеї та поради" },
-      { href: "/login", label: "Увійти" },
-    ],
-  },
-  {
-    title: "Контакти",
-    links: [
-      { href: "mailto:hello@nitka.ua", label: "hello@nitka.ua" },
-      { href: "tel:+380441112233", label: "+38 044 111 22 33" },
-      { href: "#", label: "Instagram" },
-      { href: "#", label: "Telegram" },
-    ],
-  },
-];
+import { BrandLogo } from "@/components/brand-logo";
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  if (isHome) {
+    return (
+      <footer className="bg-wine px-5 py-24 text-center text-white md:px-8 md:py-28">
+        <p className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-3xl leading-tight tracking-wide md:text-5xl">
+          З nitka всі ці речі простіше і безкоштовно
+        </p>
+        <Link href="/register" className="btn-cta mt-10">
+          Розпочати безкоштовно
+        </Link>
+        <p className="mt-16 text-xs text-white/50">© 2026 nitka</p>
+      </footer>
+    );
+  }
+
   return (
     <footer className="border-t border-line bg-mist">
       <div className="mx-auto w-full max-w-6xl px-5 py-14 md:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.2fr_repeat(3,1fr)]">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="font-[family-name:var(--font-display)] text-3xl text-ink">
-              NITKA
-            </p>
+            <BrandLogo />
             <p className="mt-3 max-w-xs text-sm leading-6 text-ink-soft">
-              Просте планування весілля українською: задачі, бюджет, гості,
-              розсадка, запрошення й сайт пари.
+              Планування весілля: чекліст, бюджет, гості, розсадка, запрошення й
+              сайт пари.
             </p>
-          <p className="mt-5 text-xs text-ink-soft">
-            Працюємо онлайн по всій Україні ·{" "}
-            <Link href="/content" className="hover:text-sage-deep">
-              ідеї, гайди, планування
-            </Link>
-          </p>
           </div>
-
-          {COLUMNS.map((column) => (
-            <div key={column.title}>
-              <p className="text-sm font-semibold text-ink">{column.title}</p>
-              <ul className="mt-4 space-y-2.5">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-ink-soft transition hover:text-sage-deep"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-xs text-ink-soft sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 NITKA. Усі права захищено.</p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="#" className="hover:text-sage-deep">
-              Політика конфіденційності
+          <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-ink-soft">
+            <Link href="/vesilnyy-plan" className="hover:text-ink">
+              Чеклісти
             </Link>
-            <Link href="#" className="hover:text-sage-deep">
-              Умови використання
+            <Link href="/vesilnyy-byudzhet" className="hover:text-ink">
+              Бюджет
             </Link>
-            <Link href="#" className="hover:text-sage-deep">
-              Для преси
+            <Link href="/spysok-gostey" className="hover:text-ink">
+              Гості
+            </Link>
+            <Link href="/rozsadka-gostey" className="hover:text-ink">
+              Розсадка
+            </Link>
+            <Link href="/content" className="hover:text-ink">
+              Ідеї
+            </Link>
+            <Link href="/login" className="hover:text-ink">
+              Увійти
             </Link>
           </div>
         </div>
+        <p className="mt-10 border-t border-line pt-6 text-xs text-ink-soft">
+          © 2026 nitka. Усі права захищено.
+        </p>
       </div>
     </footer>
   );
@@ -106,6 +64,24 @@ export function SiteFooter() {
 
 export function SiteFooterWrapper() {
   const pathname = usePathname();
-  if (pathname.startsWith("/w/") || pathname.startsWith("/rsvp/")) return null;
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/w/") ||
+    pathname.startsWith("/rsvp/") ||
+    pathname === "/tasks" ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/checklist") ||
+    pathname.startsWith("/day-plan") ||
+    pathname.startsWith("/budget") ||
+    pathname.startsWith("/guests") ||
+    pathname.startsWith("/seating") ||
+    pathname.startsWith("/invitations") ||
+    pathname.startsWith("/website") ||
+    pathname.startsWith("/my-vendors") ||
+    pathname.startsWith("/favorites") ||
+    pathname.startsWith("/requests")
+  )
+    return null;
   return <SiteFooter />;
 }

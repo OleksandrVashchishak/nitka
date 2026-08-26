@@ -10,7 +10,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
-import { colors, radius } from "@/theme";
+import { colors, fonts, radius } from "@/theme";
 
 function parseIso(value: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
@@ -72,12 +72,12 @@ export function DateField({
               onChange(e.target.value),
             style: {
               flex: 1,
-              border: "none",
-              background: colors.blush,
+              border: `1px solid ${colors.line}`,
+              background: colors.paper,
               borderRadius: radius.md,
               padding: "14px 16px",
               minHeight: 48,
-              fontSize: 17,
+              fontSize: 16,
               color: colors.ink,
               fontFamily: "inherit",
               boxSizing: "border-box",
@@ -134,12 +134,14 @@ const styles = StyleSheet.create({
   field: { marginBottom: 14 },
   label: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.sansSemi,
     color: colors.inkSoft,
     marginBottom: 6,
   },
   input: {
-    backgroundColor: colors.blush,
+    backgroundColor: colors.paper,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -147,15 +149,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pressed: { opacity: 0.75 },
-  value: { fontSize: 17, color: colors.ink },
-  placeholder: { fontSize: 17, color: colors.inkMuted },
+  value: { fontSize: 16, fontFamily: fonts.sans, color: colors.ink },
+  placeholder: {
+    fontSize: 16,
+    fontFamily: fonts.sans,
+    color: colors.inkMuted,
+  },
   webRow: { gap: 8 },
   clearBtn: { marginTop: 6, alignSelf: "flex-start" },
-  clear: { fontSize: 13, color: colors.primary, fontWeight: "600" },
+  clear: {
+    fontSize: 13,
+    color: colors.primary,
+    fontFamily: fonts.sansSemi,
+  },
   done: {
     alignSelf: "flex-end",
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
-  doneText: { fontSize: 16, fontWeight: "700", color: colors.primary },
+  doneText: {
+    fontSize: 16,
+    fontFamily: fonts.sansBold,
+    color: colors.primary,
+  },
 });

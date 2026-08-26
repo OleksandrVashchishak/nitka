@@ -253,6 +253,11 @@ export default function InvitationsSoftScreen() {
             title="Повний редактор на десктопі"
             subtitle="Більше превʼю й типографіки"
             onPress={() => void Linking.openURL(editorUrl)}
+          />
+          <ListRow
+            title="Друк / PDF"
+            subtitle="Відкриє веб-редактор — там кнопка друку"
+            onPress={() => void Linking.openURL(editorUrl)}
             last
           />
         </ListGroup>

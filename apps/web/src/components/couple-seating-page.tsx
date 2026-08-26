@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   PointerEvent as ReactPointerEvent,
+  type DragEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -11,6 +12,14 @@ import {
 } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { DashboardNav } from "@/components/dashboard-nav";
+import {
+  CabinetEmpty,
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabBtnGhost,
+  cabCard,
+} from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
 import { getGuestList, type Guest } from "@/lib/guests-api";
 import { toast } from "@/lib/toast";
@@ -42,6 +51,8 @@ type FloorTable = {
   label: string;
   x: number;
   y: number;
+  /** degrees clockwise */
+  rotation: number;
   seats: Seat[];
 };
 
@@ -63,7 +74,22 @@ type LayoutState = {
 
 const CANVAS_W = 1200;
 const CANVAS_H = 860;
-const SEAT_SIZE = 28;
+const SEAT_SIZE = 26;
+
+type SeatLayout = {
+  seat: Seat;
+  index: number;
+  /** center of seat circle */
+  x: number;
+  y: number;
+  /**
+   * Local rotation (deg) so «імʼя вище кружечка» дивиться назовні від столу.
+   * Разом з rotation стола все крутиться одним блоком.
+   */
+  outwardRot: number;
+  /** 'above' = label on outward side in local coords */
+  labelMode: "radial" | "above" | "below";
+};
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
@@ -97,6 +123,7 @@ function createTable(
     label,
     x,
     y,
+    rotation: 0,
     seats,
   };
 }
@@ -153,47 +180,53 @@ function defaultWowLayout(): FloorItem[] {
 function tableBox(table: FloorTable) {
   switch (table.tableKind) {
     case "round":
-      return { w: 180, h: 180 };
+      return { w: 220, h: 220 };
     case "long":
-      return { w: 320, h: 110 };
+      return { w: 340, h: 130 };
     case "head":
-      return { w: 260, h: 100 };
+      return { w: 280, h: 130 };
     default:
-      return { w: 200, h: 120 };
+      return { w: 220, h: 140 };
   }
 }
 
-function seatPositions(table: FloorTable) {
+function seatPositions(table: FloorTable): SeatLayout[] {
   const { w, h } = tableBox(table);
   const cx = w / 2;
   const cy = h / 2;
 
   if (table.tableKind === "round") {
-    const r = 72;
+    const r = 70;
     const n = table.seats.length;
     return table.seats.map((seat, i) => {
       const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+      const deg = (angle * 180) / Math.PI;
       return {
         seat,
         index: i + 1,
-        left: cx + Math.cos(angle) * r - SEAT_SIZE / 2,
-        top: cy + Math.sin(angle) * r - SEAT_SIZE / 2,
+        x: cx + Math.cos(angle) * r,
+        y: cy + Math.sin(angle) * r,
+        // local «вгору» = назовні від центру столу
+        outwardRot: deg + 90,
+        labelMode: "radial" as const,
       };
     });
   }
 
   if (table.tableKind === "head") {
-    // півколо зверху президії
     const n = table.seats.length;
     return table.seats.map((seat, i) => {
       const t = n === 1 ? 0.5 : i / (n - 1);
       const angle = Math.PI + t * Math.PI;
+      const deg = (angle * 180) / Math.PI;
       const r = 88;
       return {
         seat,
         index: i + 1,
-        left: cx + Math.cos(angle) * r - SEAT_SIZE / 2,
-        top: cy + 10 + Math.sin(angle) * (r * 0.55) - SEAT_SIZE / 2,
+        x: cx + Math.cos(angle) * r,
+        y: cy + 10 + Math.sin(angle) * (r * 0.55),
+        outwardRot: deg + 90,
+        labelMode: "radial" as const,
       };
     });
   }
@@ -206,24 +239,37 @@ function seatPositions(table: FloorTable) {
       const idx = topRow ? i : i - topCount;
       const count = topRow ? topCount : bottomCount;
       const span = w - 48;
-      const left =
-        24 + (count <= 1 ? span / 2 : (span * idx) / (count - 1)) - SEAT_SIZE / 2;
-      const top = (topRow ? 2 : h - SEAT_SIZE - 2) - 4;
-      return { seat, index: i + 1, left, top };
+      const x =
+        24 + (count <= 1 ? span / 2 : (span * idx) / (count - 1));
+      const y = topRow ? 14 : h - 14;
+      return {
+        seat,
+        index: i + 1,
+        x,
+        y,
+        outwardRot: 0,
+        labelMode: topRow ? ("above" as const) : ("below" as const),
+      };
     });
   }
 
-  // rect 4 top / 4 bottom-ish
   const topCount = Math.ceil(table.seats.length / 2);
   return table.seats.map((seat, i) => {
     const topRow = i < topCount;
     const idx = topRow ? i : i - topCount;
     const count = topRow ? topCount : table.seats.length - topCount;
     const span = w - 40;
-    const left =
-      20 + (count <= 1 ? span / 2 : (span * idx) / (count - 1)) - SEAT_SIZE / 2;
-    const top = topRow ? -2 : h - SEAT_SIZE + 2;
-    return { seat, index: i + 1, left, top };
+    const x =
+      20 + (count <= 1 ? span / 2 : (span * idx) / (count - 1));
+    const y = topRow ? 10 : h - 10;
+    return {
+      seat,
+      index: i + 1,
+      x,
+      y,
+      outwardRot: 0,
+      labelMode: topRow ? ("above" as const) : ("below" as const),
+    };
   });
 }
 
@@ -250,13 +296,24 @@ function storageKey(weddingId: string) {
   return `nitka-seating:v2:${weddingId}`;
 }
 
+function normalizeItems(items: FloorItem[]): FloorItem[] {
+  return items.map((item) => {
+    if (item.kind !== "table") return item;
+    const rotation =
+      typeof (item as FloorTable).rotation === "number"
+        ? (item as FloorTable).rotation
+        : 0;
+    return { ...item, rotation };
+  });
+}
+
 function loadLayout(weddingId: string): FloorItem[] | null {
   try {
     const raw = localStorage.getItem(storageKey(weddingId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as LayoutState;
     if (parsed.version !== 2 || !Array.isArray(parsed.items)) return null;
-    return parsed.items;
+    return normalizeItems(parsed.items);
   } catch {
     return null;
   }
@@ -274,6 +331,19 @@ function initials(name: string) {
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+/** Імʼя + прізвище окремими рядками для місць на схемі */
+function nameLines(name: string): { first: string; last: string } {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { first: "?", last: "" };
+  if (parts.length === 1) return { first: parts[0], last: "" };
+  return { first: parts[0], last: parts.slice(1).join(" ") };
+}
+
+function normRotation(deg: number) {
+  const n = ((Math.round(deg) % 360) + 360) % 360;
+  return n;
 }
 
 function DecorVisual({ item }: { item: FloorDecor }) {
@@ -388,28 +458,96 @@ function DecorVisual({ item }: { item: FloorDecor }) {
 function TableBody({ table }: { table: FloorTable }) {
   if (table.tableKind === "round") {
     return (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 flex size-[96px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-ink/25 bg-[#d9dee5] text-sm font-semibold text-ink shadow-sm">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 flex size-[100px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-ink/25 bg-[#d9dee5] text-sm font-semibold text-ink shadow-sm">
         {table.label}
       </div>
     );
   }
   if (table.tableKind === "head") {
     return (
-      <div className="pointer-events-none absolute left-1/2 top-[38%] flex h-[48px] w-[200px] -translate-x-1/2 items-center justify-center rounded-b-full border-2 border-ink/25 bg-[#d9dee5] px-2 text-center text-[11px] font-semibold leading-tight text-ink shadow-sm">
+      <div className="pointer-events-none absolute left-1/2 top-[42%] flex h-[48px] w-[210px] -translate-x-1/2 items-center justify-center rounded-b-full border-2 border-ink/25 bg-[#d9dee5] px-2 text-center text-[11px] font-semibold leading-tight text-ink shadow-sm">
         {table.label}
       </div>
     );
   }
   if (table.tableKind === "long") {
     return (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[44px] w-[260px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border-2 border-ink/25 bg-[#d9dee5] text-sm font-semibold text-ink shadow-sm">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[44px] w-[280px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border-2 border-ink/25 bg-[#d9dee5] text-sm font-semibold text-ink shadow-sm">
         {table.label}
       </div>
     );
   }
   return (
-    <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[48px] w-[150px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border-2 border-ink/25 bg-[#d9dee5] text-sm font-semibold text-ink shadow-sm">
+    <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[48px] w-[160px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border-2 border-ink/25 bg-[#d9dee5] text-sm font-semibold text-ink shadow-sm">
       {table.label}
+    </div>
+  );
+}
+
+function SeatChip({
+  layout,
+  guest,
+  onSeatClick,
+  onSeatDrop,
+}: {
+  layout: SeatLayout;
+  guest: Guest | null;
+  onSeatClick: () => void;
+  onSeatDrop: (e: DragEvent) => void;
+}) {
+  const lines = guest ? nameLines(guest.name) : null;
+  const rot =
+    layout.labelMode === "radial" ? layout.outwardRot : 0;
+
+  return (
+    <div
+      className="absolute z-[2]"
+      style={{
+        left: layout.x,
+        top: layout.y,
+        width: SEAT_SIZE,
+        height: SEAT_SIZE,
+        transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+      }}
+    >
+      <button
+        type="button"
+        data-seat
+        title={guest?.name ?? `Місце ${layout.index}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSeatClick();
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.stopPropagation();
+          onSeatDrop(e);
+        }}
+        className={`absolute left-1/2 top-1/2 flex size-[26px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-[9px] font-bold shadow-sm ${
+          guest
+            ? "border-white bg-sage text-white"
+            : "border-ink/30 bg-white text-ink-soft hover:border-sage"
+        }`}
+      >
+        {guest ? initials(guest.name) : layout.index}
+      </button>
+
+      {guest && lines ? (
+        <div
+          className={`seat-name-label pointer-events-none absolute left-1/2 w-[92px] -translate-x-1/2 text-center ${
+            layout.labelMode === "below" ? "top-full mt-1" : "bottom-full mb-1"
+          }`}
+        >
+          <p className="text-[10px] font-semibold leading-[1.2] tracking-[-0.01em] text-ink">
+            {lines.first}
+          </p>
+          {lines.last ? (
+            <p className="text-[10px] font-semibold leading-[1.2] tracking-[-0.01em] text-ink">
+              {lines.last}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -541,6 +679,33 @@ function SeatingInner() {
     [selectedId],
   );
 
+  const rotateSelected = useCallback(
+    (deltaOrAbsolute: number, absolute = false) => {
+      if (!selectedId) return;
+      setItems((prev) =>
+        prev.map((i) => {
+          if (i.id !== selectedId || i.kind !== "table") return i;
+          const next = absolute
+            ? deltaOrAbsolute
+            : (i.rotation || 0) + deltaOrAbsolute;
+          return { ...i, rotation: normRotation(next) };
+        }),
+      );
+    },
+    [selectedId],
+  );
+
+  function printSeating() {
+    document.body.classList.add("printing-seating");
+    const cleanup = () => {
+      document.body.classList.remove("printing-seating");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.setTimeout(cleanup, 60_000);
+    window.print();
+  }
+
   function assignGuestToSeat(
     tableId: string,
     seatId: string,
@@ -590,13 +755,13 @@ function SeatingInner() {
     toast.info("Обери гостя зліва, потім клікни на місце");
   }
 
-  function onGuestDragStart(e: React.DragEvent, guestId: string) {
+  function onGuestDragStart(e: DragEvent, guestId: string) {
     e.dataTransfer.setData("text/guest-id", guestId);
     e.dataTransfer.effectAllowed = "move";
     setSelectedGuestId(guestId);
   }
 
-  function onSeatDrop(e: React.DragEvent, tableId: string, seatId: string) {
+  function onSeatDrop(e: DragEvent, tableId: string, seatId: string) {
     e.preventDefault();
     const guestId = e.dataTransfer.getData("text/guest-id");
     if (!guestId) return;
@@ -653,64 +818,52 @@ function SeatingInner() {
     return (
       <>
         <DashboardNav variant="COUPLE" />
-        <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
-          Розсадка
-        </h1>
-        <div className="mt-6 rounded-2xl border border-line bg-mist px-6 py-10">
-          <p className="text-ink-soft">
-            Спочатку створи весілля і додай гостей — тоді можна розсаджувати.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-4 inline-flex rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
-          >
-            До огляду
-          </Link>
-        </div>
+        <CabinetHeader title="Розсадка" description="Спочатку створи весілля і додай гостей — тоді можна розсаджувати." />
+        <CabinetEmpty
+          action={
+            <Link href="/dashboard" className={cabBtn}>
+              До огляду
+            </Link>
+          }
+        >
+          Без весілля й гостей розсадка ще не відкривається.
+        </CabinetEmpty>
       </>
     );
   }
 
   return (
     <>
-      <DashboardNav variant="COUPLE" />
+      <div className="no-print">
+        <DashboardNav variant="COUPLE" />
+      </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Розсадка
-          </h1>
-          <p className="mt-2 max-w-xl text-ink-soft">
-            План залу з президією, танцполом і декором. Перетягни столи, посади
-            гостей на місця. Схема зберігається в цьому браузері (не синхронізується
-            з мобількою).
-          </p>
-        </div>
+      <div className="no-print flex flex-wrap items-end justify-between gap-3">
+        <CabinetHeader
+          title="Розсадка"
+          description="План залу з президією, танцполом і декором. Обертай столи, сади гостей. Друк — для залу."
+        />
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={resetWow}
-            className="rounded-full border border-line px-4 py-2 text-sm text-ink-soft hover:border-sage/40"
-          >
+          <button type="button" onClick={resetWow} className={cabBtnGhost}>
             Демо-схема
           </button>
-          <Link
-            href="/guests"
-            className="rounded-full border border-line px-4 py-2 text-sm text-ink-soft hover:border-sage/40"
-          >
+          <button type="button" onClick={printSeating} className={cabBtnGhost}>
+            Друк / PDF
+          </button>
+          <Link href="/guests" className={cabBtnGhost}>
             Гості
           </Link>
         </div>
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="no-print mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       ) : null}
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="flex max-h-[860px] flex-col rounded-2xl border border-line bg-white p-4">
+      <div className="seating-workspace mt-6 grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className={`no-print flex max-h-[860px] flex-col ${cabCard} p-4`}>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
             Столи
           </p>
@@ -787,6 +940,56 @@ function SeatingInner() {
                 onChange={(e) => renameSelected(e.target.value)}
                 className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-sage"
               />
+              {selected.kind === "table" ? (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+                    Обертання
+                  </p>
+                  <div className="flex flex-wrap items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => rotateSelected(-15)}
+                      className="rounded-lg border border-line bg-white px-2 py-1 text-xs text-ink-soft hover:border-sage/40"
+                    >
+                      −15°
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => rotateSelected(15)}
+                      className="rounded-lg border border-line bg-white px-2 py-1 text-xs text-ink-soft hover:border-sage/40"
+                    >
+                      +15°
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => rotateSelected(90)}
+                      className="rounded-lg border border-line bg-white px-2 py-1 text-xs text-ink-soft hover:border-sage/40"
+                    >
+                      +90°
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => rotateSelected(0, true)}
+                      className="rounded-lg border border-line bg-white px-2 py-1 text-xs text-ink-soft hover:border-sage/40"
+                    >
+                      0°
+                    </button>
+                    <label className="ml-auto flex items-center gap-1 text-xs text-ink-soft">
+                      <input
+                        type="number"
+                        min={0}
+                        max={359}
+                        value={selected.rotation || 0}
+                        onChange={(e) =>
+                          rotateSelected(Number(e.target.value) || 0, true)
+                        }
+                        className="w-14 rounded-lg border border-line bg-white px-1.5 py-1 text-center tabular-nums outline-none focus:border-sage"
+                      />
+                      °
+                    </label>
+                  </div>
+                </div>
+              ) : null}
               <button
                 type="button"
                 onClick={removeSelected}
@@ -864,9 +1067,19 @@ function SeatingInner() {
                         {initials(guest.name)}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-medium text-ink">
-                          {guest.name}
-                        </span>
+                        {(() => {
+                          const lines = nameLines(guest.name);
+                          return (
+                            <span className="block font-medium leading-snug text-ink">
+                              <span className="block truncate">{lines.first}</span>
+                              {lines.last ? (
+                                <span className="block truncate text-ink">
+                                  {lines.last}
+                                </span>
+                              ) : null}
+                            </span>
+                          );
+                        })()}
                         <span className="block text-[11px] text-ink-soft">
                           {seated ? "Посаджено" : "Вільний"}
                         </span>
@@ -879,8 +1092,15 @@ function SeatingInner() {
           </ul>
         </aside>
 
-        <div className="relative overflow-hidden rounded-2xl border border-line bg-[#e8ecf0]">
-          <div className="flex items-center justify-end gap-2 border-b border-line/60 bg-white/70 px-3 py-2 backdrop-blur">
+        <div className="seating-canvas-panel relative overflow-hidden rounded-2xl border border-line bg-[#e8ecf0]">
+          <div className="no-print flex items-center justify-end gap-2 border-b border-line/60 bg-white/70 px-3 py-2 backdrop-blur">
+            <button
+              type="button"
+              onClick={printSeating}
+              className="mr-auto rounded-lg border border-line px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-mist"
+            >
+              Друк / PDF
+            </button>
             <button
               type="button"
               onClick={() => setZoom((z) => Math.max(0.55, z - 0.1))}
@@ -907,9 +1127,9 @@ function SeatingInner() {
             </button>
           </div>
 
-          <div className="overflow-auto" style={{ maxHeight: 780 }}>
+          <div className="seating-canvas-scroll overflow-auto" style={{ maxHeight: 780 }}>
             <div
-              className={`origin-top-left p-4 transition duration-700 ${
+              className={`seating-canvas-scale origin-top-left p-4 transition duration-700 ${
                 ready ? "opacity-100" : "opacity-0"
               }`}
               style={{
@@ -919,7 +1139,7 @@ function SeatingInner() {
             >
               <div
                 ref={canvasRef}
-                className="relative shadow-[0_20px_60px_rgba(22,26,23,0.08)]"
+                className="seating-canvas relative shadow-[0_20px_60px_rgba(22,26,23,0.08)]"
                 style={{
                   width: CANVAS_W,
                   height: CANVAS_H,
@@ -970,10 +1190,11 @@ function SeatingInner() {
 
                   const box = tableBox(item);
                   const seats = seatPositions(item);
+                  const rotation = item.rotation || 0;
                   return (
                     <div
                       key={item.id}
-                      className={`absolute touch-none select-none ${
+                      className={`absolute touch-none select-none overflow-visible ${
                         selectedItem ? "z-30 ring-2 ring-sage/40" : "z-20"
                       }`}
                       style={{
@@ -982,6 +1203,10 @@ function SeatingInner() {
                         width: box.w,
                         height: box.h,
                         borderRadius: 12,
+                        transform: rotation
+                          ? `rotate(${rotation}deg)`
+                          : undefined,
+                        transformOrigin: "center center",
                         animation: ready
                           ? "rise 0.6s ease-out both"
                           : undefined,
@@ -997,45 +1222,22 @@ function SeatingInner() {
                       onPointerCancel={endDrag}
                     >
                       <TableBody table={item} />
-                      {seats.map(({ seat, left, top, index }) => {
-                        const guest = seat.guestId
-                          ? guestById[seat.guestId]
+                      {seats.map((layout) => {
+                        const guest = layout.seat.guestId
+                          ? guestById[layout.seat.guestId]
                           : null;
                         return (
-                          <button
-                            key={seat.id}
-                            type="button"
-                            data-seat
-                            title={guest?.name ?? `Місце ${index}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSeatClick(item.id, seat);
-                            }}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => {
-                              e.stopPropagation();
-                              onSeatDrop(e, item.id, seat.id);
-                            }}
-                            className={`absolute flex items-center justify-center overflow-hidden rounded-full border text-[10px] font-semibold shadow-sm transition ${
-                              guest
-                                ? "border-sage bg-sage text-white"
-                                : "border-ink/30 bg-white text-ink-soft hover:border-sage"
-                            }`}
-                            style={{
-                              left,
-                              top,
-                              width: SEAT_SIZE,
-                              height: SEAT_SIZE,
-                            }}
-                          >
-                            {guest ? (
-                              <span className="truncate px-0.5">
-                                {initials(guest.name)}
-                              </span>
-                            ) : (
-                              index
-                            )}
-                          </button>
+                          <SeatChip
+                            key={layout.seat.id}
+                            layout={layout}
+                            guest={guest ?? null}
+                            onSeatClick={() =>
+                              onSeatClick(item.id, layout.seat)
+                            }
+                            onSeatDrop={(e) =>
+                              onSeatDrop(e, item.id, layout.seat.id)
+                            }
+                          />
                         );
                       })}
                     </div>
@@ -1046,6 +1248,50 @@ function SeatingInner() {
           </div>
         </div>
       </div>
+
+      {/* Print roster: full names by table for the hall */}
+      <div className="seating-print-roster mt-8 hidden">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
+          Хто де сидить
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Повний список за столами (імʼя та прізвище)
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {tables.map((table) => {
+            const seated = table.seats
+              .map((s, i) => ({
+                index: i + 1,
+                guest: s.guestId ? guestById[s.guestId] : null,
+              }))
+              .filter((row) => row.guest);
+            return (
+              <div
+                key={table.id}
+                className="break-inside-avoid border border-line p-3"
+              >
+                <p className="text-sm font-semibold text-ink">
+                  Стіл {table.label}
+                </p>
+                {seated.length === 0 ? (
+                  <p className="mt-2 text-sm text-ink-soft">Порожній</p>
+                ) : (
+                  <ul className="mt-2 space-y-1">
+                    {seated.map((row) => (
+                      <li key={`${table.id}-${row.index}`} className="text-sm text-ink">
+                        <span className="tabular-nums text-ink-soft">
+                          {row.index}.
+                        </span>{" "}
+                        {row.guest!.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </>
   );
 }
@@ -1053,11 +1299,9 @@ function SeatingInner() {
 export function CoupleSeatingPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <SeatingInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame wide>
+        <SeatingInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

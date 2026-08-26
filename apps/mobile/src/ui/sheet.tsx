@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { hapticSoft } from "@/lib/haptics";
 import { useKeyboardHeight } from "@/lib/use-keyboard-height";
-import { colors, radius } from "@/theme";
+import { colors, fonts, radius } from "@/theme";
 
 const DISMISS_DY = 110;
 const DISMISS_VY = 1.15;
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     fontSize: 17,
-    fontWeight: "700",
+    fontFamily: fonts.sansBold,
     color: colors.ink,
   },
   closeBtn: {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontSize: 17,
-    fontWeight: "600",
+    fontFamily: fonts.sansSemi,
     color: colors.primary,
   },
   body: { paddingHorizontal: 16, paddingBottom: 24 },
@@ -275,10 +275,19 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     minHeight: 36,
     borderRadius: radius.full,
-    backgroundColor: colors.blush,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.paper,
     justifyContent: "center",
   },
-  chipOn: { backgroundColor: colors.ink },
-  chipText: { fontSize: 14, fontWeight: "600", color: colors.inkSoft },
+  chipOn: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  chipText: {
+    fontSize: 14,
+    fontFamily: fonts.sansSemi,
+    color: colors.inkSoft,
+  },
   chipTextOn: { color: colors.white },
 });

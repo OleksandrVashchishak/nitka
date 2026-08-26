@@ -28,7 +28,7 @@ import {
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import { href } from "@/lib/href";
 import type { Guest, GuestSide, RsvpStatus } from "@/lib/types";
-import { colors, spacing } from "@/theme";
+import { colors, fonts, spacing } from "@/theme";
 import { ChipRow, Sheet } from "@/ui/sheet";
 import {
   Badge,
@@ -723,16 +723,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.paper,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.line,
     paddingVertical: 10,
     alignItems: "center",
   },
-  statN: { fontSize: 18, fontWeight: "800", color: colors.ink },
-  statL: { fontSize: 11, color: colors.inkSoft, marginTop: 2 },
+  statN: {
+    fontSize: 18,
+    fontFamily: fonts.displayBold,
+    color: colors.ink,
+  },
+  statL: {
+    fontSize: 11,
+    fontFamily: fonts.sansSemi,
+    color: colors.inkSoft,
+    marginTop: 2,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
   fieldLabel: {
     marginTop: 8,
     marginBottom: 6,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.sansSemi,
     color: colors.inkSoft,
   },
   swipeRowBg: { backgroundColor: colors.paper },
@@ -742,8 +755,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  swipeShare: { backgroundColor: colors.sage },
+  swipeShare: { backgroundColor: colors.primarySoft },
   swipeRsvp: { backgroundColor: colors.primary },
   swipeDel: { backgroundColor: colors.danger },
-  swipeText: { color: "#fff", fontWeight: "700", fontSize: 13 },
+  swipeText: {
+    color: "#fff",
+    fontFamily: fonts.sansBold,
+    fontSize: 13,
+  },
 });

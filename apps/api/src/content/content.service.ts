@@ -115,17 +115,28 @@ export class ContentService implements OnModuleInit {
     topic?: string;
     kind?: ContentKind;
     featured?: boolean;
+    q?: string;
+    city?: string;
     page?: number;
     limit?: number;
   }) {
     const page = Math.max(1, params.page ?? 1);
     const limit = Math.min(50, Math.max(1, params.limit ?? 12));
+    const q = params.q?.trim();
+    const city = params.city?.trim();
     const where: Prisma.ContentPostWhereInput = {
       status: ContentStatus.PUBLISHED,
       ...(params.kind ? { kind: params.kind } : {}),
       ...(params.featured ? { featured: true } : {}),
-      ...(params.topic
-        ? { topic: { slug: params.topic } }
+      ...(params.topic ? { topic: { slug: params.topic } } : {}),
+      ...(city ? { city } : {}),
+      ...(q
+        ? {
+            OR: [
+              { title: { contains: q, mode: "insensitive" } },
+              { excerpt: { contains: q, mode: "insensitive" } },
+            ],
+          }
         : {}),
     };
 
@@ -141,6 +152,18 @@ export class ContentService implements OnModuleInit {
     ]);
 
     return { items, total, page, limit };
+  }
+
+  async listPublishedCities() {
+    const rows = await this.prisma.contentPost.findMany({
+      where: { status: ContentStatus.PUBLISHED, city: { not: null } },
+      select: { city: true },
+      distinct: ["city"],
+      orderBy: { city: "asc" },
+    });
+    return rows
+      .map((row) => row.city)
+      .filter((city): city is string => Boolean(city));
   }
 
   async getPublishedBySlug(slug: string) {

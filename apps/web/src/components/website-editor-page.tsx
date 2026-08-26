@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState, type ReactNode } from "react";
 import { DashboardNav } from "@/components/dashboard-nav";
+import {
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtnGhost,
+} from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
 import { PageLoader, LoadingButtonLabel } from "@/components/ui-loader";
 import { renderWebsiteTemplate } from "@/components/website-templates";
@@ -546,26 +551,22 @@ function WebsiteEditorInner() {
       <DashboardNav variant="COUPLE" />
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Весільний сайт
-          </h1>
-          <p className="mt-2 max-w-xl text-ink-soft">
-            Зліва налаштування секціями. Справа превʼю — desktop або mobile.
-          </p>
-        </div>
+        <CabinetHeader
+          title="Весільний сайт"
+          description="Зліва налаштування секціями. Справа превʼю — desktop або mobile."
+        />
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setStep("template")}
-            className="cursor-pointer border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink"
+            className={cabBtnGhost}
           >
             Темплейт
           </button>
           <button
             type="button"
             onClick={() => void copyPublicLink()}
-            className="cursor-pointer border border-line bg-white px-4 py-2.5 text-sm text-ink-soft transition hover:border-sage/40 hover:bg-mist hover:text-ink"
+            className={cabBtnGhost}
           >
             Копіювати лінк
           </button>
@@ -1289,11 +1290,9 @@ function ListEditor<T extends object>({
 export function WebsiteEditorPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <WebsiteEditorInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame wide>
+        <WebsiteEditorInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

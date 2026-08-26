@@ -14,6 +14,11 @@ import {
   type VendorPipelineStage,
 } from "@/lib/dashboard-api";
 import { DashboardNav } from "@/components/dashboard-nav";
+import {
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+} from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
 import { vendorHref } from "@/lib/vendor-href";
 
@@ -101,19 +106,12 @@ function FavoritesInner() {
     <>
       <DashboardNav variant="COUPLE" />
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Підрядники
-          </h1>
-          <p className="mt-2 text-ink-soft">
-            Зберегти → зв’язатися → зустрітися → порівняти → обрати.
-          </p>
-        </div>
-        <Link
-          href="/dashboard"
-          className="rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
-        >
-          + Додати свого в dashboard
+        <CabinetHeader
+          title="Збережене"
+          description="Зберегти → зв’язатися → зустрітися → порівняти → обрати."
+        />
+        <Link href="/my-vendors" className={cabBtn}>
+          Мої підрядники
         </Link>
       </div>
 
@@ -268,11 +266,9 @@ function FavoritesInner() {
 export function FavoritesPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="overflow-x-hidden bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <FavoritesInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame wide>
+        <FavoritesInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

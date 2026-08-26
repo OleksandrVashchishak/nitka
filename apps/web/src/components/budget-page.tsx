@@ -16,6 +16,14 @@ import {
 } from "@/lib/budget-api";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
+import {
+  CabinetEmpty,
+  CabinetHeader,
+  CabinetStat,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabCard,
+} from "@/components/couple-cabinet-ui";
 
 function formatMoney(value: number) {
   return new Intl.NumberFormat("uk-UA").format(value);
@@ -238,20 +246,16 @@ function BudgetInner() {
     return (
       <>
         <DashboardNav variant="COUPLE" />
-        <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
-          Бюджет
-        </h1>
-        <div className="mt-6 border border-line bg-mist px-6 py-10">
-          <p className="text-ink-soft">
-            Спочатку створи весілля з загальним бюджетом у кабінеті.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-4 inline-flex bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
-          >
-            До кабінету
-          </Link>
-        </div>
+        <CabinetHeader title="Бюджет" description="Спочатку створи весілля з загальним бюджетом у кабінеті." />
+        <CabinetEmpty
+          action={
+            <Link href="/dashboard" className={cabBtn}>
+              До кабінету
+            </Link>
+          }
+        >
+          Без весілля кошторис ще не відкривається.
+        </CabinetEmpty>
       </>
     );
   }
@@ -262,31 +266,17 @@ function BudgetInner() {
     <>
       <DashboardNav variant="COUPLE" />
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-            Бюджет
-          </h1>
-          <p className="mt-2 max-w-xl text-ink-soft">
-            Категорії зліва, витрати справа — як у нормальному кошторисі, без
-            каші.
-          </p>
+      <CabinetHeader
+        title="Бюджет"
+        description="Категорії зліва, витрати справа — як у нормальному кошторисі, без каші."
+      />
+      {summary ? (
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <CabinetStat value={`${formatMoney(summary.totalBudget)} ₴`} label="Загальний план" />
+          <CabinetStat value={`${formatMoney(summary.actual)} ₴`} label="Витрачено" />
+          <CabinetStat value={`${formatMoney(summary.remaining)} ₴`} label="Залишок" />
         </div>
-        {summary ? (
-          <div className="text-right">
-            <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-              Загальний план
-            </p>
-            <p className="font-[family-name:var(--font-display)] text-3xl text-ink">
-              {formatMoney(summary.totalBudget)} грн
-            </p>
-            <p className="mt-1 text-sm text-ink-soft">
-              витрачено {formatMoney(summary.actual)} · залишок{" "}
-              {formatMoney(summary.remaining)}
-            </p>
-          </div>
-        ) : null}
-      </div>
+      ) : null}
 
       {error ? (
         <p className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -296,7 +286,7 @@ function BudgetInner() {
 
       <form
         onSubmit={onSavePlan}
-        className="mt-6 flex flex-wrap items-end gap-3 border border-line bg-white p-4"
+        className={`${cabCard} mt-6 flex flex-wrap items-end gap-3 p-4`}
       >
         <label className="min-w-[200px] flex-1">
           <span className="mb-1 block text-sm text-ink-soft">
@@ -314,21 +304,21 @@ function BudgetInner() {
         <button
           type="submit"
           disabled={savingPlan}
-          className="bg-sage px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
+          className={`${cabBtn} disabled:opacity-60`}
         >
           {savingPlan ? "Зберігаємо…" : "Оновити план"}
         </button>
       </form>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-        <div className="inline-flex border border-line bg-white p-1">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className={`${cabCard} inline-flex p-1`}>
           <button
             type="button"
             onClick={() => setMode("budget")}
-            className={`px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               mode === "budget"
-                ? "bg-sage text-white"
-                : "text-ink-soft hover:text-ink"
+                ? "bg-[#1a1a1a] text-white"
+                : "text-[#8a877f] hover:text-[#1a1a1a]"
             }`}
           >
             Бюджет
@@ -336,10 +326,10 @@ function BudgetInner() {
           <button
             type="button"
             onClick={() => setMode("payments")}
-            className={`px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               mode === "payments"
-                ? "bg-sage text-white"
-                : "text-ink-soft hover:text-ink"
+                ? "bg-[#1a1a1a] text-white"
+                : "text-[#8a877f] hover:text-[#1a1a1a]"
             }`}
           >
             Платежі
@@ -355,7 +345,7 @@ function BudgetInner() {
         ) : null}
       </div>
 
-      <div className="mt-6 grid gap-0 border border-line bg-white lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className={`${cabCard} mt-6 grid overflow-hidden lg:grid-cols-[280px_minmax(0,1fr)]`}>
         <aside className="border-b border-line lg:border-b-0 lg:border-r">
           <div className="border-b border-line p-3">
             {showNewCategory ? (
@@ -731,11 +721,9 @@ function BudgetInner() {
 export function BudgetPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <BudgetInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <BudgetInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

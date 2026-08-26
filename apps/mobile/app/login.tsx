@@ -15,7 +15,7 @@ import { getApiUrl } from "@/lib/api-url";
 import { useAuthStore } from "@/lib/auth-store";
 import { href } from "@/lib/href";
 import { peekPendingPartnerInvite } from "@/lib/partner-invite-pending";
-import { colors } from "@/theme";
+import { colors, fonts, radius } from "@/theme";
 
 export default function LoginScreen() {
   const user = useAuthStore((s) => s.user);
@@ -135,7 +135,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.paper,
+    backgroundColor: colors.mist,
   },
   flex: {
     flex: 1,
@@ -146,13 +146,14 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   brand: {
-    fontSize: 44,
-    fontWeight: "700",
-    letterSpacing: 2,
+    fontFamily: fonts.displayBold,
+    fontSize: 48,
+    letterSpacing: 1,
     color: colors.primaryDeep,
   },
   subtitle: {
-    marginTop: 8,
+    marginTop: 10,
+    fontFamily: fonts.sans,
     fontSize: 16,
     color: colors.inkSoft,
   },
@@ -161,29 +162,31 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 8,
+    fontFamily: fonts.sansSemi,
     fontSize: 13,
-    fontWeight: "600",
     color: colors.inkSoft,
   },
   input: {
     borderWidth: 1,
     borderColor: colors.line,
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.paper,
+    borderRadius: radius.md,
     paddingHorizontal: 14,
     paddingVertical: 14,
+    fontFamily: fonts.sans,
     fontSize: 16,
     color: colors.ink,
   },
   error: {
     marginTop: 8,
+    fontFamily: fonts.sans,
     color: colors.danger,
     fontSize: 14,
   },
   button: {
     marginTop: 20,
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: radius.full,
     paddingVertical: 16,
     alignItems: "center",
   },
@@ -194,17 +197,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryDeep,
   },
   buttonText: {
+    fontFamily: fonts.sansBold,
     color: colors.white,
     fontSize: 16,
-    fontWeight: "600",
   },
   registerLink: {
     marginTop: 20,
     alignItems: "center",
   },
   registerText: {
+    fontFamily: fonts.sansSemi,
     color: colors.primary,
-    fontWeight: "600",
     fontSize: 14,
   },
 });

@@ -1,35 +1,19 @@
 import type { Metadata } from "next";
-import { Fraunces, Great_Vibes, Manrope, Marck_Script } from "next/font/google";
 import "./globals.css";
+import "./hero-artboard.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooterWrapper } from "@/components/site-footer";
 import { ToastViewport } from "@/components/toast-viewport";
 import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
-
-const display = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin", "latin-ext"],
-});
-
-/** Latin script (navy-gold тощо). Без кирилиці — fallback на Marck Script. */
-const script = Great_Vibes({
-  variable: "--font-script",
-  weight: "400",
-  subsets: ["latin", "latin-ext"],
-});
-
-/** Script з кирилицею — підхоплює UA-гліфи, коли Great Vibes їх немає. */
-const scriptCyr = Marck_Script({
-  variable: "--font-script-cyr",
-  weight: "400",
-  subsets: ["cyrillic", "latin", "latin-ext"],
-});
-
-const sans = Manrope({
-  variable: "--font-sans",
-  subsets: ["latin", "latin-ext", "cyrillic"],
-});
+import {
+  akzidenz,
+  akzidenzExt,
+  cormorant,
+  mak,
+  montserrat,
+  scriptCyr,
+} from "@/lib/fonts";
 
 const siteUrl = getSiteUrl();
 
@@ -71,7 +55,7 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body
-        className={`${display.variable} ${script.variable} ${scriptCyr.variable} ${sans.variable} antialiased`}
+        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${montserrat.variable} antialiased`}
       >
         <AuthProvider>
           <SiteHeader />

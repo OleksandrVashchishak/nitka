@@ -4,6 +4,15 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { DashboardNav } from "@/components/dashboard-nav";
+import {
+  CabinetEmpty,
+  CabinetHeader,
+  CoupleCabinetFrame,
+  cabBtn,
+  cabCard,
+  cabLead,
+  cabTitle,
+} from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
 import { getMyWedding, getDayPlan, upsertDayPlan, upsertWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
@@ -88,7 +97,15 @@ function normalizeIcon(icon: unknown): EventIcon {
     : "clock";
 }
 
-function normalizeEvents(events: Array<Partial<DayEvent> & { id: string; title: string; durationMin: number }>): DayEvent[] {
+function normalizeEvents(
+  events: Array<{
+    id: string;
+    title: string;
+    durationMin: number;
+    icon?: unknown;
+    startMin?: number | null;
+  }>,
+): DayEvent[] {
   return events.map((e) => ({
     id: e.id,
     title: e.title,
@@ -342,21 +359,16 @@ function DayPlanInner() {
     return (
       <>
         <DashboardNav variant="COUPLE" />
-        <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink">
-          План подій
-        </h1>
-        <div className="mt-6 rounded-2xl border border-line bg-mist px-6 py-10">
-          <p className="text-ink-soft">
-            Спочатку збережи дату весілля в огляді — тоді відкриється таймлайн
-            дня.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-4 inline-flex rounded-full bg-sage px-5 py-3 text-sm font-semibold text-white hover:bg-sage-deep"
-          >
-            До огляду
-          </Link>
-        </div>
+        <CabinetHeader title="План дня" description="Спочатку збережи дату весілля в огляді — тоді відкриється таймлайн дня." />
+        <CabinetEmpty
+          action={
+            <Link href="/dashboard" className={cabBtn}>
+              До огляду
+            </Link>
+          }
+        >
+          Без дати таймлайн дня ще не відкривається.
+        </CabinetEmpty>
       </>
     );
   }
@@ -366,14 +378,11 @@ function DayPlanInner() {
       <DashboardNav variant="COUPLE" />
 
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="font-[family-name:var(--font-display)] text-4xl text-ink md:text-5xl">
-          План подій
-        </h1>
-        <p className="mt-3 text-ink-soft">
-          Склади розклад весільного дня: час, тривалість і назви блоків. Можна
-          редагувати й додавати нові.
+        <h1 className={cabTitle}>План дня</h1>
+        <p className={`${cabLead} mx-auto`}>
+          Склади розклад весільного дня: час, тривалість і назви блоків.
         </p>
-        <p className="mt-2 text-xs text-ink-soft/80">{syncHint}</p>
+        <p className="mt-2 text-xs text-[#8a877f]">{syncHint}</p>
       </div>
 
       <form
@@ -433,7 +442,7 @@ function DayPlanInner() {
         </p>
       ) : null}
 
-      <div className="mx-auto mt-10 max-w-3xl">
+      <div className={`${cabCard} mx-auto mt-10 max-w-3xl p-6 md:p-8`}>
         <div className="flex items-center gap-3">
           <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">
             Весільний день
@@ -616,11 +625,9 @@ function DayPlanInner() {
 export function CoupleDayPlanPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <section className="bg-paper px-5 py-12 md:px-8">
-        <div className="mx-auto max-w-5xl">
-          <DayPlanInner />
-        </div>
-      </section>
+      <CoupleCabinetFrame>
+        <DayPlanInner />
+      </CoupleCabinetFrame>
     </RequireAuth>
   );
 }

@@ -8,6 +8,7 @@ import {
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
+import { useCoupleCabinet } from "@/components/couple-cabinet-layout";
 
 type NavLink = {
   href: string;
@@ -43,6 +44,7 @@ function isActive(pathname: string, href: string) {
 }
 
 export function DashboardNav({ variant }: Props) {
+  const inCabinet = useCoupleCabinet();
   const pathname = usePathname();
   const accessToken = useAuthStore((s) => s.accessToken);
   const hydrated = useAuthStore((s) => s.hydrated);
@@ -81,6 +83,8 @@ export function DashboardNav({ variant }: Props) {
       .filter((i) => keys.includes(i.key))
       .reduce((sum, i) => sum + i.count, 0);
   }
+
+  if (variant === "COUPLE" && inCabinet) return null;
 
   if (variant === "VENDOR") {
     return (
