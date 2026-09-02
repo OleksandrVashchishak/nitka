@@ -9,33 +9,21 @@
 
 .fata-hero-stage {
   position: relative;
-  width: min(100%, 1440px);
+  width: 100%;
+  max-width: 1320px;
+  padding: 0 20px;
   margin-inline: auto;
-  height: calc(min(100vw, 1440px) * 930 / 1440);
-  max-height: 930px;
 }
 
 .fata-hero-board {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  z-index: 2;
-  width: 1440px;
-  height: 930px;
-  margin-left: -720px;
-  transform: scale(calc(min(100vw, 1440px) / 1440));
-  transform-origin: top center;
   color: #f0febb;
 }
 
-@media (min-width: 1440px) {
-  .fata-hero-stage {
-    height: 930px;
-  }
-
-  .fata-hero-board {
-    transform: none;
-  }
+.fata-hero-header {
+  display: flex;
+  align-items: center;
+  gap: 39px;
+  padding-top: 34px;
 }
 
 .fata-hero-board a {
@@ -44,25 +32,18 @@
 }
 
 .fata-logo {
-  position: absolute;
-  left: 76px;
-  top: 47px;
-  width: 154px;
-  height: 32px;
-  display: flex;
-  align-items: center;
+  display: block;
+  flex-shrink: 0;
 }
 
 .fata-logo img {
   display: block;
   width: 154px;
-  height: 32px;
+  height: auto;
+  object-fit: contain;
 }
 
 .fata-nav {
-  position: absolute;
-  left: 269px;
-  top: 56px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -80,12 +61,10 @@
 }
 
 .fata-auth {
-  position: absolute;
-  left: 1077px;
-  top: 37px;
   display: flex;
   align-items: center;
   gap: 24px;
+  margin-left: auto;
 }
 
 .fata-btn {
@@ -106,18 +85,61 @@
   border: 1px solid #f0febb;
   background: #61040f;
   color: #f0febb;
+  transition: all .4s;
+}
+
+.fata-hero-board a.fata-btn-login:hover {
+  background: #4A0310;
+  border-color: #4A0310;
+
 }
 
 .fata-hero-board a.fata-btn-start {
   background: #f0febb;
   color: #61040f;
+  transition: all .4s;
+}
+
+.fata-hero-board a.fata-btn-start:hover {
+  background: #E5F5A3;
+}
+
+.fata-hero-board a.fata-btn-start:focus {
+  background: #D9EB8A;
+}
+
+.fata-hero-main {
+  position: relative;
+  height: 850px;
+  margin-top: 33px;
+}
+
+.fata-photo {
+  position: absolute;
+  top: 0;
+  right: -83px;
+  z-index: 1;
+  width: 39%;
+  max-width: 490px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.fata-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: bottom center;
+  position: static !important;
+}
+
+.fata-hero-main-text {
+  padding-top: 186px;
+  width: 59%;
 }
 
 .fata-tagline {
-  position: absolute;
-  left: 77px;
-  top: 309px;
-  margin: 0;
+  margin-bottom: 28px;
   font-family: var(--font-sans), sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -133,11 +155,7 @@
 }
 
 .fata-title {
-  position: absolute;
-  left: 76px;
-  top: 358px;
-  margin: 0;
-  width: 900px;
+  margin-bottom: 19px;
 }
 
 .fata-title-serif {
@@ -176,9 +194,6 @@
 }
 
 .fata-desc {
-  position: absolute;
-  left: 77px;
-  top: 496px;
   width: 503px;
   margin: 0;
   font-family: var(--font-sans), sans-serif;
@@ -186,12 +201,10 @@
   line-height: 1.5;
   font-weight: 400;
   color: #f0febb;
+  margin-bottom: 23px;
 }
 
 .fata-hero-board a.fata-cta {
-  position: absolute;
-  left: 75px;
-  top: 582px;
   height: 56px;
   padding: 14px 32px;
   display: inline-flex;
@@ -205,27 +218,64 @@
   font-weight: 500;
   font-style: italic;
   line-height: 1;
+  transition: all .4s;
+}
+.fata-hero-board a.fata-cta:hover {
+  background: #E5F5A3;
 }
 
-.fata-photo {
-  position: absolute;
-  left: 950px;
-  top: 123px;
-  z-index: 1;
-  width: 555px;
-  height: 808px;
-  overflow: hidden;
-}
-
-.fata-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: bottom center;
+.fata-hero-board a.fata-cta:focus {
+  background: #D9EB8A;
 }
 
 .fata-hero-mobile {
   display: none;
+}
+
+@media (max-width: 1300px) {
+  .fata-hero-header {
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .fata-logo img {
+    width: 110px;
+  }
+
+  .fata-hero-board .fata-nav a {
+    font-size: 14px;
+  }
+
+  .fata-auth {
+    gap: 10px;
+    margin-left: 0;
+  }
+
+  .fata-btn {
+    height: 36px;
+    padding: 14px 22px;
+    font-size: 14px;
+  }
+
+  .fata-hero-main {
+    height: 750px;
+  }
+
+  .fata-hero-main-text {
+    padding-top: 136px;
+  }
+
+  .fata-title-you {
+    font-size: 67.232px;
+  }
+
+  .fata-title-fill {
+    font-size: 70px;
+  }
+
+  .fata-title-sans {
+    font-size: 57.232px;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -245,9 +295,7 @@
     flex-direction: column;
     box-sizing: border-box;
     width: 100%;
-    max-width: 720px;
     margin-inline: auto;
-    padding: 16px var(--m-pad) 28px;
     overflow-x: clip;
     color: #fff;
   }
@@ -263,7 +311,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 32px;
+    padding: 18px 20px;
   }
 
   .fata-m-logo,
@@ -277,16 +325,16 @@
 
   .fata-m-logo img {
     display: block;
-    width: clamp(118px, 39vw, 154px);
+    width: 154px;
     height: auto;
-    max-width: 100%;
+    object-fit: contain;
   }
 
   .fata-m-burger {
     position: relative;
     flex: 0 0 auto;
-    width: 28px;
-    height: 18px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     border: 0;
     background: none;
@@ -295,30 +343,40 @@
 
   .fata-m-burger span {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 1.5px;
-    background: #fff;
-    border-radius: 1px;
-    transition: transform 0.2s ease, top 0.2s ease;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 2px;
+    width: 20px;
+    background: #F0FEBB;
+    transition: all 0.2s ease, top 0.2s ease;
   }
 
   .fata-m-burger span:first-child {
-    top: 4px;
-  }
-
-  .fata-m-burger span:last-child {
     top: 12px;
   }
 
+  .fata-m-burger span:nth-child(2) {
+    top: 16px;
+  }
+
+  .fata-m-burger span:last-child {
+    top: 20px;
+    width: 14px;
+  }
+
   .fata-hero-mobile.is-open .fata-m-burger span:first-child {
-    top: 8px;
-    transform: rotate(25deg);
+    top: 18px;
+    transform: translateX(-50%) translateY(6px) rotate(40deg);
+  }
+
+  .fata-hero-mobile.is-open .fata-m-burger span:nth-child(2) {
+    opacity: 0;
   }
 
   .fata-hero-mobile.is-open .fata-m-burger span:last-child {
-    top: 8px;
-    transform: rotate(-25deg);
+    width: 20px;
+    top: 18px;
+    transform: translateX(-50%) rotate(-40deg);
   }
 
   .fata-m-nav {
@@ -353,45 +411,48 @@
     width: fit-content;
   }
 
+  .fata-m-main {
+    padding: 24px 20px 78px 20px;
+    min-height: calc(100dvh - 72px);
+  }
+
   .fata-m-kicker {
-    margin: 28px 0 0;
     font-family: var(--font-sans), sans-serif;
-    font-size: clamp(13px, 3.6vw, 16px);
+    font-size: clamp(14px, 3.6vw, 16px);
     line-height: 1.45;
     font-weight: 400;
-    color: #fff;
+    color: #F0FEBB;
     overflow-wrap: break-word;
   }
 
   .fata-m-kicker em {
     font-style: italic;
     font-weight: 700;
-    color: #f0febb;
   }
 
   .fata-m-title {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 14px 0 0;
+    margin: 24px 0 0;
     max-width: 100%;
   }
 
   .fata-m-top {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    max-width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
   }
 
   .fata-m-you {
     font-family: var(--font-display), sans-serif;
     font-weight: 300;
     font-style: italic;
-    color: #fff;
-    font-size: clamp(38px, 14vw, 72px);
+    color: #f0febb;
+    font-size: 67px;
     line-height: 0.88;
-    letter-spacing: -0.02em;
     min-width: 0;
   }
 
@@ -401,7 +462,7 @@
     font-style: normal;
     text-transform: uppercase;
     color: #ff4200;
-    font-size: clamp(40px, 15.6vw, 80px);
+    font-size: 70px;
     line-height: 0.86;
     max-width: 100%;
     min-width: 0;
@@ -410,13 +471,12 @@
   .fata-m-sans {
     display: block;
     margin-top: 6px;
-    font-family: var(--font-akzidenz), sans-serif;
+    font-family: var(--font-display), sans-serif;
     font-weight: 400;
     font-style: normal;
     color: #f0febb;
-    font-size: clamp(26px, 10.4vw, 56px);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+    font-size: 57.232px;
+    line-height: 0.8;
     max-width: 100%;
     overflow-wrap: break-word;
   }
@@ -427,7 +487,7 @@
     font-family: var(--font-sans), sans-serif;
     font-size: clamp(13px, 3.6vw, 16px);
     line-height: 1.5;
-    color: #fff;
+    color: #f0febb;
     overflow-wrap: break-word;
   }
 
@@ -437,7 +497,6 @@
     margin-top: 22px;
     aspect-ratio: 350 / 400;
     overflow: hidden;
-    border-radius: 8px;
     background: #4a030b;
   }
 
@@ -452,7 +511,7 @@
     justify-content: center;
     width: 100%;
     min-height: 56px;
-    margin-top: 16px;
+    margin-top: 24px;
     padding: 14px 24px;
     border-radius: 40px;
     background: #f0febb;
@@ -464,52 +523,49 @@
     line-height: 1;
     text-decoration: none;
   }
+}
 
-  @media (min-width: 480px) {
-    .fata-hero-mobile {
-      padding-top: 20px;
-      padding-bottom: 36px;
-    }
-
-    .fata-m-kicker {
-      margin-top: 36px;
-    }
-
-    .fata-m-photo {
-      aspect-ratio: 4 / 5;
-    }
+@media (max-width: 640px) {
+  .fata-m-you {
+    font-size: 36px;
   }
 
-  @media (min-width: 640px) {
-    .fata-m-top {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: baseline;
-      column-gap: 0.22em;
-    }
-
-    .fata-m-you,
-    .fata-m-fill {
-      font-size: clamp(48px, 9.4vw, 76px);
-    }
-
-    .fata-m-sans {
-      font-size: clamp(32px, 6.6vw, 56px);
-    }
-
-    .fata-m-photo {
-      max-height: 560px;
-      aspect-ratio: 4 / 5;
-    }
+  .fata-m-fill {
+    font-size: 37px;
   }
 
-  @media (min-width: 840px) {
-    .fata-hero-mobile {
-      padding-top: 24px;
-    }
+  .fata-m-sans {
+    font-size: 36px;
+    margin-top: 0;
+  }
 
-    .fata-m-cta {
-      max-width: 420px;
-    }
+  .fata-m-desc,
+  .fata-m-kicker {
+    font-size: 14px;
+  }
+
+  .fata-m-photo {
+    height: 59%;
+  }
+}
+
+@media (min-width: 640px) {
+  .fata-m-top {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.22em;
+  }
+
+  .fata-m-photo {
+    max-height: 560px;
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (min-width: 840px) {
+
+  .fata-m-cta {
+    max-width: 420px;
   }
 }

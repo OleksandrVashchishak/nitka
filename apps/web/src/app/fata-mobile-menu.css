@@ -17,9 +17,8 @@
   height: 100dvh;
   flex-direction: column;
   box-sizing: border-box;
-  padding: 22px 22px 28px;
+  padding: 24px 24px 44px;
   border: 0;
-  border-radius: 28px 0 0 28px;
   background: #1a1a1a;
   color: #f0febb;
   animation: fata-drawer-in 0.28s ease;
@@ -30,6 +29,7 @@
     transform: translateX(24px);
     opacity: 0.4;
   }
+
   to {
     transform: none;
     opacity: 1;
@@ -50,14 +50,14 @@
 
 .fata-drawer-logo img {
   display: block;
-  width: 148px;
+  width: 154px;
   height: auto;
 }
 
 .fata-drawer-close {
   display: flex;
-  width: 36px;
-  height: 36px;
+  width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -71,30 +71,40 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 22px;
-  margin-top: 48px;
+  gap: 24px;
+  margin-top: 32px;
 }
 
 .fata-drawer-nav a {
   width: fit-content;
   color: #f0febb;
   font-family: var(--font-display), sans-serif;
-  font-size: 22px;
-  font-weight: 400;
-  font-style: italic;
+  font-size: 14px;
   line-height: 1.15;
   text-decoration: none;
+  font-weight: 500;
+  position: relative;
 }
 
-.fata-drawer-nav a.is-active {
-  box-shadow: inset 0 -3px 0 #ff4200;
-  padding-bottom: 2px;
+.fata-drawer-nav a:after {
+  position: absolute;
+  content: '';
+  background: #FF4200;
+  height: 2px;
+  width: 100%;
+  bottom: -4px;
+  left: 0;
+  opacity: 0;
+}
+
+.fata-drawer-nav a.is-active:after {
+  opacity: 1;
 }
 
 .fata-drawer-cta {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 24px;
   margin-top: auto;
   padding-top: 28px;
 }
@@ -102,7 +112,7 @@
 .fata-drawer-cta a,
 .fata-drawer-cta button {
   display: flex;
-  height: 52px;
+  height: 56px;
   width: 100%;
   align-items: center;
   justify-content: center;
@@ -127,6 +137,7 @@
 }
 
 @media (min-width: 1024px) {
+
   .fata-drawer-scrim,
   .fata-drawer {
     display: none;

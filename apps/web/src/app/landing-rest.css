@@ -9,7 +9,6 @@
 
 .fata-shell {
   width: min(100%, var(--fata));
-  margin-inline: auto;
   position: relative;
 }
 
@@ -25,15 +24,9 @@
 }
 
 .fata-sec2 {
-  background: #61040f;
-  color: #f0febb;
+  position: relative;
 }
 
-.fata-sec2-grid {
-  display: grid;
-  grid-template-columns: var(--photo-col) minmax(0, 1fr);
-  min-height: calc(min(100vw, 1440px) * 850 / 1440);
-}
 
 .fata-sec2.is-light {
   background: #fff;
@@ -64,26 +57,37 @@
 .fata-sec2-photos {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 51px;
+  margin-top: -51px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36%;
+  max-width: 500px;
+
 }
 
-.fata-sec2.is-light .fata-sec2-photos {
-  padding-top: 8px;
-}
-
-.fata-sec2-photos > div {
+.fata-sec2-photos>div {
   position: relative;
   flex: 1;
-  min-height: 280px;
+  min-height: 550px;
+  height: 550px;
 }
 
 .fata-sec2-photos img {
   object-fit: cover;
   object-position: left center;
-  filter: grayscale(1);
 }
 
-.fata-sec2-body {
+.fata-sec2-body.is-light {
+  background: #fff;
+  color: #1a1a1a;
+  padding-top: 60px;
+}
+
+.fata-sec2-body-wrap {
+  max-width: 60%;
+  margin-left: auto;
   padding: 38px calc(min(100vw, 1440px) * 83 / 1440) 110px 0;
 }
 
@@ -103,15 +107,15 @@
   gap: 199px;
 }
 
-.fata-sec2.is-light .fata-sec2-pairs {
-  gap: 198px;
+.fata-sec2-pairs.is-last {
+  margin-top: 162px;
 }
 
 .fata-sec2-pairs .fata-compare-pair {
   padding: 0;
   grid-template-columns: minmax(0, 313px) 1px minmax(0, 313px);
   column-gap: calc(min(100vw, 1440px) * 68 / 1440);
-  justify-content: start;
+  /* justify-content: start; */
 }
 
 .fata-compare-row {
@@ -137,17 +141,25 @@
   gap: 28px;
   align-items: start;
   padding: 72px 75px 48px 24px;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
 }
 
 .fata-compare-cell {
   position: relative;
   min-width: 0;
+  width: 40%;
 }
 
 .fata-compare-rule {
   background: currentColor;
-  opacity: 0.35;
   align-self: stretch;
+  width: 1px;
+  position: absolute;
+  top: 0;
+  left: 42%;
+  height: 100%;
 }
 
 .fata-kicker {
@@ -182,25 +194,26 @@
 
 .fata-compare-copy {
   margin: 7px 0 0;
-  max-width: 248px;
+  max-width: 252px;
   font-family: var(--font-sans), sans-serif;
   font-size: 14px;
   line-height: 1.5;
   opacity: 1;
 }
 
-.fata-compare-pair > div:last-child .fata-compare-copy {
+.fata-compare-pair>div:last-child .fata-compare-copy {
   max-width: 313px;
 }
 
 .fata-scribble {
   position: absolute;
-  left: -18%;
-  top: -38%;
-  width: 140%;
-  height: 175%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  top: 35%;
+  width: 150%;
   pointer-events: none;
   object-fit: contain;
+  max-width: 464px;
 }
 
 .fata-x {
@@ -216,36 +229,37 @@
 
 .fata-mobile {
   position: relative;
-  overflow: hidden;
-  background: #fff;
   color: #1a1a1a;
-  height: calc(min(100vw, 1440px) * 899 / 1440);
-  padding: 0;
+  background: #fff;
+  padding: 0 20px;
+  padding-top: 26px;
+  padding-bottom: 100px;
 }
 
-.fata-mobile-band {
+.fata-mobile::after {
   position: absolute;
-  left: 0;
-  right: 0;
+  content: '';
   width: 100%;
-  top: calc(min(100vw, 1440px) * 91 / 1440);
-  height: calc(min(100vw, 1440px) * 617 / 1440);
-  background: #c4cc8e;
+  height: 617px;
+  top: 91px;
+  background: #D3DFAE;
+  left: 0;
+  pointer-events: none;
 }
 
 .fata-mobile-stage {
   position: relative;
   height: 100%;
+  display: flex;
+  justify-content: space-between;
+  z-index: 1;
+  max-width: 87%;
+  gap: 39px;
+  margin-left: 70px;
 }
 
 .fata-mobile-copy {
-  position: absolute;
-  left: calc(90 / 1440 * 100%);
-  top: calc(173 / 899 * 100%);
-  z-index: 2;
-  width: calc(410 / 1440 * 100%);
-  margin: 0;
-  padding: 0;
+  margin-top: 176px;
 }
 
 .fata-mobile-copy p {
@@ -258,14 +272,8 @@
 }
 
 .fata-phone {
-  position: absolute;
-  left: calc(50% + 1.04%);
-  top: calc(26 / 899 * 100%);
-  z-index: 3;
-  width: calc(373 / 1440 * 100%);
-  height: calc(773 / 899 * 100%);
-  transform: translateX(-50%);
-  pointer-events: none;
+  height: 773px;
+  flex-shrink: 0;
 }
 
 .fata-phone img {
@@ -276,10 +284,6 @@
 }
 
 .fata-dl {
-  position: absolute;
-  left: calc(959 / 1440 * 100%);
-  top: calc(432 / 899 * 100%);
-  z-index: 4;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -294,10 +298,54 @@
   font-style: italic;
   line-height: 1;
   text-decoration: none;
+  margin-top: 406px;
+  min-width: fit-content;
+  transition: all .4s;
 }
 
+.fata-dl:hover {
+  background: #222222;
+}
+
+.fata-dl:focus {
+  background: #333333;
+}
+
+.fata-phrase {
+  position: absolute;
+  color: #F0FEBB;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: 132.74px;
+  line-height: 80%;
+  width: max-content;
+  top: 43%;
+  transform: translateY(-50%)translateX(60%);
+  animation: moveX 10s ease-in-out infinite alternate;
+
+  em {
+    font-weight: 300;
+  }
+
+  span {
+    font-family: var(--font-mak), serif;
+    color: #FF4200;
+  }
+}
+
+@keyframes moveX {
+  from {
+    transform: translateY(-50%) translateX(60%);
+  }
+
+  to {
+    transform: translateY(-50%) translateX(-106%);
+  }
+}
+
+
 .fata-features {
-  background: #fffdf7;
+  background: #fff;
   color: #1a1a1a;
   padding-bottom: 100px;
 }
@@ -316,6 +364,7 @@
   column-gap: 24px;
   align-items: start;
   padding: 32px var(--gutter);
+  padding-bottom: 0;
   border-top: 2px solid #ebe5d4;
   cursor: pointer;
 }
@@ -337,7 +386,6 @@
 
 .fata-feature h3 {
   grid-area: title;
-  margin: 0 0 16px;
   font-family: var(--font-display), sans-serif;
   font-size: 32px;
   font-weight: 400;
@@ -365,7 +413,6 @@
   gap: 16px;
   min-height: 0;
   overflow: hidden;
-  padding-top: 8px;
   max-width: 623px;
 }
 
@@ -398,17 +445,17 @@
   height: 58px;
   justify-self: end;
   overflow: hidden;
-  border-radius: 4px;
   transition: height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fata-feature.is-open .fata-feature-img {
-  height: 228px;
+  height: 218px;
 }
 
 .fata-feature-img img {
   object-fit: cover;
 }
+
 
 .fata-prefooter {
   position: relative;
@@ -421,15 +468,16 @@
 .fata-prefooter-inner {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 
 .fata-prefooter-copy {
   position: absolute;
   left: 50%;
-  top: calc(min(100vw, 1440px) * 318 / 1440);
+  top: 50%;
   z-index: 2;
-  width: min(805px, calc(100% - 48px));
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
+  width: 100%;
   margin: 0;
   padding: 0;
   text-align: center;
@@ -439,7 +487,7 @@
   margin: 0 auto;
   max-width: 805px;
   font-family: var(--font-display), sans-serif;
-  font-size: calc(min(100vw, 1440px) * 60 / 1440);
+  font-size: 60px;
   font-weight: 300;
   font-style: italic;
   line-height: 1;
@@ -461,6 +509,15 @@
   font-style: italic;
   line-height: 1;
   text-decoration: none;
+  transition: all .4s;
+}
+
+.fata-prefooter-copy a:hover {
+  background: #E63B00;
+}
+
+.fata-prefooter-copy a:focus {
+  background: #CC3400;
 }
 
 .fata-cloud {
@@ -492,12 +549,14 @@
 }
 
 .fata-foot-inner {
-  padding: 56px var(--gutter) 32px;
+  padding: 56px 20px 32px;
+  max-width: 1330px;
+  margin: 0 auto;
 }
 
 .fata-foot-top {
   display: flex;
-  gap: calc(min(100vw, 1440px) * 48 / 1440);
+  gap: 48px;
   align-items: flex-start;
   width: 100%;
 }
@@ -506,8 +565,11 @@
   width: 320px;
   flex-shrink: 0;
 }
+.fata-foot-brand .fata-logo img {
+      width: 154px;
+}
 
-.fata-foot-top > div:not(.fata-foot-brand) {
+.fata-foot-top>div:not(.fata-foot-brand) {
   width: 220px;
   flex-shrink: 0;
 }
@@ -577,76 +639,181 @@
   height: 20px;
 }
 
+@media (max-width: 1400px) {
+  .fata-mobile-stage {
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .fata-feature {
+    padding: 32px 20px;
+    padding-bottom: 0;
+  }
+
+}
+
+@media (max-width: 1200px) {
+  .fata-sec2-body.is-light {
+    padding-top: 25px;
+  }
+
+  .fata-sec2-pairs {
+    gap: 130px;
+  }
+
+  .fata-sec2-pairs.is-last {
+    margin-top: 130px;
+  }
+
+  .fata-sec2-photos>div {
+    min-height: 500px;
+    height: 500px;
+  }
+
+  .fata-compare-title {
+    font-size: 36px;
+  }
+
+  .fata-compare-cell {
+    width: 46%;
+  }
+
+  .fata-compare-rule {
+    left: 48%;
+  }
+
+  .fata-sec2-body-wrap {
+    padding-right: 24px;
+  }
+
+  .fata-x {
+    left: 36%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .fata-scribble {
+    width: 110%;
+  }
+
+  .fata-mobile::after {
+    height: 467px;
+  }
+
+  .fata-phrase {
+    top: 50%;
+  }
+
+  .fata-phrase {
+    font-size: 100.74px;
+  }
+
+  .fata-mobile-copy {
+    margin-top: 120px;
+  }
+
+  .fata-phone {
+    height: 596px;
+  }
+
+  .fata-prefooter-copy h2 {
+    font-size: 46px;
+    max-width: 650px;
+  }
+
+  .fata-foot-top>div:not(.fata-foot-brand) {
+    width: auto;
+  }
+}
+
 @media (max-width: 1023px) {
   .fata-compare-intro {
     padding: 0;
   }
 
-  .fata-compare-row,
-  .fata-foot-top {
+  .fata-compare-row {
     display: block;
   }
 
-  .fata-sec2:not(.is-light) {
-    overflow-x: clip;
-  }
-
-  .fata-sec2:not(.is-light) .fata-sec2-grid {
+  .fata-sec2 {
     display: flex;
     flex-direction: column;
+  }
+
+  .fata-sec2-photos {
+    order: 2 !important;
     width: 100%;
-    max-width: 720px;
-    margin-inline: auto;
+    max-width: none;
+    position: static;
+    margin-top: 56px;
+    padding: 0 20px 56px 20px;
   }
 
-  .fata-sec2:not(.is-light) .fata-sec2-body {
-    order: 1;
-    padding: 28px clamp(16px, 5.13vw, 28px) 20px;
+  .fata-sec2-photos>div {
+    min-height: 350px;
+    height: 350px;
   }
 
-  .fata-sec2:not(.is-light) .fata-sec2-photos {
-    order: 2;
-    width: 100%;
+  .fata-sec2-pairs {
+    gap: 100px;
   }
 
-  .fata-sec2:not(.is-light) .fata-sec2-photos > div:nth-child(n + 2) {
+  .fata-sec2-pairs.is-last {
+    margin-top: 56px;
+  }
+
+  .fata-sec2-pairs.is-last .fata-scribble,
+  .fata-sec2-body.is-light .fata-sec2-pairs:first-child .fata-compare-pair:first-child .fata-scribble {
     display: none;
   }
 
-  .fata-sec2:not(.is-light) .fata-sec2-photos > div {
-    flex: none;
-    min-height: 0;
-    aspect-ratio: 390 / 230;
+
+  .fata-sec2-body {
+    order: -1;
+  }
+
+  .fata-sec2-body.is-light {
+    order: 2;
+    padding-top: 56px;
+  }
+
+  .fata-sec2-breakphoto {
+    display: block;
+    margin-top: 56px;
+  }
+
+  .fata-sec2-breakphoto img {
+    position: static !important;
+    height: 350px !important;
+    object-fit: cover;
+  }
+
+  .fata-sec2-photos>div:not(:last-child) {
+    display: none;
+  }
+
+  .fata-sec2-body-wrap {
+    max-width: none;
+    padding: 0;
   }
 
   .fata-sec2:not(.is-light) .fata-compare-intro {
-    margin: 0 0 clamp(24px, 7vw, 48px);
-    max-width: none;
-    font-size: clamp(16px, 4.5vw, 24px);
+    margin: 0 0 clamp(40px, 7vw, 48px);
+    max-width: 70%;
+    font-size: clamp(22px, 4.5vw, 24px);
     line-height: 1.28;
   }
 
-  .fata-sec2:not(.is-light) .fata-sec2-pairs {
-    gap: clamp(28px, 8vw, 64px);
-  }
-
-  .fata-sec2:not(.is-light) .fata-sec2-pairs .fata-compare-pair {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(12px, 4vw, 32px);
-    row-gap: 0;
-    padding: 0;
-    align-items: start;
+  .fata-sec2-pairs .fata-compare-pair {
+    column-gap: 16px;
   }
 
   .fata-sec2:not(.is-light) .fata-compare-rule {
     display: none;
   }
 
-  .fata-sec2:not(.is-light) .fata-compare-cell {
-    min-width: 0;
-    max-width: 100%;
-    overflow: visible;
+  .fata-compare-cell {
+    width: 50%;
   }
 
   .fata-sec2:not(.is-light) .fata-kicker {
@@ -660,7 +827,7 @@
     margin-top: 8px;
     max-width: none;
     padding-right: 0.08em;
-    font-size: clamp(16px, 4.6vw, 28px);
+    font-size: clamp(32px, 4.6vw, 28px);
     line-height: 1.15;
     hyphens: none;
     -webkit-hyphens: none;
@@ -673,152 +840,48 @@
     max-width: none;
     min-width: 0;
     padding-right: 0.08em;
-    font-size: clamp(12px, 3.2vw, 14px);
+    font-size: clamp(14px, 3.2vw, 14px);
     line-height: 1.45;
     overflow-wrap: break-word;
     word-break: normal;
   }
 
   .fata-sec2:not(.is-light) .fata-x {
-    left: -10%;
-    top: -42%;
-    width: 118%;
-    height: auto;
-    aspect-ratio: 193 / 172;
+    left: 24%;
   }
 
-  .fata-sec2:not(.is-light) .fata-scribble {
-    left: -18%;
-    top: -36%;
-    width: 136%;
-    height: 170%;
+  .fata-mobile {
+    padding-top: 72px;
+    padding-bottom: 0;
   }
 
-  @media (min-width: 640px) {
-    .fata-sec2:not(.is-light) .fata-sec2-photos > div {
-      aspect-ratio: 16 / 9;
-      max-height: 360px;
-    }
-
-    .fata-sec2:not(.is-light) .fata-compare-title,
-    .fata-sec2.is-light .fata-compare-title {
-      font-size: clamp(26px, 5vw, 40px);
-    }
-  }
-
-  .fata-sec2.is-light {
-    overflow-x: clip;
-  }
-
-  .fata-sec2.is-light .fata-sec2-grid {
-    display: flex;
+  .fata-mobile-stage {
     flex-direction: column;
-    width: 100%;
-    max-width: 720px;
-    margin-inline: auto;
+    padding: 56px 0;
+    gap: 32px;
   }
 
-  .fata-sec2.is-light .fata-sec2-photos {
-    display: none;
+  .fata-mobile::after {
+    height: calc(100% - 72px);
+    top: 72px;
   }
 
-  .fata-sec2.is-light .fata-sec2-body {
-    --m-pad: clamp(16px, 5.13vw, 28px);
-    gap: 0;
-    padding: 28px var(--m-pad) 36px;
+  .fata-phone {
+    order: -1;
+    height: 560px;
   }
 
-  .fata-sec2.is-light .fata-sec2-pairs {
-    gap: clamp(28px, 8vw, 64px);
-  }
-
-  .fata-sec2.is-light .fata-sec2-pairs + .fata-sec2-pairs {
+  .fata-dl,
+  .fata-mobile-copy {
     margin-top: 0;
   }
 
-  .fata-sec2.is-light .fata-sec2-pairs .fata-compare-pair {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(12px, 4vw, 32px);
-    row-gap: 0;
-    padding: 0;
-    align-items: start;
-  }
-
-  .fata-sec2.is-light .fata-compare-rule {
-    display: none;
-  }
-
-  .fata-sec2.is-light .fata-compare-cell {
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .fata-sec2.is-light .fata-kicker {
-    font-size: clamp(11px, 2.9vw, 14px);
-  }
-
-  .fata-sec2.is-light .fata-compare-title {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    margin-top: 8px;
+  .fata-mobile-copy p {
     max-width: none;
-    padding-right: 0.08em;
-    font-size: clamp(16px, 4.6vw, 28px);
-    line-height: 1.15;
-    hyphens: none;
-    -webkit-hyphens: none;
-    overflow-wrap: break-word;
-    word-break: normal;
-    white-space: normal;
   }
 
-  .fata-sec2.is-light .fata-compare-copy {
-    max-width: none;
-    min-width: 0;
-    font-size: clamp(12px, 3.2vw, 14px);
-    line-height: 1.45;
-    overflow-wrap: break-word;
-  }
-
-  .fata-sec2.is-light .fata-scribble {
-    left: -18%;
-    top: -36%;
-    width: 136%;
-    height: 170%;
-  }
-
-  .fata-sec2.is-light .fata-sec2-breakphoto {
-    display: block;
-    position: relative;
-    width: calc(100% + (2 * var(--m-pad)));
-    margin: clamp(24px, 6vw, 40px) calc(-1 * var(--m-pad));
-    aspect-ratio: 390 / 240;
-    overflow: hidden;
-    background: #d8d8d8;
-  }
-
-  .fata-sec2.is-light .fata-sec2-breakphoto img {
-    object-fit: cover;
-    object-position: center 40%;
-    filter: grayscale(1);
-  }
-
-  .fata-sec2-body {
-    padding: 28px 20px 40px;
-  }
-
-  .fata-sec2-photos > div {
-    min-height: 220px;
-  }
-
-  .fata-compare-photo {
-    min-height: 240px;
-  }
-
-  .fata-compare-pair {
-    padding: 24px 20px 36px;
+  .fata-phrase {
+    top: 38%;
   }
 
   .fata-features {
@@ -846,7 +909,7 @@
 
   .fata-feature h3 {
     margin: 0 0 10px;
-    font-size: clamp(22px, 6.6vw, 32px);
+    font-size: 32px;
     line-height: 1.1;
     overflow-wrap: break-word;
   }
@@ -860,12 +923,12 @@
   }
 
   .fata-feature-point strong {
-    font-size: clamp(15px, 4.3vw, 18px);
+    font-size: 18px;
     line-height: 1.35;
   }
 
   .fata-feature-point span {
-    font-size: clamp(13px, 3.5vw, 14px);
+    font-size: 14px;
   }
 
   .fata-feature-img {
@@ -873,221 +936,279 @@
     height: 0;
     margin-top: 0;
     justify-self: stretch;
-    border-radius: 6px;
   }
 
   .fata-feature.is-open .fata-feature-img {
-    height: clamp(160px, 52vw, 230px);
+    height: 218px;
     margin-top: 16px;
   }
 
-  .fata-prefooter {
-    height: auto;
-    min-height: clamp(560px, 165vw, 760px);
-  }
-
-  .fata-prefooter-inner {
-    min-height: clamp(560px, 165vw, 760px);
-    display: grid;
-    place-items: center;
-  }
-
-  .fata-prefooter-copy {
-    position: relative;
-    left: auto;
-    top: auto;
-    z-index: 2;
-    width: min(100%, 420px);
-    transform: none;
-    padding: clamp(96px, 28vw, 140px) clamp(16px, 5.13vw, 28px)
-      clamp(88px, 24vw, 120px);
-    background: radial-gradient(
-      ellipse at center,
-      rgb(26 26 26 / 88%) 0%,
-      rgb(26 26 26 / 55%) 52%,
-      transparent 78%
-    );
-  }
-
   .fata-prefooter-copy h2 {
-    font-size: clamp(28px, 8.4vw, 44px);
-    line-height: 1.06;
-    max-width: 14ch;
-  }
-
-  .fata-prefooter-copy h2 span {
-    display: block;
-  }
-
-  .fata-prefooter-copy a {
-    width: min(100%, 340px);
-    justify-content: center;
-  }
-
-  .fata-cloud {
-    left: 0;
-    width: 100%;
-    height: 100%;
-    margin-left: 0;
-    transform: none;
-  }
-
-  .fata-cloud-item {
-    border-radius: 2px;
-  }
-
-  .fata-cloud-item:nth-child(1) {
-    left: -8% !important;
-    top: 7% !important;
-    width: 32vw !important;
-    height: 34vw !important;
-  }
-
-  .fata-cloud-item:nth-child(2) {
-    left: 34% !important;
-    top: 3% !important;
-    width: 28vw !important;
-    height: 22vw !important;
-  }
-
-  .fata-cloud-item:nth-child(3) {
-    left: 70% !important;
-    top: 8% !important;
-    width: 36vw !important;
-    height: 28vw !important;
-  }
-
-  .fata-cloud-item:nth-child(4) {
-    left: -10% !important;
-    top: 40% !important;
-    width: 26vw !important;
-    height: 18vw !important;
-  }
-
-  .fata-cloud-item:nth-child(5) {
-    left: 78% !important;
-    top: 42% !important;
-    width: 30vw !important;
-    height: 20vw !important;
-  }
-
-  .fata-cloud-item:nth-child(6) {
-    left: 2% !important;
-    top: 68% !important;
-    width: 30vw !important;
-    height: 36vw !important;
-  }
-
-  .fata-cloud-item:nth-child(7) {
-    left: 36% !important;
-    top: 76% !important;
-    width: 28vw !important;
-    height: 22vw !important;
-  }
-
-  .fata-cloud-item:nth-child(8) {
-    left: 68% !important;
-    top: 64% !important;
-    width: 38vw !important;
-    height: 32vw !important;
-  }
-
-  .fata-cloud-item:nth-child(n + 9) {
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .fata-prefooter,
-    .fata-prefooter-inner {
-      min-height: 680px;
-    }
-
-    .fata-prefooter-copy h2 {
-      max-width: 16ch;
-    }
-
-    .fata-cloud-item:nth-child(1),
-    .fata-cloud-item:nth-child(3),
-    .fata-cloud-item:nth-child(6),
-    .fata-cloud-item:nth-child(8) {
-      width: 22vw !important;
-      height: 24vw !important;
-    }
-  }
-
-  .fata-foot-inner {
-    padding: 40px 20px 32px;
+    font-size: 32px;
+    max-width: 500px;
   }
 
   .fata-foot-top {
-    flex-wrap: wrap;
-    gap: 28px;
-  }
-
-  .fata-foot-brand,
-  .fata-foot-top > div:not(.fata-foot-brand) {
-    width: auto;
-  }
-
-  .fata-mobile {
-    height: auto !important;
-    min-height: 0;
-    overflow: visible;
-    padding: 0;
-    background: #c4cc8e;
-  }
-
-  .fata-mobile-wordmark {
-    display: none !important;
-  }
-
-  .fata-mobile-band {
-    display: none;
-  }
-
-  .fata-mobile-stage {
-    display: flex;
-    height: auto;
     flex-direction: column;
-    align-items: center;
     gap: 24px;
-    padding: 40px 20px 48px;
+  }
+  .fata-foot-inner {
+    padding: 40px 16px 24px;
   }
 
-  .fata-mobile-copy {
-    position: static;
-    left: auto;
-    top: auto;
-    order: 2;
-    width: min(100%, 360px);
-    padding: 0;
-    text-align: center;
+  .fata-foot-brand {
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-prefooter-copy h2 {
+    font-size: 16px;
+    max-width: 150px;
   }
 
-  .fata-mobile-copy p {
+  .fata-prefooter-copy a {
+    height: 52px;
+  }
+
+  .fata-foot-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fata-sec2:not(.is-light) .fata-compare-intro {
     max-width: none;
-    font-size: 15px;
   }
 
-  .fata-phone {
-    position: relative;
-    left: auto;
-    top: auto;
-    order: 1;
-    width: min(220px, 58vw);
-    height: auto;
-    margin: 0 auto;
-    transform: none;
+  .fata-sec2:not(.is-light) .fata-scribble {
+    height: 141px;
+    width: auto !important;
+    left: -47%;
+    transform: rotate(-37deg);
+    top: 7%;
   }
 
-  .fata-phone img {
-    height: auto;
+  .fata-phrase {
+    font-size: 51.89px;
   }
 
-  .fata-dl {
-    position: static;
-    order: 3;
-    width: min(100%, 320px);
-    margin: 0;
+  .fata-feature {
+    padding: 32px 16px;
+    padding-bottom: 0;
   }
+}
+
+@media (min-width: 640px) {
+
+  .fata-sec2:not(.is-light) .fata-compare-title,
+  .fata-sec2.is-light .fata-compare-title {
+    font-size: clamp(26px, 5vw, 40px);
+  }
+}
+
+.fata-sec2.is-light .fata-sec2-body {
+  --m-pad: clamp(16px, 5.13vw, 28px);
+  gap: 0;
+  padding: 28px var(--m-pad) 36px;
+}
+
+.fata-sec2.is-light .fata-sec2-pairs {
+  gap: clamp(28px, 8vw, 64px);
+}
+
+.fata-sec2.is-light .fata-sec2-pairs+.fata-sec2-pairs {
+  margin-top: 0;
+}
+
+.fata-sec2.is-light .fata-sec2-pairs .fata-compare-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: clamp(12px, 4vw, 32px);
+  row-gap: 0;
+  padding: 0;
+  align-items: start;
+}
+
+.fata-sec2.is-light .fata-compare-rule {
+  display: none;
+}
+
+.fata-sec2.is-light .fata-compare-cell {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.fata-sec2.is-light .fata-kicker {
+  font-size: clamp(11px, 2.9vw, 14px);
+}
+
+.fata-sec2.is-light .fata-compare-title {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 8px;
+  max-width: none;
+  padding-right: 0.08em;
+  font-size: clamp(16px, 4.6vw, 28px);
+  line-height: 1.15;
+  hyphens: none;
+  -webkit-hyphens: none;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+
+.fata-sec2.is-light .fata-compare-copy {
+  max-width: none;
+  min-width: 0;
+  font-size: clamp(12px, 3.2vw, 14px);
+  line-height: 1.45;
+  overflow-wrap: break-word;
+}
+
+.fata-sec2.is-light .fata-scribble {
+  left: -18%;
+  top: -36%;
+  width: 136%;
+  height: 170%;
+}
+
+.fata-sec2.is-light .fata-sec2-breakphoto {
+  display: block;
+  position: relative;
+  width: calc(100% + (2 * var(--m-pad)));
+  margin: clamp(24px, 6vw, 40px) calc(-1 * var(--m-pad));
+  aspect-ratio: 390 / 240;
+  overflow: hidden;
+  background: #d8d8d8;
+}
+
+.fata-sec2.is-light .fata-sec2-breakphoto img {
+  object-fit: cover;
+  object-position: center 40%;
+  filter: grayscale(1);
+}
+
+.fata-sec2-body {
+  padding: 28px 20px 56px;
+  padding-bottom: 0;
+}
+
+.fata-compare-photo {
+  min-height: 240px;
+}
+
+.fata-compare-pair {
+  padding: 24px 20px 36px;
+}
+
+.fata-prefooter {
+  height: auto;
+  min-height: clamp(509px, 165vw, 509px);
+}
+
+.fata-prefooter-inner {
+  min-height: clamp(509px, 165vw, 509px);
+  display: grid;
+  place-items: center;
+}
+
+.fata-cloud {
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin-left: 0;
+  transform: none;
+}
+
+.fata-cloud-item {
+  border-radius: 2px;
+}
+
+.fata-cloud-item:nth-child(1) {
+  left: -8% !important;
+  top: 7% !important;
+  width: 32vw !important;
+  height: 34vw !important;
+}
+
+.fata-cloud-item:nth-child(2) {
+  left: 34% !important;
+  top: 3% !important;
+  width: 28vw !important;
+  height: 22vw !important;
+}
+
+.fata-cloud-item:nth-child(3) {
+  left: 70% !important;
+  top: 8% !important;
+  width: 36vw !important;
+  height: 28vw !important;
+}
+
+.fata-cloud-item:nth-child(4) {
+  left: -10% !important;
+  top: 40% !important;
+  width: 26vw !important;
+  height: 18vw !important;
+}
+
+.fata-cloud-item:nth-child(5) {
+  left: 78% !important;
+  top: 42% !important;
+  width: 30vw !important;
+  height: 20vw !important;
+}
+
+.fata-cloud-item:nth-child(6) {
+  left: 2% !important;
+  top: 68% !important;
+  width: 30vw !important;
+  height: 36vw !important;
+}
+
+.fata-cloud-item:nth-child(7) {
+  left: 36% !important;
+  top: 76% !important;
+  width: 28vw !important;
+  height: 22vw !important;
+}
+
+.fata-cloud-item:nth-child(8) {
+  left: 68% !important;
+  top: 64% !important;
+  width: 38vw !important;
+  height: 32vw !important;
+}
+
+.fata-cloud-item:nth-child(n + 9) {
+  display: none;
+}
+
+@media (min-width: 640px) {
+
+  .fata-prefooter,
+  .fata-prefooter-inner {
+    min-height: 821px;
+  }
+
+  .fata-cloud-item:nth-child(1),
+  .fata-cloud-item:nth-child(3),
+  .fata-cloud-item:nth-child(6),
+  .fata-cloud-item:nth-child(8) {
+    width: 22vw !important;
+    height: 24vw !important;
+  }
+}
+
+
+.fata-mobile-wordmark {
+  display: none !important;
+}
+
+.fata-mobile-band {
+  display: none;
 }

@@ -22,7 +22,7 @@ const DARK_ROWS = [
   {
     photo: "/landing/compare-1.jpg",
     beforeTitle: "Таблиці excel",
-    beforeText: "“треба зробити” списки в телеграмі і в нотатках",
+    beforeText: <>“треба зробити”<br /> списки в телеграмі і в нотатках</>,
     afterTitle: "Спільний чекліст",
     afterText:
       "і дашборд із миттєвим синхроном для двох з будь якого девайсу",
@@ -30,8 +30,7 @@ const DARK_ROWS = [
   {
     photo: "/landing/compare-2.jpg",
     beforeTitle: "Обдзвони, напиши",
-    beforeText:
-      "100 гостей “ти не знаєш, чи буде він з +1?” “а ти вніс того свого дядька в список?”",
+    beforeText: <>100 гостей<br /> “ти не знаєш, чи буде він з +1?”<br /> “а ти вніс того свого дядька в список?”</>,
     afterTitle: "Список гостей і дизайн запрошень",
     afterText:
       "та автоматична відправка сайту-запрошення з кнопкою “Ми будемо” і підрахунком гостей",
@@ -42,7 +41,7 @@ const LIGHT_ROWS = [
   {
     photo: "/landing/compare-3.jpg",
     beforeTitle: "Завдатки і плутанина",
-    beforeText: "в гривні та валюті «куди поділися 1000$ з бюджету?»",
+    beforeText: <>в гривні та валюті<br /> «куди поділися 1000$ з бюджету?»</>,
     afterTitle: "Прозорий трекінг витрат,",
     afterText: "авансів та кошторисів у будь-якій валюті",
   },
@@ -56,8 +55,7 @@ const LIGHT_ROWS = [
   {
     photo: "/landing/compare-2.jpg",
     beforeTitle: "Дизайнер за всі гроші світу",
-    beforeText:
-      "Для запрошень, посадкової карти, іменних табличок, правки за $50 в день перед весіллям, бо “тьотя Віра не прийде”",
+    beforeText: <>"Для запрошень, посадкової карти, іменних табличок, правки за $50 в день перед весіллям,<br /> бо “тьотя Віра не прийде”</>,
     afterTitle: "Готові дизайни",
     afterText:
       "Макети посадкових карт, друкованих запрошень та іншої поліграфії в два кліки",
@@ -170,50 +168,50 @@ function FeaturesAccordion() {
   return (
     <section className="fata-features">
       <div className="fata-shell">
-      {FEATURES.map((feature, i) => {
-        const isOpen = open === i;
-        return (
-          <article
-            key={feature.n}
-            className={`fata-feature${isOpen ? " is-open" : ""}`}
-            onMouseEnter={() => {
-              if (canHover()) setOpen(i);
-            }}
-            onClick={() => {
-              if (canHover()) {
-                setOpen(i);
-                return;
-              }
-              setOpen((cur) => (cur === i ? -1 : i));
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
+        {FEATURES.map((feature, i) => {
+          const isOpen = open === i;
+          return (
+            <article
+              key={feature.n}
+              className={`fata-feature${isOpen ? " is-open" : ""}`}
+              onMouseEnter={() => {
+                if (canHover()) setOpen(i);
+              }}
+              onClick={() => {
+                if (canHover()) {
+                  setOpen(i);
+                  return;
+                }
                 setOpen((cur) => (cur === i ? -1 : i));
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-expanded={isOpen}
-          >
-            <p className="fata-feature-n">{feature.n}</p>
-            <h3>{feature.title}</h3>
-            <div className="fata-feature-panel">
-              <div className="fata-feature-panel-inner">
-                {feature.points.map((point) => (
-                  <p key={point.title} className="fata-feature-point">
-                    <strong>{point.title}</strong>
-                    <span>{point.text}</span>
-                  </p>
-                ))}
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setOpen((cur) => (cur === i ? -1 : i));
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={isOpen}
+            >
+              <p className="fata-feature-n">{feature.n}</p>
+              <h3>{feature.title}</h3>
+              <div className="fata-feature-panel">
+                <div className="fata-feature-panel-inner">
+                  {feature.points.map((point) => (
+                    <p key={point.title} className="fata-feature-point">
+                      <strong>{point.title}</strong>
+                      <span>{point.text}</span>
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className="fata-feature-img">
-              <Image src={feature.img} alt="" fill sizes="(max-width: 1023px) 100vw, 390px" />
-            </div>
-          </article>
-        );
-      })}
+              <div className="fata-feature-img">
+                <Image src={feature.img} alt="" fill sizes="(max-width: 1023px) 100vw, 390px" />
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -256,18 +254,18 @@ function ComparePair({
   return (
     <div className="fata-compare-pair">
       <div className="fata-compare-cell">
+        {crossBefore ? <CrossOut /> : null}
         <p className="fata-kicker">Було</p>
         <h3 className="fata-compare-title">
-          {crossBefore ? <CrossOut /> : null}
           {row.beforeTitle}
         </h3>
         <p className="fata-compare-copy">{row.beforeText}</p>
       </div>
       <div className="fata-compare-rule" />
       <div className="fata-compare-cell">
+        <Scribble />
         <p className="fata-kicker">Стало</p>
         <h3 className="fata-compare-title">
-          <Scribble />
           {row.afterTitle}
         </h3>
         <p className="fata-compare-copy">{row.afterText}</p>
@@ -315,7 +313,7 @@ function AuthButtons({
         Увійти
       </Link>
       <Link href="/register" className={startClass}>
-        Реєстрація
+        Розпочати
       </Link>
     </>
   );
@@ -343,43 +341,49 @@ function HeroArtboard() {
     <section className="fata-hero">
       <div className="fata-hero-stage hidden min-[1024px]:block">
         <div className="fata-hero-board">
-          <FataLogo />
-          <nav className="fata-nav" aria-label="Основне меню">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="fata-auth">
-            <AuthButtons loginClass="fata-btn fata-btn-login" startClass="fata-btn fata-btn-start" />
+          <div className="fata-hero-header">
+            <FataLogo />
+            <nav className="fata-nav" aria-label="Основне меню">
+              {NAV.map((item) => (
+                <Link key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="fata-auth">
+              <AuthButtons loginClass="fata-btn fata-btn-login" startClass="fata-btn fata-btn-start" />
+            </div>
           </div>
-          <p className="fata-tagline">
-            Єдина платформа <em>для всіх весільних завдань</em>
-          </p>
-          <h1 className="fata-title">
-            <span className="fata-title-serif">
-              <span className="fata-title-you">Ваше</span>{" "}
-              <span className="fata-title-fill">ВЕСІЛЛЯ</span>
-            </span>
-            <span className="fata-title-sans">починається тут</span>
-          </h1>
-          <p className="fata-desc">
-            Плануйте бюджет, запрошуйте гостей, малюйте розсадку, ведіть списки
-            справ, контролюйте таймлайни — усе вдвох, в одному місці і без
-            зайвого стресу.
-          </p>
-          <Link href="/register" className="fata-cta">
-            Розпочати
-          </Link>
-          <div className="fata-photo">
-            <Image
-              src="/landing/hero-photo.jpg"
-              alt="Сукня нареченої"
-              fill
-              priority
-              sizes="555px"
-            />
+          <div className="fata-hero-main">
+            <div className="fata-hero-main-text">
+              <p className="fata-tagline">
+                Єдина платформа <em>для всіх весільних завдань</em>
+              </p>
+              <h1 className="fata-title">
+                <span className="fata-title-serif">
+                  <span className="fata-title-you">Ваше</span>{" "}
+                  <span className="fata-title-fill">ВЕСІЛЛЯ</span>
+                </span>
+                <span className="fata-title-sans">починається тут</span>
+              </h1>
+              <p className="fata-desc">
+                Плануйте бюджет, запрошуйте гостей, малюйте розсадку, ведіть списки
+                справ, контролюйте таймлайни — усе вдвох, в одному місці і без
+                зайвого стресу.
+              </p>
+              <Link href="/register" className="fata-cta">
+                Розпочати
+              </Link>
+            </div>
+            <div className="fata-photo">
+              <Image
+                src="/landing/hero-photo.jpg"
+                alt="Сукня нареченої"
+                fill
+                priority
+                sizes="555px"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -396,35 +400,38 @@ function HeroArtboard() {
           >
             <span />
             <span />
+            <span />
           </button>
         </div>
         <FataMobileMenu open={open} onClose={() => setOpen(false)} />
-        <p className="fata-m-kicker">
-          Єдина платформа <em>для всіх весільних завдань</em>
-        </p>
-        <h1 className="fata-m-title">
-          <span className="fata-m-top">
-            <span className="fata-m-you">Ваше</span>
-            <span className="fata-m-fill">ВЕСІЛЛЯ</span>
-          </span>
-          <span className="fata-m-sans">починається тут</span>
-        </h1>
-        <p className="fata-m-desc">
-          Плануйте бюджет, запрошуйте гостей, малюйте розсадку, ведіть списки
-          справ, контролюйте таймлайни — усе вдвох, в одному місці і без
-          зайвого стресу.
-        </p>
-        <div className="fata-m-photo">
-          <Image
-            src="/landing/hero-photo.jpg"
-            alt="Сукня нареченої"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1023px) 100vw, 555px"
-            priority
-          />
+        <div className="fata-m-main">
+          <p className="fata-m-kicker">
+            Єдина платформа <em>для всіх весільних завдань</em>
+          </p>
+          <h1 className="fata-m-title">
+            <span className="fata-m-top">
+              <span className="fata-m-you">Ваше</span>
+              <span className="fata-m-fill">ВЕСІЛЛЯ</span>
+            </span>
+            <span className="fata-m-sans">починається тут</span>
+          </h1>
+          <p className="fata-m-desc">
+            Плануйте бюджет, запрошуйте гостей, малюйте розсадку, ведіть списки
+            справ, контролюйте таймлайни — усе вдвох, в одному місці і без
+            зайвого стресу.
+          </p>
+          <div className="fata-m-photo">
+            <Image
+              src="/landing/hero-photo.jpg"
+              alt="Сукня нареченої"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1023px) 100vw, 555px"
+              priority
+            />
+          </div>
+          <HeroCta className="fata-m-cta" />
         </div>
-        <HeroCta className="fata-m-cta" />
       </div>
     </section>
   );
@@ -436,72 +443,59 @@ export function HomeLanding() {
       <HeroArtboard />
 
       <section className="fata-sec2">
-        <div className="fata-shell fata-sec2-grid">
         <div className="fata-sec2-photos">
-          {DARK_ROWS.map((row) => (
-            <div key={row.photo}>
-              <Image src={row.photo} alt="" fill sizes="42vw" />
-            </div>
-          ))}
-        </div>
-        <div className="fata-sec2-body">
-          <p className="fata-compare-intro">
-            Ми змінюємо хаос і нерви на упорядковану спокійну організацію
-            весілля:
-          </p>
-          <div className="fata-sec2-pairs">
-            {DARK_ROWS.map((row) => (
-              <ComparePair key={row.afterTitle} row={row} crossBefore />
-            ))}
+          <div>
+            <Image src="/landing/compare-1.jpg" alt="" fill sizes="42vw" />
+          </div>
+
+          <div>
+            <Image src="/landing/compare-2.jpg" alt="" fill sizes="42vw" />
+          </div>
+
+          <div>
+            <Image src="/landing/compare-2.jpg" alt="" fill sizes="42vw" />
           </div>
         </div>
+        <div className="fata-sec2-body">
+          <div className="fata-sec2-body-wrap">
+            <p className="fata-compare-intro">
+              Ми змінюємо хаос і нерви на упорядковану спокійну організацію
+              весілля:
+            </p>
+            <div className="fata-sec2-pairs">
+              {DARK_ROWS.map((row) => (
+                <ComparePair key={row.afterTitle} row={row} crossBefore />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="fata-sec2-body is-light">
+          <div className="fata-sec2-body-wrap">
+            <div className="fata-sec2-pairs">
+              {LIGHT_ROWS.slice(0, 2).map((row) => (
+                <ComparePair key={row.afterTitle} row={row} />
+              ))}
+            </div>
+            <div className="fata-sec2-breakphoto">
+              <Image
+                src="/landing/compare-2.jpg"
+                alt=""
+                fill
+                sizes="100vw"
+              />
+            </div>
+            <div className="fata-sec2-pairs is-last">
+              {LIGHT_ROWS.slice(2).map((row) => (
+                <ComparePair key={row.afterTitle} row={row} />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="fata-sec2 is-light">
-        <div className="fata-shell fata-sec2-grid">
-        <div className="fata-sec2-photos">
-          {LIGHT_ROWS.map((row) => (
-            <div key={row.photo + row.afterTitle}>
-              <Image src={row.photo} alt="" fill sizes="38vw" />
-            </div>
-          ))}
-        </div>
-        <div className="fata-sec2-body">
-          <div className="fata-sec2-pairs">
-            {LIGHT_ROWS.slice(0, 2).map((row) => (
-              <ComparePair key={row.afterTitle} row={row} />
-            ))}
-          </div>
-          <div className="fata-sec2-breakphoto">
-            <Image
-              src="/landing/compare-1.jpg"
-              alt=""
-              fill
-              sizes="100vw"
-            />
-          </div>
-          <div className="fata-sec2-pairs">
-            {LIGHT_ROWS.slice(2).map((row) => (
-              <ComparePair key={row.afterTitle} row={row} />
-            ))}
-          </div>
-        </div>
-        </div>
-      </section>
 
       <section className="fata-mobile">
-        <div className="fata-mobile-band" />
         <div className="fata-shell fata-mobile-stage">
-          <div className="fata-phone">
-            <Image
-              src="/landing/phone.png"
-              alt="Мобільний застосунок fata.studio"
-              width={373}
-              height={773}
-              sizes="(max-width: 1023px) 220px, 373px"
-            />
-          </div>
           <div className="fata-mobile-copy">
             <p>
               Зустріч із флористом? Примірка сукні чи дегустація меню?
@@ -510,9 +504,19 @@ export function HomeLanding() {
               смартфоні.
             </p>
           </div>
+            <div className="fata-phone">
+            <Image
+              src="/landing/phone.png"
+              alt="Мобільний застосунок fata.studio"
+              width={373}
+              height={773}
+              sizes="(max-width: 1023px) 220px, 373px"
+            />
+          </div>
           <Link href="/register" className="fata-dl">
             Скачати мобільний застосунок
           </Link>
+          <div className="fata-phrase"><em>Ваше</em> <span>ВЕСІЛЛЯ</span> у вас в кишені</div>
         </div>
       </section>
 
@@ -520,64 +524,64 @@ export function HomeLanding() {
 
       <section className="fata-prefooter">
         <div className="fata-shell fata-prefooter-inner">
-        <div className="fata-cloud" aria-hidden>
-          {CLOUD.map((shot) => (
-            <div key={shot.id} className="fata-cloud-item" style={shot.style}>
-              <Image src={shot.src} alt="" fill sizes="220px" />
-            </div>
-          ))}
-        </div>
-        <div className="fata-prefooter-copy">
-          <h2>
-            З fata.studio{" "}
-            <span>всі ці речі простіше і безкоштовно</span>
-          </h2>
-          <Link href="/register">Розпочати безкоштовно</Link>
-        </div>
+          <div className="fata-cloud" aria-hidden>
+            {CLOUD.map((shot) => (
+              <div key={shot.id} className="fata-cloud-item" style={shot.style}>
+                <Image src={shot.src} alt="" fill sizes="220px" />
+              </div>
+            ))}
+          </div>
+          <div className="fata-prefooter-copy">
+            <h2>
+              З fata.studio{" "}
+              <span>всі ці речі простіше і безкоштовно</span>
+            </h2>
+            <Link href="/register">Розпочати безкоштовно</Link>
+          </div>
         </div>
       </section>
 
       <footer className="fata-foot">
         <div className="fata-shell fata-foot-inner">
-        <div className="fata-foot-top">
-          <div className="fata-foot-brand">
-            <FataLogo src="/landing/logo-foot.svg" />
-            <p>Сучасний інструмент для планування весілля</p>
+          <div className="fata-foot-top">
+            <div className="fata-foot-brand">
+              <FataLogo src="/landing/logo-foot.svg" />
+              <p>Сучасний інструмент для планування весілля</p>
+            </div>
+            <div>
+              <h4>Продукт</h4>
+              {FOOT_PRODUCT.map((item) => (
+                <Link key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            <div>
+              <h4>Компанія</h4>
+              <Link href="/content">Про нас</Link>
+              <Link href="/content">Ідеї</Link>
+              <Link href="/content">Контакти</Link>
+            </div>
+            <div>
+              <h4>Підтримка</h4>
+              <Link href="/content">Допомога</Link>
+              <Link href="/content">Умови використання</Link>
+              <Link href="/content">Політика конфіденційності</Link>
+              <Link href="/content">Зворотний зв’язок</Link>
+            </div>
           </div>
-          <div>
-            <h4>Продукт</h4>
-            {FOOT_PRODUCT.map((item) => (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
+          <div className="fata-foot-line" />
+          <div className="fata-foot-bottom">
+            <span>© 2026 fata.studio. Усі права захищені.</span>
+            <span className="fata-foot-social">
+              <a href="https://instagram.com" aria-label="Instagram">
+                <img src="/landing/cloud/ig.svg" alt="" width={20} height={20} />
+              </a>
+              <a href="https://facebook.com" aria-label="Facebook">
+                <img src="/landing/cloud/fb.svg" alt="" width={20} height={20} />
+              </a>
+            </span>
           </div>
-          <div>
-            <h4>Компанія</h4>
-            <Link href="/content">Про нас</Link>
-            <Link href="/content">Ідеї</Link>
-            <Link href="/content">Контакти</Link>
-          </div>
-          <div>
-            <h4>Підтримка</h4>
-            <Link href="/content">Допомога</Link>
-            <Link href="/content">Умови використання</Link>
-            <Link href="/content">Політика конфіденційності</Link>
-            <Link href="/content">Зворотний зв’язок</Link>
-          </div>
-        </div>
-        <div className="fata-foot-line" />
-        <div className="fata-foot-bottom">
-          <span>© 2026 fata.studio. Усі права захищені.</span>
-          <span className="fata-foot-social">
-            <a href="https://instagram.com" aria-label="Instagram">
-              <img src="/landing/cloud/ig.svg" alt="" width={20} height={20} />
-            </a>
-            <a href="https://facebook.com" aria-label="Facebook">
-              <img src="/landing/cloud/fb.svg" alt="" width={20} height={20} />
-            </a>
-          </span>
-        </div>
         </div>
       </footer>
     </div>

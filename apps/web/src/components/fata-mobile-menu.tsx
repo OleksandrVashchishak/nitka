@@ -61,9 +61,11 @@ export function FataMobileMenu({
             <img src="/landing/logo-foot.svg" alt="fata.studio" width={148} height={32} />
           </Link>
           <button type="button" className="fata-drawer-close" aria-label="Закрити" onClick={onClose}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-              <path d="M2 2l14 14M16 2L2 16" stroke="currentColor" strokeWidth="1.4" />
-            </svg>
+           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="5.06066" y1="4" x2="18.1421" y2="17.0815" stroke="#F0FEBB" strokeWidth="1.5" strokeLinecap="round"/>
+<line x1="4" y1="14.9393" x2="17.0815" y2="1.85786" stroke="#F0FEBB" strokeWidth="1.5" strokeLinecap="round"/>
+</svg>
+
           </button>
         </div>
 
