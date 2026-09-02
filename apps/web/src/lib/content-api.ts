@@ -132,11 +132,11 @@ export async function getContentCities(): Promise<string[]> {
 }
 
 export function contentHref(post: { slug: string }) {
-  return `/content/${post.slug}`;
+  return `/blog/${post.slug}`;
 }
 
 export function contentTopicHref(topic: { slug: string }) {
-  return `/content/topic/${topic.slug}`;
+  return `/blog/${topic.slug}`;
 }
 
 export function contentKindLabel(kind: ContentKind) {

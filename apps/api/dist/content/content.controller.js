@@ -26,11 +26,16 @@ let ContentController = class ContentController {
     getTopic(slug) {
         return this.contentService.getTopicBySlug(slug);
     }
-    list(topic, kind, featured, page, limit) {
+    listCities() {
+        return this.contentService.listPublishedCities();
+    }
+    list(topic, kind, featured, q, city, page, limit) {
         return this.contentService.listPublished({
             topic,
             kind,
             featured: featured === '1' || featured === 'true',
+            q,
+            city,
             page: page ? Number(page) : undefined,
             limit: limit ? Number(limit) : undefined,
         });
@@ -54,14 +59,22 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ContentController.prototype, "getTopic", null);
 __decorate([
+    (0, common_1.Get)('cities'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ContentController.prototype, "listCities", null);
+__decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('topic')),
     __param(1, (0, common_1.Query)('kind')),
     __param(2, (0, common_1.Query)('featured')),
-    __param(3, (0, common_1.Query)('page')),
-    __param(4, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('q')),
+    __param(4, (0, common_1.Query)('city')),
+    __param(5, (0, common_1.Query)('page')),
+    __param(6, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], ContentController.prototype, "list", null);
 __decorate([

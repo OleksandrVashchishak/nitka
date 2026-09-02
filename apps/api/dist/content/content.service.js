@@ -33,7 +33,11 @@ function richBody(blocks) {
                 return {
                     id: `h${i}`,
                     type: 'header',
-                    data: { text: b.text, level: b.level ?? 2 },
+                    data: {
+                        text: b.text,
+                        level: b.level ?? 2,
+                        ...(b.id ? { id: b.id } : {}),
+                    },
                 };
             }
             if (b.type === 'list') {
@@ -101,12 +105,21 @@ let ContentService = ContentService_1 = class ContentService {
     async listPublished(params) {
         const page = Math.max(1, params.page ?? 1);
         const limit = Math.min(50, Math.max(1, params.limit ?? 12));
+        const q = params.q?.trim();
+        const city = params.city?.trim();
         const where = {
             status: client_1.ContentStatus.PUBLISHED,
             ...(params.kind ? { kind: params.kind } : {}),
             ...(params.featured ? { featured: true } : {}),
-            ...(params.topic
-                ? { topic: { slug: params.topic } }
+            ...(params.topic ? { topic: { slug: params.topic } } : {}),
+            ...(city ? { city } : {}),
+            ...(q
+                ? {
+                    OR: [
+                        { title: { contains: q, mode: "insensitive" } },
+                        { excerpt: { contains: q, mode: "insensitive" } },
+                    ],
+                }
                 : {}),
         };
         const [items, total] = await Promise.all([
@@ -120,6 +133,17 @@ let ContentService = ContentService_1 = class ContentService {
             this.prisma.contentPost.count({ where }),
         ]);
         return { items, total, page, limit };
+    }
+    async listPublishedCities() {
+        const rows = await this.prisma.contentPost.findMany({
+            where: { status: client_1.ContentStatus.PUBLISHED, city: { not: null } },
+            select: { city: true },
+            distinct: ["city"],
+            orderBy: { city: "asc" },
+        });
+        return rows
+            .map((row) => row.city)
+            .filter((city) => Boolean(city));
     }
     async getPublishedBySlug(slug) {
         const post = await this.prisma.contentPost.findFirst({
@@ -370,6 +394,27 @@ let ContentService = ContentService_1 = class ContentService {
                 },
             });
         }
+        const keepPostSlugs = new Set(content_seed_data_1.CONTENT_KEEP_POST_SLUGS);
+        const keepTopicSlugs = new Set(content_seed_data_1.CONTENT_TOPICS_SEED.map((t) => t.slug));
+        for (const [from, to] of Object.entries(content_seed_data_1.CONTENT_POST_SLUG_ALIASES)) {
+            const oldPost = await this.prisma.contentPost.findUnique({
+                where: { slug: from },
+            });
+            if (!oldPost)
+                continue;
+            const taken = await this.prisma.contentPost.findUnique({
+                where: { slug: to },
+            });
+            if (!taken) {
+                await this.prisma.contentPost.update({
+                    where: { id: oldPost.id },
+                    data: { slug: to },
+                });
+            }
+            else if (taken.id !== oldPost.id) {
+                await this.prisma.contentPost.delete({ where: { id: oldPost.id } });
+            }
+        }
         const topics = await this.prisma.contentTopic.findMany();
         const bySlug = Object.fromEntries(topics.map((t) => [t.slug, t]));
         const admin = await this.prisma.user.findFirst({
@@ -377,6 +422,8 @@ let ContentService = ContentService_1 = class ContentService {
             select: { id: true },
         });
         for (const seed of content_seed_data_1.CONTENT_POSTS_SEED) {
+            if (!keepPostSlugs.has(seed.slug))
+                continue;
             const topic = bySlug[seed.topicSlug];
             if (!topic)
                 continue;
@@ -400,37 +447,39 @@ let ContentService = ContentService_1 = class ContentService {
                         topicId: topic.id,
                         authorId: admin?.id ?? null,
                         publishedAt: new Date(),
-                        seoTitle: seed.title,
-                        seoDescription: seed.excerpt,
+                        seoTitle: seed.seoTitle || seed.title,
+                        seoDescription: seed.seoDescription || seed.excerpt,
                         body,
                     },
                 });
                 continue;
             }
-            const needsRefresh = !existing.coverUrl ||
-                existing.coverUrl !== seed.coverUrl ||
-                bodyBlockCount(existing.body) < seed.blocks.length;
-            if (needsRefresh) {
-                await this.prisma.contentPost.update({
-                    where: { id: existing.id },
-                    data: {
-                        title: seed.title,
-                        excerpt: seed.excerpt,
-                        coverUrl: seed.coverUrl,
-                        ogImageUrl: existing.ogImageUrl || seed.coverUrl,
-                        seoTitle: seed.title,
-                        seoDescription: seed.excerpt,
-                        featured: seed.featured ?? existing.featured,
-                        city: seed.city ?? existing.city,
-                        vendorCategorySlug: seed.vendorCategorySlug ?? existing.vendorCategorySlug,
-                        kind: seed.kind,
-                        body,
-                        status: client_1.ContentStatus.PUBLISHED,
-                        publishedAt: existing.publishedAt ?? new Date(),
-                    },
-                });
-            }
+            await this.prisma.contentPost.update({
+                where: { id: existing.id },
+                data: {
+                    title: seed.title,
+                    excerpt: seed.excerpt,
+                    coverUrl: seed.coverUrl,
+                    ogImageUrl: existing.ogImageUrl || seed.coverUrl,
+                    seoTitle: seed.seoTitle || seed.title,
+                    seoDescription: seed.seoDescription || seed.excerpt,
+                    featured: seed.featured ?? existing.featured,
+                    city: null,
+                    vendorCategorySlug: null,
+                    kind: seed.kind,
+                    topicId: topic.id,
+                    body,
+                    status: client_1.ContentStatus.PUBLISHED,
+                    publishedAt: existing.publishedAt ?? new Date(),
+                },
+            });
         }
+        await this.prisma.contentPost.deleteMany({
+            where: { slug: { notIn: [...keepPostSlugs] } },
+        });
+        await this.prisma.contentTopic.deleteMany({
+            where: { slug: { notIn: [...keepTopicSlugs] } },
+        });
     }
 };
 exports.ContentService = ContentService;

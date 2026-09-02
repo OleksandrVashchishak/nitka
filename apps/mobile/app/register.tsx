@@ -85,7 +85,7 @@ export default function RegisterScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.brand}>NITKA</Text>
+                    <Text style={styles.brand}>fata</Text>
           <Title>Реєстрація</Title>
           <Text style={styles.hint}>Кабінет для пари — дата, гості, бюджет</Text>
 

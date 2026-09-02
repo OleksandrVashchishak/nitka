@@ -205,7 +205,7 @@ export default async function VendorPage({ params }: Props) {
                 <span className="text-ink-soft">· {vendor.city}</span>
                 {vendor.featured ? (
                   <span className="rounded-full bg-sage/10 px-2.5 py-1 text-xs font-semibold text-sage-deep">
-                    Вибір NITKA
+                    Вибір fata.studio
                   </span>
                 ) : null}
               </div>

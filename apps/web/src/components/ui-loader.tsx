@@ -29,7 +29,7 @@ export function PageLoader({
       </div>
       <div className="text-center">
         <p className="font-[family-name:var(--font-display)] text-2xl text-ink">
-          NITKA
+          fata.studio
         </p>
         <p className="mt-2 text-sm text-ink-soft">{label}</p>
       </div>

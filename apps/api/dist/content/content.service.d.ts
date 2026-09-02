@@ -16,299 +16,302 @@ export declare class ContentService implements OnModuleInit {
         name: string;
         slug: string;
         description: string;
-        sortOrder: number;
         icon: string;
         coverUrl: string | null;
+        sortOrder: number;
     })[]>;
     getTopicBySlug(slug: string): Promise<{
         id: string;
         name: string;
         slug: string;
         description: string;
-        sortOrder: number;
         icon: string;
         coverUrl: string | null;
+        sortOrder: number;
     }>;
     listPublished(params: {
         topic?: string;
         kind?: ContentKind;
         featured?: boolean;
+        q?: string;
+        city?: string;
         page?: number;
         limit?: number;
     }): Promise<{
         items: ({
-            author: {
-                id: string;
-                name: string;
-            } | null;
             topic: {
                 id: string;
                 name: string;
                 slug: string;
                 description: string;
-                sortOrder: number;
                 icon: string;
                 coverUrl: string | null;
+                sortOrder: number;
             };
+            author: {
+                id: string;
+                name: string;
+            } | null;
         } & {
-            status: import(".prisma/client").$Enums.ContentStatus;
-            featured: boolean;
             id: string;
             slug: string;
-            city: string | null;
-            createdAt: Date;
-            title: string;
-            updatedAt: Date;
-            authorId: string | null;
-            body: Prisma.JsonValue;
             coverUrl: string | null;
+            status: import(".prisma/client").$Enums.ContentStatus;
+            title: string;
             excerpt: string;
             kind: import(".prisma/client").$Enums.ContentKind;
+            body: Prisma.JsonValue;
             seoTitle: string;
             seoDescription: string;
             ogImageUrl: string | null;
+            city: string | null;
             vendorCategorySlug: string | null;
+            featured: boolean;
             topicId: string;
+            authorId: string | null;
             publishedAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         total: number;
         page: number;
         limit: number;
     }>;
+    listPublishedCities(): Promise<string[]>;
     getPublishedBySlug(slug: string): Promise<{
-        author: {
-            id: string;
-            name: string;
-        } | null;
         topic: {
             id: string;
             name: string;
             slug: string;
             description: string;
-            sortOrder: number;
             icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
+        author: {
+            id: string;
+            name: string;
+        } | null;
     } & {
-        status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
         id: string;
         slug: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        updatedAt: Date;
-        authorId: string | null;
-        body: Prisma.JsonValue;
         coverUrl: string | null;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
+        body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
         vendorCategorySlug: string | null;
+        featured: boolean;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     adminListPosts(params: {
         status?: ContentStatus;
         topic?: string;
         q?: string;
     }): Prisma.PrismaPromise<({
-        author: {
-            id: string;
-            name: string;
-        } | null;
         topic: {
             id: string;
             name: string;
             slug: string;
             description: string;
-            sortOrder: number;
             icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
+        author: {
+            id: string;
+            name: string;
+        } | null;
     } & {
-        status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
         id: string;
         slug: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        updatedAt: Date;
-        authorId: string | null;
-        body: Prisma.JsonValue;
         coverUrl: string | null;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
+        body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
         vendorCategorySlug: string | null;
+        featured: boolean;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     adminGetPost(id: string): Promise<{
-        author: {
-            id: string;
-            name: string;
-        } | null;
         topic: {
             id: string;
             name: string;
             slug: string;
             description: string;
-            sortOrder: number;
             icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
+        author: {
+            id: string;
+            name: string;
+        } | null;
     } & {
-        status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
         id: string;
         slug: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        updatedAt: Date;
-        authorId: string | null;
-        body: Prisma.JsonValue;
         coverUrl: string | null;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
+        body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
         vendorCategorySlug: string | null;
+        featured: boolean;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     createTopic(dto: UpsertContentTopicDto): Promise<{
         id: string;
         name: string;
         slug: string;
         description: string;
-        sortOrder: number;
         icon: string;
         coverUrl: string | null;
+        sortOrder: number;
     }>;
     updateTopic(id: string, dto: UpsertContentTopicDto): Promise<{
         id: string;
         name: string;
         slug: string;
         description: string;
-        sortOrder: number;
         icon: string;
         coverUrl: string | null;
+        sortOrder: number;
     }>;
     deleteTopic(id: string): Promise<{
         ok: boolean;
     }>;
     createPost(authorId: string, dto: UpsertContentPostDto): Promise<{
-        author: {
-            id: string;
-            name: string;
-        } | null;
         topic: {
             id: string;
             name: string;
             slug: string;
             description: string;
-            sortOrder: number;
             icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
+        author: {
+            id: string;
+            name: string;
+        } | null;
     } & {
-        status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
         id: string;
         slug: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        updatedAt: Date;
-        authorId: string | null;
-        body: Prisma.JsonValue;
         coverUrl: string | null;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
+        body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
         vendorCategorySlug: string | null;
+        featured: boolean;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     updatePost(id: string, dto: UpsertContentPostDto): Promise<{
-        author: {
-            id: string;
-            name: string;
-        } | null;
         topic: {
             id: string;
             name: string;
             slug: string;
             description: string;
-            sortOrder: number;
             icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
+        author: {
+            id: string;
+            name: string;
+        } | null;
     } & {
-        status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
         id: string;
         slug: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        updatedAt: Date;
-        authorId: string | null;
-        body: Prisma.JsonValue;
         coverUrl: string | null;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
+        body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
         vendorCategorySlug: string | null;
+        featured: boolean;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     updateStatus(id: string, status: ContentStatus): Promise<{
-        author: {
-            id: string;
-            name: string;
-        } | null;
         topic: {
             id: string;
             name: string;
             slug: string;
             description: string;
-            sortOrder: number;
             icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
+        author: {
+            id: string;
+            name: string;
+        } | null;
     } & {
-        status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
         id: string;
         slug: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        updatedAt: Date;
-        authorId: string | null;
-        body: Prisma.JsonValue;
         coverUrl: string | null;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
         kind: import(".prisma/client").$Enums.ContentKind;
+        body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
         vendorCategorySlug: string | null;
+        featured: boolean;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     deletePost(id: string): Promise<{
         ok: boolean;

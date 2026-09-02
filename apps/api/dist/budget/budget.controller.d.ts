@@ -36,14 +36,14 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            title: string;
             createdAt: Date;
             category: string;
-            title: string;
             weddingId: string;
+            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
         }[];
     }>;
     updatePlan(user: AuthUser, dto: UpdateBudgetPlanDto): Promise<{
@@ -78,14 +78,14 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            title: string;
             createdAt: Date;
             category: string;
-            title: string;
             weddingId: string;
+            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
         }[];
     }>;
     createItem(user: AuthUser, dto: CreateBudgetItemDto): Promise<{
@@ -120,14 +120,14 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            title: string;
             createdAt: Date;
             category: string;
-            title: string;
             weddingId: string;
+            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
         }[];
     }>;
     updateItem(user: AuthUser, id: string, dto: UpdateBudgetItemDto): Promise<{
@@ -162,14 +162,14 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            title: string;
             createdAt: Date;
             category: string;
-            title: string;
             weddingId: string;
+            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
         }[];
     }>;
     removeItem(user: AuthUser, id: string): Promise<{
@@ -204,14 +204,14 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            title: string;
             createdAt: Date;
             category: string;
-            title: string;
             weddingId: string;
+            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
         }[];
     }>;
 }

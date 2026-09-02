@@ -89,7 +89,7 @@ export class RequestsService {
       email: {
         subject: `Нова заявка від ${couple?.name || 'пари'}`,
         body: [
-          'У вас нова заявка на NITKA.',
+          'У вас нова заявка на fata.studio.',
           '',
           `Пара: ${couple?.name || '—'}`,
           `Місто: ${dto.city.trim()}`,
@@ -271,7 +271,7 @@ export class RequestsService {
         email: {
           subject: 'Нове повідомлення по заявці',
           body: [
-            'Пара написала вам у заявці на NITKA.',
+            'Пара написала вам у заявці на fata.studio.',
             '',
             dto.body.trim(),
             ...(phone ? ['', `Телефон: ${phone}`] : []),

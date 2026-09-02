@@ -21,7 +21,7 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
         <p className="animate-rise font-[family-name:var(--font-display)] text-5xl leading-none tracking-[0.04em] text-white md:text-7xl lg:text-8xl">
-          NITKA
+          fata.studio
         </p>
         <h1 className="animate-rise-delay mt-5 max-w-2xl font-[family-name:var(--font-display)] text-3xl leading-tight text-white md:text-5xl">
           Плануйте весілля спокійно і по кроках

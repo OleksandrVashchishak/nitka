@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/spysok-gostey" },
   openGraph: {
-    title: "Список гостей і запрошення · NITKA",
+    title: "Список гостей і запрошення",
     description:
       "Ведіть список гостей і збирайте відповіді через персональні посилання — без хаосу в чатах.",
     url: "/spysok-gostey",
@@ -29,15 +29,15 @@ export default function SpysokGosteyPage() {
       eyebrow="Гості та запрошення"
       title="Список гостей онлайн: Запрошення без нескінченних «ти йдеш?»"
       lead="Додайте гостей, надішліть персональне посилання в Telegram чи WhatsApp — і бачте статуси: йде, можливо, не зможе."
-      seoIntro="Список гостей на весілля в NITKA допомагає парі зібрати людей в одному місці: сторона наречених, +1, алергії, стіл і запрошення. Замість скрінів і таблиць у Excel ви даєте гостю коротке посилання на відповідь — і оновлюєте headcount для локації та кейтерингу."
+      seoIntro="Список гостей на весілля в fata.studio допомагає парі зібрати людей в одному місці: сторона наречених, +1, алергії, стіл і запрошення. Замість скрінів і таблиць у Excel ви даєте гостю коротке посилання на відповідь — і оновлюєте headcount для локації та кейтерингу."
       image="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=2000&q=80"
       imageAlt="Гості на весіллі за столами"
       midImage="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=2000&q=80"
       midImageAlt="Святкування весілля з гостями"
       coupleHref="/guests"
       registerHint="Після реєстрації список гостей відкриється в кабінеті пари."
-      relatedHref="/content/yak-sklasty-spysok-gostey"
-      relatedLabel="Як скласти список гостей — гайд"
+      relatedHref="/blog/yak-orhanizuvaty-vesillya"
+      relatedLabel="Як організувати весілля самостійно"
       secondaryRelatedHref="/vesilnyy-plan"
       secondaryRelatedLabel="План весілля онлайн"
       highlights={[
@@ -89,7 +89,7 @@ export default function SpysokGosteyPage() {
         {
           heading: "Як вести список гостей на весілля онлайн",
           paragraphs: [
-            "Почніть з A-list: люди, без яких не уявляєте день. Далі додайте родичів і друзів по сторонах. У NITKA можна одразу позначити +1 і контакти.",
+            "Почніть з A-list: люди, без яких не уявляєте день. Далі додайте родичів і друзів по сторонах. У fata.studio можна одразу позначити +1 і контакти.",
             "Коли список стабільний — роздайте посилання на запрошення. Відповіді з’являться в кабінеті; ви бачите, кому нагадати.",
           ],
         },

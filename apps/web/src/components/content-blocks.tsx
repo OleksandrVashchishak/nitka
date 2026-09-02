@@ -32,6 +32,33 @@ function sanitizeInline(html: string) {
     .replace(/\{\{\/A\}\}/g, "</a>");
 }
 
+export type BlogTocItem = { id: string; text: string };
+
+function headingId(text: string, explicit?: string) {
+  if (explicit?.trim()) return explicit.trim();
+  return text
+    .toLowerCase()
+    .replace(/<[^>]+>/g, "")
+    .replace(/['’ʼ]/g, "")
+    .replace(/[^a-zа-яіїєґ0-9]+/gi, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+}
+
+export function tocFromHtml(html: string): BlogTocItem[] {
+  const items: BlogTocItem[] = [];
+  const re = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(html))) {
+    const attrs = match[1] ?? "";
+    const text = match[2].replace(/<[^>]+>/g, "").trim();
+    if (!text) continue;
+    const idMatch = attrs.match(/\sid="([^"]+)"/i);
+    items.push({ id: idMatch?.[1] ?? headingId(text), text });
+  }
+  return items;
+}
+
 export function renderEditorJsHtml(body: EditorJsBody | null | undefined) {
   const blocks = body?.blocks ?? [];
   if (!blocks.length) return "";
@@ -43,13 +70,17 @@ export function renderEditorJsHtml(body: EditorJsBody | null | undefined) {
         case "header": {
           const level = Math.min(4, Math.max(2, Number(data.level) || 2));
           const text = sanitizeInline(String(data.text ?? ""));
+          const id = headingId(
+            String(data.text ?? ""),
+            typeof data.id === "string" ? data.id : undefined,
+          );
           const cls =
             level === 2
               ? "mt-10 font-[family-name:var(--font-display)] text-3xl text-ink"
               : level === 3
                 ? "mt-8 font-[family-name:var(--font-display)] text-2xl text-ink"
                 : "mt-6 text-xl font-semibold text-ink";
-          return `<h${level} class="${cls}">${text}</h${level}>`;
+          return `<h${level} id="${escapeHtml(id)}" class="${cls} blog-heading">${text}</h${level}>`;
         }
         case "paragraph": {
           const text = sanitizeInline(String(data.text ?? ""));

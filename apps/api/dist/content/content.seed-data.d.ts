@@ -3,6 +3,7 @@ export type SeedBlock = {
     type: 'header';
     text: string;
     level?: number;
+    id?: string;
 } | {
     type: 'paragraph';
     text: string;
@@ -30,10 +31,14 @@ export type PostSeed = {
     coverUrl: string;
     kind: ContentKind;
     topicSlug: string;
+    seoTitle?: string;
+    seoDescription?: string;
     featured?: boolean;
     city?: string;
     vendorCategorySlug?: string;
     blocks: SeedBlock[];
 };
 export declare const CONTENT_TOPICS_SEED: TopicSeed[];
+export declare const CONTENT_POST_SLUG_ALIASES: Record<string, string>;
+export declare const CONTENT_KEEP_POST_SLUGS: readonly ["yak-orhanizuvaty-vesillya"];
 export declare const CONTENT_POSTS_SEED: PostSeed[];

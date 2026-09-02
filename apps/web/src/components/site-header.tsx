@@ -14,7 +14,7 @@ const MARKETING_NAV = [
   { href: "/vesilnyy-byudzhet", label: "Бюджет" },
   { href: "/zaprosinnya", label: "Сайт-запрошення" },
   { href: "/spysok-gostey", label: "Список гостей" },
-  { href: "/content", label: "Ідеї" },
+  { href: "/blog", label: "Блог" },
 ] as const;
 
 export function SiteHeader() {
@@ -24,6 +24,7 @@ export function SiteHeader() {
   if (
     pathname === "/" ||
     pathname.startsWith("/register") ||
+    pathname.startsWith("/login") ||
     pathname.startsWith("/w/") ||
     pathname.startsWith("/rsvp/") ||
     pathname === "/tasks" ||

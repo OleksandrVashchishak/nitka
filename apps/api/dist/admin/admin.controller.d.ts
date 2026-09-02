@@ -21,6 +21,12 @@ export declare class AdminController {
         featuredVendors: number;
     }>;
     listVendors(status?: VendorStatus, q?: string): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            favorites: number;
+            reviews: number;
+            requests: number;
+            views: number;
+        };
         user: {
             id: string;
             name: string;
@@ -36,30 +42,23 @@ export declare class AdminController {
         };
         photos: {
             id: string;
-            vendorId: string;
             url: string;
             order: number;
+            vendorId: string;
         }[];
-        _count: {
-            reviews: number;
-            favorites: number;
-            requests: number;
-            views: number;
-        };
     } & {
         id: string;
-        userId: string;
         name: string;
         slug: string | null;
-        tagline: string;
         description: string;
-        categoryId: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
         city: string;
+        featured: boolean;
+        createdAt: Date;
+        tagline: string;
+        categoryId: string;
         priceFrom: number;
         priceTo: number | null;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -76,10 +75,17 @@ export declare class AdminController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
+        userId: string;
+        rating: number;
         moderationNote: string | null;
-        createdAt: Date;
     })[]>;
     getVendor(id: string): Promise<{
+        _count: {
+            favorites: number;
+            reviews: number;
+            requests: number;
+            views: number;
+        };
         user: {
             id: string;
             name: string;
@@ -93,59 +99,52 @@ export declare class AdminController {
             description: string;
             sortOrder: number;
         };
-        photos: {
-            id: string;
-            vendorId: string;
-            url: string;
-            order: number;
-        }[];
         packages: {
             id: string;
             description: string;
-            vendorId: string;
-            order: number;
             includes: string;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
+            order: number;
+            vendorId: string;
         }[];
         faqs: {
             id: string;
-            vendorId: string;
-            order: number;
             question: string;
             answer: string;
+            order: number;
+            vendorId: string;
         }[];
         team: {
             id: string;
             name: string;
-            vendorId: string;
-            order: number;
             role: string;
             bio: string;
             photoUrl: string | null;
+            order: number;
+            vendorId: string;
         }[];
-        _count: {
-            reviews: number;
-            favorites: number;
-            requests: number;
-            views: number;
-        };
+        photos: {
+            id: string;
+            url: string;
+            order: number;
+            vendorId: string;
+        }[];
     } & {
         id: string;
-        userId: string;
         name: string;
         slug: string | null;
-        tagline: string;
         description: string;
-        categoryId: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
         city: string;
+        featured: boolean;
+        createdAt: Date;
+        tagline: string;
+        categoryId: string;
         priceFrom: number;
         priceTo: number | null;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -162,10 +161,17 @@ export declare class AdminController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
+        userId: string;
+        rating: number;
         moderationNote: string | null;
-        createdAt: Date;
     }>;
     updateVendorStatus(id: string, dto: UpdateVendorStatusDto): Promise<{
+        _count: {
+            favorites: number;
+            reviews: number;
+            requests: number;
+            views: number;
+        };
         user: {
             id: string;
             name: string;
@@ -181,30 +187,23 @@ export declare class AdminController {
         };
         photos: {
             id: string;
-            vendorId: string;
             url: string;
             order: number;
+            vendorId: string;
         }[];
-        _count: {
-            reviews: number;
-            favorites: number;
-            requests: number;
-            views: number;
-        };
     } & {
         id: string;
-        userId: string;
         name: string;
         slug: string | null;
-        tagline: string;
         description: string;
-        categoryId: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
         city: string;
+        featured: boolean;
+        createdAt: Date;
+        tagline: string;
+        categoryId: string;
         priceFrom: number;
         priceTo: number | null;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -221,10 +220,17 @@ export declare class AdminController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
+        userId: string;
+        rating: number;
         moderationNote: string | null;
-        createdAt: Date;
     }>;
     setFeatured(id: string, dto: UpdateVendorFeaturedDto): Promise<{
+        _count: {
+            favorites: number;
+            reviews: number;
+            requests: number;
+            views: number;
+        };
         user: {
             id: string;
             name: string;
@@ -240,30 +246,23 @@ export declare class AdminController {
         };
         photos: {
             id: string;
-            vendorId: string;
             url: string;
             order: number;
+            vendorId: string;
         }[];
-        _count: {
-            reviews: number;
-            favorites: number;
-            requests: number;
-            views: number;
-        };
     } & {
         id: string;
-        userId: string;
         name: string;
         slug: string | null;
-        tagline: string;
         description: string;
-        categoryId: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
         city: string;
+        featured: boolean;
+        createdAt: Date;
+        tagline: string;
+        categoryId: string;
         priceFrom: number;
         priceTo: number | null;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -280,8 +279,9 @@ export declare class AdminController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
+        userId: string;
+        rating: number;
         moderationNote: string | null;
-        createdAt: Date;
     }>;
     updateVendorProfile(id: string, dto: UpsertVendorProfileDto): Promise<{
         category: {
@@ -291,53 +291,52 @@ export declare class AdminController {
             description: string;
             sortOrder: number;
         };
-        photos: {
-            id: string;
-            vendorId: string;
-            url: string;
-            order: number;
-        }[];
         packages: {
             id: string;
             description: string;
-            vendorId: string;
-            order: number;
             includes: string;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
+            order: number;
+            vendorId: string;
         }[];
         faqs: {
             id: string;
-            vendorId: string;
-            order: number;
             question: string;
             answer: string;
+            order: number;
+            vendorId: string;
         }[];
         team: {
             id: string;
             name: string;
-            vendorId: string;
-            order: number;
             role: string;
             bio: string;
             photoUrl: string | null;
+            order: number;
+            vendorId: string;
+        }[];
+        photos: {
+            id: string;
+            url: string;
+            order: number;
+            vendorId: string;
         }[];
     } & {
         id: string;
-        userId: string;
         name: string;
         slug: string | null;
-        tagline: string;
         description: string;
-        categoryId: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
         city: string;
+        featured: boolean;
+        createdAt: Date;
+        tagline: string;
+        categoryId: string;
         priceFrom: number;
         priceTo: number | null;
-        rating: number;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -354,8 +353,9 @@ export declare class AdminController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
+        userId: string;
+        rating: number;
         moderationNote: string | null;
-        createdAt: Date;
     }>;
     listCategories(): import(".prisma/client").Prisma.PrismaPromise<({
         _count: {
@@ -394,6 +394,11 @@ export declare class AdminController {
         ok: boolean;
     }>;
     listRequests(status?: RequestStatus, q?: string): import(".prisma/client").Prisma.PrismaPromise<({
+        user: {
+            id: string;
+            name: string;
+            email: string;
+        };
         vendor: {
             id: string;
             name: string;
@@ -406,11 +411,6 @@ export declare class AdminController {
                 sortOrder: number;
             };
         };
-        user: {
-            id: string;
-            name: string;
-            email: string;
-        };
         messages: ({
             author: {
                 id: string;
@@ -418,60 +418,60 @@ export declare class AdminController {
             };
         } & {
             id: string;
-            phone: string | null;
-            createdAt: Date;
-            requestId: string;
-            authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
+            authorId: string;
+            createdAt: Date;
+            phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
+            requestId: string;
         })[];
     } & {
         id: string;
-        userId: string;
-        city: string;
         status: import(".prisma/client").$Enums.RequestStatus;
+        city: string;
         createdAt: Date;
+        updatedAt: Date;
+        message: string;
+        userId: string;
         vendorId: string;
-        eventDate: Date;
         guests: number;
         budget: number;
-        message: string;
-        updatedAt: Date;
+        eventDate: Date;
     })[]>;
     listUsers(role?: Role, q?: string): import(".prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        _count: {
+            reviews: number;
+            requests: number;
+        };
+        createdAt: Date;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
+        blocked: boolean;
         vendor: {
             id: string;
             name: string;
             status: import(".prisma/client").$Enums.VendorStatus;
         } | null;
-        id: string;
-        name: string;
-        createdAt: Date;
-        _count: {
-            reviews: number;
-            requests: number;
-        };
-        email: string;
-        role: import(".prisma/client").$Enums.Role;
-        blocked: boolean;
     }[]>;
     getUser(id: string): Promise<{
+        id: string;
+        name: string;
+        _count: {
+            favorites: number;
+            reviews: number;
+            requests: number;
+        };
+        createdAt: Date;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
+        blocked: boolean;
         vendor: {
             id: string;
             name: string;
             status: import(".prisma/client").$Enums.VendorStatus;
         } | null;
-        id: string;
-        name: string;
-        createdAt: Date;
-        _count: {
-            reviews: number;
-            favorites: number;
-            requests: number;
-        };
-        email: string;
-        role: import(".prisma/client").$Enums.Role;
-        blocked: boolean;
         wedding: ({
             _count: {
                 tasks: number;
@@ -480,11 +480,11 @@ export declare class AdminController {
             };
         } & {
             id: string;
-            userId: string;
             city: string;
+            userId: string;
+            date: Date;
             guests: number;
             budget: number;
-            date: Date;
             partnerOneName: string;
             partnerTwoName: string;
             couplePhotoUrl: string | null;
@@ -494,35 +494,24 @@ export declare class AdminController {
         }) | null;
     }>;
     updateUser(id: string, dto: UpdateUserDto): Promise<{
+        id: string;
+        name: string;
+        _count: {
+            reviews: number;
+            requests: number;
+        };
+        createdAt: Date;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
+        blocked: boolean;
         vendor: {
             id: string;
             name: string;
             status: import(".prisma/client").$Enums.VendorStatus;
         } | null;
-        id: string;
-        name: string;
-        createdAt: Date;
-        _count: {
-            reviews: number;
-            requests: number;
-        };
-        email: string;
-        role: import(".prisma/client").$Enums.Role;
-        blocked: boolean;
     }>;
     updateUserWedding(id: string, dto: UpsertWeddingDto): Promise<{
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            sortOrder: number;
-            title: string;
-            weddingId: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            dueRemindedAt: Date | null;
-            isCustom: boolean;
-        }[];
         members: ({
             user: {
                 id: string;
@@ -531,17 +520,27 @@ export declare class AdminController {
             };
         } & {
             id: string;
-            userId: string;
             createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            userId: string;
             weddingId: string;
         })[];
+        tasks: {
+            id: string;
+            sortOrder: number;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            title: string;
+            weddingId: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        }[];
         id: string;
-        userId: string;
         city: string;
+        userId: string;
+        date: Date;
         guests: number;
         budget: number;
-        date: Date;
         partnerOneName: string;
         partnerTwoName: string;
         couplePhotoUrl: string | null;
@@ -550,6 +549,11 @@ export declare class AdminController {
         guestsUndecided: boolean;
     } | null>;
     listReviews(): import(".prisma/client").Prisma.PrismaPromise<({
+        user: {
+            id: string;
+            name: string;
+            email: string;
+        };
         vendor: {
             id: string;
             name: string;
@@ -562,18 +566,13 @@ export declare class AdminController {
                 sortOrder: number;
             };
         };
-        user: {
-            id: string;
-            name: string;
-            email: string;
-        };
     } & {
         id: string;
+        createdAt: Date;
+        text: string;
         userId: string;
         rating: number;
-        createdAt: Date;
         vendorId: string;
-        text: string;
     })[]>;
     deleteReview(id: string): Promise<{
         ok: boolean;

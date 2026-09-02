@@ -74,7 +74,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.hero}>
-          <Text style={styles.brand}>NITKA</Text>
+                    <Text style={styles.brand}>fata</Text>
           <Text style={styles.subtitle}>Планування весілля в телефоні</Text>
         </View>
 

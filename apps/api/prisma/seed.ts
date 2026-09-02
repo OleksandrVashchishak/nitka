@@ -11,6 +11,8 @@ import {
 } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import {
+  CONTENT_KEEP_POST_SLUGS,
+  CONTENT_POST_SLUG_ALIASES,
   CONTENT_POSTS_SEED,
   CONTENT_TOPICS_SEED,
   type SeedBlock,
@@ -268,6 +270,23 @@ async function seedContent() {
     });
   }
 
+  const keepPostSlugs = new Set<string>(CONTENT_KEEP_POST_SLUGS);
+  const keepTopicSlugs = new Set(CONTENT_TOPICS_SEED.map((t) => t.slug));
+
+  for (const [from, to] of Object.entries(CONTENT_POST_SLUG_ALIASES)) {
+    const oldPost = await prisma.contentPost.findUnique({ where: { slug: from } });
+    if (!oldPost) continue;
+    const taken = await prisma.contentPost.findUnique({ where: { slug: to } });
+    if (!taken) {
+      await prisma.contentPost.update({
+        where: { id: oldPost.id },
+        data: { slug: to },
+      });
+    } else if (taken.id !== oldPost.id) {
+      await prisma.contentPost.delete({ where: { id: oldPost.id } });
+    }
+  }
+
   const topics = await prisma.contentTopic.findMany();
   const bySlug = Object.fromEntries(topics.map((t) => [t.slug, t]));
   const admin = await prisma.user.findUnique({
@@ -275,6 +294,7 @@ async function seedContent() {
   });
 
   for (const seed of CONTENT_POSTS_SEED) {
+    if (!keepPostSlugs.has(seed.slug)) continue;
     const topic = bySlug[seed.topicSlug];
     if (!topic) continue;
     const body = richBody(seed.blocks);
@@ -294,8 +314,8 @@ async function seedContent() {
         topicId: topic.id,
         authorId: admin?.id ?? null,
         publishedAt: new Date(),
-        seoTitle: seed.title,
-        seoDescription: seed.excerpt,
+        seoTitle: seed.seoTitle || seed.title,
+        seoDescription: seed.seoDescription || seed.excerpt,
         body,
       },
       update: {
@@ -311,13 +331,19 @@ async function seedContent() {
         topicId: topic.id,
         authorId: admin?.id ?? null,
         publishedAt: new Date(),
-        seoTitle: seed.title,
-        seoDescription: seed.excerpt,
+        seoTitle: seed.seoTitle || seed.title,
+        seoDescription: seed.seoDescription || seed.excerpt,
         body,
       },
     });
   }
-  console.log(`content posts: ${CONTENT_POSTS_SEED.length}`);
+  await prisma.contentPost.deleteMany({
+    where: { slug: { notIn: [...keepPostSlugs] } },
+  });
+  await prisma.contentTopic.deleteMany({
+    where: { slug: { notIn: [...keepTopicSlugs] } },
+  });
+  console.log(`content posts: ${keepPostSlugs.size}`);
 }
 
 async function seedCouple(passwordHash: string) {

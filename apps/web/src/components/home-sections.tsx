@@ -59,7 +59,7 @@ export function HomeSeoIntro() {
           Планування весілля без хаосу
         </h2>
         <p className="mt-5 text-base leading-8 text-ink-soft md:text-lg">
-          NITKA — онлайн-платформа для пар, які хочуть пройти підготовку без
+          fata.studio — онлайн-платформа для пар, які хочуть пройти підготовку без
           стресу: від першої дати до дня весілля. Ведіть{" "}
           <Link
             href="/vesilnyy-plan"
@@ -241,7 +241,7 @@ export function HomeIdeas({ posts }: { posts: ContentPost[] }) {
             </p>
           </div>
           <Link
-            href="/content"
+            href="/blog"
             className="font-medium text-sage-deep underline-offset-2 hover:underline"
           >
             Усі матеріали →

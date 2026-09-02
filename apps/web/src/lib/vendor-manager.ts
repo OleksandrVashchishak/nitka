@@ -3,7 +3,7 @@ export type VendorManagerCategory = {
   slug: string;
   name: string;
   icon: string;
-  /** Якщо є в каталозі NITKA — лінк «з сервісу» (пізніше) */
+  /** Якщо є в каталозі fata.studio — лінк «з сервісу» (пізніше) */
   catalogSlug?: string;
 };
 

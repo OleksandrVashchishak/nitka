@@ -1,5 +1,10 @@
 import localFont from "next/font/local";
-import { Cormorant_Garamond, Marck_Script, Montserrat } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  Marck_Script,
+  Montserrat,
+  Poppins,
+} from "next/font/google";
 
 /** Standard width — nav, buttons, kickers */
 export const akzidenz = localFont({
@@ -57,4 +62,10 @@ export const montserrat = Montserrat({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
+});
+
+export const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin", "latin-ext"],
+  weight: ["500"],
 });

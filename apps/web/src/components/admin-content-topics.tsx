@@ -132,7 +132,7 @@ function AdminContentTopicsInner() {
               <div>
                 <p className="font-medium text-ink">{item.name}</p>
                 <p className="text-xs text-ink-soft">
-                  /content/topic/{item.slug}
+                  /blog/{item.slug}
                   {typeof item._count?.posts === "number"
                     ? ` · ${item._count.posts} опубл.`
                     : ""}

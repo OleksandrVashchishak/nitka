@@ -12,12 +12,12 @@ export function SiteFooter() {
     return (
       <footer className="bg-wine px-5 py-24 text-center text-white md:px-8 md:py-28">
         <p className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-3xl leading-tight tracking-wide md:text-5xl">
-          З nitka всі ці речі простіше і безкоштовно
+          З fata.studio всі ці речі простіше і безкоштовно
         </p>
         <Link href="/register" className="btn-cta mt-10">
           Розпочати безкоштовно
         </Link>
-        <p className="mt-16 text-xs text-white/50">© 2026 nitka</p>
+        <p className="mt-16 text-xs text-white/50">© 2026 fata.studio</p>
       </footer>
     );
   }
@@ -46,8 +46,8 @@ export function SiteFooter() {
             <Link href="/rozsadka-gostey" className="hover:text-ink">
               Розсадка
             </Link>
-            <Link href="/content" className="hover:text-ink">
-              Ідеї
+            <Link href="/blog" className="hover:text-ink">
+              Блог
             </Link>
             <Link href="/login" className="hover:text-ink">
               Увійти
@@ -55,7 +55,7 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="mt-10 border-t border-line pt-6 text-xs text-ink-soft">
-          © 2026 nitka. Усі права захищено.
+          © 2026 fata.studio. Усі права захищено.
         </p>
       </div>
     </footer>
@@ -67,6 +67,7 @@ export function SiteFooterWrapper() {
   if (
     pathname === "/" ||
     pathname.startsWith("/register") ||
+    pathname.startsWith("/login") ||
     pathname.startsWith("/w/") ||
     pathname.startsWith("/rsvp/") ||
     pathname === "/tasks" ||

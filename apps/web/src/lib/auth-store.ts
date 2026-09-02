@@ -19,12 +19,15 @@ type AuthState = {
   hydrated: boolean;
   setHydrated: (value: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
-  register: (input: {
-    email: string;
-    password: string;
-    name: string;
-    role: "COUPLE" | "VENDOR";
-  }) => Promise<void>;
+  register: (
+    input: {
+      email: string;
+      password: string;
+      name: string;
+      role: "COUPLE" | "VENDOR";
+    },
+    options?: { silent?: boolean },
+  ) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
 };
@@ -48,14 +51,16 @@ export const useAuthStore = create<AuthState>()(
         toast.success("Вітаємо знову", data.user.name);
       },
 
-      register: async (input) => {
+      register: async (input, options) => {
         const data = await registerRequest(input);
         set({
           user: data.user,
           accessToken: data.accessToken,
           refreshToken: data.refreshToken,
         });
-        toast.success("Акаунт створено", "Ласкаво просимо в NITKA");
+        if (!options?.silent) {
+          toast.success("Акаунт створено", "Ласкаво просимо");
+        }
       },
 
       logout: async () => {

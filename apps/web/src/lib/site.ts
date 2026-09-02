@@ -3,13 +3,13 @@ export function getSiteUrl() {
   const raw =
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
     (process.env.NODE_ENV === "production"
-      ? "https://nitka-web.onrender.com"
+      ? "https://fata.studio"
       : "http://localhost:3000");
 
   return raw.replace(/\/$/, "");
 }
 
-export const SITE_NAME = "NITKA";
+export const SITE_NAME = "fata.studio";
 
 export const SITE_DESCRIPTION =
   "Платформа планування весілля: чекліст, бюджет, гості, розсадка, запрошення та сайт пари.";

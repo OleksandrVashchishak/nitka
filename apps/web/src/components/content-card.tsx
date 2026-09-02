@@ -18,39 +18,37 @@ function formatDate(value?: string | null) {
 
 export function ContentCard({
   post,
+  tags,
 }: {
   post: ContentPost;
   large?: boolean;
+  tags?: string[];
 }) {
   const date = formatDate(post.publishedAt);
-  const tags = [post.topic.name, post.city || "Всі міста"].filter(Boolean);
+  const chips = tags?.length
+    ? tags
+    : [post.topic.name];
 
   return (
-    <article className="group flex flex-col">
-      <Link href={contentHref(post)} className="block">
-        <div className="relative aspect-[16/10] overflow-hidden bg-[#f3f3f3]">
-          {post.coverUrl ? (
-            <Image
-              src={post.coverUrl}
-              alt={post.title}
-              fill
-              className="object-cover transition duration-500 group-hover:scale-[1.03]"
-              sizes="(max-width: 768px) 100vw, 33vw"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-[#ececec]" />
-          )}
-        </div>
+    <article className="blog-card">
+      <Link href={contentHref(post)} className="blog-card-cover">
+        {post.coverUrl ? (
+          <Image
+            src={post.coverUrl}
+            alt={post.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1100px) 50vw, 387px"
+          />
+        ) : null}
       </Link>
-      <div className="mt-3 flex items-start justify-between gap-3 text-[11px] uppercase tracking-[0.08em] text-[#8a8a8a]">
-        <p className="min-w-0">
-          {tags.map((tag, index) => (
+      <div className="blog-card-meta">
+        <p>
+          {chips.map((tag, index) => (
             <span key={tag}>
               {index > 0 ? " | " : null}
               {post.topic.name === tag ? (
-                <Link href={contentTopicHref(post.topic)} className="hover:text-ink">
-                  {tag}
-                </Link>
+                <Link href={contentTopicHref(post.topic)}>{tag}</Link>
               ) : (
                 tag
               )}
@@ -58,23 +56,15 @@ export function ContentCard({
           ))}
         </p>
         {date ? (
-          <time dateTime={post.publishedAt ?? undefined} className="shrink-0">
-            {date}
-          </time>
+          <time dateTime={post.publishedAt ?? undefined}>{date}</time>
         ) : null}
       </div>
-      <Link href={contentHref(post)} className="mt-3 block">
-        <h3 className="font-[family-name:var(--font-display)] text-[28px] font-medium leading-[1.15] text-ink">
-          {post.title}
-        </h3>
+      <Link href={contentHref(post)}>
+        <h3 className="blog-card-title">{post.title}</h3>
         {post.excerpt ? (
-          <p className="mt-3 line-clamp-3 text-[15px] leading-6 text-[#6f6f6f]">
-            {post.excerpt}
-          </p>
+          <p className="blog-card-excerpt">{post.excerpt}</p>
         ) : null}
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#ff4200]">
-          Читати статтю <span aria-hidden>&gt;</span>
-        </span>
+        <span className="blog-card-more">Читати статтю &gt;</span>
       </Link>
     </article>
   );

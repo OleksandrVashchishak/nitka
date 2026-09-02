@@ -11,26 +11,11 @@ import {
   type TaskStatus,
   type Wedding,
 } from "@/lib/dashboard-api";
-import { CoupleProfileCard } from "@/components/couple-profile-card";
-import { DashboardNav } from "@/components/dashboard-nav";
 import { CoupleOverview } from "@/components/couple-overview";
 import { RequireAuth } from "@/components/require-auth";
 import { WeddingPlanPanel } from "@/components/wedding-plan-panel";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
-
-function formatDateLong(value: string) {
-  return new Intl.DateTimeFormat("uk-UA", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
-}
-
-function formatMoney(value: number) {
-  return new Intl.NumberFormat("uk-UA").format(value);
-}
 
 function daysUntil(dateIso: string) {
   const target = new Date(dateIso);
@@ -50,16 +35,6 @@ function CoupleDashboardInner() {
   const [city, setCity] = useState("Київ");
   const [guests, setGuests] = useState(80);
   const [budget, setBudget] = useState(300000);
-  const [showPlan, setShowPlan] = useState(false);
-
-  useEffect(() => {
-    const syncHash = () => {
-      if (window.location.hash === "#wedding-plan") setShowPlan(true);
-    };
-    syncHash();
-    window.addEventListener("hashchange", syncHash);
-    return () => window.removeEventListener("hashchange", syncHash);
-  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -100,21 +75,6 @@ function CoupleDashboardInner() {
     } finally {
       setSaving(false);
     }
-  }
-
-  async function onSaveProfile(profile: {
-    partnerOneName: string;
-    partnerTwoName: string;
-    couplePhotoUrl: string | null;
-  }) {
-    const data = await upsertWedding({
-      date,
-      city,
-      guests,
-      budget,
-      ...profile,
-    });
-    setWedding(data);
   }
 
   function onPickDay(day: number) {
@@ -191,11 +151,13 @@ function CoupleDashboardInner() {
   const partnerOneName =
     wedding?.partnerOneName || fallbackNames[0] || user?.name || "";
   const partnerTwoName = wedding?.partnerTwoName || fallbackNames[1] || "";
+  const oneInitial = partnerOneName.trim().charAt(0).toUpperCase();
+  const twoInitial = partnerTwoName.trim().charAt(0).toUpperCase();
+  const partnerInitials =
+    oneInitial && twoInitial ? `${oneInitial}&${twoInitial}` : oneInitial || twoInitial || "П";
 
   return (
     <>
-      <DashboardNav variant="COUPLE" />
-
       {error ? (
         <p className="mx-5 mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:mx-10">
           {error}
@@ -207,8 +169,8 @@ function CoupleDashboardInner() {
           wedding={wedding}
           greetingName={partnerOneName.split(" ")[0] || "там"}
           partnerName={partnerTwoName.split(" ")[0]}
+          partnerInitials={partnerInitials}
           daysLeft={left}
-          onConfigure={() => setShowPlan(true)}
           onTaskChange={(updated) =>
             setWedding((prev) =>
               prev
@@ -236,17 +198,8 @@ function CoupleDashboardInner() {
         </section>
       )}
 
-      {showPlan || !wedding ? (
+      {!wedding ? (
         <div id="wedding-plan" className="px-5 pb-16 md:px-10">
-          {wedding ? (
-            <CoupleProfileCard
-              partnerOneName={partnerOneName}
-              partnerTwoName={partnerTwoName}
-              photoUrl={wedding.couplePhotoUrl}
-              daysLeft={left}
-              onSave={onSaveProfile}
-            />
-          ) : null}
           <WeddingPlanPanel
             wedding={wedding}
             date={date}

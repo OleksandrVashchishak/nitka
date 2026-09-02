@@ -17,6 +17,8 @@ import {
   UpsertContentTopicDto,
 } from './dto/content.dto';
 import {
+  CONTENT_KEEP_POST_SLUGS,
+  CONTENT_POST_SLUG_ALIASES,
   CONTENT_POSTS_SEED,
   CONTENT_TOPICS_SEED,
   type SeedBlock,
@@ -41,7 +43,11 @@ function richBody(blocks: SeedBlock[]) {
         return {
           id: `h${i}`,
           type: 'header',
-          data: { text: b.text, level: b.level ?? 2 },
+          data: {
+            text: b.text,
+            level: b.level ?? 2,
+            ...(b.id ? { id: b.id } : {}),
+          },
         };
       }
       if (b.type === 'list') {
@@ -456,6 +462,27 @@ export class ContentService implements OnModuleInit {
       });
     }
 
+    const keepPostSlugs = new Set<string>(CONTENT_KEEP_POST_SLUGS);
+    const keepTopicSlugs = new Set(CONTENT_TOPICS_SEED.map((t) => t.slug));
+
+    for (const [from, to] of Object.entries(CONTENT_POST_SLUG_ALIASES)) {
+      const oldPost = await this.prisma.contentPost.findUnique({
+        where: { slug: from },
+      });
+      if (!oldPost) continue;
+      const taken = await this.prisma.contentPost.findUnique({
+        where: { slug: to },
+      });
+      if (!taken) {
+        await this.prisma.contentPost.update({
+          where: { id: oldPost.id },
+          data: { slug: to },
+        });
+      } else if (taken.id !== oldPost.id) {
+        await this.prisma.contentPost.delete({ where: { id: oldPost.id } });
+      }
+    }
+
     const topics = await this.prisma.contentTopic.findMany();
     const bySlug = Object.fromEntries(topics.map((t) => [t.slug, t]));
 
@@ -465,6 +492,7 @@ export class ContentService implements OnModuleInit {
     });
 
     for (const seed of CONTENT_POSTS_SEED) {
+      if (!keepPostSlugs.has(seed.slug)) continue;
       const topic = bySlug[seed.topicSlug];
       if (!topic) continue;
 
@@ -489,40 +517,40 @@ export class ContentService implements OnModuleInit {
             topicId: topic.id,
             authorId: admin?.id ?? null,
             publishedAt: new Date(),
-            seoTitle: seed.title,
-            seoDescription: seed.excerpt,
+            seoTitle: seed.seoTitle || seed.title,
+            seoDescription: seed.seoDescription || seed.excerpt,
             body,
           },
         });
         continue;
       }
 
-      const needsRefresh =
-        !existing.coverUrl ||
-        existing.coverUrl !== seed.coverUrl ||
-        bodyBlockCount(existing.body) < seed.blocks.length;
-
-      if (needsRefresh) {
-        await this.prisma.contentPost.update({
-          where: { id: existing.id },
-          data: {
-            title: seed.title,
-            excerpt: seed.excerpt,
-            coverUrl: seed.coverUrl,
-            ogImageUrl: existing.ogImageUrl || seed.coverUrl,
-            seoTitle: seed.title,
-            seoDescription: seed.excerpt,
-            featured: seed.featured ?? existing.featured,
-            city: seed.city ?? existing.city,
-            vendorCategorySlug:
-              seed.vendorCategorySlug ?? existing.vendorCategorySlug,
-            kind: seed.kind,
-            body,
-            status: ContentStatus.PUBLISHED,
-            publishedAt: existing.publishedAt ?? new Date(),
-          },
-        });
-      }
+      await this.prisma.contentPost.update({
+        where: { id: existing.id },
+        data: {
+          title: seed.title,
+          excerpt: seed.excerpt,
+          coverUrl: seed.coverUrl,
+          ogImageUrl: existing.ogImageUrl || seed.coverUrl,
+          seoTitle: seed.seoTitle || seed.title,
+          seoDescription: seed.seoDescription || seed.excerpt,
+          featured: seed.featured ?? existing.featured,
+          city: null,
+          vendorCategorySlug: null,
+          kind: seed.kind,
+          topicId: topic.id,
+          body,
+          status: ContentStatus.PUBLISHED,
+          publishedAt: existing.publishedAt ?? new Date(),
+        },
+      });
     }
+
+    await this.prisma.contentPost.deleteMany({
+      where: { slug: { notIn: [...keepPostSlugs] } },
+    });
+    await this.prisma.contentTopic.deleteMany({
+      where: { slug: { notIn: [...keepTopicSlugs] } },
+    });
   }
 }

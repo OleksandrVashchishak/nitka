@@ -190,7 +190,7 @@ function AdminContentEditorInner({ postId }: Props) {
               }}
               className="mt-1 w-full rounded-xl border border-line bg-white px-4 py-2.5 font-mono text-sm"
             />
-            <p className="mt-1 text-xs text-ink-soft">/content/{slug || "…"}</p>
+            <p className="mt-1 text-xs text-ink-soft">/blog/{slug || "…"}</p>
           </label>
 
           <label className="block">

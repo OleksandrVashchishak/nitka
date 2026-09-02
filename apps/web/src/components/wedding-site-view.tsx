@@ -694,7 +694,7 @@ export function WeddingSiteView({
                 className="underline-offset-2 transition hover:underline"
                 style={{ color: theme.colors.accent }}
               >
-                nitka
+                fata.studio
               </a>
             </p>
           ) : null}

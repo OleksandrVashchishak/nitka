@@ -157,7 +157,7 @@ export default function MoreScreen() {
                         variant="soft"
                         onPress={() =>
                           void Share.share({
-                            message: `Запрошення в NITKA: ${mobileLink}`,
+                                                        message: `Запрошення fata.studio: ${mobileLink}`,
                             url: mobileLink,
                           })
                         }

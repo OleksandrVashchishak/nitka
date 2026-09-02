@@ -253,7 +253,7 @@ export default function OnboardingScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <FormScroll contentContainerStyle={styles.pad}>
-        <Text style={styles.brand}>NITKA</Text>
+                <Text style={styles.brand}>fata</Text>
         <Text style={styles.kicker}>Крок {step} з 3</Text>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${progress}%` }]} />

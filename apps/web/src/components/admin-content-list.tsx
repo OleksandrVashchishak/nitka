@@ -49,7 +49,7 @@ function AdminContentListInner() {
             Контент
           </h1>
           <p className="mt-2 text-ink-soft">
-            Статті, гайди та SEO-лендінги для /content
+            Статті, гайди та SEO-лендінги для /blog
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

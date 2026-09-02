@@ -32,7 +32,7 @@ export async function registerForPushAsync(): Promise<string | null> {
 
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
-      name: "NITKA",
+            name: "fata.studio",
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }

@@ -12,6 +12,7 @@ import {
   cormorant,
   mak,
   montserrat,
+  poppins,
   scriptCyr,
 } from "@/lib/fonts";
 
@@ -55,7 +56,7 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body
-        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${montserrat.variable} antialiased`}
+        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${montserrat.variable} ${poppins.variable} antialiased`}
       >
         <AuthProvider>
           <SiteHeader />

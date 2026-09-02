@@ -155,7 +155,7 @@ export function ProductLanding({
           Можливості
         </p>
         <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl text-ink md:text-4xl">
-          Що отримуєте в NITKA
+          Що отримуєте в fata.studio
         </h2>
         <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-12">
           {features.map((feature, i) => (
@@ -364,7 +364,7 @@ export function ProductLanding({
             </li>
             <li>
               <Link
-                href="/content"
+                href="/blog"
                 className="group block border-b border-line pb-4 transition hover:border-sage/40"
               >
                 <span className="font-[family-name:var(--font-display)] text-xl text-ink transition group-hover:text-sage-deep">
@@ -388,7 +388,7 @@ export function ProductLanding({
             </h2>
             <p className="relative mt-4 max-w-lg text-sm leading-7 text-white/75 md:text-base">
               Каталог підрядників, план, бюджет, гості й запрошення — в одному
-              акаунті NITKA.
+              акаунті fata.studio.
             </p>
             <div className="relative mt-8">
               <ProductLandingCta

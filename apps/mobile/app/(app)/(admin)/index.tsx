@@ -27,7 +27,7 @@ export default function AdminStatsScreen() {
     <Screen style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
         <Title>Адмінка</Title>
-        <Subtitle>Загальна статистика NITKA</Subtitle>
+                <Subtitle>Загальна статистика fata.studio</Subtitle>
         <View style={styles.grid}>
           <Stat label="Користувачі" value={s.users} />
           <Stat label="Пари" value={s.couples} />

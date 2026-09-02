@@ -334,7 +334,7 @@ export function DashboardInsightsPanel({ city }: Props) {
               Додати вже знайденого підрядника
             </h3>
             <p className="mt-1 text-sm text-ink-soft">
-              Навіть якщо його ще немає в каталозі NITKA.
+              Навіть якщо його ще немає в каталозі fata.studio.
             </p>
           </div>
           <input

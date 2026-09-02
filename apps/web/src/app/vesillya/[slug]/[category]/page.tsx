@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ],
     alternates: { canonical: cityCategoryHref(city, category.slug) },
     openGraph: {
-      title: `${category.label} ${city.inCity} · NITKA`,
+      title: `${category.label} ${city.inCity}`,
       description,
       url: cityCategoryHref(city, category.slug),
       type: "website",

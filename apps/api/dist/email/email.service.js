@@ -46,7 +46,7 @@ let EmailService = EmailService_1 = class EmailService {
     get from() {
         return (process.env.EMAIL_FROM?.trim() ||
             process.env.SMTP_FROM?.trim() ||
-            'NITKA <noreply@nitka.local>');
+            'fata.studio <noreply@fata.studio.local>');
     }
     async send(input) {
         const payload = {
@@ -74,20 +74,20 @@ let EmailService = EmailService_1 = class EmailService {
         if (opts.ctaUrl) {
             lines.push('', opts.ctaLabel || 'Відкрити', opts.ctaUrl);
         }
-        lines.push('', '— NITKA');
+        lines.push('', '— fata.studio');
         const text = lines.join('\n');
         const html = `
 <!DOCTYPE html>
 <html lang="uk">
 <body style="margin:0;padding:24px;background:#f6f4ef;font-family:Georgia,serif;color:#1f1f1f;">
   <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6e1d8;padding:28px 24px;">
-    <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#6f8f7c;">NITKA</p>
+    <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#6f8f7c;">fata.studio</p>
     <h1 style="margin:0 0 16px;font-size:28px;font-weight:400;line-height:1.2;">${escapeHtml(opts.title)}</h1>
     <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4a4a4a;white-space:pre-wrap;">${escapeHtml(opts.body)}</p>
     ${opts.ctaUrl
             ? `<p style="margin:0 0 8px;"><a href="${escapeAttr(opts.ctaUrl)}" style="display:inline-block;background:#6f8f7c;color:#fff;text-decoration:none;padding:12px 18px;font-size:14px;">${escapeHtml(opts.ctaLabel || 'Відкрити')}</a></p>`
             : ''}
-    <p style="margin:28px 0 0;font-size:12px;color:#9a9a9a;">Лист надіслано автоматично з NITKA.</p>
+    <p style="margin:28px 0 0;font-size:12px;color:#9a9a9a;">Лист надіслано автоматично з fata.studio.</p>
   </div>
 </body>
 </html>`.trim();

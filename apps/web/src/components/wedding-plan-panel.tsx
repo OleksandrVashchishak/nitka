@@ -405,7 +405,7 @@ export function WeddingPlanPanel({
                         {activeMeta.ctaLabel} →
                       </p>
                       <p className="mt-1 text-sm text-ink-soft">
-                        Відкрити інструмент NITKA
+                        Відкрити інструмент fata.studio
                       </p>
                     </div>
                     <span className="flex size-11 items-center justify-center rounded-xl bg-sage/15 text-lg">

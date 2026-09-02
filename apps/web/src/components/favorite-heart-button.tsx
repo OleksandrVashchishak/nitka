@@ -63,10 +63,10 @@ export function FavoriteHeartButton({ vendorId }: Props) {
         .detail;
       if (detail?.vendorId === vendorId) setActive(detail.active);
     }
-    window.addEventListener("nitka:favorite-change", sync);
+    window.addEventListener("fata.studio:favorite-change", sync);
     return () => {
       alive = false;
-      window.removeEventListener("nitka:favorite-change", sync);
+      window.removeEventListener("fata.studio:favorite-change", sync);
     };
   }, [hydrated, user, vendorId]);
 
@@ -94,7 +94,7 @@ export function FavoriteHeartButton({ vendorId }: Props) {
       const next = !active;
       setActive(next);
       window.dispatchEvent(
-        new CustomEvent("nitka:favorite-change", {
+        new CustomEvent("fata.studio:favorite-change", {
           detail: { vendorId, active: next },
         }),
       );

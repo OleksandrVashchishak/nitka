@@ -16,7 +16,7 @@ export function BrandLogo({
         light ? "text-white" : "text-ink"
       } ${className}`}
     >
-      nitka
+      fata
       <span
         className={`mb-1 inline-block size-1.5 rounded-[2px] ${
           light ? "bg-lime" : "bg-olive"

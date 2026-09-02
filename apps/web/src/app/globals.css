@@ -44,6 +44,7 @@
   --font-serif: var(--font-script);
   --font-akzidenz: var(--font-akzidenz);
   --font-mak: var(--font-mak);
+  --font-poppins: var(--font-poppins);
 }
 
 * {
@@ -74,6 +75,11 @@ body {
 
 .font-mak {
   font-family: var(--font-mak), serif;
+}
+
+.onboarding-step {
+  width: 100%;
+  max-width: 620px;
 }
 
 .btn-cta {
