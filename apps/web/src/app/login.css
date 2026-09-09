@@ -163,6 +163,35 @@ body:has(.login-page) main {
   opacity: 0.8;
 }
 
+.login-back {
+  display: block;
+  margin-top: 24px;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #1b1b19;
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 0;
+  text-decoration-skip-ink: auto;
+}
+
+.login-back:hover {
+  opacity: 0.75;
+}
+
+.login-back-btn {
+  text-decoration: none;
+}
+
+.login-email-mark {
+  font-weight: 600;
+  color: #1b1b19;
+}
+
 .login-btn {
   display: inline-flex;
   align-items: center;

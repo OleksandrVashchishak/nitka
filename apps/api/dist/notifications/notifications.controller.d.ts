@@ -1,11 +1,9 @@
 import { AuthUser } from '../auth/current-user.decorator';
-import { PrismaService } from '../prisma/prisma.service';
 import { RegisterPushDto } from './dto/register-push.dto';
 import { NotificationsService } from './notifications.service';
 export declare class NotificationsController {
-    private readonly prisma;
     private readonly notifications;
-    constructor(prisma: PrismaService, notifications: NotificationsService);
+    constructor(notifications: NotificationsService);
     registerPush(user: AuthUser, dto: RegisterPushDto): Promise<{
         ok: boolean;
     }>;
@@ -17,19 +15,13 @@ export declare class NotificationsController {
         sent: number;
     }>;
     summary(user: AuthUser): Promise<{
-        role: string;
+        role: "VENDOR";
         newRequests: number;
         total: number;
-        items: Array<{
-            key: string;
-            label: string;
-            count: number;
-            href: string;
-        }>;
-        pendingRsvp?: undefined;
-        newRsvp?: undefined;
-        waitingRequests?: undefined;
-        vendorReplied?: undefined;
+        newCount: number;
+        items: import("./notifications.service").NotificationSummaryItem[];
+        feed: import("./notifications.service").NotificationFeedItem[];
+        moreHref: string;
     } | {
         role: string;
         pendingRsvp: number;
@@ -37,12 +29,9 @@ export declare class NotificationsController {
         waitingRequests: number;
         vendorReplied: number;
         total: number;
-        items: {
-            key: string;
-            label: string;
-            count: number;
-            href: string;
-        }[];
-        newRequests?: undefined;
+        newCount: number;
+        items: import("./notifications.service").NotificationSummaryItem[];
+        feed: import("./notifications.service").NotificationFeedItem[];
+        moreHref: string;
     }>;
 }

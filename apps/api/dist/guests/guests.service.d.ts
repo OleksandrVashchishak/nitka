@@ -26,10 +26,10 @@ export declare class GuestsService {
         };
         guests: {
             id: string;
-            name: string;
             createdAt: Date;
-            email: string | null;
+            name: string;
             phone: string | null;
+            email: string | null;
             weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             side: import(".prisma/client").$Enums.GuestSide;
@@ -45,10 +45,10 @@ export declare class GuestsService {
     }>;
     create(userId: string, dto: CreateGuestDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
-        email: string | null;
+        name: string;
         phone: string | null;
+        email: string | null;
         weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         side: import(".prisma/client").$Enums.GuestSide;
@@ -65,10 +65,10 @@ export declare class GuestsService {
         imported: number;
         guests: {
             id: string;
-            name: string;
             createdAt: Date;
-            email: string | null;
+            name: string;
             phone: string | null;
+            email: string | null;
             weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             side: import(".prisma/client").$Enums.GuestSide;
@@ -84,10 +84,10 @@ export declare class GuestsService {
     }>;
     update(userId: string, guestId: string, dto: UpdateGuestDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
-        email: string | null;
+        name: string;
         phone: string | null;
+        email: string | null;
         weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         side: import(".prisma/client").$Enums.GuestSide;

@@ -12,6 +12,21 @@ export type NotifyPayload = {
         ctaPath?: string;
     };
 };
+export type NotificationSummaryItem = {
+    key: string;
+    label: string;
+    count: number;
+    href: string;
+};
+export type NotificationFeedItem = {
+    id: string;
+    body: string;
+    href: string;
+    createdAt: string;
+    isNew: boolean;
+    actionLabel?: string;
+    actionHref?: string;
+};
 export declare class NotificationsService implements OnModuleInit, OnModuleDestroy {
     private readonly prisma;
     private readonly email;
@@ -26,6 +41,32 @@ export declare class NotificationsService implements OnModuleInit, OnModuleDestr
     unregisterDevice(userId: string, token: string): Promise<{
         ok: boolean;
     }>;
+    getSummary(user: {
+        id: string;
+        role: string;
+    }): Promise<{
+        role: "VENDOR";
+        newRequests: number;
+        total: number;
+        newCount: number;
+        items: NotificationSummaryItem[];
+        feed: NotificationFeedItem[];
+        moreHref: string;
+    } | {
+        role: string;
+        pendingRsvp: number;
+        newRsvp: number;
+        waitingRequests: number;
+        vendorReplied: number;
+        total: number;
+        newCount: number;
+        items: NotificationSummaryItem[];
+        feed: NotificationFeedItem[];
+        moreHref: string;
+    }>;
+    private getVendorSummary;
+    private getCoupleSummary;
+    private buildCoupleFeed;
     notifyUser(userId: string, payload: NotifyPayload): Promise<{
         sent: number;
         emailed: number;

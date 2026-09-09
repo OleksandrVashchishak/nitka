@@ -18,13 +18,10 @@ const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
-const prisma_service_1 = require("../prisma/prisma.service");
-const wedding_access_1 = require("../weddings/wedding-access");
 const register_push_dto_1 = require("./dto/register-push.dto");
 const notifications_service_1 = require("./notifications.service");
 let NotificationsController = class NotificationsController {
-    constructor(prisma, notifications) {
-        this.prisma = prisma;
+    constructor(notifications) {
         this.notifications = notifications;
     }
     registerPush(user, dto) {
@@ -40,108 +37,8 @@ let NotificationsController = class NotificationsController {
         }
         return this.notifications.sendDueTaskReminders();
     }
-    async summary(user) {
-        if (user.role === 'VENDOR') {
-            const vendor = await this.prisma.vendor.findUnique({
-                where: { userId: user.id },
-            });
-            if (!vendor) {
-                return {
-                    role: 'VENDOR',
-                    newRequests: 0,
-                    total: 0,
-                    items: [],
-                };
-            }
-            const newRequests = await this.prisma.request.count({
-                where: { vendorId: vendor.id, status: 'NEW' },
-            });
-            const items = [
-                {
-                    key: 'newRequests',
-                    label: 'Нові заявки',
-                    count: newRequests,
-                    href: '/vendor/requests',
-                },
-            ].filter((i) => i.count > 0);
-            return {
-                role: 'VENDOR',
-                newRequests,
-                total: newRequests,
-                items,
-            };
-        }
-        const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, user.id);
-        const wedding = access?.wedding ?? null;
-        const [pendingRsvp, newRsvp, waitingRequests, vendorReplied] = await Promise.all([
-            wedding
-                ? this.prisma.guest.count({
-                    where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
-                })
-                : Promise.resolve(0),
-            wedding
-                ? this.prisma.guest.count({
-                    where: {
-                        weddingId: wedding.id,
-                        rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
-                        respondedAt: {
-                            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-                        },
-                    },
-                })
-                : Promise.resolve(0),
-            this.prisma.request.count({
-                where: { userId: user.id, status: 'NEW' },
-            }),
-            this.prisma.request.count({
-                where: {
-                    userId: user.id,
-                    messages: {
-                        some: {
-                            authorRole: 'VENDOR',
-                            createdAt: {
-                                gte: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-                            },
-                        },
-                    },
-                },
-            }),
-        ]);
-        const items = [
-            {
-                key: 'newRsvp',
-                label: 'Нові відповіді на запрошення',
-                count: newRsvp,
-                href: '/guests',
-            },
-            {
-                key: 'pendingRsvp',
-                label: 'Чекають відповіді на запрошення',
-                count: pendingRsvp,
-                href: '/guests',
-            },
-            {
-                key: 'waitingRequests',
-                label: 'Заявки в очікуванні',
-                count: waitingRequests,
-                href: '/requests',
-            },
-            {
-                key: 'vendorReplied',
-                label: 'Вендор відповів',
-                count: vendorReplied,
-                href: '/requests',
-            },
-        ].filter((i) => i.count > 0);
-        return {
-            role: user.role,
-            pendingRsvp,
-            newRsvp,
-            waitingRequests,
-            vendorReplied,
-            total: items.reduce((sum, i) => sum + i.count, 0),
-            items,
-        };
+    summary(user) {
+        return this.notifications.getSummary(user);
     }
 };
 exports.NotificationsController = NotificationsController;
@@ -179,11 +76,10 @@ __decorate([
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "summary", null);
 exports.NotificationsController = NotificationsController = __decorate([
     (0, common_1.Controller)('notifications'),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        notifications_service_1.NotificationsService])
+    __metadata("design:paramtypes", [notifications_service_1.NotificationsService])
 ], NotificationsController);
 //# sourceMappingURL=notifications.controller.js.map

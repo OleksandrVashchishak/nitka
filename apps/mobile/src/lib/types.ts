@@ -274,7 +274,18 @@ export type VendorPipeline = {
 export type NotificationsSummary = {
   role: string;
   total: number;
+  newCount?: number;
   items: Array<{ key: string; label: string; count: number; href: string }>;
+  feed?: Array<{
+    id: string;
+    body: string;
+    href: string;
+    createdAt: string;
+    isNew: boolean;
+    actionLabel?: string;
+    actionHref?: string;
+  }>;
+  moreHref?: string;
   newRequests?: number;
   pendingRsvp?: number;
   newRsvp?: number;

@@ -1,8 +1,10 @@
 ﻿"use client";
 
-import { PageLoader } from "@/components/ui-loader";
 import Link from "next/link";
-import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { PageLoader } from "@/components/ui-loader";
+import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
+import { RequireAuth } from "@/components/require-auth";
 import {
   createGuest,
   deleteGuest,
@@ -14,386 +16,117 @@ import {
   type GuestSide,
   type RsvpStatus,
 } from "@/lib/guests-api";
-import { DashboardNav } from "@/components/dashboard-nav";
-import { InviteShareLinks } from "@/components/invite-share-links";
-import { RequireAuth } from "@/components/require-auth";
-import { toast } from "@/lib/toast";
+import { getMyWedding } from "@/lib/dashboard-api";
 import {
-  CabinetEmpty,
-  CabinetHeader,
-  CoupleCabinetFrame,
-  cabBtn,
-  cabBtnGhost,
-  cabCard,
-} from "@/components/couple-cabinet-ui";
+  getNotificationsSummary,
+  type NotificationsSummary,
+} from "@/lib/notifications-api";
+import { useAuthStore } from "@/lib/auth-store";
+import { toast } from "@/lib/toast";
+import "../app/couple-cabinet.css";
 
-type ViewMode = "sides" | "alpha" | "table";
+type SideFilter = "all" | "BRIDE" | "GROOM";
+type InviteFilter = "all" | "not_invited" | "invited";
+type RsvpFilter = "all" | RsvpStatus;
+type AgeFilter = "all" | "adult" | "child";
+type SortMode = "recent" | "alpha" | "rsvp";
 
-const STATUS_LABEL: Record<RsvpStatus, string> = {
-  PENDING: "Очікує",
-  YES: "Йде",
-  NO: "Не йде",
-  MAYBE: "Можливо",
+type InviteMethod =
+  | "phone"
+  | "telegram"
+  | "messenger"
+  | "viber"
+  | "email"
+  | "meet"
+  | "other";
+
+const PAGE_SIZE = 12;
+
+const INVITE_METHODS: Array<{ id: InviteMethod; label: string }> = [
+  { id: "phone", label: "Телефоном" },
+  { id: "telegram", label: "Telegram" },
+  { id: "messenger", label: "Messenger" },
+  { id: "viber", label: "Viber" },
+  { id: "email", label: "Email" },
+  { id: "meet", label: "При зустрічі" },
+  { id: "other", label: "Інше" },
+];
+
+const RSVP_UI: Record<
+  RsvpStatus,
+  { label: string; tone: "yes" | "no" | "maybe" | "pending" }
+> = {
+  YES: { label: "Прийде", tone: "yes" },
+  NO: { label: "Відмова", tone: "no" },
+  MAYBE: { label: "Можливо прийде", tone: "maybe" },
+  PENDING: { label: "Ще немає відповіді", tone: "pending" },
 };
 
-const SIDE_LABEL: Record<GuestSide, string> = {
-  BRIDE: "Наречена",
-  GROOM: "Наречений",
-  BOTH: "Спільні",
-  OTHER: "Інше",
-};
-
-const STATUS_BTN: Record<RsvpStatus, { idle: string; active: string }> = {
-  PENDING: {
-    idle: "border-line text-ink-soft hover:border-ink/30 hover:bg-mist hover:text-ink",
-    active: "border-ink/20 bg-mist text-ink",
-  },
-  YES: {
-    idle: "border-line text-ink-soft hover:border-sage/40 hover:bg-sage/10 hover:text-sage-deep",
-    active: "border-sage/40 bg-sage/15 text-sage-deep",
-  },
-  NO: {
-    idle: "border-line text-ink-soft hover:border-red-200 hover:bg-red-50 hover:text-red-700",
-    active: "border-red-200 bg-red-50 text-red-700",
-  },
-  MAYBE: {
-    idle: "border-line text-ink-soft hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800",
-    active: "border-amber-200 bg-amber-50 text-amber-800",
-  },
-};
-
-const chipBtn =
-  "inline-flex cursor-pointer items-center border px-2.5 py-1 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
-
-function GuestNameRow({
-  guest,
-  origin,
-  busy,
-  bare = false,
-  onRename,
-  onDelete,
-  onStatus,
-  onTogglePlusOne,
-  onCopy,
-  onShare,
-}: {
-  guest: Guest;
-  origin: string;
-  busy: boolean;
-  bare?: boolean;
-  onRename: (id: string, name: string) => Promise<void>;
-  onDelete: (id: string) => void;
-  onStatus: (guest: Guest, status: RsvpStatus) => void;
-  onTogglePlusOne: (guest: Guest) => void;
-  onCopy: (guest: Guest) => void;
-  onShare: (guest: Guest) => void;
-}) {
-  const [value, setValue] = useState(guest.name);
-  const [focused, setFocused] = useState(false);
-
-  useEffect(() => {
-    if (!focused) setValue(guest.name);
-  }, [guest.name, focused]);
-
-  async function commit() {
-    const next = value.trim();
-    if (next.length < 2) {
-      setValue(guest.name);
-      return;
-    }
-    if (next === guest.name) return;
-    await onRename(guest.id, next);
-  }
-
-  function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.currentTarget.blur();
-    }
-    if (e.key === "Escape") {
-      setValue(guest.name);
-      e.currentTarget.blur();
-    }
-  }
-
-  return (
-    <div
-      className={
-        bare
-          ? "group"
-          : "group border-b border-line/80 py-3 last:border-b-0"
-      }
-    >
-      <div className="flex items-baseline gap-2">
-        <input
-          value={value}
-          disabled={busy}
-          onChange={(e) => setValue(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => {
-            setFocused(false);
-            void commit();
-          }}
-          onKeyDown={onKeyDown}
-          className="min-w-0 flex-1 cursor-text bg-transparent font-[family-name:var(--font-display)] text-xl text-ink outline-none placeholder:text-ink-soft/40 disabled:opacity-50"
-          aria-label="Імʼя гостя"
-        />
-        <button
-          type="button"
-          onClick={() => onDelete(guest.id)}
-          className="shrink-0 cursor-pointer px-1.5 py-0.5 text-sm text-ink-soft opacity-0 transition hover:bg-red-50 hover:text-red-700 group-hover:opacity-100"
-          aria-label="Видалити"
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-        {(["YES", "MAYBE", "NO", "PENDING"] as const).map((status) => {
-          const active = guest.rsvpStatus === status;
-          return (
-            <button
-              key={status}
-              type="button"
-              disabled={busy}
-              onClick={() => onStatus(guest, status)}
-              className={`${chipBtn} ${
-                active ? STATUS_BTN[status].active : STATUS_BTN[status].idle
-              }`}
-            >
-              {STATUS_LABEL[status]}
-            </button>
-          );
-        })}
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => onTogglePlusOne(guest)}
-          className={`${chipBtn} ${
-            guest.plusOne
-              ? "border-sage/40 bg-sage/15 text-sage-deep"
-              : "border-line text-ink-soft hover:border-sage/40 hover:bg-sage/10 hover:text-sage-deep"
-          }`}
-        >
-          {guest.plusOne ? "+1 так" : "+1"}
-        </button>
-        {origin ? (
-          <>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => onShare(guest)}
-              className={`${chipBtn} border-sage bg-sage text-white hover:bg-sage-deep`}
-            >
-              Поділитись
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => onCopy(guest)}
-              className={`${chipBtn} border-line text-ink-soft hover:border-sage/40 hover:bg-mist hover:text-ink`}
-            >
-              Запрошення
-            </button>
-          </>
-        ) : null}
-      </div>
-      {origin ? (
-        <div className="mt-2">
-          <InviteShareLinks
-            url={`${origin}/rsvp/${guest.inviteToken}`}
-            guestName={guest.name}
-            onCopy={() => onCopy(guest)}
-          />
-        </div>
-      ) : null}
-    </div>
-  );
+function isChild(guest: Guest) {
+  return (guest.notes ?? "").includes("[child]");
 }
 
-function QuickAdd({
-  side,
-  busy,
-  onAdd,
-}: {
-  side: GuestSide;
-  busy: boolean;
-  onAdd: (side: GuestSide, name: string) => Promise<void>;
-}) {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
-
-  async function submit() {
-    const next = name.trim();
-    if (next.length < 2) return;
-    await onAdd(side, next);
-    setName("");
-    inputRef.current?.focus();
-  }
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => setOpen(true)}
-        className="mt-4 inline-flex cursor-pointer items-center gap-2 border border-sage bg-white px-4 py-2.5 text-sm font-semibold text-sage transition hover:bg-sage hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <span className="text-base leading-none">+</span>
-        Додати гостя
-      </button>
-    );
-  }
-
-  return (
-    <div className="mt-4 flex flex-wrap items-center gap-2 border border-sage/30 bg-mist/60 p-3">
-      <input
-        ref={inputRef}
-        value={name}
-        disabled={busy}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            void submit();
-          }
-          if (e.key === "Escape") {
-            setOpen(false);
-            setName("");
-          }
-        }}
-        placeholder="Імʼя гостя"
-        className="min-w-[160px] flex-1 cursor-text border border-line bg-white px-3 py-2 font-[family-name:var(--font-display)] text-lg text-ink outline-none placeholder:text-ink-soft/45 focus:border-sage"
-      />
-      <button
-        type="button"
-        disabled={busy || name.trim().length < 2}
-        onClick={() => void submit()}
-        className="cursor-pointer bg-sage px-4 py-2 text-sm font-semibold text-white transition hover:bg-sage-deep disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Додати
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(false);
-          setName("");
-        }}
-        className="cursor-pointer px-3 py-2 text-sm text-ink-soft transition hover:bg-white hover:text-ink"
-      >
-        Скасувати
-      </button>
-    </div>
-  );
+function isInvited(guest: Guest) {
+  if ((guest.notes ?? "").includes("[invited]")) return true;
+  return Boolean(guest.phone || guest.email || guest.respondedAt);
 }
 
-function SideColumn({
-  title,
-  hint,
-  guests,
-  side,
-  origin,
-  busy,
-  onAdd,
-  onRename,
-  onDelete,
-  onStatus,
-  onTogglePlusOne,
-  onCopy,
-  onShare,
-}: {
-  title: string;
-  hint: string;
-  guests: Guest[];
-  side: GuestSide;
-  origin: string;
-  busy: boolean;
-  onAdd: (side: GuestSide, name: string) => Promise<void>;
-  onRename: (id: string, name: string) => Promise<void>;
-  onDelete: (id: string) => void;
-  onStatus: (guest: Guest, status: RsvpStatus) => void;
-  onTogglePlusOne: (guest: Guest) => void;
-  onCopy: (guest: Guest) => void;
-  onShare: (guest: Guest) => void;
+function buildNotes(input: {
+  child: boolean;
+  invited: boolean;
+  method: InviteMethod;
+  extra?: string | null;
 }) {
-  return (
-    <div className="min-w-0">
-      <div className="mb-4">
-        <p className="text-xs uppercase tracking-[0.16em] text-ink-soft">
-          {hint}
-        </p>
-        <h2 className="mt-1 font-[family-name:var(--font-display)] text-2xl text-ink md:text-3xl">
-          {title}
-        </h2>
-        <p className="mt-1 text-sm text-ink-soft">{guests.length} гостей</p>
-      </div>
+  const parts: string[] = [];
+  if (input.child) parts.push("[child]");
+  if (input.invited) parts.push("[invited]");
+  parts.push(`invite:${input.method}`);
+  const extra = input.extra?.replace(/\[child\]|\[invited\]|invite:\w+/g, "").trim();
+  if (extra) parts.push(extra);
+  return parts.join(" ").trim() || null;
+}
 
-      <div>
-        {guests.length === 0 ? (
-          <p className="border-b border-dashed border-line py-3 text-sm text-ink-soft/70">
-            Поки порожньо — додай перше імʼя
-          </p>
-        ) : (
-          guests.map((guest) => (
-            <GuestNameRow
-              key={guest.id}
-              guest={guest}
-              origin={origin}
-              busy={busy}
-              onRename={onRename}
-              onDelete={onDelete}
-              onStatus={onStatus}
-              onTogglePlusOne={onTogglePlusOne}
-              onCopy={onCopy}
-              onShare={onShare}
-            />
-          ))
-        )}
-      </div>
-
-      <QuickAdd side={side} busy={busy} onAdd={onAdd} />
-    </div>
-  );
+function firstName(value: string) {
+  return value.trim().split(/\s+/)[0] || "";
 }
 
 function GuestsInner() {
+  const user = useAuthStore((s) => s.user);
   const [data, setData] = useState<GuestListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [needWedding, setNeedWedding] = useState(false);
-  const [view, setView] = useState<ViewMode>("sides");
   const [busy, setBusy] = useState(false);
-  const [origin, setOrigin] = useState("");
-  const [importing, setImporting] = useState(false);
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<RsvpStatus | "ALL">("ALL");
-  const csvInputRef = useRef<HTMLInputElement>(null);
+  const [summary, setSummary] = useState<NotificationsSummary | null>(null);
+  const [partnerInitials, setPartnerInitials] = useState("П");
 
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
+  const [sideFilter, setSideFilter] = useState<SideFilter>("all");
+  const [inviteFilter, setInviteFilter] = useState<InviteFilter>("all");
+  const [rsvpFilter, setRsvpFilter] = useState<RsvpFilter>("all");
+  const [ageFilter, setAgeFilter] = useState<AgeFilter>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("recent");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  function guestRsvpUrl(guest: Guest) {
-    return `${origin}/rsvp/${guest.inviteToken}`;
-  }
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [plusOne, setPlusOne] = useState(false);
+  const [plusOneName, setPlusOneName] = useState("");
+  const [side, setSide] = useState<GuestSide | "">("");
+  const [method, setMethod] = useState<InviteMethod>("phone");
+  const [phone, setPhone] = useState("");
+  const [inviteStatus, setInviteStatus] = useState<"not_invited" | "invited">(
+    "not_invited",
+  );
+  const [isChildGuest, setIsChildGuest] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
     setError(null);
-    setNeedWedding(false);
     try {
       setData(await getGuestList());
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Помилка";
-      if (message.toLowerCase().includes("весілля")) {
-        setNeedWedding(true);
-      }
-      setError(message);
+      setError(err instanceof Error ? err.message : "Помилка завантаження");
       setData(null);
     } finally {
       setLoading(false);
@@ -402,260 +135,229 @@ function GuestsInner() {
 
   useEffect(() => {
     void load();
-  }, []);
+    void getNotificationsSummary()
+      .then(setSummary)
+      .catch(() => setSummary(null));
+    void getMyWedding()
+      .then((wedding) => {
+        const one =
+          wedding?.partnerOneName?.trim().charAt(0).toUpperCase() ||
+          user?.name?.trim().charAt(0).toUpperCase() ||
+          "П";
+        const two = wedding?.partnerTwoName?.trim().charAt(0).toUpperCase() || "";
+        setPartnerInitials(two ? `${one}&${two}` : one);
+      })
+      .catch(() => undefined);
+  }, [user?.name]);
 
-  const brideGuests = useMemo(
-    () => data?.guests.filter((g) => g.side === "BRIDE") ?? [],
-    [data],
-  );
-  const groomGuests = useMemo(
-    () => data?.guests.filter((g) => g.side === "GROOM") ?? [],
-    [data],
-  );
-  const sharedGuests = useMemo(
-    () =>
-      data?.guests.filter((g) => g.side === "BOTH" || g.side === "OTHER") ?? [],
-    [data],
-  );
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
 
-  const alphaGuests = useMemo(() => {
-    if (!data) return [];
-    return [...data.guests].sort((a, b) =>
-      a.name.localeCompare(b.name, "uk"),
-    );
-  }, [data]);
+  const guests = data?.guests ?? [];
 
-  const tableGuests = useMemo(() => {
-    if (!data) return [];
-    const q = query.trim().toLowerCase();
-    return data.guests.filter((g) => {
-      if (filter !== "ALL" && g.rsvpStatus !== filter) return false;
-      if (!q) return true;
-      return g.name.toLowerCase().includes(q);
+  const counts = useMemo(() => {
+    const sideCounts = {
+      all: guests.length,
+      BRIDE: guests.filter((g) => g.side === "BRIDE").length,
+      GROOM: guests.filter((g) => g.side === "GROOM").length,
+    };
+    const invite = {
+      all: guests.length,
+      not_invited: guests.filter((g) => !isInvited(g)).length,
+      invited: guests.filter((g) => isInvited(g)).length,
+    };
+    const rsvp = {
+      all: guests.length,
+      YES: guests.filter((g) => g.rsvpStatus === "YES").length,
+      NO: guests.filter((g) => g.rsvpStatus === "NO").length,
+      MAYBE: guests.filter((g) => g.rsvpStatus === "MAYBE").length,
+      PENDING: guests.filter((g) => g.rsvpStatus === "PENDING").length,
+    };
+    const age = {
+      all: guests.length,
+      adult: guests.filter((g) => !isChild(g)).length,
+      child: guests.filter((g) => isChild(g)).length,
+    };
+    return { side: sideCounts, invite, rsvp, age };
+  }, [guests]);
+
+  const filtered = useMemo(() => {
+    const list = guests.filter((guest) => {
+      if (sideFilter !== "all" && guest.side !== sideFilter) return false;
+      if (inviteFilter === "invited" && !isInvited(guest)) return false;
+      if (inviteFilter === "not_invited" && isInvited(guest)) return false;
+      if (rsvpFilter !== "all" && guest.rsvpStatus !== rsvpFilter) return false;
+      if (ageFilter === "child" && !isChild(guest)) return false;
+      if (ageFilter === "adult" && isChild(guest)) return false;
+      return true;
     });
-  }, [data, filter, query]);
 
-  const brideCount = brideGuests.length;
-  const groomCount = groomGuests.length;
-  const ratio =
-    brideCount === 0 && groomCount === 0
-      ? "0/0"
-      : `${brideCount}/${groomCount}`;
-
-  async function addGuest(side: GuestSide, name: string) {
-    setBusy(true);
-    setError(null);
-    try {
-      await createGuest({ name, side, rsvpStatus: "PENDING" });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не додано");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function renameGuest(id: string, name: string) {
-    setBusy(true);
-    setError(null);
-    try {
-      await updateGuest(id, { name });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function removeGuest(id: string) {
-    const guest = data?.guests.find((g) => g.id === id);
-    if (!confirm(`Видалити «${guest?.name ?? "гостя"}»?`)) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await deleteGuest(id);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не видалено");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function setStatus(guest: Guest, rsvpStatus: RsvpStatus) {
-    setBusy(true);
-    setError(null);
-    try {
-      await updateGuest(guest.id, { rsvpStatus });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function togglePlusOne(guest: Guest) {
-    setBusy(true);
-    setError(null);
-    try {
-      await updateGuest(guest.id, {
-        plusOne: !guest.plusOne,
-        plusOneName: !guest.plusOne ? guest.plusOneName ?? undefined : undefined,
-      });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function moveSide(guest: Guest, side: GuestSide) {
-    if (guest.side === side) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await updateGuest(guest.id, { side });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function copyLink(guest: Guest) {
-    try {
-      await navigator.clipboard.writeText(guestRsvpUrl(guest));
-      toast.success("Скопійовано", `Запрошення для ${guest.name}`);
-    } catch {
-      setError("Не вдалось скопіювати лінк");
-    }
-  }
-
-  async function shareLink(guest: Guest) {
-    const url = guestRsvpUrl(guest);
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: `Запрошення · ${guest.name}`,
-          text: "Підтверди участь у весіллі",
-          url,
-        });
-        return;
-      } catch {
-        // cancelled
+    return list.sort((a, b) => {
+      if (sortMode === "alpha") return a.name.localeCompare(b.name, "uk");
+      if (sortMode === "rsvp") {
+        const order: Record<RsvpStatus, number> = {
+          YES: 0,
+          MAYBE: 1,
+          PENDING: 2,
+          NO: 3,
+        };
+        const diff = order[a.rsvpStatus] - order[b.rsvpStatus];
+        if (diff !== 0) return diff;
       }
-    }
-    await copyLink(guest);
+      return b.createdAt.localeCompare(a.createdAt);
+    });
+  }, [guests, sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
+
+  const visible = filtered.slice(0, visibleCount);
+
+  function resetDrawer() {
+    setName("");
+    setPlusOne(false);
+    setPlusOneName("");
+    setSide("");
+    setMethod("phone");
+    setPhone("");
+    setInviteStatus("not_invited");
+    setIsChildGuest(false);
   }
 
-  async function copyAllLinks() {
-    if (!data?.guests.length || !origin) return;
-    const lines = data.guests.map((g) => `${g.name}: ${guestRsvpUrl(g)}`);
+  async function onSave(e: FormEvent) {
+    e.preventDefault();
+    const nextName = name.trim();
+    if (nextName.length < 2) {
+      toast.error("Вкажи імʼя гостя");
+      return;
+    }
+    setBusy(true);
     try {
-      await navigator.clipboard.writeText(lines.join("\n"));
-      toast.success("Усі лінки", `${lines.length} рядків`);
-    } catch {
-      setError("Не вдалось скопіювати лінки");
+      const invited = inviteStatus === "invited";
+      const created = await createGuest({
+        name: nextName,
+        side: side || "BOTH",
+        phone: phone.trim() || undefined,
+        plusOne,
+        plusOneName: plusOne ? plusOneName.trim() || undefined : undefined,
+        notes: buildNotes({
+          child: isChildGuest,
+          invited,
+          method,
+        }) ?? undefined,
+      });
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              guests: [created, ...prev.guests],
+              stats: {
+                ...prev.stats,
+                total: prev.stats.total + 1,
+                pending: prev.stats.pending + 1,
+                headcount: prev.stats.headcount + 1 + (plusOne ? 1 : 0),
+              },
+            }
+          : prev,
+      );
+      setDrawerOpen(false);
+      resetDrawer();
+      toast.success("Додано", nextName);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не додано");
+    } finally {
+      setBusy(false);
     }
   }
 
-  function parseCsv(text: string) {
+  async function onDelete(guest: Guest) {
+    if (!confirm(`Видалити «${guest.name}»?`)) return;
+    setBusy(true);
+    try {
+      await deleteGuest(guest.id);
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              guests: prev.guests.filter((g) => g.id !== guest.id),
+              stats: {
+                ...prev.stats,
+                total: Math.max(0, prev.stats.total - 1),
+              },
+            }
+          : prev,
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не видалено");
+    } finally {
+      setBusy(false);
+      setMenuOpenId(null);
+    }
+  }
+
+  async function onSetRsvp(guest: Guest, status: RsvpStatus) {
+    setBusy(true);
+    try {
+      const updated = await updateGuest(guest.id, {
+        name: guest.name,
+        rsvpStatus: status,
+      });
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              guests: prev.guests.map((g) => (g.id === guest.id ? updated : g)),
+            }
+          : prev,
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+      setMenuOpenId(null);
+    }
+  }
+
+  async function onImportCsv(file: File) {
+    const text = await file.text();
     const lines = text
-      .replace(/^\uFEFF/, "")
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
-    if (lines.length === 0) return [];
-
-    const split = (line: string) => {
-      const cells: string[] = [];
-      let current = "";
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i += 1) {
-        const ch = line[i];
-        if (ch === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            current += '"';
-            i += 1;
-          } else {
-            inQuotes = !inQuotes;
-          }
-          continue;
-        }
-        if ((ch === "," || ch === ";") && !inQuotes) {
-          cells.push(current.trim());
-          current = "";
-          continue;
-        }
-        current += ch;
-      }
-      cells.push(current.trim());
-      return cells;
-    };
-
-    const headerCells = split(lines[0]).map((c) => c.toLowerCase());
-    const hasHeader = headerCells.some((c) =>
-      ["name", "імя", "ім'я", "імʼя", "гость", "guest", "сторона", "side"].includes(
-        c,
-      ),
-    );
-    const rows = hasHeader ? lines.slice(1) : lines;
-    const idx = (aliases: string[]) =>
-      headerCells.findIndex((c) => aliases.includes(c));
-    const nameIdx = hasHeader
-      ? Math.max(0, idx(["name", "імя", "ім'я", "імʼя", "гость", "guest"]))
-      : 0;
-    const sideIdx = hasHeader ? idx(["side", "сторона"]) : 1;
-
-    const sideMap: Record<string, GuestSide> = {
-      bride: "BRIDE",
-      наречена: "BRIDE",
-      groom: "GROOM",
-      наречений: "GROOM",
-      both: "BOTH",
-      обидві: "BOTH",
-      спільні: "BOTH",
-      other: "OTHER",
-      інше: "OTHER",
-    };
-
-    return rows
+    const rows = lines
+      .slice(1)
       .map((line) => {
-        const cells = split(line);
-        const name = (cells[nameIdx] ?? "").trim();
-        if (name.length < 2) return null;
-        const sideRaw =
-          sideIdx >= 0 ? cells[sideIdx]?.trim().toLowerCase() : "";
+        const [guestName, phoneValue, sideValue] = line.split(/[,;]/);
+        if (!guestName?.trim()) return null;
+        const sideRaw = sideValue?.trim().toUpperCase();
+        const nextSide: GuestSide =
+          sideRaw === "BRIDE" || sideRaw === "GROOM" || sideRaw === "BOTH"
+            ? sideRaw
+            : "BOTH";
         return {
-          name,
-          side: sideRaw ? sideMap[sideRaw] : undefined,
+          name: guestName.trim(),
+          phone: phoneValue?.trim() || undefined,
+          side: nextSide,
         };
       })
-      .filter((row): row is NonNullable<typeof row> => Boolean(row));
-  }
+      .filter(Boolean) as Array<{
+      name: string;
+      phone?: string;
+      side: GuestSide;
+    }>;
 
-  async function onCsvFile(file?: File) {
-    if (!file) return;
-    setImporting(true);
-    setError(null);
+    if (rows.length === 0) {
+      toast.error("У CSV немає рядків з іменами");
+      return;
+    }
+
+    setBusy(true);
     try {
-      const text = await file.text();
-      const rows = parseCsv(text);
-      if (rows.length === 0) {
-        throw new Error("У CSV немає валідних рядків");
-      }
-      const result = await importGuests(rows);
-      toast.success("Імпорт", `Додано ${result.imported}`);
+      await importGuests(rows);
       await load();
+      toast.success("Імпортовано", `${rows.length} гостей`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Імпорт не вдався");
+      toast.error(err instanceof Error ? err.message : "Імпорт не вдався");
     } finally {
-      setImporting(false);
-      if (csvInputRef.current) csvInputRef.current.value = "";
+      setBusy(false);
     }
   }
 
@@ -663,301 +365,542 @@ function GuestsInner() {
     return <PageLoader label="Завантажуємо гостей…" />;
   }
 
-  if (needWedding) {
+  if (!data) {
     return (
-      <>
-        <DashboardNav variant="COUPLE" />
-        <CabinetHeader title="Гості" description="Спочатку створи весілля в кабінеті." />
-        <CabinetEmpty
-          action={
-            <Link href="/dashboard" className={cabBtn}>
-              До кабінету
-            </Link>
-          }
-        >
-          Без весілля список гостей ще не відкривається.
-        </CabinetEmpty>
-      </>
+      <div className="cabinet-tasks-page">
+        <div className="cabinet-tasks-top">
+          <h1 className="cabinet-tasks-title">Гості</h1>
+        </div>
+        <div className="cabinet-panel" style={{ marginTop: 24 }}>
+          <p style={{ margin: 0, color: "#666" }}>
+            Спочатку збережи дату весілля в огляді — тоді відкриється список гостей.
+          </p>
+          <Link href="/dashboard" className="cabinet-panel-link">
+            До огляду
+          </Link>
+        </div>
+        {error ? <p className="cabinet-tasks-error">{error}</p> : null}
+      </div>
     );
   }
 
-  const stats = data?.stats;
-  const rowProps = {
-    origin,
-    busy,
-    onRename: renameGuest,
-    onDelete: removeGuest,
-    onStatus: setStatus,
-    onTogglePlusOne: togglePlusOne,
-    onCopy: copyLink,
-    onShare: shareLink,
-  };
-
   return (
-    <>
-      <DashboardNav variant="COUPLE" />
+    <div className="cabinet-tasks-page">
+      <div className="cabinet-tasks-top">
+        <h1 className="cabinet-tasks-title">Гості</h1>
+        <div className="cabinet-overview-actions">
+          <CabinetNotificationsBell summary={summary} />
+          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
+            <span className="cabinet-profile-avatar">{partnerInitials}</span>
+            <span aria-hidden>▾</span>
+          </Link>
+        </div>
+      </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <CabinetHeader
-          title="Гості"
-          description="Набивай імена по сторонах — Enter додає наступного. Запрошення і статуси одразу під кожним гостем."
-        />
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={importing}
-            onClick={() => csvInputRef.current?.click()}
-            className={cabBtnGhost}
-          >
-            {importing ? "Імпорт…" : "Імпорт CSV"}
-          </button>
-          <button
-            type="button"
-            disabled={!data?.guests.length || !origin}
-            onClick={() => void copyAllLinks()}
-            className={cabBtnGhost}
-          >
-            Усі запрошення
-          </button>
+      {error ? <p className="cabinet-tasks-error">{error}</p> : null}
+
+      {guests.length === 0 ? (
+        <div className="cabinet-guests-empty">
+          <div className="cabinet-guests-empty-glow" aria-hidden />
+          <GuestsEmptyArt />
+          <h2>Внесіть своїх перших гостей</h2>
+          <p>
+            Єдиний список гостей для вас обох. Всі контакти, статуси запрошень,
+            деталі щодо гостей — в одному місці.
+          </p>
+          <p>Додайте гостей вручну або імпортуйте список із CSV файлу</p>
+          <div className="cabinet-guests-empty-actions">
+            <button
+              type="button"
+              className="cabinet-tasks-add-btn"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <span aria-hidden>+</span>
+              Додати гостей
+            </button>
+            <button
+              type="button"
+              className="cabinet-guests-import-btn"
+              onClick={() => fileRef.current?.click()}
+              disabled={busy}
+            >
+              Імпорт CSV
+            </button>
+          </div>
           <input
-            ref={csvInputRef}
+            ref={fileRef}
             type="file"
             accept=".csv,text/csv"
-            className="hidden"
-            onChange={(e) => void onCsvFile(e.target.files?.[0])}
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void onImportCsv(file);
+              e.target.value = "";
+            }}
           />
         </div>
-      </div>
+      ) : (
+      <div className="cabinet-tasks-layout" style={{ marginTop: 24 }}>
+        <aside className="cabinet-tasks-filters">
+          <FilterGroup
+            title="Чиї гості"
+            items={[
+              { id: "all", label: "Всі", count: counts.side.all },
+              {
+                id: "BRIDE",
+                label: "Гості нареченої",
+                count: counts.side.BRIDE,
+              },
+              {
+                id: "GROOM",
+                label: "Гості нареченого",
+                count: counts.side.GROOM,
+              },
+            ]}
+            active={sideFilter}
+            onChange={(id) => setSideFilter(id as SideFilter)}
+          />
+          <FilterGroup
+            title="Статус запрошення"
+            items={[
+              { id: "all", label: "Всі", count: counts.invite.all },
+              {
+                id: "not_invited",
+                label: "Не запрошені",
+                count: counts.invite.not_invited,
+              },
+              {
+                id: "invited",
+                label: "Запрошені",
+                count: counts.invite.invited,
+              },
+            ]}
+            active={inviteFilter}
+            onChange={(id) => setInviteFilter(id as InviteFilter)}
+          />
+          <FilterGroup
+            title="Результат запрошення"
+            items={[
+              { id: "all", label: "Усі", count: counts.rsvp.all },
+              { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
+              { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
+              {
+                id: "MAYBE",
+                label: "Можливо прийдуть",
+                count: counts.rsvp.MAYBE,
+              },
+              {
+                id: "PENDING",
+                label: "Ще не відповіли",
+                count: counts.rsvp.PENDING,
+              },
+            ]}
+            active={rsvpFilter}
+            onChange={(id) => setRsvpFilter(id as RsvpFilter)}
+          />
+          <FilterGroup
+            title="Вік"
+            items={[
+              { id: "all", label: "Усі", count: counts.age.all },
+              { id: "adult", label: "Дорослі", count: counts.age.adult },
+              { id: "child", label: "Діти", count: counts.age.child },
+            ]}
+            active={ageFilter}
+            onChange={(id) => setAgeFilter(id as AgeFilter)}
+          />
+        </aside>
 
-      {error ? (
-        <p className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
-
-      <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
-        <div className={`${cabCard} inline-flex p-1`}>
-          {(
-            [
-              { id: "sides", label: "Дві сторони" },
-              { id: "alpha", label: "За абеткою" },
-              { id: "table", label: "Таблиця" },
-            ] as const
-          ).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setView(item.id)}
-              className={`cursor-pointer rounded-full px-3 py-2 text-sm transition ${
-                view === item.id
-                  ? "bg-[#1a1a1a] text-white"
-                  : "text-[#8a877f] hover:text-[#1a1a1a]"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {view === "sides" ? (
-        <div className="mt-8">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className={`${cabCard} p-6`}>
-              <SideColumn
-                title="Гості нареченої"
-                hint="Сторона нареченої"
-                guests={brideGuests}
-                side="BRIDE"
-                onAdd={addGuest}
-                {...rowProps}
-              />
-            </div>
-            <div className={`${cabCard} p-6`}>
-              <SideColumn
-                title="Гості нареченого"
-                hint="Сторона нареченого"
-                guests={groomGuests}
-                side="GROOM"
-                onAdd={addGuest}
-                {...rowProps}
-              />
-            </div>
-          </div>
-
-          <div className={`${cabCard} mt-4 p-6`}>
-            <SideColumn
-              title="Спільні / інші"
-              hint="Не привʼязані до однієї сторони"
-              guests={sharedGuests}
-              side="BOTH"
-              onAdd={addGuest}
-              {...rowProps}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {view === "alpha" ? (
-        <div className="mt-8 max-w-xl">
-          {alphaGuests.length === 0 ? (
-            <p className="text-sm text-ink-soft">Список порожній.</p>
-          ) : (
-            alphaGuests.map((guest) => (
-              <div
-                key={guest.id}
-                className="border-b border-line/80 py-2.5 last:border-b-0"
+        <section className="cabinet-panel cabinet-tasks-list-panel">
+          <div className="cabinet-tasks-list-head">
+            <h2>
+              Список гостей{" "}
+              <span className="cabinet-guests-count">({filtered.length})</span>
+            </h2>
+            <div className="cabinet-tasks-list-actions">
+              <label className="cabinet-tasks-sort">
+                <select
+                  value={sortMode}
+                  onChange={(e) => setSortMode(e.target.value as SortMode)}
+                >
+                  <option value="recent">Недавно додані</option>
+                  <option value="alpha">За алфавітом</option>
+                  <option value="rsvp">За відповіддю</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                className="cabinet-tasks-add-btn"
+                onClick={() => setDrawerOpen(true)}
               >
-                <GuestNameRow guest={guest} bare {...rowProps} />
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {(["BRIDE", "GROOM", "BOTH"] as const).map((side) => (
+                <span aria-hidden>+</span>
+                Додати гостей
+              </button>
+              <button
+                type="button"
+                className="cabinet-guests-import-btn"
+                onClick={() => fileRef.current?.click()}
+                disabled={busy}
+              >
+                Імпорт CSV
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".csv,text/csv"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void onImportCsv(file);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+          </div>
+
+          {visible.length === 0 ? (
+            <p className="cabinet-tasks-empty">Немає гостей у цьому фільтрі.</p>
+          ) : (
+            <ul className="cabinet-guests-list">
+              {visible.map((guest) => {
+                const ui = RSVP_UI[guest.rsvpStatus];
+                const mark =
+                  guest.side === "GROOM" ? "P" : guest.side === "BRIDE" ? "O" : "G";
+                return (
+                  <li
+                    key={guest.id}
+                    className={`cabinet-guest-row${
+                      guest.rsvpStatus === "YES" ? " is-yes" : ""
+                    }`}
+                  >
+                    <div className="cabinet-guest-main">
+                      <p className="cabinet-guest-name">
+                        {guest.name}
+                        {isChild(guest) ? (
+                          <span className="cabinet-guest-child" title="Дитина" aria-label="Дитина">
+                            ☺
+                          </span>
+                        ) : null}
+                      </p>
+                    </div>
+                    <div className="cabinet-guest-meta">
+                      <span className={`cabinet-guest-status is-${ui.tone}`}>
+                        <StatusIcon tone={ui.tone} />
+                        {ui.label}
+                      </span>
+                      <span
+                        className={`cabinet-task-who ${
+                          guest.side === "GROOM" ? "is-partner" : "is-owner"
+                        }`}
+                      >
+                        {mark}
+                      </span>
+                      <div className="cabinet-guest-menu-wrap">
+                        <button
+                          type="button"
+                          className="cabinet-task-menu"
+                          aria-label="Меню гостя"
+                          onClick={() =>
+                            setMenuOpenId((id) => (id === guest.id ? null : guest.id))
+                          }
+                        >
+                          ⋯
+                        </button>
+                        {menuOpenId === guest.id ? (
+                          <div className="cabinet-guest-menu">
+                            {(
+                              [
+                                ["YES", "Прийде"],
+                                ["MAYBE", "Можливо"],
+                                ["NO", "Відмова"],
+                                ["PENDING", "Без відповіді"],
+                              ] as const
+                            ).map(([status, label]) => (
+                              <button
+                                key={status}
+                                type="button"
+                                disabled={busy}
+                                onClick={() => void onSetRsvp(guest, status)}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() => void onDelete(guest)}
+                            >
+                              Видалити
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {filtered.length > visibleCount ? (
+            <button
+              type="button"
+              className="cabinet-panel-link cabinet-tasks-more"
+              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+            >
+              Показати більше
+            </button>
+          ) : null}
+        </section>
+      </div>
+      )}
+
+      {drawerOpen ? (
+        <div className="cabinet-drawer-root">
+          <button
+            type="button"
+            className="cabinet-drawer-backdrop"
+            aria-label="Закрити"
+            onClick={() => {
+              setDrawerOpen(false);
+              resetDrawer();
+            }}
+          />
+          <aside className="cabinet-drawer" aria-label="Додати гостя">
+            <div className="cabinet-drawer-head">
+              <h2>Додати гостя</h2>
+              <button
+                type="button"
+                className="cabinet-drawer-close"
+                aria-label="Закрити"
+                onClick={() => {
+                  setDrawerOpen(false);
+                  resetDrawer();
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <form className="cabinet-drawer-form" onSubmit={onSave}>
+              <label className="cabinet-drawer-field">
+                <span>Імʼя і прізвище</span>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Наприклад: Ліля Василенко"
+                  required
+                />
+              </label>
+
+              <button
+                type="button"
+                className={`cabinet-guests-plusone${plusOne ? " is-on" : ""}`}
+                onClick={() => setPlusOne((v) => !v)}
+              >
+                + Додати +1
+              </button>
+              {plusOne ? (
+                <label className="cabinet-drawer-field">
+                  <span>Імʼя +1</span>
+                  <input
+                    value={plusOneName}
+                    onChange={(e) => setPlusOneName(e.target.value)}
+                    placeholder="Імʼя супутника"
+                  />
+                </label>
+              ) : null}
+
+              <label className="cabinet-drawer-field">
+                <span>Сторона нареченого чи нареченої</span>
+                <select
+                  value={side}
+                  onChange={(e) => setSide(e.target.value as GuestSide | "")}
+                >
+                  <option value="">Обрати сторону</option>
+                  <option value="BRIDE">Гості нареченої</option>
+                  <option value="GROOM">Гості нареченого</option>
+                  <option value="BOTH">Спільні</option>
+                </select>
+              </label>
+
+              <label className="cabinet-drawer-check">
+                <input
+                  type="checkbox"
+                  checked={isChildGuest}
+                  onChange={(e) => setIsChildGuest(e.target.checked)}
+                />
+                <span>Дитина</span>
+              </label>
+
+              <div className="cabinet-guests-invite-box">
+                <p className="cabinet-filter-title">Запрошення</p>
+                <p className="cabinet-drawer-field-label">Спосіб запрошення</p>
+                <div className="cabinet-guests-methods">
+                  {INVITE_METHODS.map((item) => (
                     <button
-                      key={side}
+                      key={item.id}
                       type="button"
-                      disabled={busy}
-                      onClick={() => void moveSide(guest, side)}
-                      className={`${chipBtn} ${
-                        guest.side === side
-                          ? "border-sage/40 bg-sage/15 text-sage-deep"
-                          : "border-line text-ink-soft hover:border-sage/40 hover:bg-mist hover:text-ink"
+                      className={`cabinet-guests-method${
+                        method === item.id ? " is-active" : ""
                       }`}
+                      onClick={() => setMethod(item.id)}
                     >
-                      {SIDE_LABEL[side]}
+                      {item.label}
                     </button>
                   ))}
                 </div>
-              </div>
-            ))
-          )}
-          <div className="mt-4 grid gap-6 sm:grid-cols-2">
-            <QuickAdd side="BRIDE" busy={busy} onAdd={addGuest} />
-            <QuickAdd side="GROOM" busy={busy} onAdd={addGuest} />
-          </div>
-        </div>
-      ) : null}
-
-      {view === "table" ? (
-        <div className="mt-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-1">
-              {(
-                ["ALL", "PENDING", "YES", "MAYBE", "NO"] as const
-              ).map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setFilter(item)}
-                  className={`cursor-pointer px-3 py-1.5 text-sm transition ${
-                    filter === item
-                      ? "bg-sage text-white"
-                      : "text-ink-soft hover:bg-mist hover:text-ink"
-                  }`}
-                >
-                  {item === "ALL" ? "Усі" : STATUS_LABEL[item]}
-                </button>
-              ))}
-            </div>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Пошук…"
-              className="w-full max-w-xs border border-line bg-white px-3 py-2 text-sm outline-none focus:border-sage sm:w-48"
-            />
-          </div>
-
-          <div className="overflow-x-auto border border-line bg-white">
-            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-line text-xs uppercase tracking-[0.12em] text-ink-soft">
-                  <th className="px-4 py-3 font-medium">Гість</th>
-                  <th className="px-4 py-3 font-medium">Сторона</th>
-                  <th className="px-4 py-3 font-medium">Запрошення</th>
-                  <th className="px-4 py-3 font-medium" />
-                </tr>
-              </thead>
-              <tbody>
-                {tableGuests.map((guest) => (
-                  <tr
-                    key={guest.id}
-                    className="border-b border-line/70 last:border-b-0"
+                <label className="cabinet-drawer-field">
+                  <span>Номер телефону</span>
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+380"
+                  />
+                </label>
+                <label className="cabinet-drawer-field">
+                  <span>Статус</span>
+                  <select
+                    value={inviteStatus}
+                    onChange={(e) =>
+                      setInviteStatus(e.target.value as "not_invited" | "invited")
+                    }
                   >
-                    <td className="px-4 py-3">
-                      <GuestNameRow guest={guest} bare {...rowProps} />
-                    </td>
-                    <td className="px-4 py-3 text-ink-soft">
-                      <select
-                        value={guest.side}
-                        disabled={busy}
-                        onChange={(e) =>
-                          void moveSide(guest, e.target.value as GuestSide)
-                        }
-                        className="cursor-pointer border border-transparent bg-transparent py-1 outline-none hover:border-line focus:border-sage"
-                      >
-                        {Object.entries(SIDE_LABEL).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`${chipBtn} ${STATUS_BTN[guest.rsvpStatus].active}`}>
-                        {STATUS_LABEL[guest.rsvpStatus]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => void removeGuest(guest.id)}
-                        className="cursor-pointer px-2 py-1 text-xs text-ink-soft transition hover:bg-red-50 hover:text-red-700"
-                      >
-                        Видалити
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {tableGuests.length === 0 ? (
-              <p className="px-4 py-10 text-center text-sm text-ink-soft">
-                Нікого немає.
-              </p>
-            ) : null}
-          </div>
+                    <option value="not_invited">Не запрошено</option>
+                    <option value="invited">Запрошено</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="cabinet-drawer-actions">
+                <button
+                  type="button"
+                  className="cabinet-drawer-cancel"
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    resetDrawer();
+                  }}
+                >
+                  Скасувати
+                </button>
+                <button
+                  type="submit"
+                  className="cabinet-drawer-save"
+                  disabled={busy || name.trim().length < 2}
+                >
+                  {busy ? "…" : "Зберегти"}
+                </button>
+              </div>
+            </form>
+          </aside>
         </div>
       ) : null}
+    </div>
+  );
+}
 
-      <div className="mt-14 border-t border-line pt-10 text-center">
-        <p className="text-xs uppercase tracking-[0.16em] text-ink-soft">
-          Співвідношення за сторонами
-        </p>
-        <p className="mt-2 font-[family-name:var(--font-display)] text-5xl text-ink md:text-6xl">
-          {ratio}
-        </p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-ink-soft">
-          <span>Наречена {brideCount}</span>
-          <span>Наречений {groomCount}</span>
-          <span>Спільні {sharedGuests.length}</span>
-          {stats ? (
-            <>
-              <span>Усього {stats.total}</span>
-              <span>Йдуть {stats.yes}</span>
-              <span>Чекаємо {stats.pending}</span>
-              <span>З +1 · {stats.headcount}</span>
-            </>
-          ) : null}
-        </div>
+function GuestsEmptyArt() {
+  return (
+    <svg
+      className="cabinet-guests-empty-art"
+      viewBox="0 0 280 140"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M28 48c18-22 42-28 70-18 20 8 34 6 52-6 22-14 48-10 70 8"
+        stroke="#1a1a1a"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M40 40c10-16 28-22 44-10M210 36c12-14 28-16 42-4"
+        stroke="#1a1a1a"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      {[52, 78, 104, 130, 156, 182, 208].map((x) => (
+        <g key={x}>
+          <path d={`M${x} 48v10`} stroke="#1a1a1a" strokeWidth="1.2" />
+          <circle cx={x} cy="62" r="4" fill="#ff4200" opacity="0.85" />
+          <circle cx={x} cy="62" r="8" fill="#ff4200" opacity="0.18" />
+        </g>
+      ))}
+      <rect x="36" y="88" width="208" height="10" rx="2" stroke="#1a1a1a" strokeWidth="1.5" />
+      <path d="M44 98v18M72 98v18M100 98v18M128 98v18M156 98v18M184 98v18M212 98v18M236 98v18" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" />
+      {[50, 78, 106, 134, 162, 190].map((x) => (
+        <path
+          key={`chair-${x}`}
+          d={`M${x} 78h18v10H${x}z M${x + 3} 88v10 M${x + 15} 88v10`}
+          stroke="#1a1a1a"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+      ))}
+    </svg>
+  );
+}
+
+function FilterGroup({
+  title,
+  items,
+  active,
+  onChange,
+}: {
+  title: string;
+  items: Array<{ id: string; label: string; count: number }>;
+  active: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <div className="cabinet-filter-group">
+      <p className="cabinet-filter-title">{title}</p>
+      <div className="cabinet-filter-list">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`cabinet-filter-item${active === item.id ? " is-active" : ""}`}
+            onClick={() => onChange(item.id)}
+          >
+            <span>{item.label}</span>
+            <span className="cabinet-filter-count">{item.count}</span>
+          </button>
+        ))}
       </div>
-    </>
+    </div>
+  );
+}
+
+function StatusIcon({ tone }: { tone: "yes" | "no" | "maybe" | "pending" }) {
+  if (tone === "yes") {
+    return (
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
+        <path fill="currentColor" d="M6.2 11.4 2.8 8l1.1-1.1 2.3 2.3 5-5L12.3 5z" />
+      </svg>
+    );
+  }
+  if (tone === "no") {
+    return (
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
+        <path
+          fill="currentColor"
+          d="M4.2 3.1 3.1 4.2 6.9 8l-3.8 3.8 1.1 1.1L8 9.1l3.8 3.8 1.1-1.1L9.1 8l3.8-3.8-1.1-1.1L8 6.9 4.2 3.1z"
+        />
+      </svg>
+    );
+  }
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M8 4.5V8l2.2 1.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   );
 }
 
 export function GuestsPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <CoupleCabinetFrame>
-        <GuestsInner />
-      </CoupleCabinetFrame>
+      <GuestsInner />
     </RequireAuth>
   );
 }

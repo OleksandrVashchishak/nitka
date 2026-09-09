@@ -14,6 +14,44 @@ exports.NotificationsService = void 0;
 const common_1 = require("@nestjs/common");
 const email_service_1 = require("../email/email.service");
 const prisma_service_1 = require("../prisma/prisma.service");
+const wedding_access_1 = require("../weddings/wedding-access");
+function guestsWord(n) {
+    const abs = Math.abs(n) % 100;
+    const d = abs % 10;
+    if (abs > 10 && abs < 20)
+        return 'гостей';
+    if (d === 1)
+        return 'гість';
+    if (d >= 2 && d <= 4)
+        return 'гості';
+    return 'гостей';
+}
+function daysWord(n) {
+    const abs = Math.abs(n) % 100;
+    const d = abs % 10;
+    if (abs > 10 && abs < 20)
+        return 'днів';
+    if (d === 1)
+        return 'день';
+    if (d >= 2 && d <= 4)
+        return 'дні';
+    return 'днів';
+}
+function formatUaDate(date) {
+    return date.toLocaleDateString('uk-UA', {
+        day: 'numeric',
+        month: 'long',
+    });
+}
+function rsvpLabel(status) {
+    if (status === 'YES')
+        return 'підтвердив(ла) участь';
+    if (status === 'NO')
+        return 'відхилив(ла) запрошення';
+    if (status === 'MAYBE')
+        return 'відповів(ла): можливо';
+    return 'відповів(ла) на запрошення';
+}
 let NotificationsService = NotificationsService_1 = class NotificationsService {
     constructor(prisma, email) {
         this.prisma = prisma;
@@ -57,6 +95,280 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
             where: { userId, token: token.trim() },
         });
         return { ok: true };
+    }
+    async getSummary(user) {
+        if (user.role === 'VENDOR') {
+            return this.getVendorSummary(user.id);
+        }
+        return this.getCoupleSummary(user.id, user.role);
+    }
+    async getVendorSummary(userId) {
+        const vendor = await this.prisma.vendor.findUnique({
+            where: { userId },
+        });
+        if (!vendor) {
+            return {
+                role: 'VENDOR',
+                newRequests: 0,
+                total: 0,
+                newCount: 0,
+                items: [],
+                feed: [],
+                moreHref: '/vendor/requests',
+            };
+        }
+        const newRequestsList = await this.prisma.request.findMany({
+            where: { vendorId: vendor.id, status: 'NEW' },
+            orderBy: { createdAt: 'desc' },
+            take: 8,
+            include: {
+                user: { select: { name: true } },
+            },
+        });
+        const newRequests = newRequestsList.length;
+        const items = [
+            {
+                key: 'newRequests',
+                label: 'Нові заявки',
+                count: newRequests,
+                href: '/vendor/requests',
+            },
+        ].filter((i) => i.count > 0);
+        const feed = newRequestsList.map((req) => ({
+            id: `request-${req.id}`,
+            body: `Нова заявка від ${req.user.name || 'пари'} · ${req.city}, ${req.guests} гостей`,
+            href: '/vendor/requests',
+            createdAt: req.createdAt.toISOString(),
+            isNew: true,
+        }));
+        return {
+            role: 'VENDOR',
+            newRequests,
+            total: newRequests,
+            newCount: feed.length,
+            items,
+            feed,
+            moreHref: '/vendor/requests',
+        };
+    }
+    async getCoupleSummary(userId, role) {
+        const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, userId);
+        const wedding = access?.wedding ?? null;
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+        const [pendingRsvp, newRsvp, waitingRequests, vendorReplied] = await Promise.all([
+            wedding
+                ? this.prisma.guest.count({
+                    where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
+                })
+                : Promise.resolve(0),
+            wedding
+                ? this.prisma.guest.count({
+                    where: {
+                        weddingId: wedding.id,
+                        rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
+                        respondedAt: { gte: weekAgo },
+                    },
+                })
+                : Promise.resolve(0),
+            this.prisma.request.count({
+                where: { userId, status: 'NEW' },
+            }),
+            this.prisma.request.count({
+                where: {
+                    userId,
+                    messages: {
+                        some: {
+                            authorRole: 'VENDOR',
+                            createdAt: { gte: twoWeeksAgo },
+                        },
+                    },
+                },
+            }),
+        ]);
+        const items = [
+            {
+                key: 'newRsvp',
+                label: 'Нові відповіді на запрошення',
+                count: newRsvp,
+                href: '/guests',
+            },
+            {
+                key: 'pendingRsvp',
+                label: 'Чекають відповіді на запрошення',
+                count: pendingRsvp,
+                href: '/guests',
+            },
+            {
+                key: 'waitingRequests',
+                label: 'Заявки в очікуванні',
+                count: waitingRequests,
+                href: '/requests',
+            },
+            {
+                key: 'vendorReplied',
+                label: 'Вендор відповів',
+                count: vendorReplied,
+                href: '/requests',
+            },
+        ].filter((i) => i.count > 0);
+        const feed = await this.buildCoupleFeed(userId, wedding, pendingRsvp);
+        const newCount = feed.filter((item) => item.isNew).length;
+        return {
+            role,
+            pendingRsvp,
+            newRsvp,
+            waitingRequests,
+            vendorReplied,
+            total: items.reduce((sum, i) => sum + i.count, 0),
+            newCount,
+            items,
+            feed,
+            moreHref: pendingRsvp || newRsvp ? '/guests' : '/requests',
+        };
+    }
+    async buildCoupleFeed(userId, wedding, pendingRsvp) {
+        const feed = [];
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+        const now = new Date();
+        if (wedding) {
+            const recentRsvps = await this.prisma.guest.findMany({
+                where: {
+                    weddingId: wedding.id,
+                    rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
+                    respondedAt: { gte: twoWeeksAgo },
+                },
+                orderBy: { respondedAt: 'desc' },
+                take: 4,
+                select: {
+                    id: true,
+                    name: true,
+                    rsvpStatus: true,
+                    respondedAt: true,
+                },
+            });
+            for (const guest of recentRsvps) {
+                const at = guest.respondedAt ?? now;
+                feed.push({
+                    id: `rsvp-${guest.id}`,
+                    body: `${guest.name} ${rsvpLabel(guest.rsvpStatus)}`,
+                    href: '/guests',
+                    createdAt: at.toISOString(),
+                    isNew: at >= weekAgo,
+                });
+            }
+            if (pendingRsvp > 0) {
+                const oldestPending = await this.prisma.guest.findFirst({
+                    where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
+                    orderBy: { createdAt: 'asc' },
+                    select: { createdAt: true },
+                });
+                feed.push({
+                    id: 'pending-rsvp',
+                    body: `${pendingRsvp} ${guestsWord(pendingRsvp)} ще не відповіли на запрошення`,
+                    href: '/guests',
+                    createdAt: (oldestPending?.createdAt ?? now).toISOString(),
+                    isNew: true,
+                    actionLabel: 'Нагадати',
+                    actionHref: '/guests',
+                });
+            }
+            const start = new Date();
+            start.setHours(0, 0, 0, 0);
+            const dueEnd = new Date(start);
+            dueEnd.setDate(dueEnd.getDate() + 7);
+            const dueTasks = await this.prisma.task.findMany({
+                where: {
+                    weddingId: wedding.id,
+                    status: { not: 'DONE' },
+                    dueDate: { gte: start, lt: dueEnd },
+                },
+                orderBy: { dueDate: 'asc' },
+                take: 3,
+                select: { id: true, title: true, dueDate: true },
+            });
+            for (const task of dueTasks) {
+                if (!task.dueDate)
+                    continue;
+                const daysLeft = Math.max(0, Math.ceil((task.dueDate.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)));
+                feed.push({
+                    id: `task-due-${task.id}`,
+                    body: daysLeft === 0
+                        ? `Сьогодні дедлайн: ${task.title}`
+                        : `Залишилось ${daysLeft} ${daysWord(daysLeft)} до дедлайну: ${task.title}`,
+                    href: '/checklist',
+                    createdAt: task.dueDate.toISOString(),
+                    isNew: daysLeft <= 2,
+                });
+            }
+            const weddingDaysLeft = Math.ceil((wedding.date.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+            if (pendingRsvp > 0 && weddingDaysLeft > 0 && weddingDaysLeft <= 14) {
+                feed.push({
+                    id: 'invite-deadline',
+                    body: `Залишилось ${weddingDaysLeft} ${daysWord(weddingDaysLeft)} щоб підтвердити запрошення`,
+                    href: '/guests',
+                    createdAt: now.toISOString(),
+                    isNew: weddingDaysLeft <= 7,
+                });
+            }
+        }
+        const vendorMessages = await this.prisma.requestMessage.findMany({
+            where: {
+                authorRole: 'VENDOR',
+                createdAt: { gte: twoWeeksAgo },
+                request: { userId },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5,
+            include: {
+                request: {
+                    include: {
+                        vendor: {
+                            include: { category: { select: { name: true } } },
+                        },
+                    },
+                },
+            },
+        });
+        const seenRequests = new Set();
+        for (const msg of vendorMessages) {
+            if (seenRequests.has(msg.requestId))
+                continue;
+            seenRequests.add(msg.requestId);
+            const vendor = msg.request.vendor;
+            const category = vendor.category?.name || 'Підрядник';
+            const eventLabel = formatUaDate(msg.request.eventDate);
+            const confirmed = msg.request.status === 'CONTACTED' || msg.request.status === 'DONE';
+            feed.push({
+                id: `vendor-msg-${msg.id}`,
+                body: confirmed
+                    ? `${category} ${vendor.name} підтвердив(ла) бронювання на ${eventLabel}`
+                    : `${category} ${vendor.name} відповів(ла) на заявку`,
+                href: '/requests',
+                createdAt: msg.createdAt.toISOString(),
+                isNew: msg.createdAt >= weekAgo,
+            });
+        }
+        const waiting = await this.prisma.request.findMany({
+            where: { userId, status: 'NEW' },
+            orderBy: { createdAt: 'desc' },
+            take: 3,
+            include: {
+                vendor: { select: { name: true } },
+            },
+        });
+        for (const req of waiting) {
+            feed.push({
+                id: `waiting-${req.id}`,
+                body: `Заявка до ${req.vendor.name} очікує відповіді`,
+                href: '/requests',
+                createdAt: req.createdAt.toISOString(),
+                isNew: req.createdAt >= weekAgo,
+            });
+        }
+        feed.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return feed.slice(0, 12);
     }
     async notifyUser(userId, payload) {
         const [pushResult, emailResult] = await Promise.all([

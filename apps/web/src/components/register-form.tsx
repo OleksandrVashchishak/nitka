@@ -304,7 +304,15 @@ export function RegisterForm() {
       }
       await saveWedding();
       persistDraft("2.2", true);
-      setScreen("2.2");
+      if (alreadySignedIn) {
+        setScreen("2.2");
+        return;
+      }
+      const params = new URLSearchParams({
+        email: email.trim(),
+        flow: "register",
+      });
+      router.push(`/confirm-email?${params.toString()}`);
     } catch (err) {
       toast.error(getErrorMessage(err, "Не вдалось зареєструватись"));
       setError(getErrorMessage(err, "Не вдалось зареєструватись"));

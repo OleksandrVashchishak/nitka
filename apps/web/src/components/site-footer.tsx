@@ -68,6 +68,10 @@ export function SiteFooterWrapper() {
     pathname === "/" ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/login") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/confirm-email") ||
+    pathname.startsWith("/email-confirmed") ||
+    pathname.startsWith("/verify-email") ||
     pathname.startsWith("/w/") ||
     pathname.startsWith("/rsvp/") ||
     pathname === "/tasks" ||

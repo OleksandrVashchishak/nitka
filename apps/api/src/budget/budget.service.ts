@@ -127,7 +127,6 @@ export class BudgetService {
 
   async getMine(userId: string) {
     const wedding = await this.getWeddingForUser(userId);
-    await this.syncDefaults(wedding.id, wedding.budget);
 
     const items = await this.prisma.budgetItem.findMany({
       where: { weddingId: wedding.id },

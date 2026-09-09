@@ -11,8 +11,8 @@ export declare class RequestsController {
         vendor: {
             category: {
                 id: string;
-                name: string;
                 slug: string;
+                name: string;
                 description: string;
                 sortOrder: number;
             };
@@ -24,12 +24,12 @@ export declare class RequestsController {
             }[];
         } & {
             id: string;
+            userId: string;
             city: string;
             status: import(".prisma/client").$Enums.VendorStatus;
             createdAt: Date;
-            userId: string;
-            name: string;
             slug: string | null;
+            name: string;
             tagline: string;
             description: string;
             categoryId: string;
@@ -64,13 +64,15 @@ export declare class RequestsController {
             id: string;
             createdAt: Date;
             phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
         })[];
     } & {
         id: string;
+        userId: string;
+        vendorId: string;
         eventDate: Date;
         city: string;
         guests: number;
@@ -79,15 +81,13 @@ export declare class RequestsController {
         status: import(".prisma/client").$Enums.RequestStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        vendorId: string;
     }>;
     listMine(user: AuthUser): import(".prisma/client").Prisma.PrismaPromise<({
         vendor: {
             category: {
                 id: string;
-                name: string;
                 slug: string;
+                name: string;
                 description: string;
                 sortOrder: number;
             };
@@ -99,12 +99,12 @@ export declare class RequestsController {
             }[];
         } & {
             id: string;
+            userId: string;
             city: string;
             status: import(".prisma/client").$Enums.VendorStatus;
             createdAt: Date;
-            userId: string;
-            name: string;
             slug: string | null;
+            name: string;
             tagline: string;
             description: string;
             categoryId: string;
@@ -139,13 +139,15 @@ export declare class RequestsController {
             id: string;
             createdAt: Date;
             phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
         })[];
     } & {
         id: string;
+        userId: string;
+        vendorId: string;
         eventDate: Date;
         city: string;
         guests: number;
@@ -154,15 +156,13 @@ export declare class RequestsController {
         status: import(".prisma/client").$Enums.RequestStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        vendorId: string;
     })[]>;
     addMessage(user: AuthUser, id: string, dto: CreateRequestMessageDto): Promise<({
         vendor: {
             category: {
                 id: string;
-                name: string;
                 slug: string;
+                name: string;
                 description: string;
                 sortOrder: number;
             };
@@ -174,12 +174,12 @@ export declare class RequestsController {
             }[];
         } & {
             id: string;
+            userId: string;
             city: string;
             status: import(".prisma/client").$Enums.VendorStatus;
             createdAt: Date;
-            userId: string;
-            name: string;
             slug: string | null;
+            name: string;
             tagline: string;
             description: string;
             categoryId: string;
@@ -214,13 +214,15 @@ export declare class RequestsController {
             id: string;
             createdAt: Date;
             phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
         })[];
     } & {
         id: string;
+        userId: string;
+        vendorId: string;
         eventDate: Date;
         city: string;
         guests: number;
@@ -229,13 +231,11 @@ export declare class RequestsController {
         status: import(".prisma/client").$Enums.RequestStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        vendorId: string;
     }) | ({
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         messages: ({
             author: {
@@ -246,13 +246,15 @@ export declare class RequestsController {
             id: string;
             createdAt: Date;
             phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
         })[];
     } & {
         id: string;
+        userId: string;
+        vendorId: string;
         eventDate: Date;
         city: string;
         guests: number;
@@ -261,14 +263,12 @@ export declare class RequestsController {
         status: import(".prisma/client").$Enums.RequestStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        vendorId: string;
     })>;
     listForVendor(user: AuthUser): Promise<({
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         messages: ({
             author: {
@@ -279,13 +279,15 @@ export declare class RequestsController {
             id: string;
             createdAt: Date;
             phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
         })[];
     } & {
         id: string;
+        userId: string;
+        vendorId: string;
         eventDate: Date;
         city: string;
         guests: number;
@@ -294,14 +296,12 @@ export declare class RequestsController {
         status: import(".prisma/client").$Enums.RequestStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        vendorId: string;
     })[]>;
     updateStatus(user: AuthUser, id: string, dto: UpdateRequestStatusDto): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         messages: ({
             author: {
@@ -312,13 +312,15 @@ export declare class RequestsController {
             id: string;
             createdAt: Date;
             phone: string | null;
+            authorRole: import(".prisma/client").$Enums.Role;
             requestId: string;
             authorId: string;
-            authorRole: import(".prisma/client").$Enums.Role;
             body: string;
         })[];
     } & {
         id: string;
+        userId: string;
+        vendorId: string;
         eventDate: Date;
         city: string;
         guests: number;
@@ -327,26 +329,24 @@ export declare class RequestsController {
         status: import(".prisma/client").$Enums.RequestStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        vendorId: string;
     }>;
     dashboard(user: AuthUser, res: Response): Promise<{
         vendor: {
             category: {
                 id: string;
-                name: string;
                 slug: string;
+                name: string;
                 description: string;
                 sortOrder: number;
             };
         } & {
             id: string;
+            userId: string;
             city: string;
             status: import(".prisma/client").$Enums.VendorStatus;
             createdAt: Date;
-            userId: string;
-            name: string;
             slug: string | null;
+            name: string;
             tagline: string;
             description: string;
             categoryId: string;

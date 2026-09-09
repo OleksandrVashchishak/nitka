@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getBudget } from "@/lib/budget-api";
 import {
   getDashboardInsights,
@@ -14,6 +14,7 @@ import {
   type Wedding,
   type WeddingTask,
 } from "@/lib/dashboard-api";
+import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
@@ -136,9 +137,6 @@ export function CoupleOverview({
   const [spend, setSpend] = useState<number | null>(null);
   const [hasDayPlan, setHasDayPlan] = useState(false);
   const [statsReady, setStatsReady] = useState(false);
-  const [notifyOpen, setNotifyOpen] = useState(false);
-  const notifyRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -183,16 +181,6 @@ export function CoupleOverview({
     };
   }, []);
 
-  useEffect(() => {
-    function onDocClick(event: MouseEvent) {
-      if (!notifyRef.current?.contains(event.target as Node)) {
-        setNotifyOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
-
   const done =
     insights?.plan.done ??
     wedding.tasks.filter((task) => task.status === "DONE").length;
@@ -227,7 +215,6 @@ export function CoupleOverview({
         ? "сьогодні"
         : "вже відбулось";
   const photo = wedding.couplePhotoUrl || "/landing/couple.jpg";
-  const notifyTotal = summary?.total ?? 0;
 
   async function onToggleTask(task: WeddingTask, isDone: boolean) {
     try {
@@ -251,44 +238,7 @@ export function CoupleOverview({
           </p>
         </div>
         <div className="cabinet-overview-actions">
-          <div className="cabinet-notify-wrap" ref={notifyRef}>
-            <button
-              type="button"
-              className="cabinet-bell"
-              aria-label="Сповіщення"
-              aria-expanded={notifyOpen}
-              onClick={() => setNotifyOpen((open) => !open)}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22ZM18 16v-4.5a6 6 0 1 0-12 0V16l-2 2h16l-2-2Z"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {notifyTotal > 0 ? (
-                <span className="cabinet-bell-badge">
-                  {notifyTotal > 99 ? "99+" : notifyTotal}
-                </span>
-              ) : null}
-            </button>
-            {notifyOpen && summary?.items?.length ? (
-              <div className="cabinet-notify-menu">
-                {summary.items.map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className="cabinet-notify-item"
-                    onClick={() => setNotifyOpen(false)}
-                  >
-                    <span>{item.label}</span>
-                    <span className="cabinet-notify-count">{item.count}</span>
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+          <CabinetNotificationsBell summary={summary} />
           <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
             <span className="cabinet-profile-avatar">{partnerInitials}</span>
             <span aria-hidden>▾</span>

@@ -2,19 +2,11 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { PageLoader } from "@/components/ui-loader";
-import { DashboardNav } from "@/components/dashboard-nav";
 import { RequireAuth } from "@/components/require-auth";
 import {
-  CabinetEmpty,
-  CabinetHeader,
-  CoupleCabinetFrame,
-  cabBtn,
-  cabCard,
-} from "@/components/couple-cabinet-ui";
-import {
   createTask,
-  deleteTask,
   getMyWedding,
   updateTask,
   type TaskStatus,
@@ -22,27 +14,53 @@ import {
   type WeddingTask,
 } from "@/lib/dashboard-api";
 import {
-  formatDayMonthUk,
-  formatMonthYearUk,
-  hrefForPlanKey,
-  monthKeyFromIso,
-  planCategoryLabel,
-  suggestedDueDateForPlanItem,
-} from "@/lib/wedding-plan";
+  getNotificationsSummary,
+  type NotificationsSummary,
+} from "@/lib/notifications-api";
+import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
 import { toast } from "@/lib/toast";
+import { useAuthStore } from "@/lib/auth-store";
+import "../app/couple-cabinet.css";
 
-type StatusFilter = "open" | "done" | "all";
-type MonthFilter = "all" | "after" | string;
+type StatusFilter = "all" | "open" | "done";
+type TypeFilter =
+  | "all"
+  | "prep"
+  | "vendors"
+  | "attire"
+  | "guests"
+  | "seating"
+  | "budget"
+  | "invites";
+type DueFilter = "all" | "soon" | "overdue" | "nodate";
+type WhoFilter = "all" | "owner" | "partner";
+type SortMode = "urgent" | "date" | "alpha";
 
 type ChecklistRow = WeddingTask & {
   effectiveDue: string | null;
-  monthKey: string | null;
+  taskType: Exclude<TypeFilter, "all">;
+  who: "owner" | "partner";
 };
 
-function effectiveDueFor(
-  task: WeddingTask,
-  weddingDate: string,
-): string | null {
+const TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
+  { id: "all", label: "Всі" },
+  { id: "prep", label: "Підготовка" },
+  { id: "vendors", label: "Підрядники" },
+  { id: "attire", label: "Вбрання" },
+  { id: "guests", label: "Гості" },
+  { id: "seating", label: "Розсадка" },
+  { id: "budget", label: "Бюджет" },
+  { id: "invites", label: "Запрошення" },
+];
+
+const PAGE_SIZE = 12;
+
+function formatTaskDate(iso: string) {
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return `${d}.${m}.${y}`;
+}
+
+function effectiveDueFor(task: WeddingTask, weddingDate: string) {
   if (task.dueDate) return task.dueDate.slice(0, 10);
   return suggestedDueDateForPlanItem(
     weddingDate,
@@ -51,114 +69,235 @@ function effectiveDueFor(
   );
 }
 
+function resolveTaskType(
+  slug: string | null | undefined,
+  title: string,
+): Exclude<TypeFilter, "all"> {
+  const key = slug ?? "";
+  const lower = title.toLowerCase();
+  if (key === "budget" || lower.includes("бюджет")) return "budget";
+  if (
+    key === "invitations" ||
+    key === "invite-guests" ||
+    key === "website" ||
+    lower.includes("запрош")
+  ) {
+    return "invites";
+  }
+  if (lower.includes("розсад") || key === "seating") return "seating";
+  if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
+    return "attire";
+  }
+  if (key === "guests" || key === "rsvp" || lower.includes("гост")) {
+    return "guests";
+  }
+  if (
+    [
+      "venue",
+      "photo",
+      "music",
+      "catering",
+      "decor",
+      "officiant",
+      "planner",
+      "cake",
+      "favorites",
+      "requests",
+    ].includes(key) ||
+    lower.includes("фото") ||
+    lower.includes("місц") ||
+    lower.includes("ведуч") ||
+    lower.includes("підряд")
+  ) {
+    return "vendors";
+  }
+  return "prep";
+}
+
+function typeMeta(type: Exclude<TypeFilter, "all">) {
+  switch (type) {
+    case "vendors":
+      return { label: "Підрядники", tone: "green" as const };
+    case "seating":
+      return { label: "Розсадка", tone: "pink" as const };
+    case "attire":
+      return { label: "Вбрання", tone: "blue" as const };
+    case "invites":
+      return { label: "Запрошення", tone: "orange" as const };
+    case "guests":
+      return { label: "Гості", tone: "gray" as const };
+    case "budget":
+      return { label: "Бюджет", tone: "gray" as const };
+    default:
+      return { label: "Підготовка", tone: "gray" as const };
+  }
+}
+
+function taskDateTone(due: string | null, isDone: boolean) {
+  if (!due || isDone) return "";
+  const today = new Date().toISOString().slice(0, 10);
+  if (due < today) return " is-overdue";
+  const soon = new Date();
+  soon.setDate(soon.getDate() + 30);
+  if (due <= soon.toISOString().slice(0, 10)) return " is-soon";
+  return "";
+}
+
+function firstName(value: string) {
+  return value.trim().split(/\s+/)[0] || "";
+}
+
 function ChecklistInner() {
+  const user = useAuthStore((s) => s.user);
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("open");
-  const [monthFilter, setMonthFilter] = useState<MonthFilter>("all");
-  const [newTitle, setNewTitle] = useState("");
-  const [adding, setAdding] = useState(false);
+  const [summary, setSummary] = useState<NotificationsSummary | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [dueFilter, setDueFilter] = useState<DueFilter>("all");
+  const [whoFilter, setWhoFilter] = useState<WhoFilter>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("urgent");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  async function load() {
-    setLoading(true);
-    setError(null);
-    try {
-      setWedding(await getMyWedding());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Помилка завантаження");
-      setWedding(null);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDue, setNewDue] = useState("");
+  const [newType, setNewType] = useState<Exclude<TypeFilter, "all"> | "">("");
+  const [newWho, setNewWho] = useState<WhoFilter>("owner");
 
   useEffect(() => {
-    void load();
+    void (async () => {
+      try {
+        setWedding(await getMyWedding());
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Помилка завантаження");
+        setWedding(null);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    void getNotificationsSummary()
+      .then(setSummary)
+      .catch(() => setSummary(null));
   }, []);
 
-  const weddingDate = wedding?.date?.slice(0, 10) ?? "";
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [statusFilter, typeFilter, dueFilter, whoFilter, sortMode]);
+
+  const fallbackNames = (user?.name ?? "")
+    .split(/\s+(?:і|&|\+)\s+/i)
+    .map((name) => name.trim());
+  const partnerOneName =
+    wedding?.partnerOneName || fallbackNames[0] || user?.name || "Оля";
+  const partnerTwoName = wedding?.partnerTwoName || fallbackNames[1] || "Партнер";
+  const ownerShort = firstName(partnerOneName) || "Оля";
+  const partnerShort = firstName(partnerTwoName) || "Партнер";
+  const oneInitial = partnerOneName.trim().charAt(0).toUpperCase();
+  const twoInitial = partnerTwoName.trim().charAt(0).toUpperCase();
+  const partnerInitials =
+    oneInitial && twoInitial
+      ? `${oneInitial}&${twoInitial}`
+      : oneInitial || twoInitial || "П";
 
   const rows: ChecklistRow[] = useMemo(() => {
     if (!wedding) return [];
-    return [...wedding.tasks]
-      .map((task) => {
-        const effectiveDue = effectiveDueFor(task, wedding.date);
-        return {
-          ...task,
-          effectiveDue,
-          monthKey: effectiveDue ? monthKeyFromIso(effectiveDue) : null,
-        };
-      })
-      .sort((a, b) => {
-        const aDone = a.status === "DONE" ? 1 : 0;
-        const bDone = b.status === "DONE" ? 1 : 0;
-        if (aDone !== bDone) return aDone - bDone;
-        const aDue = a.effectiveDue ?? "9999-99-99";
-        const bDue = b.effectiveDue ?? "9999-99-99";
-        if (aDue !== bDue) return aDue.localeCompare(bDue);
-        return a.sortOrder - b.sortOrder;
-      });
+    return wedding.tasks.map((task) => {
+      const effectiveDue = effectiveDueFor(task, wedding.date);
+      return {
+        ...task,
+        effectiveDue,
+        taskType: resolveTaskType(task.categorySlug, task.title),
+        who: task.sortOrder % 2 === 0 ? "owner" : "partner",
+      };
+    });
   }, [wedding]);
 
-  const weddingMonth = weddingDate ? monthKeyFromIso(weddingDate) : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const soonLimit = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().slice(0, 10);
+  }, []);
 
-  const monthBuckets = useMemo(() => {
-    const map = new Map<string, number>();
-    let after = 0;
+  const counts = useMemo(() => {
+    const status = { all: rows.length, open: 0, done: 0 };
+    const types: Record<TypeFilter, number> = {
+      all: rows.length,
+      prep: 0,
+      vendors: 0,
+      attire: 0,
+      guests: 0,
+      seating: 0,
+      budget: 0,
+      invites: 0,
+    };
+    const due = { all: rows.length, soon: 0, overdue: 0, nodate: 0 };
+    const who = { all: rows.length, owner: 0, partner: 0 };
+
     for (const row of rows) {
-      if (statusFilter === "open" && row.status === "DONE") continue;
-      if (statusFilter === "done" && row.status !== "DONE") continue;
-      if (!row.monthKey || !row.effectiveDue) {
-        after += 1;
-        continue;
-      }
-      if (weddingDate && row.effectiveDue > weddingDate) {
-        after += 1;
-        continue;
-      }
-      map.set(row.monthKey, (map.get(row.monthKey) ?? 0) + 1);
+      if (row.status === "DONE") status.done += 1;
+      else status.open += 1;
+      types[row.taskType] += 1;
+      who[row.who] += 1;
+      if (!row.effectiveDue) due.nodate += 1;
+      else if (row.effectiveDue < today && row.status !== "DONE") due.overdue += 1;
+      else if (row.effectiveDue <= soonLimit) due.soon += 1;
     }
-    const months = [...map.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, count]) => ({ key, count }));
-    return { months, after };
-  }, [rows, statusFilter, weddingDate]);
+    return { status, types, due, who };
+  }, [rows, today, soonLimit]);
 
   const filtered = useMemo(() => {
-    return rows.filter((row) => {
+    const list = rows.filter((row) => {
       if (statusFilter === "open" && row.status === "DONE") return false;
       if (statusFilter === "done" && row.status !== "DONE") return false;
-
-      if (monthFilter === "all") return true;
-      if (monthFilter === "after") {
-        if (!row.effectiveDue) return true;
-        return Boolean(weddingDate && row.effectiveDue > weddingDate);
+      if (typeFilter !== "all" && row.taskType !== typeFilter) return false;
+      if (whoFilter !== "all" && row.who !== whoFilter) return false;
+      if (dueFilter === "nodate" && row.effectiveDue) return false;
+      if (dueFilter === "overdue") {
+        if (!row.effectiveDue || row.effectiveDue >= today || row.status === "DONE") {
+          return false;
+        }
       }
-      return row.monthKey === monthFilter;
+      if (dueFilter === "soon") {
+        if (
+          !row.effectiveDue ||
+          row.effectiveDue < today ||
+          row.effectiveDue > soonLimit
+        ) {
+          return false;
+        }
+      }
+      return true;
     });
-  }, [rows, statusFilter, monthFilter, weddingDate]);
 
-  const grouped = useMemo(() => {
-    const groups = new Map<string, ChecklistRow[]>();
-    for (const row of filtered) {
-      let key = "Без дати";
-      if (row.effectiveDue && weddingDate && row.effectiveDue > weddingDate) {
-        key = "Після весілля";
-      } else if (row.monthKey) {
-        key = formatMonthYearUk(row.monthKey);
+    return list.sort((a, b) => {
+      if (sortMode === "alpha") {
+        return a.title.localeCompare(b.title, "uk");
       }
-      const list = groups.get(key) ?? [];
-      list.push(row);
-      groups.set(key, list);
-    }
-    return [...groups.entries()];
-  }, [filtered, weddingDate]);
+      const aDone = a.status === "DONE" ? 1 : 0;
+      const bDone = b.status === "DONE" ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
+      const aDue = a.effectiveDue ?? "9999-99-99";
+      const bDue = b.effectiveDue ?? "9999-99-99";
+      if (sortMode === "urgent") {
+        const aOver = a.effectiveDue && a.effectiveDue < today ? 0 : 1;
+        const bOver = b.effectiveDue && b.effectiveDue < today ? 0 : 1;
+        if (aOver !== bOver) return aOver - bOver;
+      }
+      if (aDue !== bDue) return aDue.localeCompare(bDue);
+      return a.sortOrder - b.sortOrder;
+    });
+  }, [rows, statusFilter, typeFilter, dueFilter, whoFilter, sortMode, today, soonLimit]);
 
-  const doneCount = rows.filter((r) => r.status === "DONE").length;
-  const totalCount = rows.length;
-  const openCount = totalCount - doneCount;
-  const progress = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+  const visible = filtered.slice(0, visibleCount);
+  const doneCount = counts.status.done;
+  const totalCount = counts.status.all;
+  const remaining = totalCount - doneCount;
+  const progress =
+    totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
   function patchLocal(taskId: string, patch: Partial<WeddingTask>) {
     setWedding((prev) =>
@@ -184,39 +323,47 @@ function ChecklistInner() {
     }
   }
 
-  async function onSetDue(task: ChecklistRow, value: string) {
-    const dueDate = value || null;
-    patchLocal(task.id, { dueDate });
-    try {
-      await updateTask(task.id, { dueDate });
-    } catch (err) {
-      patchLocal(task.id, { dueDate: task.dueDate });
-      toast.error(err instanceof Error ? err.message : "Дату не збережено");
+  function typeToSlug(type: Exclude<TypeFilter, "all"> | "") {
+    switch (type) {
+      case "vendors":
+        return "photo";
+      case "attire":
+        return "attire";
+      case "guests":
+        return "guests";
+      case "seating":
+        return "seating";
+      case "budget":
+        return "budget";
+      case "invites":
+        return "invitations";
+      case "prep":
+        return "vibe";
+      default:
+        return "phase-1";
     }
   }
 
-  async function onAdd(e: FormEvent) {
+  async function onSaveTask(e: FormEvent) {
     e.preventDefault();
     const title = newTitle.trim();
     if (!title || !wedding) return;
     setAdding(true);
     try {
-      const due =
-        monthFilter !== "all" && monthFilter !== "after"
-          ? `${monthFilter}-15`
-          : weddingDate
-            ? suggestedDueDateForPlanItem(wedding.date, "phase-1", totalCount)
-            : undefined;
       const created = await createTask({
         title,
-        dueDate: due || undefined,
-        categorySlug: "phase-1",
+        dueDate: newDue || undefined,
+        categorySlug: typeToSlug(newType),
+        sortOrder: newWho === "partner" ? 1 : 0,
       });
       setWedding((prev) =>
         prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
       );
       setNewTitle("");
-      toast.success("Додано", title);
+      setNewDue("");
+      setNewType("");
+      setNewWho("owner");
+      setDrawerOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не додано");
     } finally {
@@ -224,349 +371,334 @@ function ChecklistInner() {
     }
   }
 
-  async function onDelete(task: ChecklistRow) {
-    if (!task.isCustom) return;
-    if (!confirm(`Видалити задачу «${task.title}»?`)) return;
-    try {
-      await deleteTask(task.id);
-      setWedding((prev) =>
-        prev
-          ? { ...prev, tasks: prev.tasks.filter((t) => t.id !== task.id) }
-          : prev,
-      );
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Не видалено");
-    }
-  }
-
   if (loading) {
-    return <PageLoader label="Завантажуємо чекліст…" />;
+    return <PageLoader label="Завантажуємо задачі…" />;
   }
 
   if (!wedding) {
     return (
-      <>
-        <DashboardNav variant="COUPLE" />
-        <CabinetHeader title="Мої задачі" description="Спочатку збережи дату весілля — тоді відкриється чекліст по місяцях." />
-        <CabinetEmpty
-          action={
-            <Link href="/dashboard" className={cabBtn}>
-              До огляду
-            </Link>
-          }
-        >
-          Дата й місто ще не збережені в кабінеті.
-        </CabinetEmpty>
-        {error ? (
-          <p className="mt-4 text-sm text-red-700">{error}</p>
-        ) : null}
-      </>
+      <div className="cabinet-tasks-page">
+        <div className="cabinet-tasks-top">
+          <h1 className="cabinet-tasks-title">Завдання</h1>
+        </div>
+        <div className="cabinet-panel" style={{ marginTop: 24 }}>
+          <p style={{ margin: 0, color: "#666" }}>
+            Спочатку збережи дату весілля в огляді — тоді відкриється список задач.
+          </p>
+          <Link href="/dashboard" className="cabinet-panel-link">
+            До огляду
+          </Link>
+        </div>
+        {error ? <p className="cabinet-tasks-error">{error}</p> : null}
+      </div>
     );
   }
 
   return (
-    <>
-      <DashboardNav variant="COUPLE" />
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <CabinetHeader
-          title="Мої задачі"
-          description={
-            <>
-              Виконано{" "}
-              <strong className="font-medium text-[#1a1a1a]">
-                {doneCount} з {totalCount}
-              </strong>{" "}
-              задач
-            </>
-          }
-        />
-        <div className="min-w-[200px] flex-1 sm:max-w-xs">
-          <div className="h-1.5 overflow-hidden rounded-full bg-black/10">
-            <div
-              className="h-full rounded-full bg-[#c45b4a] transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="mt-1 text-right text-xs text-[#8a877f]">{progress}%</p>
+    <div className="cabinet-tasks-page">
+      <div className="cabinet-tasks-top">
+        <h1 className="cabinet-tasks-title">Завдання</h1>
+        <div className="cabinet-overview-actions">
+          <CabinetNotificationsBell summary={summary} />
+          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
+            <span className="cabinet-profile-avatar">{partnerInitials}</span>
+            <span aria-hidden>▾</span>
+          </Link>
         </div>
       </div>
 
-      {error ? (
-        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className={`${cabCard} space-y-8 p-5 lg:sticky lg:top-6 lg:self-start`}>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-              Статус
-            </p>
-            <div className="mt-3 space-y-1">
-              {(
-                [
-                  { id: "open" as const, label: "Зробити", count: openCount },
-                  { id: "done" as const, label: "Готово", count: doneCount },
-                  { id: "all" as const, label: "Усі", count: totalCount },
-                ] as const
-              ).map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setStatusFilter(item.id)}
-                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm transition ${
-                    statusFilter === item.id
-                      ? "bg-sage/15 font-semibold text-sage-deep"
-                      : "text-ink-soft hover:bg-mist hover:text-ink"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  <span className="tabular-nums">{item.count}</span>
-                </button>
-              ))}
-            </div>
+      <article className="cabinet-tasks-progress">
+        <div className="cabinet-tasks-progress-head">
+          <div className="cabinet-tasks-progress-left">
+            <p className="cabinet-tasks-progress-value">{progress}%</p>
+            <p className="cabinet-tasks-progress-label">готовність весілля</p>
           </div>
+          <span className="cabinet-tasks-progress-ratio">
+            {doneCount}/{totalCount}
+          </span>
+        </div>
+        <div className="cabinet-tasks-progress-bar">
+          <span style={{ width: `${Math.min(100, progress)}%` }} />
+        </div>
+        <div className="cabinet-tasks-progress-meta">
+          <span>{doneCount} виконано</span>
+          <span>{remaining} залишилось</span>
+        </div>
+      </article>
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-              За датою
-            </p>
-            <div className="relative mt-3 space-y-0 pl-3">
-              <div
-                className="absolute bottom-3 left-[18px] top-3 w-px bg-line"
-                aria-hidden
-              />
-              <button
-                type="button"
-                onClick={() => setMonthFilter("all")}
-                className={`relative flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-sm transition ${
-                  monthFilter === "all"
-                    ? "font-semibold text-sage-deep"
-                    : "text-ink-soft hover:text-ink"
-                }`}
-              >
-                <span
-                  className={`relative z-10 size-2.5 shrink-0 rounded-full ${
-                    monthFilter === "all" ? "bg-sage" : "bg-line"
-                  }`}
-                />
-                <span className="flex-1">Усі місяці</span>
-              </button>
-              {monthBuckets.months.map((month) => (
-                <button
-                  key={month.key}
-                  type="button"
-                  onClick={() => setMonthFilter(month.key)}
-                  className={`relative flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-sm transition ${
-                    monthFilter === month.key
-                      ? "font-semibold text-sage-deep"
-                      : "text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  <span
-                    className={`relative z-10 size-2.5 shrink-0 rounded-full ${
-                      monthFilter === month.key
-                        ? "bg-sage"
-                        : month.key === weddingMonth
-                          ? "bg-sage/50"
-                          : "bg-line"
-                    }`}
-                  />
-                  <span className="flex-1">{formatMonthYearUk(month.key)}</span>
-                  <span className="tabular-nums text-xs">{month.count}</span>
-                </button>
-              ))}
-              {monthBuckets.after > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setMonthFilter("after")}
-                  className={`relative flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-sm transition ${
-                    monthFilter === "after"
-                      ? "font-semibold text-sage-deep"
-                      : "text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  <span
-                    className={`relative z-10 size-2.5 shrink-0 rounded-full ${
-                      monthFilter === "after" ? "bg-sage" : "bg-line"
-                    }`}
-                  />
-                  <span className="flex-1">Після весілля</span>
-                  <span className="tabular-nums text-xs">
-                    {monthBuckets.after}
-                  </span>
-                </button>
-              ) : null}
-            </div>
-          </div>
+      <div className="cabinet-tasks-layout">
+        <aside className="cabinet-tasks-filters">
+          <FilterGroup
+            title="Статус"
+            items={[
+              { id: "all", label: "Всі", count: counts.status.all },
+              { id: "open", label: "Не виконано", count: counts.status.open },
+              { id: "done", label: "Виконано", count: counts.status.done },
+            ]}
+            active={statusFilter}
+            onChange={(id) => setStatusFilter(id as StatusFilter)}
+          />
+          <FilterGroup
+            title="Тип завдання"
+            items={TYPE_OPTIONS.map((opt) => ({
+              id: opt.id,
+              label: opt.label,
+              count: counts.types[opt.id],
+            }))}
+            active={typeFilter}
+            onChange={(id) => setTypeFilter(id as TypeFilter)}
+          />
+          <FilterGroup
+            title="За терміном"
+            items={[
+              { id: "all", label: "Всі", count: counts.due.all },
+              { id: "soon", label: "Найближчі 30 днів", count: counts.due.soon },
+              {
+                id: "overdue",
+                label: "Протерміновані",
+                count: counts.due.overdue,
+              },
+              { id: "nodate", label: "Без дати", count: counts.due.nodate },
+            ]}
+            active={dueFilter}
+            onChange={(id) => setDueFilter(id as DueFilter)}
+          />
+          <FilterGroup
+            title="Чиє завдання"
+            items={[
+              { id: "all", label: "Всі", count: counts.who.all },
+              { id: "owner", label: ownerShort, count: counts.who.owner },
+              { id: "partner", label: partnerShort, count: counts.who.partner },
+            ]}
+            active={whoFilter}
+            onChange={(id) => setWhoFilter(id as WhoFilter)}
+          />
         </aside>
 
-        <div className="min-w-0">
-          <form
-            onSubmit={onAdd}
-            className={`${cabCard} flex items-center gap-3 px-4 py-3`}
-          >
-            <span className="flex size-8 items-center justify-center rounded-full border border-dashed border-sage/50 text-lg text-sage-deep">
-              +
-            </span>
-            <input
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Додати нову задачу"
-              className="min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-ink-soft"
-            />
-            <button
-              type="submit"
-              disabled={adding || !newTitle.trim()}
-              className={`${cabBtn} disabled:opacity-50`}
-            >
-              {adding ? "…" : "Додати"}
-            </button>
-          </form>
-
-          {grouped.length === 0 ? (
-            <p className="mt-10 text-center text-ink-soft">
-              Немає задач у цьому фільтрі.
-            </p>
-          ) : (
-            <div className="mt-8 space-y-10">
-              {grouped.map(([label, tasks]) => (
-                <section key={label}>
-                  <h2 className="font-[family-name:var(--font-display)] text-2xl text-[#1a1a1a] md:text-3xl">
-                    {label}
-                  </h2>
-                  <ul className={`${cabCard} mt-4 divide-y divide-[#eeeae2]`}>
-                    {tasks.map((task) => {
-                      const done = task.status === "DONE";
-                      const href = hrefForPlanKey(task.categorySlug ?? "");
-                      return (
-                        <li
-                          key={task.id}
-                          className="flex flex-wrap items-start gap-3 px-4 py-4 md:flex-nowrap md:items-center md:gap-4 md:px-5"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => void onToggle(task)}
-                            aria-label={done ? "Повернути в роботу" : "Готово"}
-                            className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition ${
-                              done
-                                ? "border-sage bg-sage text-white"
-                                : "border-line hover:border-sage"
-                            }`}
-                          >
-                            {done ? (
-                              <svg
-                                viewBox="0 0 16 16"
-                                className="size-3.5"
-                                aria-hidden
-                              >
-                                <path
-                                  fill="currentColor"
-                                  d="M6.2 11.4 2.8 8l1.1-1.1 2.3 2.3 5-5L12.3 5z"
-                                />
-                              </svg>
-                            ) : null}
-                          </button>
-
-                          <div className="min-w-0 flex-1">
-                            <p
-                              className={`font-medium text-ink ${
-                                done ? "text-ink-soft line-through" : ""
-                              }`}
-                            >
-                              {task.title}
-                            </p>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
-                              {task.effectiveDue ? (
-                                <span>{formatDayMonthUk(task.effectiveDue)}</span>
-                              ) : (
-                                <span>Без дати</span>
-                              )}
-                              <input
-                                type="date"
-                                value={task.dueDate?.slice(0, 10) ?? task.effectiveDue ?? ""}
-                                onChange={(e) =>
-                                  void onSetDue(task, e.target.value)
-                                }
-                                title="Змінити дату"
-                                className="max-w-[9.5rem] rounded-md border border-line bg-mist/50 px-1.5 py-0.5 text-[11px] outline-none focus:border-sage"
-                              />
-                              <span className="rounded-full bg-mist px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
-                                {planCategoryLabel(task.categorySlug)}
-                              </span>
-                              {task.status === "IN_PROGRESS" ? (
-                                <span className="rounded-full bg-sage/15 px-2.5 py-0.5 text-[11px] font-medium text-sage-deep">
-                                  В процесі
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-
-                          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
-                            {href ? (
-                              <Link
-                                href={href}
-                                className="text-sm font-medium text-sage-deep hover:underline"
-                              >
-                                Відкрити
-                              </Link>
-                            ) : null}
-                            {task.isCustom ? (
-                              <button
-                                type="button"
-                                onClick={() => void onDelete(task)}
-                                className="text-sm text-ink-soft hover:text-red-700"
-                              >
-                                Видалити
-                              </button>
-                            ) : null}
-                            {!done ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  void (async () => {
-                                    try {
-                                      const updated = await updateTask(task.id, {
-                                        status: "IN_PROGRESS",
-                                      });
-                                      patchLocal(task.id, updated);
-                                    } catch (err) {
-                                      toast.error(
-                                        err instanceof Error
-                                          ? err.message
-                                          : "Не оновлено",
-                                      );
-                                    }
-                                  })();
-                                }}
-                                className="text-sm text-ink-soft hover:text-ink"
-                              >
-                                В процесі
-                              </button>
-                            ) : null}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              ))}
+        <section className="cabinet-tasks-list-panel">
+          <div className="cabinet-tasks-list-head">
+            <h2>Список завдань</h2>
+            <div className="cabinet-tasks-list-actions">
+              <label className="cabinet-tasks-sort">
+                <select
+                  value={sortMode}
+                  onChange={(e) => setSortMode(e.target.value as SortMode)}
+                >
+                  <option value="urgent">Термінові зверху</option>
+                  <option value="date">За датою</option>
+                  <option value="alpha">За алфавітом</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                className="cabinet-tasks-add-btn"
+                onClick={() => setDrawerOpen(true)}
+              >
+                <span aria-hidden>+</span>
+                Додати завдання
+              </button>
             </div>
+          </div>
+
+          {visible.length === 0 ? (
+            <p className="cabinet-tasks-empty">Немає задач у цьому фільтрі.</p>
+          ) : (
+            <ul className="cabinet-task-list">
+              {visible.map((task) => {
+                const done = task.status === "DONE";
+                const meta = typeMeta(task.taskType);
+                return (
+                  <li
+                    key={task.id}
+                    className={`cabinet-task-row${done ? " is-done" : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className="cabinet-task-check"
+                      aria-label={done ? "Повернути в роботу" : "Виконано"}
+                      onClick={() => void onToggle(task)}
+                    >
+                      {done ? (
+                        <svg width="10" height="10" viewBox="0 0 16 16" aria-hidden>
+                          <path
+                            fill="currentColor"
+                            d="M6.2 11.4 2.8 8l1.1-1.1 2.3 2.3 5-5L12.3 5z"
+                          />
+                        </svg>
+                      ) : null}
+                    </button>
+                    <p className="cabinet-task-title">{task.title}</p>
+                    <div className="cabinet-task-meta-wrap">
+                      <span className={`cabinet-task-tag is-${meta.tone}`}>
+                        {meta.label}
+                      </span>
+                      {task.effectiveDue ? (
+                        <span
+                          className={`cabinet-task-date${taskDateTone(
+                            task.effectiveDue,
+                            done,
+                          )}`}
+                        >
+                          {formatTaskDate(task.effectiveDue)}
+                        </span>
+                      ) : null}
+                      <span
+                        className={`cabinet-task-who is-${task.who}`}
+                        title={
+                          task.who === "owner" ? ownerShort : partnerShort
+                        }
+                      >
+                        {task.who === "owner"
+                          ? ownerShort.charAt(0)
+                          : partnerShort.charAt(0)}
+                      </span>
+                      <span className="cabinet-task-menu" aria-hidden>
+                        ⋯
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </div>
+
+          {filtered.length > visibleCount ? (
+            <button
+              type="button"
+              className="cabinet-panel-link cabinet-tasks-more"
+              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+            >
+              Показати більше
+            </button>
+          ) : null}
+        </section>
       </div>
-    </>
+
+      {drawerOpen ? (
+        <div className="cabinet-drawer-root">
+          <button
+            type="button"
+            className="cabinet-drawer-backdrop"
+            aria-label="Закрити"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="cabinet-drawer" aria-label="Додати завдання">
+            <div className="cabinet-drawer-head">
+              <h2>Додати завдання</h2>
+              <button
+                type="button"
+                className="cabinet-drawer-close"
+                aria-label="Закрити"
+                onClick={() => setDrawerOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <form className="cabinet-drawer-form" onSubmit={onSaveTask}>
+              <label className="cabinet-drawer-field">
+                <span>Назва завдання</span>
+                <input
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="Наприклад, Замовити весільний торт"
+                  required
+                />
+              </label>
+              <label className="cabinet-drawer-field">
+                <span>Дедлайн</span>
+                <input
+                  type="date"
+                  value={newDue}
+                  onChange={(e) => setNewDue(e.target.value)}
+                />
+              </label>
+              <label className="cabinet-drawer-field">
+                <span>Тип завдання</span>
+                <select
+                  value={newType}
+                  onChange={(e) =>
+                    setNewType(e.target.value as Exclude<TypeFilter, "all"> | "")
+                  }
+                >
+                  <option value="">Не призначено</option>
+                  {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="cabinet-drawer-field">
+                <span>Відповідальний</span>
+                <select
+                  value={newWho}
+                  onChange={(e) => setNewWho(e.target.value as WhoFilter)}
+                >
+                  <option value="owner">{ownerShort}</option>
+                  <option value="partner">{partnerShort}</option>
+                </select>
+              </label>
+              <div className="cabinet-drawer-actions">
+                <button
+                  type="button"
+                  className="cabinet-drawer-cancel"
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  Скасувати
+                </button>
+                <button
+                  type="submit"
+                  className="cabinet-drawer-save"
+                  disabled={adding || !newTitle.trim()}
+                >
+                  {adding ? "…" : "Зберегти"}
+                </button>
+              </div>
+            </form>
+          </aside>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function FilterGroup({
+  title,
+  items,
+  active,
+  onChange,
+}: {
+  title: string;
+  items: Array<{ id: string; label: string; count: number }>;
+  active: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <div className="cabinet-filter-group">
+      <p className="cabinet-filter-title">{title}</p>
+      <div className="cabinet-filter-list">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`cabinet-filter-item${active === item.id ? " is-active" : ""}`}
+            onClick={() => onChange(item.id)}
+          >
+            <span>{item.label}</span>
+            <span className="cabinet-filter-count">{item.count}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
 export function CoupleChecklistPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <CoupleCabinetFrame>
-        <ChecklistInner />
-      </CoupleCabinetFrame>
+      <ChecklistInner />
     </RequireAuth>
   );
 }

@@ -89,15 +89,9 @@ export function LoginForm() {
                     {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 </div>
-                <button
-                  type="button"
-                  className="login-forgot"
-                  onClick={() =>
-                    toast.info("Відновлення пароля скоро зʼявиться")
-                  }
-                >
+                <Link href="/forgot-password" className="login-forgot">
                   Забули пароль?
-                </button>
+                </Link>
               </div>
             </div>
 

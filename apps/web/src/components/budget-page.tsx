@@ -1,60 +1,216 @@
 ﻿"use client";
 
-import { PageLoader } from "@/components/ui-loader";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { PageLoader } from "@/components/ui-loader";
+import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
+import { RequireAuth } from "@/components/require-auth";
 import {
-  BUDGET_CATEGORIES,
-  categoryLabel,
   createBudgetItem,
   deleteBudgetItem,
   getBudget,
   updateBudgetItem,
-  updateBudgetPlan,
   type BudgetItem,
   type BudgetResponse,
 } from "@/lib/budget-api";
-import { DashboardNav } from "@/components/dashboard-nav";
-import { RequireAuth } from "@/components/require-auth";
 import {
-  CabinetEmpty,
-  CabinetHeader,
-  CabinetStat,
-  CoupleCabinetFrame,
-  cabBtn,
-  cabCard,
-} from "@/components/couple-cabinet-ui";
+  getMyWedding,
+  getVendorPipeline,
+  type ExternalVendor,
+} from "@/lib/dashboard-api";
+import {
+  getNotificationsSummary,
+  type NotificationsSummary,
+} from "@/lib/notifications-api";
+import { useAuthStore } from "@/lib/auth-store";
+import { toast } from "@/lib/toast";
+import "../app/couple-cabinet.css";
 
-function formatMoney(value: number) {
-  return new Intl.NumberFormat("uk-UA").format(value);
+type StatusFilter = "all" | "paid" | "unpaid";
+type CategoryFilter =
+  | "all"
+  | "vendors"
+  | "attire"
+  | "decor"
+  | "banquet"
+  | "print"
+  | "other";
+type PayerFilter =
+  | "all"
+  | "couple"
+  | "owner"
+  | "partner"
+  | "parents_owner"
+  | "parents_partner"
+  | "unknown";
+type SortMode = "recent" | "amount" | "alpha";
+type Currency = "UAH" | "USD";
+
+type BudgetRow = BudgetItem & {
+  uiCategory: Exclude<CategoryFilter, "all">;
+  payer: Exclude<PayerFilter, "all">;
+  amount: number;
+};
+
+const PAGE_SIZE = 12;
+const USD_RATE = 41;
+
+const UI_CATEGORIES: Array<{ id: Exclude<CategoryFilter, "all">; label: string }> =
+  [
+    { id: "vendors", label: "Підрядники" },
+    { id: "attire", label: "Образи" },
+    { id: "decor", label: "Декор" },
+    { id: "banquet", label: "Банкет" },
+    { id: "print", label: "Поліграфія" },
+    { id: "other", label: "Інше" },
+  ];
+
+const PAYERS: Array<{ id: Exclude<PayerFilter, "all">; label: string }> = [
+  { id: "couple", label: "Обоє наречених" },
+  { id: "owner", label: "Наречена" },
+  { id: "partner", label: "Наречений" },
+  { id: "parents_owner", label: "Батьки нареченої" },
+  { id: "parents_partner", label: "Батьки нареченого" },
+  { id: "unknown", label: "Не визначено" },
+];
+
+const API_TO_UI: Record<string, Exclude<CategoryFilter, "all">> = {
+  venue: "vendors",
+  photo: "vendors",
+  video: "vendors",
+  music: "vendors",
+  host: "vendors",
+  beauty: "vendors",
+  transport: "vendors",
+  vendors: "vendors",
+  attire: "attire",
+  rings: "attire",
+  decor: "decor",
+  catering: "banquet",
+  cake: "banquet",
+  banquet: "banquet",
+  docs: "print",
+  gifts: "print",
+  print: "print",
+  other: "other",
+  honeymoon: "other",
+  reserve: "other",
+};
+
+function mapApiCategory(slug: string): Exclude<CategoryFilter, "all"> {
+  return API_TO_UI[slug] ?? "other";
 }
 
-function paidAmount(item: BudgetItem) {
-  return item.paid ? item.actual : 0;
+function uiToApiCategory(ui: Exclude<CategoryFilter, "all"> | "") {
+  switch (ui) {
+    case "vendors":
+      return "vendors";
+    case "attire":
+      return "attire";
+    case "decor":
+      return "decor";
+    case "banquet":
+      return "banquet";
+    case "print":
+      return "print";
+    case "other":
+    default:
+      return "other";
+  }
+}
+
+function parsePayer(notes: string | null): Exclude<PayerFilter, "all"> {
+  const match = notes?.match(/payer:([a-z_]+)/);
+  const value = match?.[1];
+  if (
+    value === "couple" ||
+    value === "owner" ||
+    value === "partner" ||
+    value === "parents_owner" ||
+    value === "parents_partner" ||
+    value === "unknown"
+  ) {
+    return value;
+  }
+  return "unknown";
+}
+
+function buildNotes(input: {
+  payer: Exclude<PayerFilter, "all">;
+  vendor?: string;
+  currency: Currency;
+}) {
+  const parts = [`payer:${input.payer}`, `currency:${input.currency}`];
+  if (input.vendor) parts.push(`vendor:${encodeURIComponent(input.vendor)}`);
+  return parts.join(" ");
+}
+
+function itemAmount(item: BudgetItem) {
+  if (item.paid) return item.actual || item.estimated;
+  return item.estimated || item.actual;
+}
+
+function formatMoney(value: number, currency: Currency) {
+  const amount = currency === "USD" ? value / USD_RATE : value;
+  const formatted = new Intl.NumberFormat("uk-UA", {
+    maximumFractionDigits: currency === "USD" ? 0 : 0,
+  }).format(Math.round(amount));
+  return currency === "USD" ? `$${formatted}` : `${formatted} ₴`;
+}
+
+function formatShortDate(iso: string) {
+  const [, m, d] = iso.slice(0, 10).split("-");
+  return `${d}.${m}`;
+}
+
+function payerMark(payer: Exclude<PayerFilter, "all">) {
+  switch (payer) {
+    case "couple":
+      return "C";
+    case "owner":
+      return "O";
+    case "partner":
+      return "P";
+    case "parents_owner":
+      return "B";
+    case "parents_partner":
+      return "R";
+    default:
+      return "?";
+  }
 }
 
 function BudgetInner() {
+  const user = useAuthStore((s) => s.user);
   const [data, setData] = useState<BudgetResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [needWedding, setNeedWedding] = useState(false);
-  const [plan, setPlan] = useState(300000);
-  const [savingPlan, setSavingPlan] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [mode, setMode] = useState<"budget" | "payments">("budget");
-  const [adding, setAdding] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newEstimated, setNewEstimated] = useState(0);
-  const [savingItem, setSavingItem] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [summary, setSummary] = useState<NotificationsSummary | null>(null);
+  const [partnerInitials, setPartnerInitials] = useState("П");
+  const [ownerName, setOwnerName] = useState("Оля");
+  const [partnerName, setPartnerName] = useState("Роман");
+  const [vendors, setVendors] = useState<ExternalVendor[]>([]);
+
+  const [currency, setCurrency] = useState<Currency>("UAH");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [payerFilter, setPayerFilter] = useState<PayerFilter>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("recent");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState({
-    title: "",
-    estimated: 0,
-    actual: 0,
-  });
-  const [showNewCategory, setShowNewCategory] = useState(false);
-  const [newCategorySlug, setNewCategorySlug] = useState("other");
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [formCurrency, setFormCurrency] = useState<Currency>("UAH");
+  const [category, setCategory] = useState<Exclude<CategoryFilter, "all"> | "">(
+    "",
+  );
+  const [vendorId, setVendorId] = useState("");
+  const [status, setStatus] = useState<"planned" | "paid" | "">("");
+  const payer: Exclude<PayerFilter, "all"> = "couple";
 
   async function load() {
     setLoading(true);
@@ -63,16 +219,9 @@ function BudgetInner() {
     try {
       const res = await getBudget();
       setData(res);
-      setPlan(res.wedding.budget);
-      setSelectedCategory((prev) => {
-        if (prev && res.categories.some((c) => c.category === prev)) return prev;
-        return res.categories[0]?.category ?? null;
-      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Помилка";
-      if (message.toLowerCase().includes("весілля")) {
-        setNeedWedding(true);
-      }
+      if (message.toLowerCase().includes("весілля")) setNeedWedding(true);
       setError(message);
       setData(null);
     } finally {
@@ -82,159 +231,189 @@ function BudgetInner() {
 
   useEffect(() => {
     void load();
-  }, []);
+    void getNotificationsSummary()
+      .then(setSummary)
+      .catch(() => setSummary(null));
+    void getMyWedding()
+      .then((wedding) => {
+        const one =
+          wedding?.partnerOneName?.trim().split(/\s+/)[0] ||
+          user?.name?.trim().split(/\s+/)[0] ||
+          "Оля";
+        const two = wedding?.partnerTwoName?.trim().split(/\s+/)[0] || "Роман";
+        setOwnerName(one);
+        setPartnerName(two);
+        const a = one.charAt(0).toUpperCase();
+        const b = two.charAt(0).toUpperCase();
+        setPartnerInitials(b ? `${a}&${b}` : a);
+      })
+      .catch(() => undefined);
+    void getVendorPipeline()
+      .then((pipeline) => setVendors(pipeline.manual))
+      .catch(() => setVendors([]));
+  }, [user?.name]);
 
-  const categories = useMemo(() => {
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [statusFilter, categoryFilter, payerFilter, sortMode]);
+
+  const rows: BudgetRow[] = useMemo(() => {
     if (!data) return [];
-    return data.categories.map((group) => ({
-      ...group,
-      paid: group.items.reduce((sum, item) => sum + paidAmount(item), 0),
-      label: categoryLabel(group.category),
+    return data.items.map((item) => ({
+      ...item,
+      uiCategory: mapApiCategory(item.category),
+      payer: parsePayer(item.notes),
+      amount: itemAmount(item),
     }));
   }, [data]);
 
-  const active = categories.find((c) => c.category === selectedCategory) ?? null;
-  const activeItems = useMemo(() => {
-    if (!active) return [];
-    if (mode === "payments") return active.items.filter((item) => item.paid);
-    return active.items;
-  }, [active, mode]);
+  const totals = useMemo(() => {
+    const current = rows.reduce((sum, row) => sum + row.amount, 0);
+    const spent = rows
+      .filter((row) => row.paid)
+      .reduce((sum, row) => sum + (row.actual || row.estimated), 0);
+    const plannedLeft = rows
+      .filter((row) => !row.paid)
+      .reduce((sum, row) => sum + row.estimated, 0);
+    return { current, spent, plannedLeft };
+  }, [rows]);
 
-  const unusedCategories = BUDGET_CATEGORIES.filter(
-    (c) => !categories.some((g) => g.category === c.value),
+  const counts = useMemo(() => {
+    const statusCounts = {
+      all: rows.reduce((s, r) => s + r.amount, 0),
+      paid: rows.filter((r) => r.paid).reduce((s, r) => s + r.amount, 0),
+      unpaid: rows.filter((r) => !r.paid).reduce((s, r) => s + r.amount, 0),
+    };
+    const categories = Object.fromEntries(
+      UI_CATEGORIES.map((c) => [
+        c.id,
+        rows.filter((r) => r.uiCategory === c.id).reduce((s, r) => s + r.amount, 0),
+      ]),
+    ) as Record<Exclude<CategoryFilter, "all">, number>;
+    const payers = Object.fromEntries(
+      PAYERS.map((p) => [
+        p.id,
+        rows.filter((r) => r.payer === p.id).reduce((s, r) => s + r.amount, 0),
+      ]),
+    ) as Record<Exclude<PayerFilter, "all">, number>;
+    return {
+      status: statusCounts,
+      categories: { all: statusCounts.all, ...categories },
+      payers: { all: statusCounts.all, ...payers },
+    };
+  }, [rows]);
+
+  const filtered = useMemo(() => {
+    const list = rows.filter((row) => {
+      if (statusFilter === "paid" && !row.paid) return false;
+      if (statusFilter === "unpaid" && row.paid) return false;
+      if (categoryFilter !== "all" && row.uiCategory !== categoryFilter) {
+        return false;
+      }
+      if (payerFilter !== "all" && row.payer !== payerFilter) return false;
+      return true;
+    });
+    return list.sort((a, b) => {
+      if (sortMode === "alpha") return a.title.localeCompare(b.title, "uk");
+      if (sortMode === "amount") return b.amount - a.amount;
+      return b.createdAt.localeCompare(a.createdAt);
+    });
+  }, [rows, statusFilter, categoryFilter, payerFilter, sortMode]);
+
+  const visible = filtered.slice(0, visibleCount);
+
+  const payerLabels = useMemo(
+    () => ({
+      couple: "Обоє наречених",
+      owner: ownerName,
+      partner: partnerName,
+      parents_owner: `Батьки ${ownerName}`,
+      parents_partner: `Батьки ${partnerName}`,
+      unknown: "Не визначено",
+    }),
+    [ownerName, partnerName],
   );
 
-  async function onSavePlan(e: FormEvent) {
+  function resetDrawer() {
+    setTitle("");
+    setAmount("");
+    setFormCurrency(currency);
+    setCategory("");
+    setVendorId("");
+    setStatus("");
+  }
+
+  async function onSave(e: FormEvent) {
     e.preventDefault();
-    setSavingPlan(true);
-    setError(null);
-    try {
-      const res = await updateBudgetPlan(plan);
-      setData(res);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не збережено план");
-    } finally {
-      setSavingPlan(false);
-    }
-  }
-
-  async function onAddExpense(e: FormEvent) {
-    e.preventDefault();
-    if (!selectedCategory || !newTitle.trim()) return;
-    setSavingItem(true);
-    setError(null);
-    try {
-      const res = await createBudgetItem({
-        category: selectedCategory,
-        title: newTitle.trim(),
-        estimated: newEstimated,
-        actual: 0,
-        paid: false,
-      });
-      setData(res);
-      setNewTitle("");
-      setNewEstimated(0);
-      setAdding(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не додано витрату");
-    } finally {
-      setSavingItem(false);
-    }
-  }
-
-  async function onCreateCategory(e: FormEvent) {
-    e.preventDefault();
-    setSavingItem(true);
-    setError(null);
-    try {
-      const res = await createBudgetItem({
-        category: newCategorySlug,
-        title: categoryLabel(newCategorySlug),
-        estimated: 0,
-        actual: 0,
-        paid: false,
-      });
-      setData(res);
-      setSelectedCategory(newCategorySlug);
-      setShowNewCategory(false);
-      setAdding(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не створено категорію");
-    } finally {
-      setSavingItem(false);
-    }
-  }
-
-  function startEdit(item: BudgetItem) {
-    setEditingId(item.id);
-    setEditDraft({
-      title: item.title,
-      estimated: item.estimated,
-      actual: item.actual,
-    });
-    setMenuOpenId(null);
-  }
-
-  async function saveEdit(itemId: string) {
-    setError(null);
-    try {
-      const res = await updateBudgetItem(itemId, {
-        title: editDraft.title.trim(),
-        estimated: editDraft.estimated,
-        actual: editDraft.actual,
-      });
-      setData(res);
-      setEditingId(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
-    }
-  }
-
-  async function onTogglePaid(item: BudgetItem) {
-    setMenuOpenId(null);
-    try {
-      const res = await updateBudgetItem(item.id, { paid: !item.paid });
-      setData(res);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не оновлено");
-    }
-  }
-
-  async function onDelete(id: string) {
-    const item = data?.items.find((row) => row.id === id);
-    if (!confirm(`Видалити «${item?.title ?? "витрату"}»?`)) return;
-    setMenuOpenId(null);
-    setError(null);
-    try {
-      const res = await deleteBudgetItem(id);
-      setData(res);
-      if (editingId === id) setEditingId(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Не видалено");
-    }
-  }
-
-  async function onRemoveCategory() {
-    if (!active) return;
-    if (
-      !confirm(
-        `Видалити категорію «${active.label}» і всі ${active.items.length} витрати?`,
-      )
-    ) {
+    const nextTitle = title.trim();
+    const raw = Number(amount.replace(/\s/g, "").replace(",", "."));
+    if (nextTitle.length < 2) {
+      toast.error("Вкажи, що оплатили");
       return;
     }
-    setError(null);
+    if (!Number.isFinite(raw) || raw <= 0) {
+      toast.error("Вкажи суму");
+      return;
+    }
+    if (!status) {
+      toast.error("Обери статус");
+      return;
+    }
+    const uah = formCurrency === "USD" ? Math.round(raw * USD_RATE) : Math.round(raw);
+    const paid = status === "paid";
+    const vendor = vendors.find((v) => v.id === vendorId);
+    setBusy(true);
     try {
-      let res: BudgetResponse | null = null;
-      for (const item of active.items) {
-        res = await deleteBudgetItem(item.id);
-      }
-      if (res) {
-        setData(res);
-        setSelectedCategory(res.categories[0]?.category ?? null);
-      }
+      const res = await createBudgetItem({
+        title: nextTitle,
+        category: uiToApiCategory(category),
+        estimated: uah,
+        actual: paid ? uah : 0,
+        paid,
+        notes: buildNotes({
+          payer,
+          vendor: vendor?.name,
+          currency: formCurrency,
+        }),
+      });
+      setData(res);
+      setDrawerOpen(false);
+      resetDrawer();
+      toast.success("Збережено", nextTitle);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не видалено категорію");
+      toast.error(err instanceof Error ? err.message : "Не збережено");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onTogglePaid(item: BudgetRow) {
+    setBusy(true);
+    try {
+      const res = await updateBudgetItem(item.id, {
+        paid: !item.paid,
+        actual: !item.paid ? item.estimated || item.actual : item.actual,
+      });
+      setData(res);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+      setMenuOpenId(null);
+    }
+  }
+
+  async function onDelete(item: BudgetRow) {
+    if (!confirm(`Видалити «${item.title}»?`)) return;
+    setBusy(true);
+    try {
+      const res = await deleteBudgetItem(item.id);
+      setData(res);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не видалено");
+    } finally {
+      setBusy(false);
+      setMenuOpenId(null);
     }
   }
 
@@ -242,488 +421,509 @@ function BudgetInner() {
     return <PageLoader label="Завантажуємо бюджет…" />;
   }
 
-  if (needWedding) {
+  if (needWedding || !data) {
     return (
-      <>
-        <DashboardNav variant="COUPLE" />
-        <CabinetHeader title="Бюджет" description="Спочатку створи весілля з загальним бюджетом у кабінеті." />
-        <CabinetEmpty
-          action={
-            <Link href="/dashboard" className={cabBtn}>
-              До кабінету
-            </Link>
-          }
-        >
-          Без весілля кошторис ще не відкривається.
-        </CabinetEmpty>
-      </>
+      <div className="cabinet-tasks-page">
+        <div className="cabinet-tasks-top">
+          <h1 className="cabinet-tasks-title">Бюджет</h1>
+        </div>
+        <div className="cabinet-panel" style={{ marginTop: 24 }}>
+          <p style={{ margin: 0, color: "#666" }}>
+            Спочатку збережи дату весілля в огляді — тоді відкриється бюджет.
+          </p>
+          <Link href="/dashboard" className="cabinet-panel-link">
+            До огляду
+          </Link>
+        </div>
+        {error ? <p className="cabinet-tasks-error">{error}</p> : null}
+      </div>
     );
   }
 
-  const summary = data?.summary;
-
   return (
-    <>
-      <DashboardNav variant="COUPLE" />
-
-      <CabinetHeader
-        title="Бюджет"
-        description="Категорії зліва, витрати справа — як у нормальному кошторисі, без каші."
-      />
-      {summary ? (
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <CabinetStat value={`${formatMoney(summary.totalBudget)} ₴`} label="Загальний план" />
-          <CabinetStat value={`${formatMoney(summary.actual)} ₴`} label="Витрачено" />
-          <CabinetStat value={`${formatMoney(summary.remaining)} ₴`} label="Залишок" />
+    <div className="cabinet-tasks-page">
+      <div className="cabinet-tasks-top">
+        <h1 className="cabinet-tasks-title">Бюджет</h1>
+        <div className="cabinet-overview-actions">
+          {rows.length > 0 ? (
+            <label className="cabinet-tasks-sort">
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as Currency)}
+              >
+                <option value="UAH">Показувати витрати в UAH</option>
+                <option value="USD">Показувати витрати в USD</option>
+              </select>
+            </label>
+          ) : null}
+          <CabinetNotificationsBell summary={summary} />
+          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
+            <span className="cabinet-profile-avatar">{partnerInitials}</span>
+            <span aria-hidden>▾</span>
+          </Link>
         </div>
-      ) : null}
-
-      {error ? (
-        <p className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
-
-      <form
-        onSubmit={onSavePlan}
-        className={`${cabCard} mt-6 flex flex-wrap items-end gap-3 p-4`}
-      >
-        <label className="min-w-[200px] flex-1">
-          <span className="mb-1 block text-sm text-ink-soft">
-            Загальний бюджет, грн
-          </span>
-          <input
-            type="number"
-            min={0}
-            required
-            value={plan}
-            onChange={(e) => setPlan(Number(e.target.value))}
-            className="w-full border border-line px-4 py-2.5 outline-none focus:border-sage"
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={savingPlan}
-          className={`${cabBtn} disabled:opacity-60`}
-        >
-          {savingPlan ? "Зберігаємо…" : "Оновити план"}
-        </button>
-      </form>
-
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <div className={`${cabCard} inline-flex p-1`}>
-          <button
-            type="button"
-            onClick={() => setMode("budget")}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              mode === "budget"
-                ? "bg-[#1a1a1a] text-white"
-                : "text-[#8a877f] hover:text-[#1a1a1a]"
-            }`}
-          >
-            Бюджет
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("payments")}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              mode === "payments"
-                ? "bg-[#1a1a1a] text-white"
-                : "text-[#8a877f] hover:text-[#1a1a1a]"
-            }`}
-          >
-            Платежі
-          </button>
-        </div>
-        {summary ? (
-          <div className="h-2 w-full max-w-xs overflow-hidden bg-mist sm:w-48">
-            <div
-              className="h-full bg-sage transition-all"
-              style={{ width: `${summary.progress}%` }}
-            />
-          </div>
-        ) : null}
       </div>
 
-      <div className={`${cabCard} mt-6 grid overflow-hidden lg:grid-cols-[280px_minmax(0,1fr)]`}>
-        <aside className="border-b border-line lg:border-b-0 lg:border-r">
-          <div className="border-b border-line p-3">
-            {showNewCategory ? (
-              <form onSubmit={onCreateCategory} className="space-y-2">
-                <select
-                  value={newCategorySlug}
-                  onChange={(e) => setNewCategorySlug(e.target.value)}
-                  className="w-full border border-line px-3 py-2 text-sm outline-none focus:border-sage"
+      {error ? <p className="cabinet-tasks-error">{error}</p> : null}
+
+      {rows.length === 0 ? (
+        <div className="cabinet-guests-empty">
+          <div className="cabinet-guests-empty-glow" aria-hidden />
+          <BudgetEmptyArt />
+          <h2>Почнемо рахувати весільні витрати?</h2>
+          <p>
+            Додавайте заплановані та фактичні витрати. Ми автоматично покажемо
+            суму, допоможемо розбити платежі по категоріях та підкажемо статус
+            оплати.
+          </p>
+          <div className="cabinet-guests-empty-actions">
+            <button
+              type="button"
+              className="cabinet-budget-cta"
+              onClick={() => setDrawerOpen(true)}
+            >
+              Внести витрати
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="cabinet-budget-stats">
+            <article className="cabinet-budget-stat">
+              <p className="cabinet-budget-stat-value">
+                {formatMoney(totals.current, currency)}
+              </p>
+              <p className="cabinet-budget-stat-label">Поточна вартість весілля</p>
+            </article>
+            <article className="cabinet-budget-stat">
+              <p className="cabinet-budget-stat-value">
+                {formatMoney(totals.spent, currency)}
+              </p>
+              <p className="cabinet-budget-stat-label">Витрачено</p>
+            </article>
+            <article className="cabinet-budget-stat">
+              <p className="cabinet-budget-stat-value">
+                {formatMoney(totals.plannedLeft, currency)}
+              </p>
+              <p className="cabinet-budget-stat-label">Ще до сплати заплановано</p>
+            </article>
+          </div>
+
+          <div className="cabinet-tasks-layout" style={{ marginTop: 16 }}>
+            <aside className="cabinet-tasks-filters">
+              <FilterGroup
+                title="Статус"
+                items={[
+                  {
+                    id: "all",
+                    label: "Всі",
+                    count: formatMoney(counts.status.all, currency),
+                  },
+                  {
+                    id: "paid",
+                    label: "Сплачено",
+                    count: formatMoney(counts.status.paid, currency),
+                  },
+                  {
+                    id: "unpaid",
+                    label: "Ще до сплати",
+                    count: formatMoney(counts.status.unpaid, currency),
+                  },
+                ]}
+                active={statusFilter}
+                onChange={(id) => setStatusFilter(id as StatusFilter)}
+              />
+              <FilterGroup
+                title="Категорія"
+                items={[
+                  {
+                    id: "all",
+                    label: "Всі",
+                    count: formatMoney(counts.categories.all, currency),
+                  },
+                  ...UI_CATEGORIES.map((c) => ({
+                    id: c.id,
+                    label: c.label,
+                    count: formatMoney(counts.categories[c.id], currency),
+                  })),
+                ]}
+                active={categoryFilter}
+                onChange={(id) => setCategoryFilter(id as CategoryFilter)}
+              />
+              <FilterGroup
+                title="Хто оплачує"
+                items={[
+                  {
+                    id: "all",
+                    label: "Усі",
+                    count: formatMoney(counts.payers.all, currency),
+                  },
+                  ...PAYERS.map((p) => ({
+                    id: p.id,
+                    label: payerLabels[p.id],
+                    count: formatMoney(counts.payers[p.id], currency),
+                  })),
+                ]}
+                active={payerFilter}
+                onChange={(id) => setPayerFilter(id as PayerFilter)}
+              />
+            </aside>
+
+            <section className="cabinet-panel cabinet-tasks-list-panel">
+              <div className="cabinet-tasks-list-head">
+                <h2>Витрати</h2>
+                <div className="cabinet-tasks-list-actions">
+                  <label className="cabinet-tasks-sort">
+                    <select
+                      value={sortMode}
+                      onChange={(e) => setSortMode(e.target.value as SortMode)}
+                    >
+                      <option value="recent">Недавно додані зверху</option>
+                      <option value="amount">За сумою</option>
+                      <option value="alpha">За алфавітом</option>
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    className="cabinet-budget-add-btn"
+                    onClick={() => setDrawerOpen(true)}
+                  >
+                    Внести витрату
+                  </button>
+                </div>
+              </div>
+
+              {visible.length === 0 ? (
+                <p className="cabinet-tasks-empty">Немає витрат у цьому фільтрі.</p>
+              ) : (
+                <div className="cabinet-budget-table">
+                  <div className="cabinet-budget-table-head">
+                    <span>Назва витрати</span>
+                    <span>Сума</span>
+                    <span>Статус</span>
+                    <span>Категорія</span>
+                    <span>Дата</span>
+                    <span>Хто платить</span>
+                    <span />
+                  </div>
+                  <ul className="cabinet-budget-list">
+                    {visible.map((item) => {
+                      const catLabel =
+                        UI_CATEGORIES.find((c) => c.id === item.uiCategory)
+                          ?.label ?? "Інше";
+                      return (
+                        <li key={item.id} className="cabinet-budget-row">
+                          <span className="cabinet-budget-title">{item.title}</span>
+                          <span className="cabinet-budget-amount">
+                            {formatMoney(item.amount, currency)}
+                          </span>
+                          <span
+                            className={`cabinet-budget-status ${
+                              item.paid ? "is-paid" : "is-planned"
+                            }`}
+                          >
+                            {item.paid ? (
+                              <>
+                                <i aria-hidden />
+                                Сплачено
+                              </>
+                            ) : (
+                              "Заплановано"
+                            )}
+                          </span>
+                          <span className="cabinet-budget-cat">{catLabel}</span>
+                          <span className="cabinet-budget-date">
+                            {formatShortDate(item.createdAt)}
+                          </span>
+                          <span
+                            className={`cabinet-task-who cabinet-budget-payer is-${item.payer}`}
+                            title={payerLabels[item.payer]}
+                          >
+                            {payerMark(item.payer)}
+                          </span>
+                          <div className="cabinet-guest-menu-wrap">
+                            <button
+                              type="button"
+                              className="cabinet-task-menu"
+                              aria-label="Меню витрати"
+                              onClick={() =>
+                                setMenuOpenId((id) =>
+                                  id === item.id ? null : item.id,
+                                )
+                              }
+                            >
+                              ⋯
+                            </button>
+                            {menuOpenId === item.id ? (
+                              <div className="cabinet-guest-menu">
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => void onTogglePaid(item)}
+                                >
+                                  {item.paid
+                                    ? "Позначити як заплановано"
+                                    : "Позначити як сплачено"}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => void onDelete(item)}
+                                >
+                                  Видалити
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {filtered.length > visibleCount ? (
+                <button
+                  type="button"
+                  className="cabinet-panel-link cabinet-tasks-more"
+                  onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
                 >
-                  {(unusedCategories.length
-                    ? unusedCategories
-                    : BUDGET_CATEGORIES
-                  ).map((c) => (
-                    <option key={c.value} value={c.value}>
+                  Показати більше
+                </button>
+              ) : null}
+            </section>
+          </div>
+        </>
+      )}
+
+      {drawerOpen ? (
+        <div className="cabinet-drawer-root">
+          <button
+            type="button"
+            className="cabinet-drawer-backdrop"
+            aria-label="Закрити"
+            onClick={() => {
+              setDrawerOpen(false);
+              resetDrawer();
+            }}
+          />
+          <aside className="cabinet-drawer cabinet-budget-drawer" aria-label="Внести витрату">
+            <div className="cabinet-drawer-head">
+              <h2>Внести витрату</h2>
+              <button
+                type="button"
+                className="cabinet-drawer-close"
+                aria-label="Закрити"
+                onClick={() => {
+                  setDrawerOpen(false);
+                  resetDrawer();
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <form className="cabinet-drawer-form" onSubmit={onSave}>
+              <label className="cabinet-drawer-field">
+                <span>
+                  Що ви оплатили <em>*</em>
+                </span>
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Наприклад: Пробна зачіска"
+                  required
+                />
+              </label>
+
+              <div className="cabinet-budget-amount-row">
+                <label className="cabinet-drawer-field">
+                  <span>
+                    Сума <em>*</em>
+                  </span>
+                  <input
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Внесіть суму"
+                    inputMode="decimal"
+                    required
+                  />
+                </label>
+                <label className="cabinet-drawer-field">
+                  <span>Оберіть валюту</span>
+                  <select
+                    value={formCurrency}
+                    onChange={(e) => setFormCurrency(e.target.value as Currency)}
+                  >
+                    <option value="UAH">грн</option>
+                    <option value="USD">$ Долари</option>
+                  </select>
+                </label>
+              </div>
+
+              <label className="cabinet-drawer-field">
+                <span>Оберіть категорію</span>
+                <select
+                  value={category}
+                  onChange={(e) =>
+                    setCategory(
+                      e.target.value as Exclude<CategoryFilter, "all"> | "",
+                    )
+                  }
+                >
+                  <option value="">Обрати категорію</option>
+                  {UI_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
                       {c.label}
                     </option>
                   ))}
                 </select>
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={savingItem}
-                    className="flex-1 bg-sage px-3 py-2 text-xs font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
-                  >
-                    Додати
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewCategory(false)}
-                    className="px-3 py-2 text-xs text-ink-soft"
-                  >
-                    Скасувати
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowNewCategory(true)}
-                className="flex w-full items-center gap-2 px-2 py-2 text-left text-sm font-medium text-sage hover:bg-mist"
-              >
-                <span className="text-lg leading-none">+</span>
-                Нова категорія
-              </button>
-            )}
-          </div>
+              </label>
 
-          <nav className="max-h-[70vh] overflow-y-auto">
-            {categories.map((group) => {
-              const selected = group.category === selectedCategory;
-              const amount =
-                mode === "payments" ? group.paid : group.estimated;
-              return (
+              {category === "vendors" ? (
+                <label className="cabinet-drawer-field">
+                  <span>
+                    Оберіть підрядника <em>*</em>
+                  </span>
+                  <select
+                    value={vendorId}
+                    onChange={(e) => setVendorId(e.target.value)}
+                    required={category === "vendors"}
+                  >
+                    <option value="">Обрати підрядника</option>
+                    {vendors.map((vendor) => (
+                      <option key={vendor.id} value={vendor.id}>
+                        {vendor.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+
+              <label className="cabinet-drawer-field">
+                <span>
+                  Статус <em>*</em>
+                </span>
+                <select
+                  value={status}
+                  onChange={(e) =>
+                    setStatus(e.target.value as "planned" | "paid" | "")
+                  }
+                  required
+                >
+                  <option value="">Обрати статус</option>
+                  <option value="planned">Заплановано</option>
+                  <option value="paid">Сплачено</option>
+                </select>
+              </label>
+
+              <div className="cabinet-drawer-actions">
                 <button
-                  key={group.category}
                   type="button"
+                  className="cabinet-drawer-cancel"
                   onClick={() => {
-                    setSelectedCategory(group.category);
-                    setAdding(false);
-                    setEditingId(null);
-                    setMenuOpenId(null);
+                    setDrawerOpen(false);
+                    resetDrawer();
                   }}
-                  className={`flex w-full items-center justify-between gap-3 border-b border-line px-4 py-3 text-left transition ${
-                    selected
-                      ? "bg-mist"
-                      : "bg-white hover:bg-paper"
-                  }`}
                 >
-                  <span
-                    className={`text-sm ${selected ? "font-semibold text-ink" : "text-ink-soft"}`}
-                  >
-                    {group.label}
-                  </span>
-                  <span className="shrink-0 text-sm tabular-nums text-ink">
-                    {formatMoney(amount)} ₴
-                  </span>
+                  Скасувати
                 </button>
-              );
-            })}
-            {categories.length === 0 ? (
-              <p className="px-4 py-8 text-sm text-ink-soft">
-                Поки немає категорій. Додай першу.
-              </p>
-            ) : null}
-          </nav>
-        </aside>
-
-        <section className="min-h-[420px] p-4 md:p-6">
-          {!active ? (
-            <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-ink-soft">
-              Обери категорію зліва
-            </div>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-[family-name:var(--font-display)] text-3xl text-ink">
-                    {active.label}
-                  </h2>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    Заплановано: {formatMoney(active.estimated)} ₴ · Фінально:{" "}
-                    {formatMoney(active.actual)} ₴ · Сплачено:{" "}
-                    {formatMoney(active.paid)} ₴
-                  </p>
-                </div>
                 <button
-                  type="button"
-                  onClick={() => void onRemoveCategory()}
-                  className="text-sm text-ink-soft underline-offset-2 hover:text-ink hover:underline"
+                  type="submit"
+                  className="cabinet-budget-save"
+                  disabled={busy}
                 >
-                  Видалити
+                  {busy ? "…" : "Зберегти"}
                 </button>
               </div>
+            </form>
+          </aside>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
-              <div className="mt-4 h-2 overflow-hidden bg-mist">
-                <div
-                  className="h-full bg-sage transition-all"
-                  style={{
-                    width: `${
-                      active.estimated > 0
-                        ? Math.min(
-                            100,
-                            Math.round((active.actual / active.estimated) * 100),
-                          )
-                        : 0
-                    }%`,
-                  }}
-                />
-              </div>
-
-              <div className="mt-6 overflow-x-auto">
-                <table className="w-full min-w-[560px] border-collapse text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-line text-xs uppercase tracking-[0.12em] text-ink-soft">
-                      <th className="pb-3 pr-3 font-medium">Витрата</th>
-                      <th className="pb-3 pr-3 font-medium">Заплановано</th>
-                      <th className="pb-3 pr-3 font-medium">Фінально</th>
-                      <th className="pb-3 pr-3 font-medium">Сплачено</th>
-                      <th className="pb-3 font-medium" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeItems.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={5}
-                          className="py-8 text-center text-sm text-ink-soft"
-                        >
-                          {mode === "payments"
-                            ? "У цій категорії ще немає сплачених витрат."
-                            : "Поки порожньо — додай першу витрату."}
-                        </td>
-                      </tr>
-                    ) : null}
-                    {activeItems.map((item) => {
-                      const isEditing = editingId === item.id;
-                      return (
-                        <tr
-                          key={item.id}
-                          className="border-b border-line/70 align-middle"
-                        >
-                          <td className="py-3 pr-3">
-                            {isEditing ? (
-                              <input
-                                value={editDraft.title}
-                                onChange={(e) =>
-                                  setEditDraft((d) => ({
-                                    ...d,
-                                    title: e.target.value,
-                                  }))
-                                }
-                                className="w-full border border-line px-2 py-1.5 outline-none focus:border-sage"
-                              />
-                            ) : (
-                              <span className="text-ink">{item.title}</span>
-                            )}
-                          </td>
-                          <td className="py-3 pr-3 tabular-nums">
-                            {isEditing ? (
-                              <input
-                                type="number"
-                                min={0}
-                                value={editDraft.estimated}
-                                onChange={(e) =>
-                                  setEditDraft((d) => ({
-                                    ...d,
-                                    estimated: Number(e.target.value),
-                                  }))
-                                }
-                                className="w-28 border border-line px-2 py-1.5 outline-none focus:border-sage"
-                              />
-                            ) : (
-                              `${formatMoney(item.estimated)} ₴`
-                            )}
-                          </td>
-                          <td className="py-3 pr-3 tabular-nums">
-                            {isEditing ? (
-                              <input
-                                type="number"
-                                min={0}
-                                value={editDraft.actual}
-                                onChange={(e) =>
-                                  setEditDraft((d) => ({
-                                    ...d,
-                                    actual: Number(e.target.value),
-                                  }))
-                                }
-                                className="w-28 border border-line px-2 py-1.5 outline-none focus:border-sage"
-                              />
-                            ) : (
-                              `${formatMoney(item.actual)} ₴`
-                            )}
-                          </td>
-                          <td className="py-3 pr-3">
-                            <button
-                              type="button"
-                              onClick={() => void onTogglePaid(item)}
-                              className={`tabular-nums ${
-                                item.paid
-                                  ? "font-medium text-sage"
-                                  : "text-ink-soft"
-                              }`}
-                              title={
-                                item.paid
-                                  ? "Натисни, щоб зняти оплату"
-                                  : "Позначити сплаченим"
-                              }
-                            >
-                              {formatMoney(paidAmount(item))} ₴
-                            </button>
-                          </td>
-                          <td className="relative py-3 text-right">
-                            {isEditing ? (
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => void saveEdit(item.id)}
-                                  className="text-xs font-semibold text-sage"
-                                >
-                                  Зберегти
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setEditingId(null)}
-                                  className="text-xs text-ink-soft"
-                                >
-                                  Скасувати
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setMenuOpenId((id) =>
-                                      id === item.id ? null : item.id,
-                                    )
-                                  }
-                                  className="px-2 py-1 text-ink-soft hover:text-ink"
-                                  aria-label="Дії"
-                                >
-                                  ···
-                                </button>
-                                {menuOpenId === item.id ? (
-                                  <div className="absolute right-0 z-10 mt-1 min-w-[140px] border border-line bg-white py-1 shadow-sm">
-                                    <button
-                                      type="button"
-                                      onClick={() => startEdit(item)}
-                                      className="block w-full px-3 py-2 text-left text-sm hover:bg-mist"
-                                    >
-                                      Редагувати
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => void onTogglePaid(item)}
-                                      className="block w-full px-3 py-2 text-left text-sm hover:bg-mist"
-                                    >
-                                      {item.paid
-                                        ? "Не сплачено"
-                                        : "Сплачено"}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => void onDelete(item.id)}
-                                      className="block w-full px-3 py-2 text-left text-sm text-red-700 hover:bg-mist"
-                                    >
-                                      Видалити
-                                    </button>
-                                  </div>
-                                ) : null}
-                              </>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr className="text-sm font-semibold text-ink">
-                      <td className="pt-4 pr-3">Разом</td>
-                      <td className="pt-4 pr-3 tabular-nums">
-                        {formatMoney(active.estimated)} ₴
-                      </td>
-                      <td className="pt-4 pr-3 tabular-nums">
-                        {formatMoney(active.actual)} ₴
-                      </td>
-                      <td className="pt-4 pr-3 tabular-nums">
-                        {formatMoney(active.paid)} ₴
-                      </td>
-                      <td />
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-
-              {adding ? (
-                <form
-                  onSubmit={onAddExpense}
-                  className="mt-4 grid gap-3 border border-line bg-mist p-4 sm:grid-cols-[1fr_140px_auto]"
-                >
-                  <input
-                    required
-                    minLength={2}
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="Назва витрати"
-                    className="border border-line bg-white px-3 py-2 outline-none focus:border-sage"
-                    autoFocus
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    value={newEstimated}
-                    onChange={(e) => setNewEstimated(Number(e.target.value))}
-                    placeholder="Сума"
-                    className="border border-line bg-white px-3 py-2 outline-none focus:border-sage"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={savingItem}
-                      className="bg-sage px-4 py-2 text-sm font-semibold text-white hover:bg-sage-deep disabled:opacity-60"
-                    >
-                      Додати
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAdding(false)}
-                      className="px-3 py-2 text-sm text-ink-soft"
-                    >
-                      Скасувати
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setAdding(true)}
-                  className="mt-4 flex items-center gap-2 text-sm font-medium text-sage hover:text-sage-deep"
-                >
-                  <span className="text-lg leading-none">+</span>
-                  Додати витрату
-                </button>
-              )}
-            </>
-          )}
-        </section>
+function FilterGroup({
+  title,
+  items,
+  active,
+  onChange,
+}: {
+  title: string;
+  items: Array<{ id: string; label: string; count: string | number }>;
+  active: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <div className="cabinet-filter-group">
+      <p className="cabinet-filter-title">{title}</p>
+      <div className="cabinet-filter-list">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`cabinet-filter-item${active === item.id ? " is-active" : ""}`}
+            onClick={() => onChange(item.id)}
+          >
+            <span>{item.label}</span>
+            <span className="cabinet-filter-count">{item.count}</span>
+          </button>
+        ))}
       </div>
-    </>
+    </div>
+  );
+}
+
+function BudgetEmptyArt() {
+  return (
+    <svg
+      className="cabinet-guests-empty-art"
+      viewBox="0 0 220 150"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M28 70c10-28 28-40 48-28 14 8 22 4 34-8 16-16 40-14 58 6"
+        stroke="#1a1a1a"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M40 58c8-14 22-18 34-8M170 52c10-12 24-12 36 0"
+        stroke="#c45b4a"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <rect
+        x="58"
+        y="62"
+        width="104"
+        height="64"
+        rx="10"
+        stroke="#1a1a1a"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M70 62v-6a12 12 0 0 1 24 0v6M126 62v-6a12 12 0 0 1 24 0v6"
+        stroke="#1a1a1a"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="110" cy="94" r="10" fill="#ff4200" opacity="0.9" />
+      <path
+        d="M110 86c4 4 8 8 0 16-8-8-4-12 0-16Z"
+        fill="#fff"
+        opacity="0.85"
+      />
+    </svg>
   );
 }
 
 export function BudgetPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <CoupleCabinetFrame>
-        <BudgetInner />
-      </CoupleCabinetFrame>
+      <BudgetInner />
     </RequireAuth>
   );
 }
