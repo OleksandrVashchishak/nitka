@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
           "/guests",
           "/invitations",
           "/website",
+          "/settings",
           "/vendors",
           "/vesillya",
           "/my-vendors",

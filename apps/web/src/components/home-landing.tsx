@@ -5,18 +5,8 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
-import { FataMobileMenu } from "@/components/fata-mobile-menu";
 import "@/app/hero-artboard.css";
 import "@/app/landing-rest.css";
-
-const NAV = [
-  { href: "/vesilnyy-plan", label: "Чеклісти" },
-  { href: "/rozsadka-gostey", label: "Конструктор розсадки" },
-  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
-  { href: "/zaprosinnya", label: "Сайт-запрошення" },
-  { href: "/spysok-gostey", label: "Список гостей" },
-  { href: "/content", label: "Ідеї" },
-] as const;
 
 const DARK_ROWS = [
   {
@@ -155,13 +145,6 @@ const CLOUD = [
   { id: "c18", src: "/landing/compare-3.jpg", style: { left: 1337, top: 362, width: 102, height: 76 } },
 ] as const;
 
-function canHover() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(hover: hover) and (pointer: fine)").matches
-  );
-}
-
 function FeaturesAccordion() {
   const [open, setOpen] = useState(0);
 
@@ -174,20 +157,11 @@ function FeaturesAccordion() {
             <article
               key={feature.n}
               className={`fata-feature${isOpen ? " is-open" : ""}`}
-              onMouseEnter={() => {
-                if (canHover()) setOpen(i);
-              }}
-              onClick={() => {
-                if (canHover()) {
-                  setOpen(i);
-                  return;
-                }
-                setOpen((cur) => (cur === i ? -1 : i));
-              }}
+              onClick={() => setOpen(i)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  setOpen((cur) => (cur === i ? -1 : i));
+                  setOpen(i);
                 }
               }}
               role="button"
@@ -288,37 +262,6 @@ function FataLogo({
   );
 }
 
-function AuthButtons({
-  loginClass,
-  startClass,
-}: {
-  loginClass: string;
-  startClass: string;
-}) {
-  const user = useAuthStore((s) => s.user);
-  const hydrated = useAuthStore((s) => s.hydrated);
-  const dashboardHref = getHomePath(user?.role);
-
-  if (hydrated && user) {
-    return (
-      <Link href={dashboardHref} className={startClass}>
-        Кабінет
-      </Link>
-    );
-  }
-
-  return (
-    <>
-      <Link href="/login" className={loginClass}>
-        Увійти
-      </Link>
-      <Link href="/register" className={startClass}>
-        Розпочати
-      </Link>
-    </>
-  );
-}
-
 function HeroCta({ className }: { className: string }) {
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
@@ -335,25 +278,10 @@ function HeroCta({ className }: { className: string }) {
 }
 
 function HeroArtboard() {
-  const [open, setOpen] = useState(false);
-
   return (
     <section className="fata-hero">
       <div className="fata-hero-stage hidden min-[1024px]:block">
         <div className="fata-hero-board">
-          <div className="fata-hero-header">
-            <FataLogo />
-            <nav className="fata-nav" aria-label="Основне меню">
-              {NAV.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-            <div className="fata-auth">
-              <AuthButtons loginClass="fata-btn fata-btn-login" startClass="fata-btn fata-btn-start" />
-            </div>
-          </div>
           <div className="fata-hero-main">
             <div className="fata-hero-main-text">
               <p className="fata-tagline">
@@ -388,22 +316,7 @@ function HeroArtboard() {
         </div>
       </div>
 
-      <div className={`fata-hero-mobile min-[1024px]:!hidden${open ? " is-open" : ""}`}>
-        <div className="fata-m-head">
-          <FataLogo className="fata-m-logo" />
-          <button
-            type="button"
-            className="fata-m-burger"
-            aria-label="Меню"
-            aria-expanded={open}
-            onClick={() => setOpen(true)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
-        <FataMobileMenu open={open} onClose={() => setOpen(false)} />
+      <div className="fata-hero-mobile min-[1024px]:!hidden">
         <div className="fata-m-main">
           <p className="fata-m-kicker">
             Єдина платформа <em>для всіх весільних завдань</em>
@@ -516,7 +429,6 @@ export function HomeLanding() {
           <Link href="/register" className="fata-dl">
             Скачати мобільний застосунок
           </Link>
-          <div className="fata-phrase"><em>Ваше</em> <span>ВЕСІЛЛЯ</span> у вас в кишені</div>
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
+import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { RequireAuth } from "@/components/require-auth";
 import {
   createBudgetItem,
@@ -457,25 +458,7 @@ function BudgetInner() {
             </label>
           ) : null}
           <CabinetNotificationsBell summary={summary} />
-          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
-            <span className="cabinet-profile-avatar">{partnerInitials}</span>
-            <svg
-              className="cabinet-profile-chevron"
-              width="10"
-              height="6"
-              viewBox="0 0 10 6"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M1 1.25 5 4.75 9 1.25"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+          <CabinetProfileMenu initials={partnerInitials} />
         </div>
       </div>
 
@@ -893,43 +876,57 @@ function BudgetEmptyArt() {
   return (
     <svg
       className="cabinet-guests-empty-art"
-      viewBox="0 0 220 150"
+      viewBox="0 0 240 160"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
       <path
-        d="M28 70c10-28 28-40 48-28 14 8 22 4 34-8 16-16 40-14 58 6"
+        d="M22 78c18-36 42-48 68-28 12 9 22 6 36-8 20-20 48-18 70 8"
         stroke="#1a1a1a"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M40 58c8-14 22-18 34-8M170 52c10-12 24-12 36 0"
-        stroke="#c45b4a"
         strokeWidth="1.2"
         strokeLinecap="round"
       />
+      <path
+        d="M36 62c10-16 28-22 42-8M176 54c12-14 28-14 42 2"
+        stroke="#c45b4a"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+      <circle cx="48" cy="52" r="3.5" fill="#ff4200" opacity="0.85" />
+      <circle cx="198" cy="48" r="3" fill="#8a9a6b" opacity="0.9" />
       <rect
-        x="58"
-        y="62"
-        width="104"
-        height="64"
-        rx="10"
+        x="62"
+        y="58"
+        width="116"
+        height="72"
+        rx="12"
         stroke="#1a1a1a"
         strokeWidth="1.6"
+        fill="#fff"
       />
       <path
-        d="M70 62v-6a12 12 0 0 1 24 0v6M126 62v-6a12 12 0 0 1 24 0v6"
+        d="M78 58v-8a14 14 0 0 1 28 0v8M134 58v-8a14 14 0 0 1 28 0v8"
         stroke="#1a1a1a"
         strokeWidth="1.6"
         strokeLinecap="round"
       />
-      <circle cx="110" cy="94" r="10" fill="#ff4200" opacity="0.9" />
       <path
-        d="M110 86c4 4 8 8 0 16-8-8-4-12 0-16Z"
+        d="M78 96h84"
+        stroke="#e5e5e5"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <circle cx="120" cy="94" r="14" fill="#ff4200" />
+      <path
+        d="M120 82c2 2 8 8 0 20-8-12-2-18 0-20Z"
         fill="#fff"
-        opacity="0.85"
+        opacity="0.9"
+      />
+      <path
+        d="M112 90c4-6 8-6 12 0 4-6 8-6 12 0-6 10-12 18-12 18s-6-8-12-18Z"
+        fill="#fff"
+        opacity="0.55"
       />
     </svg>
   );

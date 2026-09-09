@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getBudget } from "@/lib/budget-api";
 import {
+  createPartnerInvite,
   getDashboardInsights,
   getDayPlan,
   getVendorPipeline,
@@ -15,6 +16,7 @@ import {
   type WeddingTask,
 } from "@/lib/dashboard-api";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
+import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
@@ -26,6 +28,32 @@ import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
 const VENDOR_TARGET = VENDOR_MANAGER_CATEGORIES.filter(
   (category) => category.slug !== "other",
 ).length;
+
+const STARTER_TASKS = [
+  {
+    id: "checklist",
+    title: "Побудувати список завдань",
+    href: "/checklist",
+  },
+  {
+    id: "guests",
+    title: "Додати гостей",
+    href: "/guests",
+  },
+  {
+    id: "budget",
+    title: "Внести витрати",
+    href: "/budget",
+  },
+] as const;
+
+function inviteDismissKey(weddingId: string) {
+  return `fata-dashboard-invite-dismissed:${weddingId}`;
+}
+
+function smartPlanningKey(weddingId: string) {
+  return `fata-dashboard-smart-planning:${weddingId}`;
+}
 
 function daysWord(n: number) {
   const abs = Math.abs(n) % 100;
@@ -137,6 +165,23 @@ export function CoupleOverview({
   const [spend, setSpend] = useState<number | null>(null);
   const [hasDayPlan, setHasDayPlan] = useState(false);
   const [statsReady, setStatsReady] = useState(false);
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteDismissed, setInviteDismissed] = useState(false);
+  const [smartPlanningStarted, setSmartPlanningStarted] = useState(false);
+
+  useEffect(() => {
+    try {
+      setInviteDismissed(
+        localStorage.getItem(inviteDismissKey(wedding.id)) === "1",
+      );
+      setSmartPlanningStarted(
+        localStorage.getItem(smartPlanningKey(wedding.id)) === "1",
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [wedding.id]);
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -207,7 +252,20 @@ export function CoupleOverview({
   }, [wedding.tasks, wedding.date]);
 
   const vendorChosen = countChosenVendorCategories(pipeline);
-  const guestCount = insights?.rsvp.total || wedding.guests;
+  const guestsInList = insights?.rsvp.total ?? 0;
+  const guestCount = guestsInList || wedding.guests;
+  const spendValue = spend ?? 0;
+  const hasVendors = vendorChosen > 0;
+  const hasSpend = spendValue > 0;
+  const hasGuests = guestsInList > 0;
+  const isOwner = (wedding.myRole ?? "OWNER") === "OWNER";
+  const hasPartner = (wedding.members ?? []).some(
+    (member) => member.role === "PARTNER",
+  );
+  const inviteName = partnerName.trim() || "партнера";
+  const showInviteTask = isOwner && !hasPartner && !inviteDismissed;
+  const isTasksFirstState =
+    !smartPlanningStarted && done === 0 && !hasGuests && !hasSpend;
   const daysLabel =
     daysLeft > 0
       ? `${daysLeft} ${daysWord(daysLeft)}`
@@ -227,6 +285,38 @@ export function CoupleOverview({
     }
   }
 
+  async function onInvitePartner() {
+    setInviteBusy(true);
+    try {
+      const invite = await createPartnerInvite();
+      const url = `${window.location.origin}${invite.path}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Лінк скопійовано", "Надішли партнеру — діятиме 14 днів");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не створено лінк");
+    } finally {
+      setInviteBusy(false);
+    }
+  }
+
+  function onDismissInvite() {
+    setInviteDismissed(true);
+    try {
+      localStorage.setItem(inviteDismissKey(wedding.id), "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function onStartSmartPlanning() {
+    setSmartPlanningStarted(true);
+    try {
+      localStorage.setItem(smartPlanningKey(wedding.id), "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
   return (
     <div className="cabinet-overview">
       <div className="cabinet-overview-top">
@@ -239,57 +329,75 @@ export function CoupleOverview({
         </div>
         <div className="cabinet-overview-actions">
           <CabinetNotificationsBell summary={summary} />
-          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
-            <span className="cabinet-profile-avatar">{partnerInitials}</span>
-            <svg
-              className="cabinet-profile-chevron"
-              width="10"
-              height="6"
-              viewBox="0 0 10 6"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M1 1.25 5 4.75 9 1.25"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+          <CabinetProfileMenu initials={partnerInitials} />
         </div>
       </div>
 
       <div className="cabinet-body">
         <div className="cabinet-stats">
-          <article className="cabinet-stat is-light">
-            <p className="cabinet-stat-value">
-              {statsReady ? `${vendorChosen}/${VENDOR_TARGET}` : "—"}
-            </p>
-            <p className="cabinet-stat-label">Підрядників</p>
-            <Link href="/my-vendors" className="cabinet-stat-link">
-              Детальніше
-            </Link>
-          </article>
-          <article className="cabinet-stat is-light">
-            <p className="cabinet-stat-value">
-              {statsReady && spend != null ? `${formatMoney(spend)} ₴` : "—"}
-            </p>
-            <p className="cabinet-stat-label">Витрат (фактичні і плановані)</p>
-            <Link href="/budget" className="cabinet-stat-link">
-              Детальніше
-            </Link>
-          </article>
-          <article className="cabinet-stat is-light">
-            <p className="cabinet-stat-value">
-              {statsReady ? guestCount : "—"}
-            </p>
-            <p className="cabinet-stat-label">Гостей внесено</p>
-            <Link href="/guests" className="cabinet-stat-link">
-              Детальніше
-            </Link>
-          </article>
+          {statsReady && !hasVendors ? (
+            <article className="cabinet-stat is-light is-cta">
+              <p className="cabinet-stat-cta-title">
+                Чи забронювали ви уже підрядників?
+              </p>
+              <Link href="/my-vendors" className="cabinet-stat-link">
+                Внести підрядників
+              </Link>
+            </article>
+          ) : (
+            <article className="cabinet-stat is-light">
+              <p className="cabinet-stat-value">
+                {statsReady ? `${vendorChosen}/${VENDOR_TARGET}` : "—"}
+              </p>
+              <p className="cabinet-stat-label">Підрядників</p>
+              <Link href="/my-vendors" className="cabinet-stat-link">
+                Детальніше
+              </Link>
+            </article>
+          )}
+
+          {statsReady && !hasSpend ? (
+            <article className="cabinet-stat is-light is-cta">
+              <p className="cabinet-stat-cta-title">
+                Тут можна разом контролювати витрати{" "}
+                <span aria-hidden>❤️</span>
+              </p>
+              <Link href="/budget" className="cabinet-stat-link">
+                Внести витрати
+              </Link>
+            </article>
+          ) : (
+            <article className="cabinet-stat is-light">
+              <p className="cabinet-stat-value">
+                {statsReady && spend != null ? `${formatMoney(spend)} ₴` : "—"}
+              </p>
+              <p className="cabinet-stat-label">Витрат (фактичні і плановані)</p>
+              <Link href="/budget" className="cabinet-stat-link">
+                Детальніше
+              </Link>
+            </article>
+          )}
+
+          {statsReady && !hasGuests ? (
+            <article className="cabinet-stat is-light is-cta">
+              <p className="cabinet-stat-cta-title">
+                Давайте внесем сюди список гостей
+              </p>
+              <Link href="/guests" className="cabinet-stat-link">
+                Внести гостей
+              </Link>
+            </article>
+          ) : (
+            <article className="cabinet-stat is-light">
+              <p className="cabinet-stat-value">
+                {statsReady ? guestCount : "—"}
+              </p>
+              <p className="cabinet-stat-label">Гостей внесено</p>
+              <Link href="/guests" className="cabinet-stat-link">
+                Детальніше
+              </Link>
+            </article>
+          )}
         </div>
 
         <aside className="cabinet-right-col">
@@ -338,61 +446,146 @@ export function CoupleOverview({
         <section className="cabinet-panel cabinet-tasks-panel">
           <h2>Завдання</h2>
           <ul className="cabinet-task-list">
-            {tasks.map(({ task, due, done: isDone }) => {
-              const cat = taskCategoryMeta(task.categorySlug, task.title);
-              const who = task.sortOrder % 2 === 0 ? "owner" : "partner";
-              return (
-                <li
-                  key={task.id}
-                  className={`cabinet-task-row${isDone ? " is-done" : ""}`}
-                >
+            {showInviteTask ? (
+              <li className="cabinet-task-invite">
+                <div className="cabinet-task-invite-icon" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M9 11l3 3L22 4"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div className="cabinet-task-invite-copy">
+                  <p className="cabinet-task-invite-title">
+                    Запросіть {inviteName}
+                  </p>
+                  <p className="cabinet-task-invite-text">
+                    Додайте {inviteName} до спільного доступу, щоб разом бачити
+                    та редагувати ваш дашборд.
+                  </p>
+                </div>
+                <div className="cabinet-task-invite-actions">
                   <button
                     type="button"
-                    className="cabinet-task-check"
-                    aria-label={isDone ? "Повернути в роботу" : "Виконано"}
-                    onClick={() => void onToggleTask(task, isDone)}
+                    className="cabinet-task-invite-btn"
+                    disabled={inviteBusy}
+                    onClick={() => void onInvitePartner()}
                   >
-                    {isDone ? (
-                      <svg width="10" height="10" viewBox="0 0 16 16" aria-hidden>
-                        <path
-                          fill="currentColor"
-                          d="M6.2 11.4 2.8 8l1.1-1.1 2.3 2.3 5-5L12.3 5z"
-                        />
-                      </svg>
-                    ) : null}
+                    {inviteBusy ? "…" : "Запросити"}
                   </button>
-                  <p className="cabinet-task-title">{task.title}</p>
-                  <div className="cabinet-task-meta-wrap">
-                    <span className={`cabinet-task-tag is-${cat.tone}`}>
-                      {cat.label}
-                    </span>
-                    {due ? (
-                      <span
-                        className={`cabinet-task-date${taskDateTone(due, isDone)}`}
-                      >
-                        {formatTaskDate(due)}
-                      </span>
-                    ) : null}
-                    <span className={`cabinet-task-who is-${who}`}>
-                      {who === "owner"
-                        ? greetingName.charAt(0)
-                        : partnerName.charAt(0) || "P"}
-                    </span>
-                    <Link
-                      href="/checklist"
-                      className="cabinet-task-menu"
-                      aria-label="Відкрити всі завдання"
-                    >
-                      ⋯
+                  <button
+                    type="button"
+                    className="cabinet-task-invite-dismiss"
+                    aria-label="Закрити"
+                    onClick={onDismissInvite}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+                      <path
+                        d="M2 2l8 8M10 2 2 10"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </li>
+            ) : null}
+
+            {isTasksFirstState
+              ? STARTER_TASKS.map((item) => (
+                  <li key={item.id} className="cabinet-task-row is-starter">
+                    <span className="cabinet-task-check" aria-hidden />
+                    <Link href={item.href} className="cabinet-task-title">
+                      {item.title}
                     </Link>
-                  </div>
-                </li>
-              );
-            })}
+                    <div className="cabinet-task-meta-wrap">
+                      <Link
+                        href={item.href}
+                        className="cabinet-task-menu"
+                        aria-label="Відкрити"
+                      >
+                        ⋯
+                      </Link>
+                    </div>
+                  </li>
+                ))
+              : tasks.map(({ task, due, done: isDone }) => {
+                  const cat = taskCategoryMeta(task.categorySlug, task.title);
+                  const who = task.sortOrder % 2 === 0 ? "owner" : "partner";
+                  return (
+                    <li
+                      key={task.id}
+                      className={`cabinet-task-row${isDone ? " is-done" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        className="cabinet-task-check"
+                        aria-label={isDone ? "Повернути в роботу" : "Виконано"}
+                        onClick={() => void onToggleTask(task, isDone)}
+                      >
+                        {isDone ? (
+                          <svg width="10" height="10" viewBox="0 0 16 16" aria-hidden>
+                            <path
+                              fill="currentColor"
+                              d="M6.2 11.4 2.8 8l1.1-1.1 2.3 2.3 5-5L12.3 5z"
+                            />
+                          </svg>
+                        ) : null}
+                      </button>
+                      <p className="cabinet-task-title">{task.title}</p>
+                      <div className="cabinet-task-meta-wrap">
+                        <span className={`cabinet-task-tag is-${cat.tone}`}>
+                          {cat.label}
+                        </span>
+                        {due ? (
+                          <span
+                            className={`cabinet-task-date${taskDateTone(due, isDone)}`}
+                          >
+                            {formatTaskDate(due)}
+                          </span>
+                        ) : null}
+                        <span className={`cabinet-task-who is-${who}`}>
+                          {who === "owner"
+                            ? greetingName.charAt(0)
+                            : partnerName.charAt(0) || "P"}
+                        </span>
+                        <Link
+                          href="/checklist"
+                          className="cabinet-task-menu"
+                          aria-label="Відкрити всі завдання"
+                        >
+                          ⋯
+                        </Link>
+                      </div>
+                    </li>
+                  );
+                })}
           </ul>
-          <Link href="/checklist" className="cabinet-panel-link">
-            Переглянути всі завдання
-          </Link>
+          {isTasksFirstState ? (
+            <Link
+              href="/checklist?smart=1"
+              className="cabinet-panel-link"
+              onClick={onStartSmartPlanning}
+            >
+              Розпочати розумне планування
+            </Link>
+          ) : (
+            <Link href="/checklist" className="cabinet-panel-link">
+              Переглянути всі завдання
+            </Link>
+          )}
         </section>
       </div>
     </div>

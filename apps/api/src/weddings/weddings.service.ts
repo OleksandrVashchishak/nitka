@@ -17,30 +17,11 @@ import {
   resolveWeddingForUser,
 } from './wedding-access';
 
-/** categorySlug: каталог АБО внутрішній сервіс (guests/budget/date/…) */
+/** Стартові задачі для нових акаунтів (розумне планування додає решту). */
 const DEFAULT_TASKS = [
-  { title: 'Обрати дату весілля', categorySlug: 'date' },
-  { title: 'Знайти та зберегти локації', categorySlug: 'venue' },
-  { title: 'Визначити вайб весілля', categorySlug: 'vibe' },
-  { title: 'Почати список гостей', categorySlug: 'guests' },
-  { title: 'Скласти бюджет', categorySlug: 'budget' },
-  { title: 'Знайти фотографа', categorySlug: 'photo' },
-  { title: 'Обрати запрошення', categorySlug: 'invitations' },
-  { title: 'Знайти музику / DJ', categorySlug: 'music' },
-  { title: 'Знайти кейтеринг', categorySlug: 'catering' },
-  { title: 'Почати весільний сайт', categorySlug: 'website' },
-  { title: 'Скласти список подарунків', categorySlug: 'registry' },
-  { title: 'Обрати флористику та декор', categorySlug: 'decor' },
-  { title: 'Знайти ведучого церемонії', categorySlug: 'officiant' },
-  { title: 'Запланувати beauty-проби', categorySlug: 'beauty' },
-  { title: 'Познайомитись з організаторами', categorySlug: 'planner' },
-  { title: 'Обрати образи та обручки', categorySlug: 'attire' },
-  { title: 'Надіслати запрошення гостям', categorySlug: 'invite-guests' },
-  { title: 'Спробувати й обрати торт', categorySlug: 'cake' },
-  { title: 'Скласти фінальний шортліст', categorySlug: 'favorites' },
-  { title: 'Зібрати всі запрошення', categorySlug: 'rsvp' },
-  { title: 'Фіналізувати деталі дня', categorySlug: 'requests' },
-  { title: 'Одружитися!', categorySlug: 'married' },
+  { title: 'Побудувати список завдань', categorySlug: 'starter-plan' },
+  { title: 'Додати гостей', categorySlug: 'starter-guests' },
+  { title: 'Внести витрати', categorySlug: 'starter-budget' },
 ];
 
 const TASK_ORDER = { orderBy: [{ sortOrder: 'asc' as const }, { id: 'asc' as const }] };
@@ -650,42 +631,37 @@ export class WeddingsService {
       where: { weddingId },
     });
 
-    for (const [index, def] of DEFAULT_TASKS.entries()) {
-      const found = existing.find(
-        (task) =>
-          !task.isCustom &&
-          (task.categorySlug === def.categorySlug || task.title === def.title),
-      );
-
-      if (!found) {
-        await this.prisma.task.create({
-          data: {
-            weddingId,
-            title: def.title,
-            categorySlug: def.categorySlug,
-            sortOrder: index,
-            isCustom: false,
-            status: TaskStatus.TODO,
-          },
-        });
-        continue;
+    // Не підмішуємо стартери в уже наповнені плани (старі акаунти з шаблоном).
+    if (existing.length > 0) {
+      for (const [index, def] of DEFAULT_TASKS.entries()) {
+        const found = existing.find(
+          (task) => !task.isCustom && task.categorySlug === def.categorySlug,
+        );
+        if (
+          found &&
+          (found.title !== def.title || found.sortOrder !== index)
+        ) {
+          await this.prisma.task.update({
+            where: { id: found.id },
+            data: {
+              title: def.title,
+              sortOrder: index,
+            },
+          });
+        }
       }
-
-      if (
-        found.categorySlug !== def.categorySlug ||
-        found.title !== def.title ||
-        found.sortOrder !== index
-      ) {
-        await this.prisma.task.update({
-          where: { id: found.id },
-          data: {
-            categorySlug: def.categorySlug,
-            title: def.title,
-            sortOrder: index,
-            isCustom: false,
-          },
-        });
-      }
+      return;
     }
+
+    await this.prisma.task.createMany({
+      data: DEFAULT_TASKS.map((task, index) => ({
+        weddingId,
+        title: task.title,
+        categorySlug: task.categorySlug,
+        sortOrder: index,
+        isCustom: false,
+        status: TaskStatus.TODO,
+      })),
+    });
   }
 }

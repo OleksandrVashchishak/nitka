@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
+import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { RequireAuth } from "@/components/require-auth";
 import {
   createGuest,
@@ -390,25 +391,7 @@ function GuestsInner() {
         <h1 className="cabinet-tasks-title">Гості</h1>
         <div className="cabinet-overview-actions">
           <CabinetNotificationsBell summary={summary} />
-          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
-            <span className="cabinet-profile-avatar">{partnerInitials}</span>
-            <svg
-              className="cabinet-profile-chevron"
-              width="10"
-              height="6"
-              viewBox="0 0 10 6"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M1 1.25 5 4.75 9 1.25"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+          <CabinetProfileMenu initials={partnerInitials} />
         </div>
       </div>
 

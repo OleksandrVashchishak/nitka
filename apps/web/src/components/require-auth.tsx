@@ -30,7 +30,7 @@ export function RequireAuth({ children, roles }: Props) {
 
   if (!hydrated || !user) {
     return (
-      <div className="bg-paper px-5 py-10 md:px-8">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-paper px-5 py-10 md:px-8">
         <PageLoader label="Перевіряємо сесію…" />
       </div>
     );

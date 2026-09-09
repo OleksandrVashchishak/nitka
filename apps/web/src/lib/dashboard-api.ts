@@ -234,16 +234,20 @@ export function updateTask(
   });
 }
 
-export function createTask(input: {
-  title: string;
-  categorySlug?: string;
-  dueDate?: string;
-  sortOrder?: number;
-}) {
+export function createTask(
+  input: {
+    title: string;
+    categorySlug?: string;
+    dueDate?: string;
+    sortOrder?: number;
+  },
+  options?: { silent?: boolean },
+) {
   return apiFetch<WeddingTask>("/api/weddings/tasks", {
     method: "POST",
     body: JSON.stringify(input),
-    successToast: "Задачу додано",
+    silent: options?.silent,
+    successToast: options?.silent ? undefined : "Задачу додано",
   });
 }
 

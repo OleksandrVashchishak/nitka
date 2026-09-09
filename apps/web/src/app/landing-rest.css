@@ -10,8 +10,9 @@
 .fata-shell {
   width: min(100%, var(--fata));
   position: relative;
+  margin: 0 auto;
 }
-
+ 
 .fata-compare {
   position: relative;
   background: #61040f;
@@ -25,6 +26,8 @@
 
 .fata-sec2 {
   position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 
@@ -58,7 +61,7 @@
   display: flex;
   flex-direction: column;
   gap: 51px;
-  margin-top: -51px;
+  margin-top: -106px;
   position: absolute;
   left: 0;
   top: 0;
@@ -77,18 +80,44 @@
 .fata-sec2-photos img {
   object-fit: cover;
   object-position: left center;
+  z-index: 1;
 }
 
 .fata-sec2-body.is-light {
   background: #fff;
+  color: #1a1a1a; 
+  padding-top: 100px;
+  position: relative;
+}
+.fata-sec2-body.is-light:before {
+top: 0;
+bottom: 0;
+right: 99%;
+left: -100vw;
+background: #fff;
+content: '';
+position: absolute;
+} 
+.fata-sec2-body.is-light:after {
+top: 0;
+bottom: 0;
+right:  -100vw;
+left: 99%;
+background: #fff;
+content: '';
+position: absolute;
+} 
+.fata-sec2-body.is-light {
+  background: #fff;
   color: #1a1a1a;
   padding-top: 60px;
+  position: relative;
 }
 
 .fata-sec2-body-wrap {
-  max-width: 60%;
+  max-width: 58.3%;
   margin-left: auto;
-  padding: 38px calc(min(100vw, 1440px) * 83 / 1440) 110px 0;
+  padding: 0px calc(min(100vw, 1440px) * 83 / 1440) 110px 0;
 }
 
 .fata-compare-intro {
@@ -232,7 +261,7 @@
   color: #1a1a1a;
   background: #fff;
   padding: 0 20px;
-  padding-top: 26px;
+  padding-top: 20px;
   padding-bottom: 100px;
 }
 
@@ -253,13 +282,12 @@
   display: flex;
   justify-content: space-between;
   z-index: 1;
-  max-width: 87%;
+  max-width: 1240px;
   gap: 39px;
-  margin-left: 70px;
 }
 
 .fata-mobile-copy {
-  margin-top: 176px;
+  margin-top: 150px;
 }
 
 .fata-mobile-copy p {
@@ -274,6 +302,7 @@
 .fata-phone {
   height: 773px;
   flex-shrink: 0;
+  transform: translateX(-32px);
 }
 
 .fata-phone img {
@@ -301,6 +330,7 @@
   margin-top: 406px;
   min-width: fit-content;
   transition: all .4s;
+  transform: translateX(-71px);
 }
 
 .fata-dl:hover {
@@ -310,39 +340,6 @@
 .fata-dl:focus {
   background: #333333;
 }
-
-.fata-phrase {
-  position: absolute;
-  color: #F0FEBB;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 400;
-  font-size: 132.74px;
-  line-height: 80%;
-  width: max-content;
-  top: 43%;
-  transform: translateY(-50%)translateX(60%);
-  animation: moveX 10s ease-in-out infinite alternate;
-
-  em {
-    font-weight: 300;
-  }
-
-  span {
-    font-family: var(--font-mak), serif;
-    color: #FF4200;
-  }
-}
-
-@keyframes moveX {
-  from {
-    transform: translateY(-50%) translateX(60%);
-  }
-
-  to {
-    transform: translateY(-50%) translateX(-106%);
-  }
-}
-
 
 .fata-features {
   background: #fff;
@@ -361,9 +358,8 @@
   grid-template-areas:
     "n title img"
     "n body img";
-  column-gap: 24px;
   align-items: start;
-  padding: 32px var(--gutter);
+  padding: 32px var(--gutter) 32px 84px;
   padding-bottom: 0;
   border-top: 2px solid #ebe5d4;
   cursor: pointer;
@@ -391,10 +387,13 @@
   font-weight: 400;
   font-style: italic;
   letter-spacing: 0;
+  margin-left: 58px;
   color: #1a1a1a;
+  line-height: 1;
 }
 
 .fata-feature-panel {
+  padding-left: 58px;
   grid-area: body;
   display: grid;
   grid-template-rows: 0fr;
@@ -700,14 +699,6 @@
     height: 467px;
   }
 
-  .fata-phrase {
-    top: 50%;
-  }
-
-  .fata-phrase {
-    font-size: 100.74px;
-  }
-
   .fata-mobile-copy {
     margin-top: 120px;
   }
@@ -880,10 +871,6 @@
     max-width: none;
   }
 
-  .fata-phrase {
-    top: 38%;
-  }
-
   .fata-features {
     padding-bottom: 48px;
   }
@@ -991,10 +978,6 @@
     top: 7%;
   }
 
-  .fata-phrase {
-    font-size: 51.89px;
-  }
-
   .fata-feature {
     padding: 32px 16px;
     padding-bottom: 0;
@@ -1093,7 +1076,7 @@
 }
 
 .fata-sec2-body {
-  padding: 28px 20px 56px;
+  padding: 8px 20px 56px;
   padding-bottom: 0;
 }
 

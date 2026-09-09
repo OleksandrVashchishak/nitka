@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
+import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
 import {
@@ -17,6 +20,11 @@ import {
   getNotificationsSummary,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
+import {
+  smartBannerKey,
+  smartPlanDoneKey,
+  type SmartPlanTask,
+} from "@/lib/smart-planning";
 import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
 import { toast } from "@/lib/toast";
 import { useAuthStore } from "@/lib/auth-store";
@@ -75,7 +83,9 @@ function resolveTaskType(
 ): Exclude<TypeFilter, "all"> {
   const key = slug ?? "";
   const lower = title.toLowerCase();
-  if (key === "budget" || lower.includes("бюджет")) return "budget";
+  if (key === "starter-budget" || key === "budget" || lower.includes("бюджет")) {
+    return "budget";
+  }
   if (
     key === "invitations" ||
     key === "invite-guests" ||
@@ -88,7 +98,12 @@ function resolveTaskType(
   if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
     return "attire";
   }
-  if (key === "guests" || key === "rsvp" || lower.includes("гост")) {
+  if (
+    key === "starter-guests" ||
+    key === "guests" ||
+    key === "rsvp" ||
+    lower.includes("гост")
+  ) {
     return "guests";
   }
   if (
@@ -149,6 +164,7 @@ function firstName(value: string) {
 
 function ChecklistInner() {
   const user = useAuthStore((s) => s.user);
+  const searchParams = useSearchParams();
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +182,8 @@ function ChecklistInner() {
   const [newDue, setNewDue] = useState("");
   const [newType, setNewType] = useState<Exclude<TypeFilter, "all"> | "">("");
   const [newWho, setNewWho] = useState<WhoFilter>("owner");
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [showSmartBanner, setShowSmartBanner] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -182,6 +200,24 @@ function ChecklistInner() {
       .then(setSummary)
       .catch(() => setSummary(null));
   }, []);
+
+  useEffect(() => {
+    if (!wedding) return;
+    try {
+      const dismissed =
+        localStorage.getItem(smartBannerKey(wedding.id)) === "1";
+      const done = localStorage.getItem(smartPlanDoneKey(wedding.id)) === "1";
+      setShowSmartBanner(!dismissed && !done);
+    } catch {
+      setShowSmartBanner(true);
+    }
+  }, [wedding]);
+
+  useEffect(() => {
+    if (searchParams.get("smart") === "1") {
+      setWizardOpen(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -371,6 +407,74 @@ function ChecklistInner() {
     }
   }
 
+  function dismissSmartBanner() {
+    setShowSmartBanner(false);
+    if (!wedding) return;
+    try {
+      localStorage.setItem(smartBannerKey(wedding.id), "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function onSmartPlanComplete(planTasks: SmartPlanTask[]) {
+    if (!wedding) return;
+    const existingTitles = new Set(
+      wedding.tasks.map((t) => t.title.trim().toLowerCase()),
+    );
+    const toCreate = planTasks.filter(
+      (t) => !existingTitles.has(t.title.trim().toLowerCase()),
+    );
+
+    const created: WeddingTask[] = [];
+    for (const [index, task] of toCreate.entries()) {
+      const row = await createTask(
+        {
+          title: task.title,
+          categorySlug: task.categorySlug,
+          sortOrder: 100 + index,
+        },
+        { silent: true },
+      );
+      created.push(row);
+    }
+
+    const starter = wedding.tasks.find(
+      (t) =>
+        !t.isCustom &&
+        (t.categorySlug === "starter-plan" ||
+          t.title === "Побудувати список завдань"),
+    );
+    if (starter && starter.status !== "DONE") {
+      try {
+        await updateTask(starter.id, { status: "DONE" });
+        patchLocal(starter.id, { status: "DONE" });
+      } catch {
+        /* ignore */
+      }
+    }
+
+    setWedding((prev) =>
+      prev ? { ...prev, tasks: [...prev.tasks, ...created] } : prev,
+    );
+
+    try {
+      localStorage.setItem(smartPlanDoneKey(wedding.id), "1");
+      localStorage.setItem(smartBannerKey(wedding.id), "1");
+      localStorage.setItem(`fata-dashboard-smart-planning:${wedding.id}`, "1");
+    } catch {
+      /* ignore */
+    }
+
+    setShowSmartBanner(false);
+    setWizardOpen(false);
+    toast.success(
+      created.length > 0
+        ? `Додано ${created.length} завдань до списку`
+        : "План оновлено",
+    );
+  }
+
   if (loading) {
     return <PageLoader label="Завантажуємо задачі…" />;
   }
@@ -400,25 +504,7 @@ function ChecklistInner() {
         <h1 className="cabinet-tasks-title">Завдання</h1>
         <div className="cabinet-overview-actions">
           <CabinetNotificationsBell summary={summary} />
-          <Link href="/website" className="cabinet-profile" aria-label="Профіль пари">
-            <span className="cabinet-profile-avatar">{partnerInitials}</span>
-            <svg
-              className="cabinet-profile-chevron"
-              width="10"
-              height="6"
-              viewBox="0 0 10 6"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M1 1.25 5 4.75 9 1.25"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+          <CabinetProfileMenu initials={partnerInitials} />
         </div>
       </div>
 
@@ -579,6 +665,32 @@ function ChecklistInner() {
             </ul>
           )}
 
+          {showSmartBanner ? (
+            <aside className="cabinet-smart-banner" aria-label="Розумне планування">
+              <button
+                type="button"
+                className="cabinet-smart-banner-close"
+                aria-label="Закрити"
+                onClick={dismissSmartBanner}
+              >
+                ×
+              </button>
+              <h3>Розумне планування весілля</h3>
+              <p>
+                Ми зібрали завдання, які найчастіше виникають під час підготовки
+                до весілля. Оберіть потрібні — і створіть свій персональний план
+                без зайвого.
+              </p>
+              <button
+                type="button"
+                className="cabinet-smart-banner-cta"
+                onClick={() => setWizardOpen(true)}
+              >
+                Почати розумне планування
+              </button>
+            </aside>
+          ) : null}
+
           {filtered.length > visibleCount ? (
             <button
               type="button"
@@ -590,6 +702,14 @@ function ChecklistInner() {
           ) : null}
         </section>
       </div>
+
+      {wizardOpen ? (
+        <SmartPlanningWizard
+          partnerInitials={partnerInitials}
+          onClose={() => setWizardOpen(false)}
+          onComplete={onSmartPlanComplete}
+        />
+      ) : null}
 
       {drawerOpen ? (
         <div className="cabinet-drawer-root">
@@ -713,7 +833,9 @@ function FilterGroup({
 export function CoupleChecklistPage() {
   return (
     <RequireAuth roles={["COUPLE", "ADMIN"]}>
-      <ChecklistInner />
+      <Suspense fallback={<PageLoader label="Завантажуємо задачі…" />}>
+        <ChecklistInner />
+      </Suspense>
     </RequireAuth>
   );
 }
