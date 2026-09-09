@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { FataMobileMenu } from "@/components/fata-mobile-menu";
@@ -245,9 +245,9 @@ function ComparePair({
 }: {
   row: {
     beforeTitle: string;
-    beforeText: string;
+    beforeText: ReactNode;
     afterTitle: string;
-    afterText: string;
+    afterText: ReactNode;
   };
   crossBefore?: boolean;
 }) {
