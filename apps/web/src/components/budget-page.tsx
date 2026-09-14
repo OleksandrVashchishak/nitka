@@ -754,23 +754,25 @@ function BudgetInner() {
                           <span className="cabinet-budget-date">
                             {formatShortDate(item.createdAt)}
                           </span>
-                          <span
-                            className={`cabinet-task-who cabinet-budget-payer is-${item.payer}`}
-                            title={payerLabels[item.payer]}
-                          >
-                            {item.payer === "couple" ? (
-                              <span className="cabinet-guest-menu-duo" aria-hidden>
-                                <span className="cabinet-task-who is-partner">
-                                  p
-                                </span>
-                                <span className="cabinet-task-who is-owner">
-                                  o
-                                </span>
+                          {item.payer === "couple" ? (
+                            <span
+                              className="cabinet-guest-menu-duo"
+                              title={payerLabels.couple}
+                              aria-label={payerLabels.couple}
+                            >
+                              <span className="cabinet-task-who is-partner">
+                                p
                               </span>
-                            ) : (
-                              payerMark(item.payer)
-                            )}
-                          </span>
+                              <span className="cabinet-task-who is-owner">o</span>
+                            </span>
+                          ) : (
+                            <span
+                              className={`cabinet-task-who cabinet-budget-payer is-${item.payer}`}
+                              title={payerLabels[item.payer]}
+                            >
+                              {payerMark(item.payer)}
+                            </span>
+                          )}
                           <div className="cabinet-guest-menu-wrap">
                             <button
                               type="button"
@@ -968,9 +970,12 @@ function BudgetInner() {
               resetDrawer();
             }}
           />
-          <aside className="cabinet-drawer cabinet-budget-drawer" aria-label="Внести витрату">
+          <aside
+            className="cabinet-drawer cabinet-budget-drawer"
+            aria-label={editingId ? "Редагувати витрату" : "Внести витрату"}
+          >
             <div className="cabinet-drawer-head">
-              <h2>Внести витрату</h2>
+              <h2>{editingId ? "Редагувати витрату" : "Внести витрату"}</h2>
               <button
                 type="button"
                 className="cabinet-drawer-close"
@@ -1077,6 +1082,20 @@ function BudgetInner() {
                 </select>
               </label>
 
+              <label className="cabinet-drawer-field">
+                <span>Хто відповідальний</span>
+                <select
+                  value={formPayer}
+                  onChange={(e) => setFormPayer(e.target.value as MenuPayer)}
+                >
+                  <option value="owner">{ownerName}</option>
+                  <option value="partner">{partnerName}</option>
+                  <option value="couple">Обоє</option>
+                  <option value="unknown">Ніхто</option>
+                  <option value="other">Хтось інший</option>
+                </select>
+              </label>
+
               <div className="cabinet-drawer-actions">
                 <button
                   type="button"
@@ -1098,6 +1117,56 @@ function BudgetInner() {
               </div>
             </form>
           </aside>
+        </div>
+      ) : null}
+
+      {deleteTarget ? (
+        <div
+          className="cabinet-modal-root"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Видалити витрату"
+        >
+          <button
+            type="button"
+            className="cabinet-modal-backdrop"
+            aria-label="Закрити"
+            onClick={() => setDeleteTarget(null)}
+          />
+          <div className="cabinet-modal cabinet-confirm-modal">
+            <div className="cabinet-modal-head">
+              <div>
+                <h2>Видалити витрату</h2>
+                <p>Ви впевнені, що хочете видалити цю витрату?</p>
+              </div>
+              <button
+                type="button"
+                className="cabinet-modal-close"
+                aria-label="Закрити"
+                onClick={() => setDeleteTarget(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="cabinet-modal-actions">
+              <button
+                type="button"
+                className="cabinet-drawer-cancel"
+                onClick={() => setDeleteTarget(null)}
+                disabled={busy}
+              >
+                Скасувати
+              </button>
+              <button
+                type="button"
+                className="cabinet-confirm-delete"
+                disabled={busy}
+                onClick={() => void confirmDelete()}
+              >
+                {busy ? "…" : "Так, видалити"}
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
