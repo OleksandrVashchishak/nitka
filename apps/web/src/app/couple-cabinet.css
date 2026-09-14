@@ -2632,6 +2632,10 @@ font-size: 20px;
   background: #a7a7a7;
 }
 
+.cabinet-budget-payer.is-other {
+  background: #c4b5a0;
+}
+
 .cabinet-budget-amount-row {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
