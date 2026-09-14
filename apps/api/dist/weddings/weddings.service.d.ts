@@ -9,13 +9,28 @@ export declare class WeddingsService {
     private readonly notifications;
     constructor(prisma: PrismaService, notifications: NotificationsService);
     private loadWeddingWithMeta;
+    private attachTaskAssignees;
+    private setTaskAssignee;
+    private taskWithAssignee;
     getMine(userId: string): Promise<{
+        tasks: ({
+            id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            sortOrder: number;
+            weddingId: string;
+            title: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        } & {
+            assignee: string | null;
+        })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
@@ -24,16 +39,6 @@ export declare class WeddingsService {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            weddingId: string;
-            sortOrder: number;
-            title: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            isCustom: boolean;
-        }[];
         id: string;
         userId: string;
         city: string;
@@ -91,8 +96,8 @@ export declare class WeddingsService {
             };
             category: {
                 id: string;
-                slug: string;
                 name: string;
+                slug: string;
                 description: string;
                 sortOrder: number;
             };
@@ -104,17 +109,17 @@ export declare class WeddingsService {
             }[];
             id: string;
             userId: string;
+            rating: number;
+            createdAt: Date;
+            name: string;
             city: string;
             status: import(".prisma/client").$Enums.VendorStatus;
-            createdAt: Date;
             slug: string | null;
-            name: string;
             tagline: string;
             description: string;
             categoryId: string;
             priceFrom: number;
             priceTo: number | null;
-            rating: number;
             featured: boolean;
             phone: string | null;
             website: string | null;
@@ -136,12 +141,24 @@ export declare class WeddingsService {
         }[];
     } | null>;
     upsert(userId: string, dto: UpsertWeddingDto): Promise<{
+        tasks: ({
+            id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            sortOrder: number;
+            weddingId: string;
+            title: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        } & {
+            assignee: string | null;
+        })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
@@ -150,16 +167,6 @@ export declare class WeddingsService {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            weddingId: string;
-            sortOrder: number;
-            title: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            isCustom: boolean;
-        }[];
         id: string;
         userId: string;
         city: string;
@@ -186,12 +193,24 @@ export declare class WeddingsService {
         coupleName: string;
     }>;
     acceptPartnerInvite(userId: string, token: string): Promise<{
+        tasks: ({
+            id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            sortOrder: number;
+            weddingId: string;
+            title: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        } & {
+            assignee: string | null;
+        })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
@@ -200,16 +219,6 @@ export declare class WeddingsService {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            weddingId: string;
-            sortOrder: number;
-            title: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            isCustom: boolean;
-        }[];
         id: string;
         userId: string;
         city: string;
@@ -225,23 +234,15 @@ export declare class WeddingsService {
     } | null>;
     createTask(userId: string, dto: CreateTaskDto): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.TaskStatus;
         weddingId: string;
-        sortOrder: number;
-        title: string;
-        categorySlug: string | null;
-        dueDate: Date | null;
-        isCustom: boolean;
+    } & {
+        assignee: string | null;
     }>;
     updateTask(userId: string, taskId: string, dto: UpdateTaskDto): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.TaskStatus;
         weddingId: string;
-        sortOrder: number;
-        title: string;
-        categorySlug: string | null;
-        dueDate: Date | null;
-        isCustom: boolean;
+    } & {
+        assignee: string | null;
     }>;
     deleteTask(userId: string, taskId: string): Promise<{
         ok: boolean;

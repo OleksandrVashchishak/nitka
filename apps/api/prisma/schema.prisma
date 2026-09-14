@@ -411,6 +411,7 @@ model Task {
   dueRemindedAt DateTime? @map("due_reminded_at")
   sortOrder    Int        @default(0) @map("sort_order")
   isCustom     Boolean    @default(false) @map("is_custom")
+  assignee     String?
 
   wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 

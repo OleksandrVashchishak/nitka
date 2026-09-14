@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
+import { Prefooter } from "@/components/landing/prefooter/Prefooter";
 import "@/app/hero-artboard.css";
 import "@/app/landing-rest.css";
 
@@ -122,27 +123,6 @@ const FOOT_PRODUCT = [
   { href: "/zaprosinnya", label: "Запрошення" },
   { href: "/rozsadka-gostey", label: "Розсадка" },
   { href: "/plan-dnya-vesillya", label: "План дня" },
-] as const;
-
-const CLOUD = [
-  { id: "c1", src: "/landing/hero-photo.jpg", style: { left: 45, top: 378, width: 140, height: 153 } },
-  { id: "c2", src: "/landing/feat-1.jpg", style: { left: 215, top: 483, width: 140, height: 153 } },
-  { id: "c3", src: "/landing/compare-1.jpg", style: { left: 429, top: 154, width: 140, height: 153 } },
-  { id: "c4", src: "/landing/feat-2.jpg", style: { left: 395, top: 499, width: 140, height: 91 } },
-  { id: "c5", src: "/landing/feat-3.jpg", style: { left: 557, top: 590, width: 140, height: 91 } },
-  { id: "c6", src: "/landing/feat-4.jpg", style: { left: 895, top: 216, width: 140, height: 91 } },
-  { id: "c7", src: "/landing/compare-2.jpg", style: { left: 215, top: 216, width: 140, height: 91 } },
-  { id: "c8", src: "/landing/compare-3.jpg", style: { left: 720, top: 531, width: 140, height: 119 } },
-  { id: "c9", src: "/landing/couple.jpg", style: { left: 720, top: 171, width: 140, height: 119 } },
-  { id: "c10", src: "/landing/hero-dress.jpg", style: { left: 900, top: 497, width: 140, height: 184 } },
-  { id: "c11", src: "/landing/feat-1.jpg", style: { left: 1133, top: 216, width: 112, height: 122 } },
-  { id: "c12", src: "/landing/hero-photo.jpg", style: { left: -19, top: 240, width: 112, height: 122 } },
-  { id: "c13", src: "/landing/compare-1.jpg", style: { left: 1101, top: 451, width: 113, height: 127 } },
-  { id: "c14", src: "/landing/feat-2.jpg", style: { left: 465, top: 612, width: 68, height: 76 } },
-  { id: "c15", src: "/landing/feat-3.jpg", style: { left: 610, top: 133, width: 68, height: 76 } },
-  { id: "c16", src: "/landing/feat-4.jpg", style: { left: 1285, top: 252, width: 106, height: 76 } },
-  { id: "c17", src: "/landing/compare-2.jpg", style: { left: 1255, top: 400, width: 68, height: 76 } },
-  { id: "c18", src: "/landing/compare-3.jpg", style: { left: 1337, top: 362, width: 102, height: 76 } },
 ] as const;
 
 function FeaturesAccordion() {
@@ -434,24 +414,7 @@ export function HomeLanding() {
 
       <FeaturesAccordion />
 
-      <section className="fata-prefooter">
-        <div className="fata-shell fata-prefooter-inner">
-          <div className="fata-cloud" aria-hidden>
-            {CLOUD.map((shot) => (
-              <div key={shot.id} className="fata-cloud-item" style={shot.style}>
-                <Image src={shot.src} alt="" fill sizes="220px" />
-              </div>
-            ))}
-          </div>
-          <div className="fata-prefooter-copy">
-            <h2>
-              З fata.studio{" "}
-              <span>всі ці речі простіше і безкоштовно</span>
-            </h2>
-            <Link href="/register">Розпочати безкоштовно</Link>
-          </div>
-        </div>
-      </section>
+      <Prefooter />
 
       <footer className="fata-foot">
         <div className="fata-shell fata-foot-inner">

@@ -91,36 +91,15 @@ function contactValue(vendor: ExternalVendor, meta: VendorMeta) {
 
 function VendorsEmptyArt() {
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       className="cabinet-vendors-empty-art"
-      viewBox="0 0 280 160"
-      fill="none"
+      src="/cabinet/empty/vendors.png"
+      alt=""
+      width={360}
+      height={200}
       aria-hidden
-    >
-      <path
-        d="M20 120c30-28 60-40 100-36 40 4 70 20 100 36"
-        stroke="#1a1a1a"
-        strokeWidth="1.4"
-      />
-      <path d="M40 88c8 18 4 32-2 40" stroke="#1a1a1a" strokeWidth="1.4" />
-      <path d="M70 80c6 22 2 36-4 44" stroke="#1a1a1a" strokeWidth="1.4" />
-      <path d="M110 74c4 24 0 40-6 50" stroke="#1a1a1a" strokeWidth="1.4" />
-      <path d="M150 78c5 22 1 38-5 46" stroke="#1a1a1a" strokeWidth="1.4" />
-      <path d="M190 82c7 20 3 36-2 44" stroke="#1a1a1a" strokeWidth="1.4" />
-      <circle cx="40" cy="72" r="10" stroke="#1a1a1a" strokeWidth="1.4" />
-      <circle cx="70" cy="64" r="10" stroke="#1a1a1a" strokeWidth="1.4" />
-      <circle cx="110" cy="58" r="11" stroke="#1a1a1a" strokeWidth="1.4" />
-      <circle cx="150" cy="62" r="10" stroke="#1a1a1a" strokeWidth="1.4" />
-      <circle cx="190" cy="66" r="10" stroke="#1a1a1a" strokeWidth="1.4" />
-      <path d="M30 48c20-18 50-28 90-24 42 4 74 22 100 40" stroke="#ff4200" strokeWidth="1.2" />
-      <circle cx="48" cy="42" r="3" fill="#ff4200" />
-      <circle cx="88" cy="30" r="3" fill="#ff4200" />
-      <circle cx="132" cy="26" r="3" fill="#ff4200" />
-      <circle cx="176" cy="34" r="3" fill="#ff4200" />
-      <circle cx="218" cy="48" r="3" fill="#ff4200" />
-      <path d="M230 70c12 8 20 22 18 40" stroke="#1a1a1a" strokeWidth="1.4" />
-      <path d="M238 62c8-10 22-12 28-4" stroke="#1a1a1a" strokeWidth="1.2" />
-    </svg>
+    />
   );
 }
 

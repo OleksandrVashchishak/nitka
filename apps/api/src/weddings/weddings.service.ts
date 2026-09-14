@@ -48,10 +48,43 @@ export class WeddingsService {
     if (!wedding) return null;
 
     const me = wedding.members.find((m) => m.userId === userId);
+    const tasks = await this.attachTaskAssignees(weddingId, wedding.tasks);
     return {
       ...wedding,
+      tasks,
       myRole: me?.role ?? WeddingMemberRole.OWNER,
     };
+  }
+
+  private async attachTaskAssignees<
+    T extends { id: string },
+  >(weddingId: string, tasks: T[]) {
+    if (tasks.length === 0) return tasks.map((task) => ({ ...task, assignee: null }));
+    try {
+      const rows = await this.prisma.$queryRaw<
+        Array<{ id: string; assignee: string | null }>
+      >`
+        SELECT id, assignee FROM tasks WHERE wedding_id = ${weddingId}
+      `;
+      const map = new Map(rows.map((row) => [row.id, row.assignee]));
+      return tasks.map((task) => ({
+        ...task,
+        assignee: map.get(task.id) ?? null,
+      }));
+    } catch {
+      return tasks.map((task) => ({ ...task, assignee: null }));
+    }
+  }
+
+  private async setTaskAssignee(taskId: string, assignee: string | null) {
+    await this.prisma.$executeRaw`
+      UPDATE tasks SET assignee = ${assignee} WHERE id = ${taskId}
+    `;
+  }
+
+  private async taskWithAssignee(task: { id: string; weddingId: string }) {
+    const [enriched] = await this.attachTaskAssignees(task.weddingId, [task]);
+    return enriched;
   }
 
   async getMine(userId: string) {
@@ -495,7 +528,7 @@ export class WeddingsService {
       _max: { sortOrder: true },
     });
 
-    return this.prisma.task.create({
+    const created = await this.prisma.task.create({
       data: {
         weddingId: wedding.id,
         title: dto.title.trim(),
@@ -506,6 +539,16 @@ export class WeddingsService {
         dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
       },
     });
+
+    if (dto.assignee) {
+      try {
+        await this.setTaskAssignee(created.id, dto.assignee);
+      } catch {
+        /* column may be missing until ensure-schema */
+      }
+    }
+
+    return this.taskWithAssignee(created);
   }
 
   async updateTask(userId: string, taskId: string, dto: UpdateTaskDto) {
@@ -515,7 +558,7 @@ export class WeddingsService {
       throw new BadRequestException('Назву шаблонної задачі змінити не можна');
     }
 
-    return this.prisma.task.update({
+    const updated = await this.prisma.task.update({
       where: { id: taskId },
       data: {
         ...(dto.status !== undefined ? { status: dto.status } : {}),
@@ -525,6 +568,16 @@ export class WeddingsService {
         ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
       },
     });
+
+    if (dto.assignee !== undefined) {
+      try {
+        await this.setTaskAssignee(taskId, dto.assignee);
+      } catch {
+        /* column may be missing until ensure-schema */
+      }
+    }
+
+    return this.taskWithAssignee(updated);
   }
 
   async deleteTask(userId: string, taskId: string) {

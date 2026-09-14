@@ -455,91 +455,6 @@ position: absolute;
   object-fit: cover;
 }
 
-
-.fata-prefooter {
-  position: relative;
-  overflow: hidden;
-  background: #1a1a1a;
-  color: #f0febb;
-  height: calc(min(100vw, 1440px) * 821 / 1440);
-}
-
-.fata-prefooter-inner {
-  position: relative;
-  height: 100%;
-  width: 100%;
-}
-
-.fata-prefooter-copy {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 2;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-
-.fata-prefooter-copy h2 {
-  margin: 0 auto;
-  max-width: 805px;
-  font-family: var(--font-display), sans-serif;
-  font-size: 60px;
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1;
-  color: #f0febb;
-}
-
-.fata-prefooter-copy a {
-  display: inline-flex;
-  margin-top: 25px;
-  height: 56px;
-  padding: 14px 32px;
-  align-items: center;
-  border-radius: 40px;
-  background: #ff4200;
-  color: #1a1a1a;
-  font-family: var(--font-akzidenz), sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1;
-  text-decoration: none;
-  transition: all .4s;
-}
-
-.fata-prefooter-copy a:hover {
-  background: #E63B00;
-}
-
-.fata-prefooter-copy a:focus {
-  background: #CC3400;
-}
-
-.fata-cloud {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 1440px;
-  height: 821px;
-  margin-left: -720px;
-  transform: scale(calc(min(100vw, 1440px) / 1440));
-  transform-origin: top center;
-  pointer-events: none;
-}
-
-.fata-cloud-item {
-  position: absolute;
-  overflow: hidden;
-}
-
-.fata-cloud-item img {
-  object-fit: cover;
-}
-
 .fata-foot {
   background: #1a1a1a;
   color: #f0febb;
@@ -707,11 +622,6 @@ position: absolute;
     height: 596px;
   }
 
-  .fata-prefooter-copy h2 {
-    font-size: 46px;
-    max-width: 650px;
-  }
-
   .fata-foot-top>div:not(.fata-foot-brand) {
     width: auto;
   }
@@ -867,8 +777,13 @@ position: absolute;
     margin-top: 0;
   }
 
+  .fata-dl {
+    transform: translateX(0);
+  }
+
   .fata-mobile-copy p {
     max-width: none;
+    text-align: center;
   }
 
   .fata-features {
@@ -901,6 +816,10 @@ position: absolute;
     overflow-wrap: break-word;
   }
 
+  .fata-feature-panel {
+    padding-left: 0;
+  }
+
   .fata-feature-panel-inner {
     display: flex;
     flex-direction: column;
@@ -930,11 +849,6 @@ position: absolute;
     margin-top: 16px;
   }
 
-  .fata-prefooter-copy h2 {
-    font-size: 32px;
-    max-width: 500px;
-  }
-
   .fata-foot-top {
     flex-direction: column;
     gap: 24px;
@@ -949,15 +863,6 @@ position: absolute;
 }
 
 @media (max-width: 640px) {
-  .fata-prefooter-copy h2 {
-    font-size: 16px;
-    max-width: 150px;
-  }
-
-  .fata-prefooter-copy a {
-    height: 52px;
-  }
-
   .fata-foot-bottom {
     flex-direction: column;
     align-items: flex-start;
@@ -1087,106 +992,6 @@ position: absolute;
 .fata-compare-pair {
   padding: 24px 20px 36px;
 }
-
-.fata-prefooter {
-  height: auto;
-  min-height: clamp(509px, 165vw, 509px);
-}
-
-.fata-prefooter-inner {
-  min-height: clamp(509px, 165vw, 509px);
-  display: grid;
-  place-items: center;
-}
-
-.fata-cloud {
-  left: 0;
-  width: 100%;
-  height: 100%;
-  margin-left: 0;
-  transform: none;
-}
-
-.fata-cloud-item {
-  border-radius: 2px;
-}
-
-.fata-cloud-item:nth-child(1) {
-  left: -8% !important;
-  top: 7% !important;
-  width: 32vw !important;
-  height: 34vw !important;
-}
-
-.fata-cloud-item:nth-child(2) {
-  left: 34% !important;
-  top: 3% !important;
-  width: 28vw !important;
-  height: 22vw !important;
-}
-
-.fata-cloud-item:nth-child(3) {
-  left: 70% !important;
-  top: 8% !important;
-  width: 36vw !important;
-  height: 28vw !important;
-}
-
-.fata-cloud-item:nth-child(4) {
-  left: -10% !important;
-  top: 40% !important;
-  width: 26vw !important;
-  height: 18vw !important;
-}
-
-.fata-cloud-item:nth-child(5) {
-  left: 78% !important;
-  top: 42% !important;
-  width: 30vw !important;
-  height: 20vw !important;
-}
-
-.fata-cloud-item:nth-child(6) {
-  left: 2% !important;
-  top: 68% !important;
-  width: 30vw !important;
-  height: 36vw !important;
-}
-
-.fata-cloud-item:nth-child(7) {
-  left: 36% !important;
-  top: 76% !important;
-  width: 28vw !important;
-  height: 22vw !important;
-}
-
-.fata-cloud-item:nth-child(8) {
-  left: 68% !important;
-  top: 64% !important;
-  width: 38vw !important;
-  height: 32vw !important;
-}
-
-.fata-cloud-item:nth-child(n + 9) {
-  display: none;
-}
-
-@media (min-width: 640px) {
-
-  .fata-prefooter,
-  .fata-prefooter-inner {
-    min-height: 821px;
-  }
-
-  .fata-cloud-item:nth-child(1),
-  .fata-cloud-item:nth-child(3),
-  .fata-cloud-item:nth-child(6),
-  .fata-cloud-item:nth-child(8) {
-    width: 22vw !important;
-    height: 24vw !important;
-  }
-}
-
 
 .fata-mobile-wordmark {
   display: none !important;

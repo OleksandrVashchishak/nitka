@@ -12,11 +12,11 @@ export declare class ReviewsController {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     })[]>;
     mineForVendor(user: AuthUser, vendorId: string, res: Response): Promise<({
         user: {
@@ -25,11 +25,11 @@ export declare class ReviewsController {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     }) | undefined>;
     create(user: AuthUser, dto: CreateReviewDto): Promise<{
         user: {
@@ -38,11 +38,11 @@ export declare class ReviewsController {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     }>;
     update(user: AuthUser, id: string, dto: UpdateReviewDto): Promise<{
         user: {
@@ -51,11 +51,11 @@ export declare class ReviewsController {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     }>;
     remove(user: AuthUser, id: string): Promise<{
         ok: boolean;

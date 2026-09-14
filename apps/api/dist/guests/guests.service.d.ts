@@ -27,12 +27,12 @@ export declare class GuestsService {
         guests: {
             id: string;
             createdAt: Date;
+            email: string | null;
             name: string;
             phone: string | null;
-            email: string | null;
             weddingId: string;
-            rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             side: import(".prisma/client").$Enums.GuestSide;
+            rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             plusOne: boolean;
             plusOneName: string | null;
             plusOneAttending: boolean | null;
@@ -46,12 +46,12 @@ export declare class GuestsService {
     create(userId: string, dto: CreateGuestDto): Promise<{
         id: string;
         createdAt: Date;
+        email: string | null;
         name: string;
         phone: string | null;
-        email: string | null;
         weddingId: string;
-        rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         side: import(".prisma/client").$Enums.GuestSide;
+        rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         plusOne: boolean;
         plusOneName: string | null;
         plusOneAttending: boolean | null;
@@ -66,12 +66,12 @@ export declare class GuestsService {
         guests: {
             id: string;
             createdAt: Date;
+            email: string | null;
             name: string;
             phone: string | null;
-            email: string | null;
             weddingId: string;
-            rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             side: import(".prisma/client").$Enums.GuestSide;
+            rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             plusOne: boolean;
             plusOneName: string | null;
             plusOneAttending: boolean | null;
@@ -85,12 +85,12 @@ export declare class GuestsService {
     update(userId: string, guestId: string, dto: UpdateGuestDto): Promise<{
         id: string;
         createdAt: Date;
+        email: string | null;
         name: string;
         phone: string | null;
-        email: string | null;
         weddingId: string;
-        rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         side: import(".prisma/client").$Enums.GuestSide;
+        rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
         plusOne: boolean;
         plusOneName: string | null;
         plusOneAttending: boolean | null;

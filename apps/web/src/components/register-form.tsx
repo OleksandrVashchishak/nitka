@@ -25,16 +25,6 @@ function joinName(first: string, last: string) {
   return [first.trim(), last.trim()].filter(Boolean).join(" ").slice(0, 80);
 }
 
-function maskUkDate(raw: string) {
-  const digits = raw.replace(/\D/g, "").slice(0, 8);
-  const dd = digits.slice(0, 2);
-  const mm = digits.slice(2, 4);
-  const yyyy = digits.slice(4, 8);
-  if (digits.length <= 2) return dd;
-  if (digits.length <= 4) return `${dd}.${mm}`;
-  return `${dd}.${mm}.${yyyy}`;
-}
-
 function ukDateToIso(value: string) {
   const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value.trim());
   if (!match) return null;
@@ -50,6 +40,28 @@ function ukDateToIso(value: string) {
     return null;
   }
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function isIsoDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
+/** Accepts ISO (date input) or legacy ДД.ММ.РРРР from old drafts. */
+function normalizeWeddingDate(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (isIsoDate(trimmed)) return trimmed;
+  return ukDateToIso(trimmed) ?? "";
 }
 
 function fallbackWeddingDate() {
@@ -197,7 +209,7 @@ export function RegisterForm() {
       setLastName(draft.lastName);
       setPartnerFirstName(draft.partnerFirstName);
       setPartnerLastName(draft.partnerLastName);
-      setDate(draft.date);
+      setDate(normalizeWeddingDate(draft.date));
       setDateUndecided(draft.dateUndecided);
       setCity(draft.city);
       setCityUndecided(draft.cityUndecided);
@@ -223,7 +235,11 @@ export function RegisterForm() {
   async function saveWedding() {
     const guests = guestsPayload();
     await upsertWedding({
-      date: dateUndecided ? fallbackWeddingDate() : ukDateToIso(date) ?? fallbackWeddingDate(),
+      date: dateUndecided
+        ? fallbackWeddingDate()
+        : isIsoDate(date)
+          ? date
+          : fallbackWeddingDate(),
       city: cityUndecided || !city.trim() ? "Ще вирішуємо" : city.trim(),
       guests: guests.guests,
       budget: 0,
@@ -242,8 +258,8 @@ export function RegisterForm() {
         toast.error("Заповни імена для вас обох");
         return;
       }
-      if (!dateUndecided && !ukDateToIso(date)) {
-        toast.error("Вкажи дату у форматі ДД.ММ.РРРР або обери «Ми ще вирішуємо»");
+      if (!dateUndecided && !isIsoDate(date)) {
+        toast.error("Обери дату весілля або познач «Ми ще вирішуємо»");
         return;
       }
       persistDraft("2.1");
@@ -304,15 +320,8 @@ export function RegisterForm() {
       }
       await saveWedding();
       persistDraft("2.2", true);
-      if (alreadySignedIn) {
-        setScreen("2.2");
-        return;
-      }
-      const params = new URLSearchParams({
-        email: email.trim(),
-        flow: "register",
-      });
-      router.push(`/confirm-email?${params.toString()}`);
+      // Email confirm step temporarily skipped — it interrupts onboarding.
+      setScreen("2.2");
     } catch (err) {
       toast.error(getErrorMessage(err, "Не вдалось зареєструватись"));
       setError(getErrorMessage(err, "Не вдалось зареєструватись"));
@@ -518,12 +527,11 @@ export function RegisterForm() {
                 <div className="sm:col-span-2">
                   <Field label="Дата весілля">
                     <input
-                      inputMode="numeric"
+                      type="date"
                       value={date}
                       disabled={dateUndecided}
-                      onChange={(event) => setDate(maskUkDate(event.target.value))}
-                      className={inputClass}
-                      placeholder="ДД.ММ.РРРР"
+                      onChange={(event) => setDate(event.target.value)}
+                      className={`${inputClass} ${date ? "" : "text-[#1a1a1a]/45"}`}
                       autoComplete="off"
                     />
                   </Field>

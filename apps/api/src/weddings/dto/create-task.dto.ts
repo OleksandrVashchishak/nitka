@@ -1,5 +1,6 @@
 import {
   IsDateString,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -7,6 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { TASK_ASSIGNEES, type TaskAssignee } from './update-task.dto';
 
 export class CreateTaskDto {
   @IsString()
@@ -26,4 +28,8 @@ export class CreateTaskDto {
   @IsOptional()
   @IsDateString()
   dueDate?: string;
+
+  @IsOptional()
+  @IsIn(TASK_ASSIGNEES)
+  assignee?: TaskAssignee;
 }

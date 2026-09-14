@@ -2,6 +2,7 @@ import { apiFetch } from "@/lib/client-api";
 import type { Category, Vendor } from "@/lib/api";
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+export type TaskAssignee = "owner" | "partner" | "both" | "none" | "other";
 
 export type WeddingTask = {
   id: string;
@@ -11,6 +12,7 @@ export type WeddingTask = {
   sortOrder: number;
   isCustom: boolean;
   categorySlug?: string | null;
+  assignee?: TaskAssignee | null;
 };
 
 export type WeddingMember = {
@@ -226,6 +228,7 @@ export function updateTask(
     status?: TaskStatus;
     dueDate?: string | null;
     title?: string;
+    assignee?: TaskAssignee | null;
   },
 ) {
   return apiFetch<WeddingTask>(`/api/weddings/tasks/${taskId}`, {
@@ -240,6 +243,7 @@ export function createTask(
     categorySlug?: string;
     dueDate?: string;
     sortOrder?: number;
+    assignee?: TaskAssignee;
   },
   options?: { silent?: boolean },
 ) {

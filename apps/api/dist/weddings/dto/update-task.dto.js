@@ -9,9 +9,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateTaskDto = void 0;
+exports.UpdateTaskDto = exports.TASK_ASSIGNEES = void 0;
 const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
+exports.TASK_ASSIGNEES = [
+    'owner',
+    'partner',
+    'both',
+    'none',
+    'other',
+];
 class UpdateTaskDto {
 }
 exports.UpdateTaskDto = UpdateTaskDto;
@@ -32,4 +39,10 @@ __decorate([
     (0, class_validator_1.MinLength)(2),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "title", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.ValidateIf)((_, value) => value !== null),
+    (0, class_validator_1.IsIn)(exports.TASK_ASSIGNEES),
+    __metadata("design:type", Object)
+], UpdateTaskDto.prototype, "assignee", void 0);
 //# sourceMappingURL=update-task.dto.js.map

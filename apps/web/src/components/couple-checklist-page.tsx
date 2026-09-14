@@ -9,9 +9,12 @@ import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
 import {
+  createPartnerInvite,
   createTask,
+  deleteTask,
   getMyWedding,
   updateTask,
+  type TaskAssignee,
   type TaskStatus,
   type Wedding,
   type WeddingTask,
@@ -43,11 +46,12 @@ type TypeFilter =
 type DueFilter = "all" | "soon" | "overdue" | "nodate";
 type WhoFilter = "all" | "owner" | "partner";
 type SortMode = "urgent" | "date" | "alpha";
+type TaskWho = TaskAssignee;
 
 type ChecklistRow = WeddingTask & {
   effectiveDue: string | null;
   taskType: Exclude<TypeFilter, "all">;
-  who: "owner" | "partner";
+  who: TaskWho;
 };
 
 const TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
@@ -62,6 +66,24 @@ const TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
 ];
 
 const PAGE_SIZE = 12;
+const TASK_WHO_VALUES: TaskWho[] = [
+  "owner",
+  "partner",
+  "both",
+  "none",
+  "other",
+];
+
+function inviteDismissKey(weddingId: string) {
+  return `fata-dashboard-invite-dismissed:${weddingId}`;
+}
+
+function resolveTaskWho(task: WeddingTask): TaskWho {
+  if (task.assignee && TASK_WHO_VALUES.includes(task.assignee)) {
+    return task.assignee;
+  }
+  return task.sortOrder % 2 === 0 ? "owner" : "partner";
+}
 
 function formatTaskDate(iso: string) {
   const [y, m, d] = iso.slice(0, 10).split("-");
@@ -177,13 +199,19 @@ function ChecklistInner() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDue, setNewDue] = useState("");
   const [newType, setNewType] = useState<Exclude<TypeFilter, "all"> | "">("");
-  const [newWho, setNewWho] = useState<WhoFilter>("owner");
+  const [newWho, setNewWho] = useState<TaskWho>("owner");
   const [wizardOpen, setWizardOpen] = useState(false);
   const [showSmartBanner, setShowSmartBanner] = useState(false);
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteDismissed, setInviteDismissed] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ChecklistRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -208,6 +236,9 @@ function ChecklistInner() {
         localStorage.getItem(smartBannerKey(wedding.id)) === "1";
       const done = localStorage.getItem(smartPlanDoneKey(wedding.id)) === "1";
       setShowSmartBanner(!dismissed && !done);
+      setInviteDismissed(
+        localStorage.getItem(inviteDismissKey(wedding.id)) === "1",
+      );
     } catch {
       setShowSmartBanner(true);
     }
@@ -222,6 +253,28 @@ function ChecklistInner() {
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [statusFilter, typeFilter, dueFilter, whoFilter, sortMode]);
+
+  useEffect(() => {
+    if (!menuOpenId) return;
+    function onDocClick(event: MouseEvent) {
+      const target = event.target;
+      if (
+        !(target instanceof Element) ||
+        !target.closest(".cabinet-guest-menu-wrap")
+      ) {
+        setMenuOpenId(null);
+      }
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpenId(null);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpenId]);
 
   const fallbackNames = (user?.name ?? "")
     .split(/\s+(?:і|&|\+)\s+/i)
@@ -246,7 +299,7 @@ function ChecklistInner() {
         ...task,
         effectiveDue,
         taskType: resolveTaskType(task.categorySlug, task.title),
-        who: task.sortOrder % 2 === 0 ? "owner" : "partner",
+        who: resolveTaskWho(task),
       };
     });
   }, [wedding]);
@@ -277,7 +330,8 @@ function ChecklistInner() {
       if (row.status === "DONE") status.done += 1;
       else status.open += 1;
       types[row.taskType] += 1;
-      who[row.who] += 1;
+      if (row.who === "owner" || row.who === "both") who.owner += 1;
+      if (row.who === "partner" || row.who === "both") who.partner += 1;
       if (!row.effectiveDue) due.nodate += 1;
       else if (row.effectiveDue < today && row.status !== "DONE") due.overdue += 1;
       else if (row.effectiveDue <= soonLimit) due.soon += 1;
@@ -290,7 +344,16 @@ function ChecklistInner() {
       if (statusFilter === "open" && row.status === "DONE") return false;
       if (statusFilter === "done" && row.status !== "DONE") return false;
       if (typeFilter !== "all" && row.taskType !== typeFilter) return false;
-      if (whoFilter !== "all" && row.who !== whoFilter) return false;
+      if (whoFilter === "owner" && row.who !== "owner" && row.who !== "both") {
+        return false;
+      }
+      if (
+        whoFilter === "partner" &&
+        row.who !== "partner" &&
+        row.who !== "both"
+      ) {
+        return false;
+      }
       if (dueFilter === "nodate" && row.effectiveDue) return false;
       if (dueFilter === "overdue") {
         if (!row.effectiveDue || row.effectiveDue >= today || row.status === "DONE") {
@@ -334,6 +397,15 @@ function ChecklistInner() {
   const remaining = totalCount - doneCount;
   const progress =
     totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+  const isOwner = (wedding?.myRole ?? "OWNER") === "OWNER";
+  const hasPartner = (wedding?.members ?? []).some(
+    (member) => member.role === "PARTNER",
+  );
+  const inviteName = partnerShort.trim() || "партнера";
+  const showInviteTask = Boolean(
+    wedding && isOwner && !hasPartner && !inviteDismissed,
+  );
 
   function patchLocal(taskId: string, patch: Partial<WeddingTask>) {
     setWedding((prev) =>
@@ -380,30 +452,117 @@ function ChecklistInner() {
     }
   }
 
+  function resetDrawer() {
+    setEditingId(null);
+    setNewTitle("");
+    setNewDue("");
+    setNewType("");
+    setNewWho("owner");
+  }
+
+  function openCreate() {
+    resetDrawer();
+    setDrawerOpen(true);
+  }
+
+  function openEdit(task: ChecklistRow) {
+    setEditingId(task.id);
+    setNewTitle(task.title);
+    setNewDue(task.effectiveDue ?? task.dueDate?.slice(0, 10) ?? "");
+    setNewType(task.taskType);
+    setNewWho(task.who);
+    setMenuOpenId(null);
+    setDrawerOpen(true);
+  }
+
   async function onSaveTask(e: FormEvent) {
     e.preventDefault();
     const title = newTitle.trim();
     if (!title || !wedding) return;
     setAdding(true);
     try {
-      const created = await createTask({
-        title,
-        dueDate: newDue || undefined,
-        categorySlug: typeToSlug(newType),
-        sortOrder: newWho === "partner" ? 1 : 0,
-      });
-      setWedding((prev) =>
-        prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
-      );
-      setNewTitle("");
-      setNewDue("");
-      setNewType("");
-      setNewWho("owner");
+      if (editingId) {
+        const existing = wedding.tasks.find((t) => t.id === editingId);
+        const payload: {
+          title?: string;
+          dueDate: string | null;
+          assignee: TaskAssignee;
+        } = {
+          dueDate: newDue || null,
+          assignee: newWho,
+        };
+        if (existing?.isCustom) {
+          payload.title = title;
+        }
+        const updated = await updateTask(editingId, payload);
+        patchLocal(editingId, updated);
+      } else {
+        const created = await createTask({
+          title,
+          dueDate: newDue || undefined,
+          categorySlug: typeToSlug(newType),
+          sortOrder: newWho === "partner" ? 1 : 0,
+          assignee: newWho,
+        });
+        setWedding((prev) =>
+          prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
+        );
+      }
       setDrawerOpen(false);
+      resetDrawer();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Не додано");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : editingId
+            ? "Не оновлено"
+            : "Не додано",
+      );
     } finally {
       setAdding(false);
+    }
+  }
+
+  async function onSetAssignee(task: ChecklistRow, assignee: TaskAssignee) {
+    setMenuOpenId(null);
+    if (task.who === assignee) return;
+    patchLocal(task.id, { assignee });
+    try {
+      const updated = await updateTask(task.id, { assignee });
+      patchLocal(task.id, updated);
+    } catch (err) {
+      patchLocal(task.id, { assignee: task.assignee ?? null });
+      toast.error(err instanceof Error ? err.message : "Не оновлено");
+    }
+  }
+
+  function requestDelete(task: ChecklistRow) {
+    setMenuOpenId(null);
+    if (!task.isCustom) {
+      toast.error("Шаблонну задачу видалити не можна");
+      return;
+    }
+    setDeleteTarget(task);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteTask(deleteTarget.id);
+      setWedding((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: prev.tasks.filter((t) => t.id !== deleteTarget.id),
+            }
+          : prev,
+      );
+      setDeleteTarget(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не видалено");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -412,6 +571,30 @@ function ChecklistInner() {
     if (!wedding) return;
     try {
       localStorage.setItem(smartBannerKey(wedding.id), "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function onInvitePartner() {
+    setInviteBusy(true);
+    try {
+      const invite = await createPartnerInvite();
+      const url = `${window.location.origin}${invite.path}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Лінк скопійовано", "Надішли партнеру — діятиме 14 днів");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не створено лінк");
+    } finally {
+      setInviteBusy(false);
+    }
+  }
+
+  function onDismissInvite() {
+    setInviteDismissed(true);
+    if (!wedding) return;
+    try {
+      localStorage.setItem(inviteDismissKey(wedding.id), "1");
     } catch {
       /* ignore */
     }
@@ -595,13 +778,69 @@ function ChecklistInner() {
               <button
                 type="button"
                 className="cabinet-tasks-add-btn"
-                onClick={() => setDrawerOpen(true)}
+                onClick={openCreate}
               >
                 <span aria-hidden>+</span>
                 Додати завдання
               </button>
             </div>
           </div>
+
+          {showInviteTask ? (
+            <div className="cabinet-task-invite cabinet-tasks-invite">
+              <div className="cabinet-task-invite-icon" aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 6.5h16v11H4v-11Z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="m4 7 8 6 8-6"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div className="cabinet-task-invite-copy">
+                <p className="cabinet-task-invite-title">
+                  Запросіть {inviteName}
+                </p>
+                <p className="cabinet-task-invite-text">
+                  Додайте {inviteName} до спільного доступу, щоб він міг бачити
+                  та редагувати ваш дашборд.
+                </p>
+              </div>
+              <div className="cabinet-task-invite-actions">
+                <button
+                  type="button"
+                  className="cabinet-task-invite-btn"
+                  disabled={inviteBusy}
+                  onClick={() => void onInvitePartner()}
+                >
+                  {inviteBusy ? "…" : "Запросити"}
+                </button>
+                <button
+                  type="button"
+                  className="cabinet-task-invite-dismiss"
+                  aria-label="Закрити"
+                  onClick={onDismissInvite}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+                    <path
+                      d="M2 2l8 8M10 2 2 10"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           {visible.length === 0 ? (
             <p className="cabinet-tasks-empty">Немає задач у цьому фільтрі.</p>
@@ -645,19 +884,172 @@ function ChecklistInner() {
                           {formatTaskDate(task.effectiveDue)}
                         </span>
                       ) : null}
-                      <span
-                        className={`cabinet-task-who is-${task.who}`}
-                        title={
-                          task.who === "owner" ? ownerShort : partnerShort
-                        }
-                      >
-                        {task.who === "owner"
-                          ? ownerShort.charAt(0)
-                          : partnerShort.charAt(0)}
-                      </span>
-                      <span className="cabinet-task-menu" aria-hidden>
-                        ⋯
-                      </span>
+                      {task.who === "both" ? (
+                        <span
+                          className="cabinet-guest-menu-duo"
+                          title="Обоє"
+                          aria-hidden
+                        >
+                          <span className="cabinet-task-who is-partner">p</span>
+                          <span className="cabinet-task-who is-owner">o</span>
+                        </span>
+                      ) : task.who === "none" || task.who === "other" ? (
+                        <span
+                          className="cabinet-task-who is-none"
+                          title={
+                            task.who === "none" ? "Ніхто" : "Хтось інший"
+                          }
+                        >
+                          {task.who === "none" ? "—" : "?"}
+                        </span>
+                      ) : (
+                        <span
+                          className={`cabinet-task-who is-${task.who}`}
+                          title={
+                            task.who === "owner" ? ownerShort : partnerShort
+                          }
+                        >
+                          {task.who === "owner" ? "o" : "p"}
+                        </span>
+                      )}
+                      <div className="cabinet-guest-menu-wrap">
+                        <button
+                          type="button"
+                          className="cabinet-task-menu"
+                          aria-label="Меню завдання"
+                          aria-expanded={menuOpenId === task.id}
+                          onClick={() =>
+                            setMenuOpenId((id) =>
+                              id === task.id ? null : task.id,
+                            )
+                          }
+                        >
+                          ⋯
+                        </button>
+                        {menuOpenId === task.id ? (
+                          <div className="cabinet-guest-menu" role="menu">
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="cabinet-guest-menu-item"
+                              onClick={() => openEdit(task)}
+                            >
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden
+                              >
+                                <path
+                                  d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.6"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              Редагувати
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="cabinet-guest-menu-item is-danger"
+                              onClick={() => requestDelete(task)}
+                            >
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden
+                              >
+                                <path
+                                  d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                                  stroke="currentColor"
+                                  strokeWidth="1.6"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              Видалити
+                            </button>
+
+                            <div className="cabinet-guest-menu-divider" />
+                            <p className="cabinet-guest-menu-label is-caps">
+                              Хто відповідальний:
+                            </p>
+
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                task.who === "owner" ? " is-active" : ""
+                              }`}
+                              onClick={() => void onSetAssignee(task, "owner")}
+                            >
+                              <span className="cabinet-task-who is-owner">o</span>
+                              {ownerShort}
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                task.who === "partner" ? " is-active" : ""
+                              }`}
+                              onClick={() =>
+                                void onSetAssignee(task, "partner")
+                              }
+                            >
+                              <span className="cabinet-task-who is-partner">
+                                p
+                              </span>
+                              {partnerShort}
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                task.who === "both" ? " is-active" : ""
+                              }`}
+                              onClick={() => void onSetAssignee(task, "both")}
+                            >
+                              <span
+                                className="cabinet-guest-menu-duo"
+                                aria-hidden
+                              >
+                                <span className="cabinet-task-who is-partner">
+                                  p
+                                </span>
+                                <span className="cabinet-task-who is-owner">
+                                  o
+                                </span>
+                              </span>
+                              Обоє
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                task.who === "none" ? " is-active" : ""
+                              }`}
+                              onClick={() => void onSetAssignee(task, "none")}
+                            >
+                              Ніхто
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                task.who === "other" ? " is-active" : ""
+                              }`}
+                              onClick={() => void onSetAssignee(task, "other")}
+                            >
+                              Хтось інший
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </li>
                 );
@@ -717,16 +1109,25 @@ function ChecklistInner() {
             type="button"
             className="cabinet-drawer-backdrop"
             aria-label="Закрити"
-            onClick={() => setDrawerOpen(false)}
+            onClick={() => {
+              setDrawerOpen(false);
+              resetDrawer();
+            }}
           />
-          <aside className="cabinet-drawer" aria-label="Додати завдання">
+          <aside
+            className="cabinet-drawer"
+            aria-label={editingId ? "Редагувати завдання" : "Додати завдання"}
+          >
             <div className="cabinet-drawer-head">
-              <h2>Додати завдання</h2>
+              <h2>{editingId ? "Редагувати завдання" : "Додати завдання"}</h2>
               <button
                 type="button"
                 className="cabinet-drawer-close"
                 aria-label="Закрити"
-                onClick={() => setDrawerOpen(false)}
+                onClick={() => {
+                  setDrawerOpen(false);
+                  resetDrawer();
+                }}
               >
                 ×
               </button>
@@ -739,6 +1140,11 @@ function ChecklistInner() {
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Наприклад, Замовити весільний торт"
                   required
+                  disabled={Boolean(
+                    editingId &&
+                      wedding?.tasks.find((t) => t.id === editingId) &&
+                      !wedding.tasks.find((t) => t.id === editingId)?.isCustom,
+                  )}
                 />
               </label>
               <label className="cabinet-drawer-field">
@@ -749,37 +1155,47 @@ function ChecklistInner() {
                   onChange={(e) => setNewDue(e.target.value)}
                 />
               </label>
-              <label className="cabinet-drawer-field">
-                <span>Тип завдання</span>
-                <select
-                  value={newType}
-                  onChange={(e) =>
-                    setNewType(e.target.value as Exclude<TypeFilter, "all"> | "")
-                  }
-                >
-                  <option value="">Не призначено</option>
-                  {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {!editingId ? (
+                <label className="cabinet-drawer-field">
+                  <span>Тип завдання</span>
+                  <select
+                    value={newType}
+                    onChange={(e) =>
+                      setNewType(
+                        e.target.value as Exclude<TypeFilter, "all"> | "",
+                      )
+                    }
+                  >
+                    <option value="">Не призначено</option>
+                    {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               <label className="cabinet-drawer-field">
                 <span>Відповідальний</span>
                 <select
                   value={newWho}
-                  onChange={(e) => setNewWho(e.target.value as WhoFilter)}
+                  onChange={(e) => setNewWho(e.target.value as TaskWho)}
                 >
                   <option value="owner">{ownerShort}</option>
                   <option value="partner">{partnerShort}</option>
+                  <option value="both">Обоє</option>
+                  <option value="none">Ніхто</option>
+                  <option value="other">Хтось інший</option>
                 </select>
               </label>
               <div className="cabinet-drawer-actions">
                 <button
                   type="button"
                   className="cabinet-drawer-cancel"
-                  onClick={() => setDrawerOpen(false)}
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    resetDrawer();
+                  }}
                 >
                   Скасувати
                 </button>
@@ -793,6 +1209,56 @@ function ChecklistInner() {
               </div>
             </form>
           </aside>
+        </div>
+      ) : null}
+
+      {deleteTarget ? (
+        <div
+          className="cabinet-modal-root"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Видалити завдання"
+        >
+          <button
+            type="button"
+            className="cabinet-modal-backdrop"
+            aria-label="Закрити"
+            onClick={() => setDeleteTarget(null)}
+          />
+          <div className="cabinet-modal cabinet-confirm-modal">
+            <div className="cabinet-modal-head">
+              <div>
+                <h2>Видалити завдання</h2>
+                <p>Ви впевнені, що хочете видалити це завдання?</p>
+              </div>
+              <button
+                type="button"
+                className="cabinet-modal-close"
+                aria-label="Закрити"
+                onClick={() => setDeleteTarget(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="cabinet-modal-actions">
+              <button
+                type="button"
+                className="cabinet-drawer-cancel"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+              >
+                Скасувати
+              </button>
+              <button
+                type="button"
+                className="cabinet-confirm-delete"
+                disabled={deleting}
+                onClick={() => void confirmDelete()}
+              >
+                {deleting ? "…" : "Так, видалити"}
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>

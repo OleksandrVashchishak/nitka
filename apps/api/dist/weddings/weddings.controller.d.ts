@@ -16,12 +16,24 @@ export declare class WeddingsController {
         coupleName: string;
     }>;
     getMine(user: AuthUser, res: Response): Promise<{
+        tasks: ({
+            id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            sortOrder: number;
+            weddingId: string;
+            title: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        } & {
+            assignee: string | null;
+        })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
@@ -30,16 +42,6 @@ export declare class WeddingsController {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            weddingId: string;
-            sortOrder: number;
-            title: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            isCustom: boolean;
-        }[];
         id: string;
         userId: string;
         city: string;
@@ -54,12 +56,24 @@ export declare class WeddingsController {
         guestsUndecided: boolean;
     } | undefined>;
     upsert(user: AuthUser, dto: UpsertWeddingDto): Promise<{
+        tasks: ({
+            id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            sortOrder: number;
+            weddingId: string;
+            title: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        } & {
+            assignee: string | null;
+        })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
@@ -68,16 +82,6 @@ export declare class WeddingsController {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            weddingId: string;
-            sortOrder: number;
-            title: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            isCustom: boolean;
-        }[];
         id: string;
         userId: string;
         city: string;
@@ -135,8 +139,8 @@ export declare class WeddingsController {
             };
             category: {
                 id: string;
-                slug: string;
                 name: string;
+                slug: string;
                 description: string;
                 sortOrder: number;
             };
@@ -148,17 +152,17 @@ export declare class WeddingsController {
             }[];
             id: string;
             userId: string;
+            rating: number;
+            createdAt: Date;
+            name: string;
             city: string;
             status: import(".prisma/client").$Enums.VendorStatus;
-            createdAt: Date;
             slug: string | null;
-            name: string;
             tagline: string;
             description: string;
             categoryId: string;
             priceFrom: number;
             priceTo: number | null;
-            rating: number;
             featured: boolean;
             phone: string | null;
             website: string | null;
@@ -211,12 +215,24 @@ export declare class WeddingsController {
         path: string;
     }>;
     acceptPartnerInvite(user: AuthUser, token: string): Promise<{
+        tasks: ({
+            id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
+            sortOrder: number;
+            weddingId: string;
+            title: string;
+            categorySlug: string | null;
+            dueDate: Date | null;
+            isCustom: boolean;
+        } & {
+            assignee: string | null;
+        })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
@@ -225,16 +241,6 @@ export declare class WeddingsController {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
         })[];
-        tasks: {
-            id: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            weddingId: string;
-            sortOrder: number;
-            title: string;
-            categorySlug: string | null;
-            dueDate: Date | null;
-            isCustom: boolean;
-        }[];
         id: string;
         userId: string;
         city: string;
@@ -250,23 +256,15 @@ export declare class WeddingsController {
     } | null>;
     createTask(user: AuthUser, dto: CreateTaskDto): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.TaskStatus;
         weddingId: string;
-        sortOrder: number;
-        title: string;
-        categorySlug: string | null;
-        dueDate: Date | null;
-        isCustom: boolean;
+    } & {
+        assignee: string | null;
     }>;
     updateTask(user: AuthUser, taskId: string, dto: UpdateTaskDto): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.TaskStatus;
         weddingId: string;
-        sortOrder: number;
-        title: string;
-        categorySlug: string | null;
-        dueDate: Date | null;
-        isCustom: boolean;
+    } & {
+        assignee: string | null;
     }>;
     deleteTask(user: AuthUser, taskId: string): Promise<{
         ok: boolean;

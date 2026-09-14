@@ -14,11 +14,11 @@ export declare class ReviewsService implements OnModuleInit {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     })[]>;
     create(userId: string, dto: CreateReviewDto): Promise<{
         user: {
@@ -27,11 +27,11 @@ export declare class ReviewsService implements OnModuleInit {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     }>;
     update(userId: string, reviewId: string, dto: UpdateReviewDto): Promise<{
         user: {
@@ -40,11 +40,11 @@ export declare class ReviewsService implements OnModuleInit {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     }>;
     remove(userId: string, reviewId: string): Promise<{
         ok: boolean;
@@ -56,10 +56,10 @@ export declare class ReviewsService implements OnModuleInit {
         };
     } & {
         id: string;
-        createdAt: Date;
-        text: string;
+        vendorId: string;
         userId: string;
         rating: number;
-        vendorId: string;
+        text: string;
+        createdAt: Date;
     }) | null>;
 }

@@ -18,23 +18,25 @@ export declare class VendorsController {
         };
         photos: {
             id: string;
+            vendorId: string;
             url: string;
             order: number;
-            vendorId: string;
         }[];
     } & {
         id: string;
-        name: string;
-        slug: string | null;
-        description: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        city: string;
-        featured: boolean;
+        userId: string;
+        rating: number;
         createdAt: Date;
+        name: string;
+        city: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        slug: string | null;
         tagline: string;
+        description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -51,8 +53,6 @@ export declare class VendorsController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
         moderationNote: string | null;
     })[]>;
     getFilters(): Promise<{
@@ -73,52 +73,54 @@ export declare class VendorsController {
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            vendorId: string;
+            url: string;
+            order: number;
+        }[];
         packages: {
             id: string;
-            description: string;
+            vendorId: string;
             includes: string;
+            description: string;
+            order: number;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
-            order: number;
-            vendorId: string;
         }[];
         faqs: {
             id: string;
+            vendorId: string;
+            order: number;
             question: string;
             answer: string;
-            order: number;
-            vendorId: string;
         }[];
         team: {
             id: string;
+            vendorId: string;
             name: string;
             role: string;
+            order: number;
             bio: string;
             photoUrl: string | null;
-            order: number;
-            vendorId: string;
-        }[];
-        photos: {
-            id: string;
-            url: string;
-            order: number;
-            vendorId: string;
         }[];
     } & {
         id: string;
-        name: string;
-        slug: string | null;
-        description: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        city: string;
-        featured: boolean;
+        userId: string;
+        rating: number;
         createdAt: Date;
+        name: string;
+        city: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        slug: string | null;
         tagline: string;
+        description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -135,8 +137,6 @@ export declare class VendorsController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
         moderationNote: string | null;
     }) | undefined>;
     upsertMine(user: AuthUser, dto: UpsertVendorProfileDto): Promise<{
@@ -147,52 +147,54 @@ export declare class VendorsController {
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            vendorId: string;
+            url: string;
+            order: number;
+        }[];
         packages: {
             id: string;
-            description: string;
+            vendorId: string;
             includes: string;
+            description: string;
+            order: number;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
-            order: number;
-            vendorId: string;
         }[];
         faqs: {
             id: string;
+            vendorId: string;
+            order: number;
             question: string;
             answer: string;
-            order: number;
-            vendorId: string;
         }[];
         team: {
             id: string;
+            vendorId: string;
             name: string;
             role: string;
+            order: number;
             bio: string;
             photoUrl: string | null;
-            order: number;
-            vendorId: string;
-        }[];
-        photos: {
-            id: string;
-            url: string;
-            order: number;
-            vendorId: string;
         }[];
     } & {
         id: string;
-        name: string;
-        slug: string | null;
-        description: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        city: string;
-        featured: boolean;
+        userId: string;
+        rating: number;
         createdAt: Date;
+        name: string;
+        city: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        slug: string | null;
         tagline: string;
+        description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -209,8 +211,6 @@ export declare class VendorsController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
         moderationNote: string | null;
     }>;
     findOne(slugOrId: string, req: Request): Promise<{
@@ -227,23 +227,25 @@ export declare class VendorsController {
             };
             photos: {
                 id: string;
+                vendorId: string;
                 url: string;
                 order: number;
-                vendorId: string;
             }[];
         } & {
             id: string;
-            name: string;
-            slug: string | null;
-            description: string;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            city: string;
-            featured: boolean;
+            userId: string;
+            rating: number;
             createdAt: Date;
+            name: string;
+            city: string;
+            status: import(".prisma/client").$Enums.VendorStatus;
+            slug: string | null;
             tagline: string;
+            description: string;
             categoryId: string;
             priceFrom: number;
             priceTo: number | null;
+            featured: boolean;
             phone: string | null;
             website: string | null;
             instagram: string | null;
@@ -260,13 +262,8 @@ export declare class VendorsController {
             services: string[];
             serviceAreas: string[];
             languages: string[];
-            userId: string;
-            rating: number;
             moderationNote: string | null;
         })[];
-        _count: {
-            reviews: number;
-        };
         reviews: ({
             user: {
                 id: string;
@@ -274,12 +271,15 @@ export declare class VendorsController {
             };
         } & {
             id: string;
-            createdAt: Date;
-            text: string;
+            vendorId: string;
             userId: string;
             rating: number;
-            vendorId: string;
+            text: string;
+            createdAt: Date;
         })[];
+        _count: {
+            reviews: number;
+        };
         category: {
             id: string;
             name: string;
@@ -287,51 +287,53 @@ export declare class VendorsController {
             description: string;
             sortOrder: number;
         };
+        photos: {
+            id: string;
+            vendorId: string;
+            url: string;
+            order: number;
+        }[];
         packages: {
             id: string;
-            description: string;
+            vendorId: string;
             includes: string;
+            description: string;
+            order: number;
             title: string;
             price: number;
             duration: string;
             isPopular: boolean;
-            order: number;
-            vendorId: string;
         }[];
         faqs: {
             id: string;
+            vendorId: string;
+            order: number;
             question: string;
             answer: string;
-            order: number;
-            vendorId: string;
         }[];
         team: {
             id: string;
+            vendorId: string;
             name: string;
             role: string;
+            order: number;
             bio: string;
             photoUrl: string | null;
-            order: number;
-            vendorId: string;
-        }[];
-        photos: {
-            id: string;
-            url: string;
-            order: number;
-            vendorId: string;
         }[];
         id: string;
-        name: string;
-        slug: string | null;
-        description: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
-        city: string;
-        featured: boolean;
+        userId: string;
+        rating: number;
         createdAt: Date;
+        name: string;
+        city: string;
+        status: import(".prisma/client").$Enums.VendorStatus;
+        slug: string | null;
         tagline: string;
+        description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        featured: boolean;
         phone: string | null;
         website: string | null;
         instagram: string | null;
@@ -348,8 +350,6 @@ export declare class VendorsController {
         services: string[];
         serviceAreas: string[];
         languages: string[];
-        userId: string;
-        rating: number;
         moderationNote: string | null;
     }>;
 }

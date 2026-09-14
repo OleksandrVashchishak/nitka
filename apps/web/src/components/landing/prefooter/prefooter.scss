@@ -1,0 +1,357 @@
+.prefooter {
+  --prefooter-bg: #1a1a1a;
+  --prefooter-lime: #f0febb;
+  --prefooter-orange: #ff4200;
+
+  position: relative;
+  overflow: hidden;
+  background: var(--prefooter-bg);
+  height: 821px;
+
+  &__container {
+    position: relative;
+    width: 1440px;
+    height: 821px;
+    margin: 0 auto;
+  }
+
+  &__images {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__image {
+    position: absolute;
+    overflow: hidden;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &--1 {
+      left: 45px;
+      top: 378px;
+      width: 140px;
+      height: 153px;
+    }
+
+    &--2 {
+      left: 215px;
+      top: 483px;
+      width: 140px;
+      height: 153px;
+    }
+
+    &--3 {
+      left: 429px;
+      top: 154px;
+      width: 140px;
+      height: 153px;
+    }
+
+    &--4 {
+      left: 395px;
+      top: 499px;
+      width: 140px;
+      height: 91px;
+    }
+
+    &--5 {
+      left: 557px;
+      top: 590px;
+      width: 140px;
+      height: 91px;
+    }
+
+    &--6 {
+      left: 895px;
+      top: 216px;
+      width: 140px;
+      height: 91px;
+    }
+
+    &--7 {
+      left: 215px;
+      top: 216px;
+      width: 140px;
+      height: 91px;
+    }
+
+    &--8 {
+      left: 720px;
+      top: 531px;
+      width: 140px;
+      height: 119px;
+    }
+
+    &--9 {
+      left: 720px;
+      top: 171px;
+      width: 140px;
+      height: 119px;
+    }
+
+    &--10 {
+      left: 900px;
+      top: 497px;
+      width: 140px;
+      height: 184px;
+    }
+
+    &--11 {
+      left: 1133px;
+      top: 216px;
+      width: 112px;
+      height: 122px;
+    }
+
+    &--12 {
+      left: -19px;
+      top: 240px;
+      width: 93px;
+      height: 122px;
+    }
+
+    &--13 {
+      left: 1101px;
+      top: 451px;
+      width: 113px;
+      height: 127px;
+    }
+
+    &--14 {
+      left: 465px;
+      top: 612px;
+      width: 68px;
+      height: 76px;
+    }
+
+    &--15 {
+      left: 610px;
+      top: 133px;
+      width: 68px;
+      height: 76px;
+    }
+
+    &--16 {
+      left: 1285px;
+      top: 252px;
+      width: 106px;
+      height: 76px;
+    }
+
+    &--17 {
+      left: 1255px;
+      top: 400px;
+      width: 68px;
+      height: 76px;
+    }
+
+    &--18 {
+      left: 1337px;
+      top: 362px;
+      width: 102px;
+      height: 76px;
+    }
+  }
+
+  &__content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    max-width: 805px;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--prefooter-lime);
+    font-family: var(--font-akzidenz), var(--font-display), sans-serif;
+    font-size: 60px;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 100%;
+    text-align: center;
+  }
+
+  &__br {
+    &--m {
+      display: none;
+    }
+
+    &--d {
+      display: block;
+    }
+  }
+
+  &__btn {
+    display: inline-flex;
+    box-sizing: border-box;
+    width: 248px;
+    height: 56px;
+    margin-top: 25px;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    border-radius: 40px;
+    background: var(--prefooter-orange);
+    color: var(--prefooter-bg);
+    font-family: var(--font-akzidenz), var(--font-display), sans-serif;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 100%;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: #e63b00;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--prefooter-lime);
+      outline-offset: 3px;
+    }
+  }
+}
+
+/*
+  <1440: весь 1440-артборд пропорційно зжимається в ширину вʼюпорта.
+  ВАЖЛИВО: scale() хоче unitless → ділимо vw на px (100vw / 1440px).
+*/
+@media (max-width: 1439px) {
+  .prefooter {
+    height: calc(100vw * 821 / 1440);
+
+    &__container {
+      margin: 0;
+      transform: scale(calc(100vw / 1440px));
+      transform-origin: 0 0;
+    }
+  }
+}
+
+/* Мобайл-колаж 428×561 — теж scale, не crop */
+@media (max-width: 639px) {
+  .prefooter {
+    height: calc(100vw * 561 / 428);
+
+    &__container {
+      width: 428px;
+      height: 561px;
+      transform: scale(calc(100vw / 428px));
+      transform-origin: 0 0;
+    }
+
+    &__br {
+      &--m {
+        display: block;
+      }
+
+      &--d {
+        display: none;
+      }
+    }
+
+    &__content {
+      top: 48%;
+      max-width: 248px;
+      padding: 0;
+    }
+
+    &__title {
+      max-width: 220px;
+      font-size: 16px;
+      line-height: 120%;
+    }
+
+    &__btn {
+      width: 248px;
+      height: 52px;
+      margin-top: 16px;
+      padding: 14px 32px;
+    }
+
+    &__image {
+      display: none;
+    }
+
+    &__image--15 {
+      display: block;
+      left: 158px;
+      top: 122px;
+      width: 70px;
+      height: 58px;
+    }
+
+    &__image--5 {
+      display: block;
+      left: 16px;
+      top: 164px;
+      width: 104px;
+      height: 68px;
+    }
+
+    &__image--4 {
+      display: block;
+      left: 334px;
+      top: 148px;
+      width: 78px;
+      height: 100px;
+    }
+
+    &__image--9 {
+      display: block;
+      left: -28px;
+      top: 258px;
+      width: 76px;
+      height: 76px;
+    }
+
+    &__image--18 {
+      display: block;
+      left: 378px;
+      top: 258px;
+      width: 76px;
+      height: 70px;
+    }
+
+    &__image--10 {
+      display: block;
+      left: 34px;
+      top: 368px;
+      width: 104px;
+      height: 68px;
+    }
+
+    &__image--14 {
+      display: block;
+      left: 164px;
+      top: 406px;
+      width: 100px;
+      height: 86px;
+    }
+
+    &__image--8 {
+      display: block;
+      left: 316px;
+      top: 366px;
+      width: 78px;
+      height: 90px;
+    }
+  }
+}

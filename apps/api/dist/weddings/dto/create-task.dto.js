@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateTaskDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const update_task_dto_1 = require("./update-task.dto");
 class CreateTaskDto {
 }
 exports.CreateTaskDto = CreateTaskDto;
@@ -37,4 +38,9 @@ __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateTaskDto.prototype, "dueDate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(update_task_dto_1.TASK_ASSIGNEES),
+    __metadata("design:type", String)
+], CreateTaskDto.prototype, "assignee", void 0);
 //# sourceMappingURL=create-task.dto.js.map

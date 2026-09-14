@@ -87,6 +87,15 @@ function buildNotes(input: {
   return parts.join(" ").trim() || null;
 }
 
+function parseInviteMethod(notes: string | null): InviteMethod {
+  const match = notes?.match(/invite:(\w+)/);
+  const id = match?.[1];
+  if (INVITE_METHODS.some((item) => item.id === id)) {
+    return id as InviteMethod;
+  }
+  return "phone";
+}
+
 function firstName(value: string) {
   return value.trim().split(/\s+/)[0] || "";
 }
@@ -99,6 +108,8 @@ function GuestsInner() {
   const [busy, setBusy] = useState(false);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [partnerInitials, setPartnerInitials] = useState("П");
+  const [ownerName, setOwnerName] = useState("Наречена");
+  const [partnerName, setPartnerName] = useState("Наречений");
 
   const [sideFilter, setSideFilter] = useState<SideFilter>("all");
   const [inviteFilter, setInviteFilter] = useState<InviteFilter>("all");
@@ -108,6 +119,7 @@ function GuestsInner() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [plusOne, setPlusOne] = useState(false);
   const [plusOneName, setPlusOneName] = useState("");
@@ -141,12 +153,14 @@ function GuestsInner() {
       .catch(() => setSummary(null));
     void getMyWedding()
       .then((wedding) => {
-        const one =
-          wedding?.partnerOneName?.trim().charAt(0).toUpperCase() ||
-          user?.name?.trim().charAt(0).toUpperCase() ||
-          "П";
-        const two = wedding?.partnerTwoName?.trim().charAt(0).toUpperCase() || "";
+        const oneRaw =
+          wedding?.partnerOneName?.trim() || user?.name?.trim() || "";
+        const twoRaw = wedding?.partnerTwoName?.trim() || "";
+        const one = oneRaw.charAt(0).toUpperCase() || "П";
+        const two = twoRaw.charAt(0).toUpperCase();
         setPartnerInitials(two ? `${one}&${two}` : one);
+        setOwnerName(firstName(oneRaw) || "Наречена");
+        setPartnerName(firstName(twoRaw) || "Наречений");
       })
       .catch(() => undefined);
   }, [user?.name]);
@@ -154,6 +168,28 @@ function GuestsInner() {
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
+
+  useEffect(() => {
+    if (!menuOpenId) return;
+    function onDocClick(event: MouseEvent) {
+      const target = event.target;
+      if (
+        !(target instanceof Element) ||
+        !target.closest(".cabinet-guest-menu-wrap")
+      ) {
+        setMenuOpenId(null);
+      }
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpenId(null);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpenId]);
 
   const guests = data?.guests ?? [];
 
@@ -213,6 +249,7 @@ function GuestsInner() {
   const visible = filtered.slice(0, visibleCount);
 
   function resetDrawer() {
+    setEditingId(null);
     setName("");
     setPlusOne(false);
     setPlusOneName("");
@@ -221,6 +258,25 @@ function GuestsInner() {
     setPhone("");
     setInviteStatus("not_invited");
     setIsChildGuest(false);
+  }
+
+  function openCreate() {
+    resetDrawer();
+    setDrawerOpen(true);
+  }
+
+  function openEdit(guest: Guest) {
+    setEditingId(guest.id);
+    setName(guest.name);
+    setPlusOne(guest.plusOne);
+    setPlusOneName(guest.plusOneName ?? "");
+    setSide(guest.side === "OTHER" ? "BOTH" : guest.side);
+    setMethod(parseInviteMethod(guest.notes));
+    setPhone(guest.phone ?? "");
+    setInviteStatus(isInvited(guest) ? "invited" : "not_invited");
+    setIsChildGuest(isChild(guest));
+    setMenuOpenId(null);
+    setDrawerOpen(true);
   }
 
   async function onSave(e: FormEvent) {
@@ -233,9 +289,9 @@ function GuestsInner() {
     setBusy(true);
     try {
       const invited = inviteStatus === "invited";
-      const created = await createGuest({
+      const payload = {
         name: nextName,
-        side: side || "BOTH",
+        side: (side || "BOTH") as GuestSide,
         phone: phone.trim() || undefined,
         plusOne,
         plusOneName: plusOne ? plusOneName.trim() || undefined : undefined,
@@ -244,26 +300,49 @@ function GuestsInner() {
           invited,
           method,
         }) ?? undefined,
-      });
-      setData((prev) =>
-        prev
-          ? {
-              ...prev,
-              guests: [created, ...prev.guests],
-              stats: {
-                ...prev.stats,
-                total: prev.stats.total + 1,
-                pending: prev.stats.pending + 1,
-                headcount: prev.stats.headcount + 1 + (plusOne ? 1 : 0),
-              },
-            }
-          : prev,
-      );
+      };
+
+      if (editingId) {
+        const updated = await updateGuest(editingId, payload);
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                guests: prev.guests.map((g) =>
+                  g.id === updated.id ? updated : g,
+                ),
+              }
+            : prev,
+        );
+        toast.success("Оновлено", nextName);
+      } else {
+        const created = await createGuest(payload);
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                guests: [created, ...prev.guests],
+                stats: {
+                  ...prev.stats,
+                  total: prev.stats.total + 1,
+                  pending: prev.stats.pending + 1,
+                  headcount: prev.stats.headcount + 1 + (plusOne ? 1 : 0),
+                },
+              }
+            : prev,
+        );
+        toast.success("Додано", nextName);
+      }
       setDrawerOpen(false);
       resetDrawer();
-      toast.success("Додано", nextName);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Не додано");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : editingId
+            ? "Не оновлено"
+            : "Не додано",
+      );
     } finally {
       setBusy(false);
     }
@@ -294,18 +373,22 @@ function GuestsInner() {
     }
   }
 
-  async function onSetRsvp(guest: Guest, status: RsvpStatus) {
+  async function onSetSide(guest: Guest, nextSide: GuestSide) {
+    if (guest.side === nextSide) {
+      setMenuOpenId(null);
+      return;
+    }
     setBusy(true);
     try {
       const updated = await updateGuest(guest.id, {
         name: guest.name,
-        rsvpStatus: status,
+        side: nextSide,
       });
       setData((prev) =>
         prev
           ? {
               ...prev,
-              guests: prev.guests.map((g) => (g.id === guest.id ? updated : g)),
+              guests: prev.guests.map((g) => (g.id === updated.id ? updated : g)),
             }
           : prev,
       );
@@ -411,7 +494,7 @@ function GuestsInner() {
             <button
               type="button"
               className="cabinet-tasks-add-btn"
-              onClick={() => setDrawerOpen(true)}
+              onClick={openCreate}
             >
               <span aria-hidden>+</span>
               Додати гостей
@@ -508,7 +591,7 @@ function GuestsInner() {
           />
         </aside>
 
-        <section className="cabinet-panel cabinet-tasks-list-panel">
+        <section className="cabinet-guest-list-panel">
           <div className="cabinet-tasks-list-head">
             <h2>
               Список гостей{" "}
@@ -528,7 +611,7 @@ function GuestsInner() {
               <button
                 type="button"
                 className="cabinet-tasks-add-btn"
-                onClick={() => setDrawerOpen(true)}
+                onClick={openCreate}
               >
                 <span aria-hidden>+</span>
                 Додати гостей
@@ -597,37 +680,113 @@ function GuestsInner() {
                           type="button"
                           className="cabinet-task-menu"
                           aria-label="Меню гостя"
+                          aria-expanded={menuOpenId === guest.id}
                           onClick={() =>
-                            setMenuOpenId((id) => (id === guest.id ? null : guest.id))
+                            setMenuOpenId((id) =>
+                              id === guest.id ? null : guest.id,
+                            )
                           }
                         >
                           ⋯
                         </button>
                         {menuOpenId === guest.id ? (
-                          <div className="cabinet-guest-menu">
-                            {(
-                              [
-                                ["YES", "Прийде"],
-                                ["MAYBE", "Можливо"],
-                                ["NO", "Відмова"],
-                                ["PENDING", "Без відповіді"],
-                              ] as const
-                            ).map(([status, label]) => (
-                              <button
-                                key={status}
-                                type="button"
-                                disabled={busy}
-                                onClick={() => void onSetRsvp(guest, status)}
-                              >
-                                {label}
-                              </button>
-                            ))}
+                          <div className="cabinet-guest-menu" role="menu">
                             <button
                               type="button"
+                              role="menuitem"
+                              className="cabinet-guest-menu-item"
+                              disabled={busy}
+                              onClick={() => openEdit(guest)}
+                            >
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden
+                              >
+                                <path
+                                  d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.6"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              Редагувати
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="cabinet-guest-menu-item is-danger"
                               disabled={busy}
                               onClick={() => void onDelete(guest)}
                             >
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden
+                              >
+                                <path
+                                  d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                                  stroke="currentColor"
+                                  strokeWidth="1.6"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
                               Видалити
+                            </button>
+
+                            <div className="cabinet-guest-menu-divider" />
+                            <p className="cabinet-guest-menu-label">
+                              з чиєї сторони
+                            </p>
+
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                guest.side === "BRIDE" ? " is-active" : ""
+                              }`}
+                              disabled={busy}
+                              onClick={() => void onSetSide(guest, "BRIDE")}
+                            >
+                              <span className="cabinet-task-who is-owner">o</span>
+                              {ownerName}
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                guest.side === "GROOM" ? " is-active" : ""
+                              }`}
+                              disabled={busy}
+                              onClick={() => void onSetSide(guest, "GROOM")}
+                            >
+                              <span className="cabinet-task-who is-partner">p</span>
+                              {partnerName}
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className={`cabinet-guest-menu-item${
+                                guest.side === "BOTH" ? " is-active" : ""
+                              }`}
+                              disabled={busy}
+                              onClick={() => void onSetSide(guest, "BOTH")}
+                            >
+                              <span className="cabinet-guest-menu-duo" aria-hidden>
+                                <span className="cabinet-task-who is-partner">
+                                  p
+                                </span>
+                                <span className="cabinet-task-who is-owner">
+                                  o
+                                </span>
+                              </span>
+                              Обоє
                             </button>
                           </div>
                         ) : null}
@@ -663,9 +822,12 @@ function GuestsInner() {
               resetDrawer();
             }}
           />
-          <aside className="cabinet-drawer" aria-label="Додати гостя">
+          <aside
+            className="cabinet-drawer"
+            aria-label={editingId ? "Редагувати гостя" : "Додати гостя"}
+          >
             <div className="cabinet-drawer-head">
-              <h2>Додати гостя</h2>
+              <h2>{editingId ? "Редагувати гостя" : "Додати гостя"}</h2>
               <button
                 type="button"
                 className="cabinet-drawer-close"
@@ -797,44 +959,15 @@ function GuestsInner() {
 
 function GuestsEmptyArt() {
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       className="cabinet-guests-empty-art"
-      viewBox="0 0 280 140"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      src="/cabinet/empty/guests.png"
+      alt=""
+      width={320}
+      height={220}
       aria-hidden
-    >
-      <path
-        d="M28 48c18-22 42-28 70-18 20 8 34 6 52-6 22-14 48-10 70 8"
-        stroke="#1a1a1a"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M40 40c10-16 28-22 44-10M210 36c12-14 28-16 42-4"
-        stroke="#1a1a1a"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
-      {[52, 78, 104, 130, 156, 182, 208].map((x) => (
-        <g key={x}>
-          <path d={`M${x} 48v10`} stroke="#1a1a1a" strokeWidth="1.2" />
-          <circle cx={x} cy="62" r="4" fill="#ff4200" opacity="0.85" />
-          <circle cx={x} cy="62" r="8" fill="#ff4200" opacity="0.18" />
-        </g>
-      ))}
-      <rect x="36" y="88" width="208" height="10" rx="2" stroke="#1a1a1a" strokeWidth="1.5" />
-      <path d="M44 98v18M72 98v18M100 98v18M128 98v18M156 98v18M184 98v18M212 98v18M236 98v18" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" />
-      {[50, 78, 106, 134, 162, 190].map((x) => (
-        <path
-          key={`chair-${x}`}
-          d={`M${x} 78h18v10H${x}z M${x + 3} 88v10 M${x + 15} 88v10`}
-          stroke="#1a1a1a"
-          strokeWidth="1.4"
-          strokeLinejoin="round"
-        />
-      ))}
-    </svg>
+    />
   );
 }
 

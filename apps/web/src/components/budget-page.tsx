@@ -43,7 +43,9 @@ type PayerFilter =
   | "partner"
   | "parents_owner"
   | "parents_partner"
-  | "unknown";
+  | "unknown"
+  | "other";
+type MenuPayer = "owner" | "partner" | "couple" | "unknown" | "other";
 type SortMode = "recent" | "amount" | "alpha";
 type Currency = "UAH" | "USD";
 
@@ -67,12 +69,13 @@ const UI_CATEGORIES: Array<{ id: Exclude<CategoryFilter, "all">; label: string }
   ];
 
 const PAYERS: Array<{ id: Exclude<PayerFilter, "all">; label: string }> = [
-  { id: "couple", label: "Обоє наречених" },
+  { id: "couple", label: "Обоє" },
   { id: "owner", label: "Наречена" },
   { id: "partner", label: "Наречений" },
   { id: "parents_owner", label: "Батьки нареченої" },
   { id: "parents_partner", label: "Батьки нареченого" },
-  { id: "unknown", label: "Не визначено" },
+  { id: "unknown", label: "Ніхто" },
+  { id: "other", label: "Хтось інший" },
 ];
 
 const API_TO_UI: Record<string, Exclude<CategoryFilter, "all">> = {
@@ -129,11 +132,26 @@ function parsePayer(notes: string | null): Exclude<PayerFilter, "all"> {
     value === "partner" ||
     value === "parents_owner" ||
     value === "parents_partner" ||
-    value === "unknown"
+    value === "unknown" ||
+    value === "other"
   ) {
     return value;
   }
   return "unknown";
+}
+
+function parseCurrency(notes: string | null): Currency {
+  return notes?.includes("currency:USD") ? "USD" : "UAH";
+}
+
+function parseVendorName(notes: string | null): string {
+  const match = notes?.match(/vendor:([^\s]+)/);
+  if (!match?.[1]) return "";
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 function buildNotes(input: {
@@ -169,15 +187,17 @@ function payerMark(payer: Exclude<PayerFilter, "all">) {
     case "couple":
       return "C";
     case "owner":
-      return "O";
+      return "o";
     case "partner":
-      return "P";
+      return "p";
     case "parents_owner":
       return "B";
     case "parents_partner":
       return "R";
-    default:
+    case "other":
       return "?";
+    default:
+      return "—";
   }
 }
 
@@ -201,8 +221,10 @@ function BudgetInner() {
   const [sortMode, setSortMode] = useState<SortMode>("recent");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<BudgetRow | null>(null);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [formCurrency, setFormCurrency] = useState<Currency>("UAH");
@@ -211,7 +233,7 @@ function BudgetInner() {
   );
   const [vendorId, setVendorId] = useState("");
   const [status, setStatus] = useState<"planned" | "paid" | "">("");
-  const payer: Exclude<PayerFilter, "all"> = "couple";
+  const [formPayer, setFormPayer] = useState<MenuPayer>("couple");
 
   async function load() {
     setLoading(true);
@@ -257,6 +279,28 @@ function BudgetInner() {
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [statusFilter, categoryFilter, payerFilter, sortMode]);
+
+  useEffect(() => {
+    if (!menuOpenId) return;
+    function onDocClick(event: MouseEvent) {
+      const target = event.target;
+      if (
+        !(target instanceof Element) ||
+        !target.closest(".cabinet-guest-menu-wrap")
+      ) {
+        setMenuOpenId(null);
+      }
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpenId(null);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpenId]);
 
   const rows: BudgetRow[] = useMemo(() => {
     if (!data) return [];
@@ -325,23 +369,58 @@ function BudgetInner() {
 
   const payerLabels = useMemo(
     () => ({
-      couple: "Обоє наречених",
+      couple: "Обоє",
       owner: ownerName,
       partner: partnerName,
       parents_owner: `Батьки ${ownerName}`,
       parents_partner: `Батьки ${partnerName}`,
-      unknown: "Не визначено",
+      unknown: "Ніхто",
+      other: "Хтось інший",
     }),
     [ownerName, partnerName],
   );
 
   function resetDrawer() {
+    setEditingId(null);
     setTitle("");
     setAmount("");
     setFormCurrency(currency);
     setCategory("");
     setVendorId("");
     setStatus("");
+    setFormPayer("couple");
+  }
+
+  function openCreate() {
+    resetDrawer();
+    setDrawerOpen(true);
+  }
+
+  function openEdit(item: BudgetRow) {
+    const itemCurrency = parseCurrency(item.notes);
+    const uah = item.amount;
+    const display =
+      itemCurrency === "USD" ? Math.round(uah / USD_RATE) : Math.round(uah);
+    const vendorName = parseVendorName(item.notes);
+    const matchedVendor = vendors.find((v) => v.name === vendorName);
+    setEditingId(item.id);
+    setTitle(item.title);
+    setAmount(String(display));
+    setFormCurrency(itemCurrency);
+    setCategory(item.uiCategory);
+    setVendorId(matchedVendor?.id ?? "");
+    setStatus(item.paid ? "paid" : "planned");
+    setFormPayer(
+      item.payer === "owner" ||
+        item.payer === "partner" ||
+        item.payer === "couple" ||
+        item.payer === "unknown" ||
+        item.payer === "other"
+        ? item.payer
+        : "couple",
+    );
+    setMenuOpenId(null);
+    setDrawerOpen(true);
   }
 
   async function onSave(e: FormEvent) {
@@ -363,24 +442,34 @@ function BudgetInner() {
     const uah = formCurrency === "USD" ? Math.round(raw * USD_RATE) : Math.round(raw);
     const paid = status === "paid";
     const vendor = vendors.find((v) => v.id === vendorId);
+    const notes = buildNotes({
+      payer: formPayer,
+      vendor: vendor?.name,
+      currency: formCurrency,
+    });
     setBusy(true);
     try {
-      const res = await createBudgetItem({
-        title: nextTitle,
-        category: uiToApiCategory(category),
-        estimated: uah,
-        actual: paid ? uah : 0,
-        paid,
-        notes: buildNotes({
-          payer,
-          vendor: vendor?.name,
-          currency: formCurrency,
-        }),
-      });
+      const res = editingId
+        ? await updateBudgetItem(editingId, {
+            title: nextTitle,
+            category: uiToApiCategory(category || "other"),
+            estimated: uah,
+            actual: paid ? uah : 0,
+            paid,
+            notes,
+          })
+        : await createBudgetItem({
+            title: nextTitle,
+            category: uiToApiCategory(category || "other"),
+            estimated: uah,
+            actual: paid ? uah : 0,
+            paid,
+            notes,
+          });
       setData(res);
       setDrawerOpen(false);
       resetDrawer();
-      toast.success("Збережено", nextTitle);
+      toast.success(editingId ? "Оновлено" : "Збережено", nextTitle);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не збережено");
     } finally {
@@ -404,17 +493,44 @@ function BudgetInner() {
     }
   }
 
-  async function onDelete(item: BudgetRow) {
-    if (!confirm(`Видалити «${item.title}»?`)) return;
+  async function onSetPayer(item: BudgetRow, nextPayer: MenuPayer) {
+    setMenuOpenId(null);
+    if (item.payer === nextPayer) return;
+    const itemCurrency = parseCurrency(item.notes);
+    const vendorName = parseVendorName(item.notes);
     setBusy(true);
     try {
-      const res = await deleteBudgetItem(item.id);
+      const res = await updateBudgetItem(item.id, {
+        notes: buildNotes({
+          payer: nextPayer,
+          vendor: vendorName || undefined,
+          currency: itemCurrency,
+        }),
+      });
       setData(res);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function requestDelete(item: BudgetRow) {
+    setMenuOpenId(null);
+    setDeleteTarget(item);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setBusy(true);
+    try {
+      const res = await deleteBudgetItem(deleteTarget.id);
+      setData(res);
+      setDeleteTarget(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не видалено");
     } finally {
       setBusy(false);
-      setMenuOpenId(null);
     }
   }
 
@@ -478,7 +594,7 @@ function BudgetInner() {
             <button
               type="button"
               className="cabinet-budget-cta"
-              onClick={() => setDrawerOpen(true)}
+              onClick={openCreate}
             >
               Внести витрати
             </button>
@@ -486,28 +602,7 @@ function BudgetInner() {
         </div>
       ) : (
         <>
-          <div className="cabinet-budget-stats">
-            <article className="cabinet-budget-stat">
-              <p className="cabinet-budget-stat-value">
-                {formatMoney(totals.current, currency)}
-              </p>
-              <p className="cabinet-budget-stat-label">Поточна вартість весілля</p>
-            </article>
-            <article className="cabinet-budget-stat">
-              <p className="cabinet-budget-stat-value">
-                {formatMoney(totals.spent, currency)}
-              </p>
-              <p className="cabinet-budget-stat-label">Витрачено</p>
-            </article>
-            <article className="cabinet-budget-stat">
-              <p className="cabinet-budget-stat-value">
-                {formatMoney(totals.plannedLeft, currency)}
-              </p>
-              <p className="cabinet-budget-stat-label">Ще до сплати заплановано</p>
-            </article>
-          </div>
-
-          <div className="cabinet-tasks-layout" style={{ marginTop: 16 }}>
+          <div className="cabinet-tasks-layout cabinet-budget-layout">
             <aside className="cabinet-tasks-filters">
               <FilterGroup
                 title="Статус"
@@ -567,7 +662,33 @@ function BudgetInner() {
               />
             </aside>
 
-            <section className="cabinet-panel cabinet-tasks-list-panel">
+            <div className="cabinet-budget-main">
+              <div className="cabinet-budget-stats">
+                <article className="cabinet-budget-stat">
+                  <p className="cabinet-budget-stat-value">
+                    {formatMoney(totals.current, currency)}
+                  </p>
+                  <p className="cabinet-budget-stat-label">
+                    Поточна вартість весілля
+                  </p>
+                </article>
+                <article className="cabinet-budget-stat">
+                  <p className="cabinet-budget-stat-value">
+                    {formatMoney(totals.spent, currency)}
+                  </p>
+                  <p className="cabinet-budget-stat-label">Витрачено</p>
+                </article>
+                <article className="cabinet-budget-stat">
+                  <p className="cabinet-budget-stat-value">
+                    {formatMoney(totals.plannedLeft, currency)}
+                  </p>
+                  <p className="cabinet-budget-stat-label">
+                    Ще до сплати заплановано
+                  </p>
+                </article>
+              </div>
+
+              <section className="cabinet-budget-list-panel">
               <div className="cabinet-tasks-list-head">
                 <h2>Витрати</h2>
                 <div className="cabinet-tasks-list-actions">
@@ -584,7 +705,7 @@ function BudgetInner() {
                   <button
                     type="button"
                     className="cabinet-budget-add-btn"
-                    onClick={() => setDrawerOpen(true)}
+                    onClick={openCreate}
                   >
                     Внести витрату
                   </button>
@@ -637,13 +758,25 @@ function BudgetInner() {
                             className={`cabinet-task-who cabinet-budget-payer is-${item.payer}`}
                             title={payerLabels[item.payer]}
                           >
-                            {payerMark(item.payer)}
+                            {item.payer === "couple" ? (
+                              <span className="cabinet-guest-menu-duo" aria-hidden>
+                                <span className="cabinet-task-who is-partner">
+                                  p
+                                </span>
+                                <span className="cabinet-task-who is-owner">
+                                  o
+                                </span>
+                              </span>
+                            ) : (
+                              payerMark(item.payer)
+                            )}
                           </span>
                           <div className="cabinet-guest-menu-wrap">
                             <button
                               type="button"
                               className="cabinet-task-menu"
                               aria-label="Меню витрати"
+                              aria-expanded={menuOpenId === item.id}
                               onClick={() =>
                                 setMenuOpenId((id) =>
                                   id === item.id ? null : item.id,
@@ -653,22 +786,151 @@ function BudgetInner() {
                               ⋯
                             </button>
                             {menuOpenId === item.id ? (
-                              <div className="cabinet-guest-menu">
+                              <div className="cabinet-guest-menu" role="menu">
                                 <button
                                   type="button"
+                                  role="menuitem"
+                                  className="cabinet-guest-menu-item"
+                                  disabled={busy}
+                                  onClick={() => openEdit(item)}
+                                >
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden
+                                  >
+                                    <path
+                                      d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
+                                      stroke="currentColor"
+                                      strokeWidth="1.6"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                  Редагувати
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className="cabinet-guest-menu-item"
                                   disabled={busy}
                                   onClick={() => void onTogglePaid(item)}
                                 >
                                   {item.paid
                                     ? "Позначити як заплановано"
-                                    : "Позначити як сплачено"}
+                                    : "Позначити як сплачене"}
                                 </button>
                                 <button
                                   type="button"
+                                  role="menuitem"
+                                  className="cabinet-guest-menu-item is-danger"
                                   disabled={busy}
-                                  onClick={() => void onDelete(item)}
+                                  onClick={() => requestDelete(item)}
                                 >
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden
+                                  >
+                                    <path
+                                      d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                                      stroke="currentColor"
+                                      strokeWidth="1.6"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
                                   Видалити
+                                </button>
+
+                                <div className="cabinet-guest-menu-divider" />
+                                <p className="cabinet-guest-menu-label is-caps">
+                                  Хто відповідальний:
+                                </p>
+
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    item.payer === "owner" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    void onSetPayer(item, "owner")
+                                  }
+                                >
+                                  <span className="cabinet-task-who is-owner">
+                                    o
+                                  </span>
+                                  {ownerName}
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    item.payer === "partner" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    void onSetPayer(item, "partner")
+                                  }
+                                >
+                                  <span className="cabinet-task-who is-partner">
+                                    p
+                                  </span>
+                                  {partnerName}
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    item.payer === "couple" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    void onSetPayer(item, "couple")
+                                  }
+                                >
+                                  <span
+                                    className="cabinet-guest-menu-duo"
+                                    aria-hidden
+                                  >
+                                    <span className="cabinet-task-who is-partner">
+                                      p
+                                    </span>
+                                    <span className="cabinet-task-who is-owner">
+                                      o
+                                    </span>
+                                  </span>
+                                  Обоє
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    item.payer === "unknown" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    void onSetPayer(item, "unknown")
+                                  }
+                                >
+                                  Ніхто
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    item.payer === "other" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() => void onSetPayer(item, "other")}
+                                >
+                                  Хтось інший
                                 </button>
                               </div>
                             ) : null}
@@ -689,7 +951,8 @@ function BudgetInner() {
                   Показати більше
                 </button>
               ) : null}
-            </section>
+              </section>
+            </div>
           </div>
         </>
       )}
@@ -874,61 +1137,15 @@ function FilterGroup({
 
 function BudgetEmptyArt() {
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       className="cabinet-guests-empty-art"
-      viewBox="0 0 240 160"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      src="/cabinet/empty/budget.png"
+      alt=""
+      width={280}
+      height={200}
       aria-hidden
-    >
-      <path
-        d="M22 78c18-36 42-48 68-28 12 9 22 6 36-8 20-20 48-18 70 8"
-        stroke="#1a1a1a"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M36 62c10-16 28-22 42-8M176 54c12-14 28-14 42 2"
-        stroke="#c45b4a"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-      />
-      <circle cx="48" cy="52" r="3.5" fill="#ff4200" opacity="0.85" />
-      <circle cx="198" cy="48" r="3" fill="#8a9a6b" opacity="0.9" />
-      <rect
-        x="62"
-        y="58"
-        width="116"
-        height="72"
-        rx="12"
-        stroke="#1a1a1a"
-        strokeWidth="1.6"
-        fill="#fff"
-      />
-      <path
-        d="M78 58v-8a14 14 0 0 1 28 0v8M134 58v-8a14 14 0 0 1 28 0v8"
-        stroke="#1a1a1a"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-      <path
-        d="M78 96h84"
-        stroke="#e5e5e5"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
-      <circle cx="120" cy="94" r="14" fill="#ff4200" />
-      <path
-        d="M120 82c2 2 8 8 0 20-8-12-2-18 0-20Z"
-        fill="#fff"
-        opacity="0.9"
-      />
-      <path
-        d="M112 90c4-6 8-6 12 0 4-6 8-6 12 0-6 10-12 18-12 18s-6-8-12-18Z"
-        fill="#fff"
-        opacity="0.55"
-      />
-    </svg>
+    />
   );
 }
 
