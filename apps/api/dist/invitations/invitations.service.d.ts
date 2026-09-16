@@ -39,8 +39,8 @@ export declare class InvitationsService {
             url: string;
         } | null;
         guestsPreview: {
-            id: string;
             name: string;
+            id: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
             inviteToken: string;
         }[];

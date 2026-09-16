@@ -67,6 +67,11 @@ export type WebsiteContent = {
   introEnabled: boolean;
   introTitle: string;
   musicUrl: string;
+  /** Countdown / timer block on invitation site */
+  timerEnabled: boolean;
+  shareDescription: string;
+  groomBio: string;
+  proposalBody: string;
 };
 
 export type WebsiteTemplateMeta = {
@@ -80,6 +85,8 @@ export type WeddingWebsite = {
   slug: string;
   templateId: string;
   published: boolean;
+  /** First time the site was published; kept after unpublish. */
+  publishedAt: string | null;
   content: WebsiteContent;
   updatedAt: string;
   publicPath: string;

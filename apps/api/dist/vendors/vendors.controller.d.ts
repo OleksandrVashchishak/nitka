@@ -6,12 +6,9 @@ export declare class VendorsController {
     private readonly vendorsService;
     constructor(vendorsService: VendorsService);
     findAll(category?: string, city?: string, price?: string, rating?: string, q?: string, style?: string, sort?: string, featured?: string): import(".prisma/client").Prisma.PrismaPromise<({
-        _count: {
-            reviews: number;
-        };
         category: {
-            id: string;
             name: string;
+            id: string;
             slug: string;
             description: string;
             sortOrder: number;
@@ -22,20 +19,23 @@ export declare class VendorsController {
             url: string;
             order: number;
         }[];
+        _count: {
+            reviews: number;
+        };
     } & {
+        name: string;
         id: string;
         userId: string;
-        rating: number;
-        createdAt: Date;
-        name: string;
         city: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
+        createdAt: Date;
         slug: string | null;
         tagline: string;
         description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
+        status: import(".prisma/client").$Enums.VendorStatus;
         featured: boolean;
         phone: string | null;
         website: string | null;
@@ -67,8 +67,8 @@ export declare class VendorsController {
     }>;
     getMine(user: AuthUser, res: Response): Promise<({
         category: {
-            id: string;
             name: string;
+            id: string;
             slug: string;
             description: string;
             sortOrder: number;
@@ -81,11 +81,11 @@ export declare class VendorsController {
         }[];
         packages: {
             id: string;
-            vendorId: string;
+            title: string;
             includes: string;
+            vendorId: string;
             description: string;
             order: number;
-            title: string;
             price: number;
             duration: string;
             isPopular: boolean;
@@ -98,28 +98,28 @@ export declare class VendorsController {
             answer: string;
         }[];
         team: {
+            name: string;
             id: string;
             vendorId: string;
-            name: string;
-            role: string;
             order: number;
+            role: string;
             bio: string;
             photoUrl: string | null;
         }[];
     } & {
+        name: string;
         id: string;
         userId: string;
-        rating: number;
-        createdAt: Date;
-        name: string;
         city: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
+        createdAt: Date;
         slug: string | null;
         tagline: string;
         description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
+        status: import(".prisma/client").$Enums.VendorStatus;
         featured: boolean;
         phone: string | null;
         website: string | null;
@@ -141,8 +141,8 @@ export declare class VendorsController {
     }) | undefined>;
     upsertMine(user: AuthUser, dto: UpsertVendorProfileDto): Promise<{
         category: {
-            id: string;
             name: string;
+            id: string;
             slug: string;
             description: string;
             sortOrder: number;
@@ -155,11 +155,11 @@ export declare class VendorsController {
         }[];
         packages: {
             id: string;
-            vendorId: string;
+            title: string;
             includes: string;
+            vendorId: string;
             description: string;
             order: number;
-            title: string;
             price: number;
             duration: string;
             isPopular: boolean;
@@ -172,28 +172,28 @@ export declare class VendorsController {
             answer: string;
         }[];
         team: {
+            name: string;
             id: string;
             vendorId: string;
-            name: string;
-            role: string;
             order: number;
+            role: string;
             bio: string;
             photoUrl: string | null;
         }[];
     } & {
+        name: string;
         id: string;
         userId: string;
-        rating: number;
-        createdAt: Date;
-        name: string;
         city: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
+        createdAt: Date;
         slug: string | null;
         tagline: string;
         description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
+        status: import(".prisma/client").$Enums.VendorStatus;
         featured: boolean;
         phone: string | null;
         website: string | null;
@@ -215,12 +215,9 @@ export declare class VendorsController {
     }>;
     findOne(slugOrId: string, req: Request): Promise<{
         similar: ({
-            _count: {
-                reviews: number;
-            };
             category: {
-                id: string;
                 name: string;
+                id: string;
                 slug: string;
                 description: string;
                 sortOrder: number;
@@ -231,20 +228,23 @@ export declare class VendorsController {
                 url: string;
                 order: number;
             }[];
+            _count: {
+                reviews: number;
+            };
         } & {
+            name: string;
             id: string;
             userId: string;
-            rating: number;
-            createdAt: Date;
-            name: string;
             city: string;
-            status: import(".prisma/client").$Enums.VendorStatus;
+            createdAt: Date;
             slug: string | null;
             tagline: string;
             description: string;
             categoryId: string;
             priceFrom: number;
             priceTo: number | null;
+            rating: number;
+            status: import(".prisma/client").$Enums.VendorStatus;
             featured: boolean;
             phone: string | null;
             website: string | null;
@@ -264,25 +264,9 @@ export declare class VendorsController {
             languages: string[];
             moderationNote: string | null;
         })[];
-        reviews: ({
-            user: {
-                id: string;
-                name: string;
-            };
-        } & {
-            id: string;
-            vendorId: string;
-            userId: string;
-            rating: number;
-            text: string;
-            createdAt: Date;
-        })[];
-        _count: {
-            reviews: number;
-        };
         category: {
-            id: string;
             name: string;
+            id: string;
             slug: string;
             description: string;
             sortOrder: number;
@@ -295,11 +279,11 @@ export declare class VendorsController {
         }[];
         packages: {
             id: string;
-            vendorId: string;
+            title: string;
             includes: string;
+            vendorId: string;
             description: string;
             order: number;
-            title: string;
             price: number;
             duration: string;
             isPopular: boolean;
@@ -312,27 +296,43 @@ export declare class VendorsController {
             answer: string;
         }[];
         team: {
+            name: string;
             id: string;
             vendorId: string;
-            name: string;
-            role: string;
             order: number;
+            role: string;
             bio: string;
             photoUrl: string | null;
         }[];
+        reviews: ({
+            user: {
+                name: string;
+                id: string;
+            };
+        } & {
+            id: string;
+            userId: string;
+            createdAt: Date;
+            vendorId: string;
+            rating: number;
+            text: string;
+        })[];
+        _count: {
+            reviews: number;
+        };
+        name: string;
         id: string;
         userId: string;
-        rating: number;
-        createdAt: Date;
-        name: string;
         city: string;
-        status: import(".prisma/client").$Enums.VendorStatus;
+        createdAt: Date;
         slug: string | null;
         tagline: string;
         description: string;
         categoryId: string;
         priceFrom: number;
         priceTo: number | null;
+        rating: number;
+        status: import(".prisma/client").$Enums.VendorStatus;
         featured: boolean;
         phone: string | null;
         website: string | null;

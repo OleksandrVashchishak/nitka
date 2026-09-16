@@ -7,55 +7,55 @@ export declare class ReviewsController {
     constructor(reviewsService: ReviewsService);
     listByVendor(vendorId: string): import(".prisma/client").Prisma.PrismaPromise<({
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     })[]>;
     mineForVendor(user: AuthUser, vendorId: string, res: Response): Promise<({
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     }) | undefined>;
     create(user: AuthUser, dto: CreateReviewDto): Promise<{
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     }>;
     update(user: AuthUser, id: string, dto: UpdateReviewDto): Promise<{
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     }>;
     remove(user: AuthUser, id: string): Promise<{
         ok: boolean;

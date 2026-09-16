@@ -62,10 +62,16 @@ export type WebsiteContent = {
     introEnabled: boolean;
     introTitle: string;
     musicUrl: string;
+    timerEnabled: boolean;
+    shareDescription: string;
+    groomBio: string;
+    proposalBody: string;
 };
 export declare class WebsiteService {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    private getPublishedAt;
+    private touchPublishedAt;
     getMine(userId: string): Promise<{
         site: null;
         suggestedSlug: string;
@@ -81,6 +87,7 @@ export declare class WebsiteService {
             slug: string;
             templateId: string;
             published: boolean;
+            publishedAt: Date | null;
             content: WebsiteContent;
             updatedAt: Date;
             publicPath: string;
@@ -104,6 +111,7 @@ export declare class WebsiteService {
         slug: string;
         templateId: string;
         published: boolean;
+        publishedAt: Date | null;
         content: WebsiteContent;
         updatedAt: Date;
         publicPath: string;
@@ -119,6 +127,7 @@ export declare class WebsiteService {
         slug: string;
         templateId: string;
         published: boolean;
+        publishedAt: Date | null;
         content: WebsiteContent;
         updatedAt: Date;
         publicPath: string;

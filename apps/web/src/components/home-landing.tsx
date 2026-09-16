@@ -2,10 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
+import { MobileAppSection } from "@/components/landing/mobile-app-section";
 import { Prefooter } from "@/components/landing/prefooter/Prefooter";
+import { useHomeSmoothScroll } from "@/components/landing/smooth-scroll";
 import "@/app/hero-artboard.css";
 import "@/app/landing-rest.css";
 
@@ -125,47 +132,38 @@ const FOOT_PRODUCT = [
   { href: "/plan-dnya-vesillya", label: "План дня" },
 ] as const;
 
-function FeaturesAccordion() {
-  const [open, setOpen] = useState(0);
-
+function FeaturesStack() {
   return (
     <section className="fata-features">
       <div className="fata-shell">
-        {FEATURES.map((feature, i) => {
-          const isOpen = open === i;
-          return (
-            <article
-              key={feature.n}
-              className={`fata-feature${isOpen ? " is-open" : ""}`}
-              onClick={() => setOpen(i)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  setOpen(i);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-expanded={isOpen}
-            >
-              <p className="fata-feature-n">{feature.n}</p>
-              <h3>{feature.title}</h3>
-              <div className="fata-feature-panel">
-                <div className="fata-feature-panel-inner">
-                  {feature.points.map((point) => (
-                    <p key={point.title} className="fata-feature-point">
-                      <strong>{point.title}</strong>
-                      <span>{point.text}</span>
-                    </p>
-                  ))}
-                </div>
+        {FEATURES.map((feature, i) => (
+          <article
+            key={feature.n}
+            className="fata-feature"
+            style={{ zIndex: i + 1 }}
+          >
+            <p className="fata-feature-n">{feature.n}</p>
+            <h3>{feature.title}</h3>
+            <div className="fata-feature-panel">
+              <div className="fata-feature-panel-inner">
+                {feature.points.map((point) => (
+                  <p key={point.title} className="fata-feature-point">
+                    <strong>{point.title}</strong>
+                    <span>{point.text}</span>
+                  </p>
+                ))}
               </div>
-              <div className="fata-feature-img">
-                <Image src={feature.img} alt="" fill sizes="(max-width: 1023px) 100vw, 390px" />
-              </div>
-            </article>
-          );
-        })}
+            </div>
+            <div className="fata-feature-img">
+              <Image
+                src={feature.img}
+                alt=""
+                fill
+                sizes="(max-width: 1023px) 100vw, 390px"
+              />
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -184,18 +182,144 @@ function Scribble() {
 
 function CrossOut() {
   return (
-    <img
+    <svg
       className="fata-x"
-      src="/landing/cross.svg"
-      alt=""
+      width={193}
+      height={172}
+      viewBox="0 0 193 172"
+      fill="none"
       aria-hidden
-    />
+    >
+      <path
+        className="fata-x-a"
+        d="M192.976 4.25879C189.316 5.41789 186.171 7.78296 183.033 9.95297C173.32 17.0054 164.409 25.0982 155.689 33.3184C155.686 33.3213 155.677 33.3303 155.674 33.3333C139.858 49.376 124.483 65.8345 109.352 82.5191C100.55 92.2442 91.8532 102.049 83.3244 112.016C69.3854 128.276 56.1045 145.071 43.5959 162.418C41.3453 165.521 39.1109 168.633 36.8779 171.748C39.2179 168.712 41.554 165.676 43.9 162.646C56.9435 145.702 70.5497 129.241 84.6598 113.172C93.2936 103.322 102.04 93.5784 110.835 83.8616C125.952 67.1913 141.149 50.5871 156.615 34.2449L156.6 34.2598C165.131 25.8821 173.803 17.5868 183.259 10.2584C186.318 7.99828 189.369 5.54116 192.976 4.25879Z"
+        fill="#FF4200"
+      />
+      <path
+        className="fata-x-b"
+        d="M0 0C2.91712 2.1584 5.78231 4.45246 8.66188 6.67789C14.4616 11.191 20.3051 15.7311 26.1432 20.251C46.243 35.8157 66.4991 51.3148 86.8013 66.6638C102.033 78.1815 117.297 89.6138 132.604 101.014C143.234 109.026 154.071 116.669 164.316 125.045C164.677 125.356 165.039 125.667 165.401 125.977C168.179 128.347 170.981 130.683 173.783 133.021C171.068 130.582 168.348 128.15 165.653 125.692C165.301 125.371 164.95 125.049 164.6 124.727C154.578 115.977 143.966 108.077 133.483 99.8571C118.394 88.1649 103.24 76.5866 88.0075 65.0685C67.7044 49.7189 47.2522 34.4785 26.761 19.4318C20.8094 15.062 14.8361 10.6937 8.89024 6.37417C5.93849 4.2446 2.9965 2.05127 0 0Z"
+        fill="#FF4200"
+      />
+    </svg>
+  );
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    function onChange() {
+      setReduced(mq.matches);
+    }
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return reduced;
+}
+
+/** 0 idle → 1 before → 2 crossed → 3 after → 4 circled */
+function useCompareScrollStage(reduced: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState(0);
+
+  useEffect(() => {
+    if (reduced) {
+      setStage(4);
+      return;
+    }
+
+    const el = ref.current;
+    if (!el) return;
+
+    let raf = 0;
+
+    function update() {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      // Slightly early, but not as aggressive as the last nudge.
+      const start = vh * 1.08;
+      const end = vh * 0.34;
+      const focus = rect.top + Math.min(rect.height * 0.22, 64);
+      const raw = (start - focus) / (start - end);
+      const p = Math.min(1, Math.max(0, raw));
+
+      let next = 0;
+      if (p >= 0.02) next = 1;
+      if (p >= 0.14) next = 2;
+      if (p >= 0.3) next = 3;
+      if (p >= 0.48) next = 4;
+      setStage((prev) => (prev === next ? prev : next));
+    }
+
+    function onScroll() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [reduced]);
+
+  return { ref, stage };
+}
+
+function useRevealOnScroll(reduced: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (reduced) {
+      setVisible(true);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setVisible(entry.isIntersecting && entry.intersectionRatio > 0.06);
+      },
+      { threshold: [0, 0.06, 0.15, 0.3], rootMargin: "8% 0px 0px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+
+  return { ref, visible };
+}
+
+function RevealPhoto({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
+  const reduced = usePrefersReducedMotion();
+  const { ref, visible } = useRevealOnScroll(reduced);
+
+  return (
+    <div
+      ref={ref}
+      className={[className, "fata-reveal-photo", visible ? "is-in" : ""]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {children}
+    </div>
   );
 }
 
 function ComparePair({
   row,
-  crossBefore = false,
 }: {
   row: {
     beforeTitle: string;
@@ -203,25 +327,34 @@ function ComparePair({
     afterTitle: string;
     afterText: ReactNode;
   };
-  crossBefore?: boolean;
 }) {
+  const reduced = usePrefersReducedMotion();
+  const { ref, stage } = useCompareScrollStage(reduced);
+
   return (
-    <div className="fata-compare-pair">
-      <div className="fata-compare-cell">
-        {crossBefore ? <CrossOut /> : null}
+    <div
+      ref={ref}
+      className={[
+        "fata-compare-pair",
+        stage >= 1 ? "is-before-in" : "",
+        stage >= 2 ? "is-crossed" : "",
+        stage >= 3 ? "is-after-in" : "",
+        stage >= 4 ? "is-circled" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div className="fata-compare-cell fata-compare-cell--before">
+        <CrossOut />
         <p className="fata-kicker">Було</p>
-        <h3 className="fata-compare-title">
-          {row.beforeTitle}
-        </h3>
+        <h3 className="fata-compare-title">{row.beforeTitle}</h3>
         <p className="fata-compare-copy">{row.beforeText}</p>
       </div>
       <div className="fata-compare-rule" />
-      <div className="fata-compare-cell">
+      <div className="fata-compare-cell fata-compare-cell--after">
         <Scribble />
         <p className="fata-kicker">Стало</p>
-        <h3 className="fata-compare-title">
-          {row.afterTitle}
-        </h3>
+        <h3 className="fata-compare-title">{row.afterTitle}</h3>
         <p className="fata-compare-copy">{row.afterText}</p>
       </div>
     </div>
@@ -331,23 +464,25 @@ function HeroArtboard() {
 }
 
 export function HomeLanding() {
+  useHomeSmoothScroll();
+
   return (
     <div className="fata-page">
       <HeroArtboard />
 
       <section className="fata-sec2">
         <div className="fata-sec2-photos">
-          <div>
+          <RevealPhoto>
             <Image src="/landing/compare-1.jpg" alt="" fill sizes="42vw" />
-          </div>
+          </RevealPhoto>
 
-          <div>
+          <RevealPhoto>
             <Image src="/landing/compare-2.jpg" alt="" fill sizes="42vw" />
-          </div>
+          </RevealPhoto>
 
-          <div>
+          <RevealPhoto>
             <Image src="/landing/compare-2.jpg" alt="" fill sizes="42vw" />
-          </div>
+          </RevealPhoto>
         </div>
         <div className="fata-sec2-body">
           <div className="fata-sec2-body-wrap">
@@ -357,7 +492,7 @@ export function HomeLanding() {
             </p>
             <div className="fata-sec2-pairs">
               {DARK_ROWS.map((row) => (
-                <ComparePair key={row.afterTitle} row={row} crossBefore />
+                <ComparePair key={row.afterTitle} row={row} />
               ))}
             </div>
           </div>
@@ -369,14 +504,14 @@ export function HomeLanding() {
                 <ComparePair key={row.afterTitle} row={row} />
               ))}
             </div>
-            <div className="fata-sec2-breakphoto">
+            <RevealPhoto className="fata-sec2-breakphoto">
               <Image
                 src="/landing/compare-2.jpg"
                 alt=""
                 fill
                 sizes="100vw"
               />
-            </div>
+            </RevealPhoto>
             <div className="fata-sec2-pairs is-last">
               {LIGHT_ROWS.slice(2).map((row) => (
                 <ComparePair key={row.afterTitle} row={row} />
@@ -387,32 +522,9 @@ export function HomeLanding() {
       </section>
 
 
-      <section className="fata-mobile">
-        <div className="fata-shell fata-mobile-stage">
-          <div className="fata-mobile-copy">
-            <p>
-              Зустріч із флористом? Примірка сукні чи дегустація меню?
-              <br />
-              Усі деталі, контакти підрядників, списки та кошторис — у твоєму
-              смартфоні.
-            </p>
-          </div>
-            <div className="fata-phone">
-            <Image
-              src="/landing/phone.png"
-              alt="Мобільний застосунок fata.studio"
-              width={373}
-              height={773}
-              sizes="(max-width: 1023px) 220px, 373px"
-            />
-          </div>
-          <Link href="/register" className="fata-dl">
-            Скачати мобільний застосунок
-          </Link>
-        </div>
-      </section>
+      <MobileAppSection />
 
-      <FeaturesAccordion />
+      <FeaturesStack />
 
       <Prefooter />
 

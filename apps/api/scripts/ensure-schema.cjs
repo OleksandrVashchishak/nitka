@@ -147,6 +147,8 @@ END $$`,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`,
   `CREATE INDEX IF NOT EXISTS budget_items_wedding_id_idx ON budget_items(wedding_id)`,
+  `ALTER TABLE budget_items ADD COLUMN IF NOT EXISTS external_vendor_id TEXT`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS budget_items_external_vendor_id_key ON budget_items(external_vendor_id)`,
 
   `CREATE TABLE IF NOT EXISTS wedding_websites (
   id TEXT PRIMARY KEY,
@@ -154,10 +156,30 @@ END $$`,
   slug TEXT NOT NULL,
   template_id TEXT NOT NULL DEFAULT 'classic',
   published BOOLEAN NOT NULL DEFAULT false,
+  published_at TIMESTAMP(3),
   content JSONB NOT NULL DEFAULT '{}',
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`,
+  `ALTER TABLE wedding_websites ADD COLUMN IF NOT EXISTS published_at TIMESTAMP(3)`,
+  // Legacy rows were always created published=true; stamp once so unpublish ≠ draft.
+  `DO $$
+BEGIN
+  IF to_regclass('public._schema_patches') IS NULL THEN
+    CREATE TABLE _schema_patches (
+      id TEXT PRIMARY KEY,
+      applied_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM _schema_patches WHERE id = 'wedding_websites_published_at_v1'
+  ) THEN
+    UPDATE wedding_websites
+    SET published_at = COALESCE(updated_at, created_at, NOW())
+    WHERE published_at IS NULL;
+    INSERT INTO _schema_patches (id) VALUES ('wedding_websites_published_at_v1');
+  END IF;
+END $$`,
   `CREATE UNIQUE INDEX IF NOT EXISTS wedding_websites_wedding_id_key ON wedding_websites(wedding_id)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS wedding_websites_slug_key ON wedding_websites(slug)`,
 

@@ -36,14 +36,15 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
-            createdAt: Date;
-            category: string;
             weddingId: string;
+            category: string;
             title: string;
-            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
+            notes: string | null;
+            externalVendorId: string | null;
+            createdAt: Date;
         }[];
     }>;
     updatePlan(user: AuthUser, dto: UpdateBudgetPlanDto): Promise<{
@@ -78,14 +79,15 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
-            createdAt: Date;
-            category: string;
             weddingId: string;
+            category: string;
             title: string;
-            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
+            notes: string | null;
+            externalVendorId: string | null;
+            createdAt: Date;
         }[];
     }>;
     createItem(user: AuthUser, dto: CreateBudgetItemDto): Promise<{
@@ -120,14 +122,15 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
-            createdAt: Date;
-            category: string;
             weddingId: string;
+            category: string;
             title: string;
-            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
+            notes: string | null;
+            externalVendorId: string | null;
+            createdAt: Date;
         }[];
     }>;
     updateItem(user: AuthUser, id: string, dto: UpdateBudgetItemDto): Promise<{
@@ -162,14 +165,15 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
-            createdAt: Date;
-            category: string;
             weddingId: string;
+            category: string;
             title: string;
-            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
+            notes: string | null;
+            externalVendorId: string | null;
+            createdAt: Date;
         }[];
     }>;
     removeItem(user: AuthUser, id: string): Promise<{
@@ -204,14 +208,15 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
-            createdAt: Date;
-            category: string;
             weddingId: string;
+            category: string;
             title: string;
-            notes: string | null;
             estimated: number;
             actual: number;
             paid: boolean;
+            notes: string | null;
+            externalVendorId: string | null;
+            createdAt: Date;
         }[];
     }>;
 }

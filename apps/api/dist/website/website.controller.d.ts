@@ -19,6 +19,7 @@ export declare class WebsiteController {
             slug: string;
             templateId: string;
             published: boolean;
+            publishedAt: Date | null;
             content: import("./website.service").WebsiteContent;
             updatedAt: Date;
             publicPath: string;
@@ -42,6 +43,7 @@ export declare class WebsiteController {
         slug: string;
         templateId: string;
         published: boolean;
+        publishedAt: Date | null;
         content: import("./website.service").WebsiteContent;
         updatedAt: Date;
         publicPath: string;
@@ -57,6 +59,7 @@ export declare class WebsiteController {
         slug: string;
         templateId: string;
         published: boolean;
+        publishedAt: Date | null;
         content: import("./website.service").WebsiteContent;
         updatedAt: Date;
         publicPath: string;

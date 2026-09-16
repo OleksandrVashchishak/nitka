@@ -13,7 +13,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const site = await getPublicWebsite(slug);
     return {
       title: site.content.headline,
-      description: `${site.content.subheadline} · ${site.content.dateLabel}`,
+      description:
+        site.content.shareDescription ||
+        `${site.content.subheadline} · ${site.content.dateLabel}`,
       robots: { index: true, follow: true },
     };
   } catch {
@@ -31,6 +33,10 @@ export default async function PublicWeddingWebsitePage({ params }: Props) {
   }
 
   return (
-    <main>{renderWebsiteTemplate(site.templateId, site.content)}</main>
+    <main>
+      {renderWebsiteTemplate(site.templateId, site.content, {
+        weddingDate: site.wedding.date,
+      })}
+    </main>
   );
 }

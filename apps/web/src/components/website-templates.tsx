@@ -1,15 +1,20 @@
 import type { WebsiteContent } from "@/lib/website-api";
-import { WeddingSiteView } from "@/components/wedding-site-view";
+import { WeddingSite } from "@/components/wedding-site/WeddingSite";
 
 export function renderWebsiteTemplate(
   templateId: string,
   content: WebsiteContent,
-  options?: { compact?: boolean; cardPreview?: boolean },
+  options?: {
+    compact?: boolean;
+    cardPreview?: boolean;
+    weddingDate?: string | null;
+  },
 ) {
   return (
-    <WeddingSiteView
+    <WeddingSite
       templateId={templateId}
       content={content}
+      weddingDate={options?.weddingDate}
       compact={options?.compact}
       cardPreview={options?.cardPreview}
     />
@@ -25,10 +30,6 @@ export function ClassicWeddingTemplate({
   compact?: boolean;
 }) {
   return (
-    <WeddingSiteView
-      templateId="classic-white"
-      content={content}
-      compact={compact}
-    />
+    <WeddingSite templateId="classic-white" content={content} compact={compact} />
   );
 }

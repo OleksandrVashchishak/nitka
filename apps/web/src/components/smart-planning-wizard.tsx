@@ -361,7 +361,7 @@ export function SmartPlanningWizard({
             disabled={submitting || planTasks.length === 0}
             onClick={() => void submit()}
           >
-            {submitting ? "Додаємо…" : "Додати завдання до списку"}
+            {submitting ? "Додаємо…" : "Додати завдання"}
           </button>
         ) : null}
       </footer>

@@ -1,0 +1,95 @@
+.wsite {
+  box-sizing: border-box;
+  min-height: 100%;
+  color: var(--wsite-ink);
+  font-family: var(--wsite-font-body);
+  background: var(--wsite-bg);
+  -webkit-font-smoothing: antialiased;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  &--compact {
+    min-height: 0;
+  }
+}
+
+.wsite-section {
+  padding: var(--wsite-space) clamp(1.25rem, 4vw, 2.5rem);
+
+  &__inner {
+    width: 100%;
+    max-width: var(--wsite-max);
+    margin-inline: auto;
+  }
+
+  &__eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wsite-ink-soft);
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 500;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--wsite-ink-soft);
+  }
+
+  &--soft {
+    background: var(--wsite-bg-soft);
+  }
+
+  &--alt {
+    background: var(--wsite-bg-alt);
+  }
+
+  &--dark {
+    background: var(--wsite-dark);
+    color: #f5f5f5;
+
+    .wsite-section__eyebrow,
+    .wsite-section__text {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .wsite-section__title {
+      color: #fff;
+    }
+  }
+
+  &--accent {
+    background: var(--wsite-accent);
+    color: var(--wsite-accent-text);
+
+    .wsite-section__eyebrow,
+    .wsite-section__text {
+      color: color-mix(in srgb, var(--wsite-accent-text) 75%, transparent);
+    }
+
+    .wsite-section__title {
+      color: var(--wsite-accent-text);
+    }
+  }
+}

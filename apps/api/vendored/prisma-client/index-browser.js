@@ -297,7 +297,8 @@ exports.Prisma.WeddingScalarFieldEnum = {
   couplePhotoUrl: 'couplePhotoUrl',
   planningStage: 'planningStage',
   cityUndecided: 'cityUndecided',
-  guestsUndecided: 'guestsUndecided'
+  guestsUndecided: 'guestsUndecided',
+  dayPlan: 'dayPlan'
 };
 
 exports.Prisma.WeddingWebsiteScalarFieldEnum = {
@@ -345,8 +346,10 @@ exports.Prisma.TaskScalarFieldEnum = {
   categorySlug: 'categorySlug',
   status: 'status',
   dueDate: 'dueDate',
+  dueRemindedAt: 'dueRemindedAt',
   sortOrder: 'sortOrder',
-  isCustom: 'isCustom'
+  isCustom: 'isCustom',
+  assignee: 'assignee'
 };
 
 exports.Prisma.GuestScalarFieldEnum = {
@@ -377,6 +380,7 @@ exports.Prisma.BudgetItemScalarFieldEnum = {
   actual: 'actual',
   paid: 'paid',
   notes: 'notes',
+  externalVendorId: 'externalVendorId',
   createdAt: 'createdAt'
 };
 
@@ -415,6 +419,11 @@ exports.Prisma.ContentPostScalarFieldEnum = {
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.JsonNullValueInput = {

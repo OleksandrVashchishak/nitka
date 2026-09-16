@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { IconMore } from "@/components/icon-more";
 import { RequireAuth } from "@/components/require-auth";
 import {
   createGuest,
@@ -687,7 +688,7 @@ function GuestsInner() {
                             )
                           }
                         >
-                          ⋯
+                          <IconMore />
                         </button>
                         {menuOpenId === guest.id ? (
                           <div className="cabinet-guest-menu" role="menu">

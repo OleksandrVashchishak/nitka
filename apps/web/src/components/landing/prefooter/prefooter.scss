@@ -8,16 +8,122 @@
   background: var(--prefooter-bg);
   height: 821px;
 
-  &__container {
+  &__stage {
     position: relative;
     width: 1440px;
     height: 821px;
     margin: 0 auto;
   }
 
-  &__images {
+  /* ——— shared content ——— */
+  &__content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    max-width: 805px;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+
+    a {
+      pointer-events: auto;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--prefooter-lime);
+    font-family: var(--font-akzidenz), var(--font-display), sans-serif;
+    font-size: 60px;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 100%;
+    text-align: center;
+  }
+
+  &__br {
+    &--m {
+      display: none;
+    }
+
+    &--d {
+      display: block;
+    }
+  }
+
+  &__btn {
+    display: inline-flex;
+    box-sizing: border-box;
+    width: 248px;
+    height: 56px;
+    margin-top: 25px;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    border-radius: 40px;
+    background: var(--prefooter-orange);
+    color: var(--prefooter-bg);
+    font-family: var(--font-akzidenz), var(--font-display), sans-serif;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 100%;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: #e63b00;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--prefooter-lime);
+      outline-offset: 3px;
+    }
+  }
+
+  /* ——— orbit track (mounted only when .prefooter--orbit) ——— */
+  &__track {
+    display: flex;
     position: absolute;
     inset: 0;
+    z-index: 1;
+    align-items: center;
+    width: max-content;
+    height: 100%;
+    gap: 32px;
+    padding: 0 8vw;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  &__card {
+    position: relative;
+    flex: 0 0 auto;
+    overflow: hidden;
+    will-change: transform;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  /* ——— static collage (default / mobile / reduced-motion) ——— */
+  &__collage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     pointer-events: none;
   }
 
@@ -158,86 +264,39 @@
       height: 76px;
     }
   }
+}
 
-  &__content {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    z-index: 2;
-    display: flex;
+/* Desktop orbit mode — fluid, NO scale() (breaks ScrollTrigger math) */
+.prefooter--orbit {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 720px;
+
+  .prefooter__stage {
     width: 100%;
-    max-width: 805px;
-    flex-direction: column;
-    align-items: center;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  }
-
-  &__title {
+    height: 100%;
     margin: 0;
-    color: var(--prefooter-lime);
-    font-family: var(--font-akzidenz), var(--font-display), sans-serif;
-    font-size: 60px;
-    font-style: italic;
-    font-weight: 300;
-    letter-spacing: 0;
-    line-height: 100%;
-    text-align: center;
+    transform: none;
   }
 
-  &__br {
-    &--m {
-      display: none;
-    }
-
-    &--d {
-      display: block;
-    }
+  .prefooter__content {
+    max-width: min(805px, 90vw);
   }
 
-  &__btn {
-    display: inline-flex;
-    box-sizing: border-box;
-    width: 248px;
-    height: 56px;
-    margin-top: 25px;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 32px;
-    border-radius: 40px;
-    background: var(--prefooter-orange);
-    color: var(--prefooter-bg);
-    font-family: var(--font-akzidenz), var(--font-display), sans-serif;
-    font-size: 16px;
-    font-style: italic;
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 100%;
-    text-align: center;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background 0.3s ease;
-
-    &:hover {
-      background: #e63b00;
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--prefooter-lime);
-      outline-offset: 3px;
-    }
+  .prefooter__title {
+    font-size: clamp(36px, 4.2vw, 60px);
   }
 }
 
 /*
-  <1440: весь 1440-артборд пропорційно зжимається в ширину вʼюпорта.
-  ВАЖЛИВО: scale() хоче unitless → ділимо vw на px (100vw / 1440px).
+  Static collage <1440: scale artboard into viewport.
+  Only when NOT in orbit mode.
 */
 @media (max-width: 1439px) {
-  .prefooter {
+  .prefooter:not(.prefooter--orbit) {
     height: calc(100vw * 821 / 1440);
 
-    &__container {
+    .prefooter__stage {
       margin: 0;
       transform: scale(calc(100vw / 1440px));
       transform-origin: 0 0;
@@ -245,19 +304,19 @@
   }
 }
 
-/* Мобайл-колаж 428×561 — теж scale, не crop */
+/* Mobile collage 428×561 */
 @media (max-width: 639px) {
-  .prefooter {
+  .prefooter:not(.prefooter--orbit) {
     height: calc(100vw * 561 / 428);
 
-    &__container {
+    .prefooter__stage {
       width: 428px;
       height: 561px;
       transform: scale(calc(100vw / 428px));
       transform-origin: 0 0;
     }
 
-    &__br {
+    .prefooter__br {
       &--m {
         display: block;
       }
@@ -267,30 +326,30 @@
       }
     }
 
-    &__content {
+    .prefooter__content {
       top: 48%;
       max-width: 248px;
       padding: 0;
     }
 
-    &__title {
+    .prefooter__title {
       max-width: 220px;
       font-size: 16px;
       line-height: 120%;
     }
 
-    &__btn {
+    .prefooter__btn {
       width: 248px;
       height: 52px;
       margin-top: 16px;
       padding: 14px 32px;
     }
 
-    &__image {
+    .prefooter__image {
       display: none;
     }
 
-    &__image--15 {
+    .prefooter__image--15 {
       display: block;
       left: 158px;
       top: 122px;
@@ -298,7 +357,7 @@
       height: 58px;
     }
 
-    &__image--5 {
+    .prefooter__image--5 {
       display: block;
       left: 16px;
       top: 164px;
@@ -306,7 +365,7 @@
       height: 68px;
     }
 
-    &__image--4 {
+    .prefooter__image--4 {
       display: block;
       left: 334px;
       top: 148px;
@@ -314,7 +373,7 @@
       height: 100px;
     }
 
-    &__image--9 {
+    .prefooter__image--9 {
       display: block;
       left: -28px;
       top: 258px;
@@ -322,7 +381,7 @@
       height: 76px;
     }
 
-    &__image--18 {
+    .prefooter__image--18 {
       display: block;
       left: 378px;
       top: 258px;
@@ -330,7 +389,7 @@
       height: 70px;
     }
 
-    &__image--10 {
+    .prefooter__image--10 {
       display: block;
       left: 34px;
       top: 368px;
@@ -338,7 +397,7 @@
       height: 68px;
     }
 
-    &__image--14 {
+    .prefooter__image--14 {
       display: block;
       left: 164px;
       top: 406px;
@@ -346,7 +405,7 @@
       height: 86px;
     }
 
-    &__image--8 {
+    .prefooter__image--8 {
       display: block;
       left: 316px;
       top: 366px;

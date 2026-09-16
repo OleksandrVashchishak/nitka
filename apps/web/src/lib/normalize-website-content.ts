@@ -60,5 +60,9 @@ export function normalizeWebsiteContent(
     introEnabled: Boolean(base.introEnabled),
     introTitle: String(base.introTitle ?? "Відкрити запрошення"),
     musicUrl: String(base.musicUrl ?? ""),
+    timerEnabled: base.timerEnabled !== false,
+    shareDescription: String(base.shareDescription ?? ""),
+    groomBio: String(base.groomBio ?? ""),
+    proposalBody: String(base.proposalBody ?? ""),
   };
 }

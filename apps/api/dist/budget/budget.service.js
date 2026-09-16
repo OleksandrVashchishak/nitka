@@ -13,6 +13,7 @@ exports.BudgetService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
+const vendor_budget_sync_1 = require("./vendor-budget-sync");
 const DEFAULT_ITEMS = [
     { category: 'venue', title: 'Локація / оренда', share: 0.18 },
     { category: 'catering', title: 'Кейтеринг / банкет', share: 0.28 },
@@ -91,6 +92,7 @@ let BudgetService = class BudgetService {
     }
     async getMine(userId) {
         const wedding = await this.getWeddingForUser(userId);
+        await (0, vendor_budget_sync_1.syncAllExternalVendorBudgetItems)(this.prisma, userId);
         const items = await this.prisma.budgetItem.findMany({
             where: { weddingId: wedding.id },
             orderBy: [{ category: 'asc' }, { createdAt: 'asc' }],

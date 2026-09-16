@@ -1,0 +1,47 @@
+.wsite-details {
+  &__title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 3rem;
+  }
+
+  &__item {
+    padding-top: 1rem;
+    border-top: 1px solid var(--wsite-line);
+  }
+
+  &__mark {
+    display: block;
+    width: 7px;
+    height: 7px;
+    margin-bottom: 0.85rem;
+    border: 1px solid var(--wsite-ink);
+    transform: rotate(45deg);
+  }
+
+  &__name {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-size: 1.35rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  &__text {
+    margin: 0.75rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--wsite-ink-soft);
+  }
+
+  @media (max-width: 700px) {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

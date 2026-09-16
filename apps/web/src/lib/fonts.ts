@@ -60,7 +60,7 @@ export const scriptCyr = Marck_Script({
 export const montserrat = Montserrat({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
 });
 

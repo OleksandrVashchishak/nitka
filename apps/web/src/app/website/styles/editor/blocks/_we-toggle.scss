@@ -1,0 +1,37 @@
+.we-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  &__svg {
+    display: block;
+  }
+}
+
+.we-trash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #fff5f2;
+  color: #ff4200;
+  cursor: pointer;
+  line-height: 0;
+
+  &:hover {
+    background: #ffe8e0;
+  }
+}

@@ -2,58 +2,54 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState, useRef } from "react";
+import { setupPrefooterOrbit } from "./prefooter-orbit";
+import { MOBILE_SHOT_IDS, SHOTS } from "./shots";
 import "./prefooter.scss";
 
-type Shot = {
-  id: number;
-  src: string;
-  width: number;
-  height: number;
-};
+const ORBIT_MQ =
+  "(min-width: 1024px) and (prefers-reduced-motion: no-preference)";
 
-/** 1x coords relative to 1440×821 artboard (desktop) */
-const SHOTS: Shot[] = [
-  { id: 1, src: "/landing/prefooter/footer-placeholder-1.jpg", width: 140, height: 153 },
-  { id: 2, src: "/landing/prefooter/footer-placeholder-2.jpg", width: 140, height: 153 },
-  { id: 3, src: "/landing/prefooter/footer-placeholder-3.jpg", width: 140, height: 153 },
-  { id: 4, src: "/landing/prefooter/footer-placeholder-4.jpg", width: 140, height: 91 },
-  { id: 5, src: "/landing/prefooter/footer-placeholder-5.jpg", width: 140, height: 91 },
-  { id: 6, src: "/landing/prefooter/footer-placeholder-6.jpg", width: 140, height: 91 },
-  { id: 7, src: "/landing/prefooter/footer-placeholder-7.jpg", width: 140, height: 91 },
-  { id: 8, src: "/landing/prefooter/footer-placeholder-8.jpg", width: 140, height: 119 },
-  { id: 9, src: "/landing/prefooter/footer-placeholder-9.jpg", width: 140, height: 119 },
-  { id: 10, src: "/landing/prefooter/footer-placeholder-10.jpg", width: 140, height: 184 },
-  { id: 11, src: "/landing/prefooter/footer-placeholder-11.jpg", width: 112, height: 122 },
-  { id: 12, src: "/landing/prefooter/footer-placeholder-12.jpg", width: 93, height: 122 },
-  { id: 13, src: "/landing/prefooter/footer-placeholder-13.jpg", width: 113, height: 127 },
-  { id: 14, src: "/landing/prefooter/footer-placeholder-14.jpg", width: 68, height: 76 },
-  { id: 15, src: "/landing/prefooter/footer-placeholder-15.jpg", width: 68, height: 76 },
-  { id: 16, src: "/landing/prefooter/footer-placeholder-16.png", width: 106, height: 76 },
-  { id: 17, src: "/landing/prefooter/footer-placeholder-17.jpg", width: 68, height: 76 },
-  { id: 18, src: "/landing/prefooter/footer-placeholder-18.jpg", width: 102, height: 76 },
-];
+const MOBILE_ID_SET = new Set<number>(MOBILE_SHOT_IDS);
+
+function usePrefersOrbit(): boolean {
+  const [orbit, setOrbit] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(ORBIT_MQ);
+    const sync = () => setOrbit(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return orbit;
+}
 
 export function Prefooter() {
-  return (
-    <section className="prefooter" aria-label="Почати з fata.studio">
-      <div className="prefooter__container">
-        <div className="prefooter__images" aria-hidden>
-          {SHOTS.map((shot) => (
-            <div
-              key={shot.id}
-              className={`prefooter__image prefooter__image--${shot.id}`}
-            >
-              <Image
-                src={shot.src}
-                alt=""
-                width={shot.width}
-                height={shot.height}
-                sizes={`${shot.width}px`}
-              />
-            </div>
-          ))}
-        </div>
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const prefersOrbit = usePrefersOrbit();
 
+  useEffect(() => {
+    if (!prefersOrbit) return;
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    if (!section || !track) return;
+
+    const cards = Array.from(
+      track.querySelectorAll<HTMLElement>(".prefooter__card"),
+    );
+    return setupPrefooterOrbit({ section, track, cards });
+  }, [prefersOrbit]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`prefooter${prefersOrbit ? " prefooter--orbit" : ""}`}
+      aria-label="Почати з fata.studio"
+    >
+      <div className="prefooter__stage">
         <div className="prefooter__content">
           <h2 className="prefooter__title">
             З fata.studio
@@ -68,6 +64,51 @@ export function Prefooter() {
             Розпочати безкоштовно
           </Link>
         </div>
+
+        {prefersOrbit ? (
+          <div ref={trackRef} className="prefooter__track" aria-hidden>
+            {SHOTS.map((shot, i) => {
+              const w = Math.round(shot.width * 1.25);
+              const h = Math.round(shot.height * 1.25);
+              return (
+                <div
+                  key={`orbit-${shot.id}`}
+                  className="prefooter__card"
+                  data-orbit={shot.orbit}
+                  style={{ width: w, height: h }}
+                >
+                  <Image
+                    src={shot.src}
+                    alt=""
+                    width={w}
+                    height={h}
+                    sizes={`${w}px`}
+                    priority={i < 6}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="prefooter__collage" aria-hidden>
+            {SHOTS.map((shot) => (
+              <div
+                key={`collage-${shot.id}`}
+                className={`prefooter__image prefooter__image--${shot.id}${
+                  MOBILE_ID_SET.has(shot.id) ? " prefooter__image--mobile" : ""
+                }`}
+              >
+                <Image
+                  src={shot.src}
+                  alt=""
+                  width={shot.width}
+                  height={shot.height}
+                  sizes={`${shot.width}px`}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

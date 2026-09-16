@@ -1,0 +1,58 @@
+.ws-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-sizing: border-box;
+  min-width: 169px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--ws-radius-btn);
+  border: 1px solid transparent;
+  font-family: var(--ws-font-btn);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--solid {
+    background: var(--ws-ink);
+    border-color: var(--ws-ink);
+    color: #fff;
+  }
+
+  &--solid:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &--outline {
+    background: #fff;
+    border-color: var(--ws-ink);
+    color: var(--ws-ink);
+  }
+
+  &--outline:hover:not(:disabled) {
+    background: #f7f7f7;
+  }
+
+  &--block {
+    width: 100%;
+    min-width: 0;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+}

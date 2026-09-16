@@ -1,0 +1,42 @@
+.ws-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 23px;
+  padding: 3px 8px;
+  border-radius: var(--ws-radius-badge);
+  font-family: var(--ws-font);
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 140%;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ws-ink);
+  background: var(--ws-lime);
+  white-space: nowrap;
+
+  &--draft {
+    background: #eeeeee;
+  }
+
+  &--unpublished {
+    background: #b8b4d8;
+    color: #fff;
+  }
+
+  &--sent {
+    font-weight: 600;
+    text-transform: none;
+    background: var(--ws-sent);
+  }
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ws-sent-dot);
+    flex-shrink: 0;
+  }
+}

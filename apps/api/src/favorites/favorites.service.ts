@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  removeBudgetItemForExternalVendor,
+  syncBudgetItemForExternalVendor,
+} from '../budget/vendor-budget-sync';
+import {
   CreateExternalVendorDto,
   UpdateExternalVendorDto,
   UpdatePipelineDto,
@@ -112,7 +116,7 @@ export class FavoritesService {
       select: { city: true },
     });
 
-    return this.prisma.externalVendor.create({
+    const vendor = await this.prisma.externalVendor.create({
       data: {
         userId,
         name: dto.name.trim(),
@@ -125,6 +129,8 @@ export class FavoritesService {
         stage: dto.stage,
       },
     });
+    await syncBudgetItemForExternalVendor(this.prisma, userId, vendor);
+    return vendor;
   }
 
   async updateExternal(
@@ -133,7 +139,7 @@ export class FavoritesService {
     dto: UpdateExternalVendorDto,
   ) {
     await this.assertExternalOwner(userId, id);
-    return this.prisma.externalVendor.update({
+    const vendor = await this.prisma.externalVendor.update({
       where: { id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
@@ -156,10 +162,13 @@ export class FavoritesService {
         ...(dto.stage !== undefined ? { stage: dto.stage } : {}),
       },
     });
+    await syncBudgetItemForExternalVendor(this.prisma, userId, vendor);
+    return vendor;
   }
 
   async removeExternal(userId: string, id: string) {
     await this.assertExternalOwner(userId, id);
+    await removeBudgetItemForExternalVendor(this.prisma, id);
     await this.prisma.externalVendor.delete({ where: { id } });
     return { ok: true };
   }

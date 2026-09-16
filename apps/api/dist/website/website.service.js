@@ -111,6 +111,10 @@ function defaultContent(wedding) {
         introEnabled: false,
         introTitle: 'Відкрити запрошення',
         musicUrl: '',
+        timerEnabled: true,
+        shareDescription: '',
+        groomBio: '',
+        proposalBody: '',
     };
 }
 function asStringArray(value, fallback) {
@@ -210,6 +214,10 @@ function asContent(value, fallback) {
         introEnabled: Boolean(raw.introEnabled ?? fallback.introEnabled),
         introTitle: String(raw.introTitle ?? fallback.introTitle),
         musicUrl: String(raw.musicUrl ?? fallback.musicUrl ?? ''),
+        timerEnabled: Boolean(raw.timerEnabled ?? fallback.timerEnabled),
+        shareDescription: String(raw.shareDescription ?? fallback.shareDescription ?? ''),
+        groomBio: String(raw.groomBio ?? fallback.groomBio ?? ''),
+        proposalBody: String(raw.proposalBody ?? fallback.proposalBody ?? ''),
     };
 }
 function serialize(site, wedding) {
@@ -219,6 +227,7 @@ function serialize(site, wedding) {
         slug: site.slug,
         templateId: site.templateId,
         published: site.published,
+        publishedAt: site.publishedAt ?? null,
         content: asContent(site.content, fallback),
         updatedAt: site.updatedAt,
         publicPath: `/w/${site.slug}`,
@@ -234,6 +243,35 @@ let WebsiteService = class WebsiteService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async getPublishedAt(siteId) {
+        try {
+            const rows = await this.prisma.$queryRaw `SELECT published_at FROM wedding_websites WHERE id = ${siteId}`;
+            return rows[0]?.published_at ?? null;
+        }
+        catch {
+            return null;
+        }
+    }
+    async touchPublishedAt(siteId, force = false) {
+        try {
+            if (force) {
+                await this.prisma.$executeRaw `
+          UPDATE wedding_websites
+          SET published_at = COALESCE(published_at, NOW())
+          WHERE id = ${siteId}
+        `;
+            }
+            else {
+                await this.prisma.$executeRaw `
+          UPDATE wedding_websites
+          SET published_at = NOW()
+          WHERE id = ${siteId} AND published_at IS NULL
+        `;
+            }
+        }
+        catch {
+        }
+    }
     async getMine(userId) {
         const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId);
         const site = await this.prisma.weddingWebsite.findUnique({
@@ -247,8 +285,15 @@ let WebsiteService = class WebsiteService {
                 templates: TEMPLATES_LIST,
             };
         }
+        const publishedAt = await this.getPublishedAt(site.id);
+        if (site.published && !publishedAt) {
+            await this.touchPublishedAt(site.id);
+        }
         return {
-            site: serialize(site, wedding),
+            site: serialize({
+                ...site,
+                publishedAt: publishedAt ?? (site.published ? new Date() : null),
+            }, wedding),
             suggestedSlug: site.slug,
             defaults: defaultContent(wedding),
             templates: TEMPLATES_LIST,
@@ -281,7 +326,12 @@ let WebsiteService = class WebsiteService {
         if (clash) {
             throw new common_1.ConflictException('Цей адрес уже зайнятий');
         }
-        const published = dto.published ?? existing?.published ?? false;
+        const wasPublished = existing?.published ?? false;
+        const published = dto.published ?? wasPublished;
+        const existingPublishedAt = existing
+            ? await this.getPublishedAt(existing.id)
+            : null;
+        const becomingUnpublished = !published && wasPublished;
         const site = existing
             ? await this.prisma.weddingWebsite.update({
                 where: { id: existing.id },
@@ -301,7 +351,12 @@ let WebsiteService = class WebsiteService {
                     content: content,
                 },
             });
-        return serialize(site, wedding);
+        if (published || becomingUnpublished) {
+            await this.touchPublishedAt(site.id, becomingUnpublished && !existingPublishedAt);
+        }
+        const publishedAt = (await this.getPublishedAt(site.id)) ??
+            (published || becomingUnpublished ? new Date() : existingPublishedAt);
+        return serialize({ ...site, publishedAt }, wedding);
     }
     async getPublicBySlug(slugRaw) {
         const slug = slugRaw.trim().toLowerCase();
@@ -312,7 +367,8 @@ let WebsiteService = class WebsiteService {
         if (!site || !site.published) {
             throw new common_1.NotFoundException('Сайт не знайдено');
         }
-        return serialize(site, site.wedding);
+        const publishedAt = await this.getPublishedAt(site.id);
+        return serialize({ ...site, publishedAt }, site.wedding);
     }
     suggestSlug(wedding) {
         const base = (0, slug_1.slugify)(`${wedding.partnerOneName}-${wedding.partnerTwoName}`);

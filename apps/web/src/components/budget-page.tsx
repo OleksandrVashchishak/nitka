@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { IconMore } from "@/components/icon-more";
 import { RequireAuth } from "@/components/require-auth";
 import {
   createBudgetItem,
@@ -56,6 +57,13 @@ type BudgetRow = BudgetItem & {
 };
 
 const PAGE_SIZE = 12;
+/**
+ * TODO(fx): replace hardcoded USD_RATE with shared weekly NBU rate (same as API budget sync).
+ * Free endpoint (no key):
+ *   GET https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=USD&json
+ * Use `rate` from JSON; refresh ~once a week. Until then UI convert is approximate.
+ * See also: apps/api/src/budget/vendor-budget-sync.ts
+ */
 const USD_RATE = 41;
 
 const UI_CATEGORIES: Array<{ id: Exclude<CategoryFilter, "all">; label: string }> =
@@ -785,7 +793,7 @@ function BudgetInner() {
                                 )
                               }
                             >
-                              ⋯
+                              <IconMore />
                             </button>
                             {menuOpenId === item.id ? (
                               <div className="cabinet-guest-menu" role="menu">

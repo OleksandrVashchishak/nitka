@@ -16594,6 +16594,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    budgetItem?: boolean | ExternalVendor$budgetItemArgs<ExtArgs>
   }, ExtArgs["result"]["externalVendor"]>
 
   export type ExternalVendorSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -16646,6 +16647,7 @@ export namespace Prisma {
   export type ExternalVendorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "category" | "city" | "phone" | "website" | "quotedPrice" | "notes" | "stage" | "createdAt" | "updatedAt", ExtArgs["result"]["externalVendor"]>
   export type ExternalVendorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    budgetItem?: boolean | ExternalVendor$budgetItemArgs<ExtArgs>
   }
   export type ExternalVendorIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -16658,6 +16660,7 @@ export namespace Prisma {
     name: "ExternalVendor"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
+      budgetItem: Prisma.$BudgetItemPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17067,6 +17070,7 @@ export namespace Prisma {
   export interface Prisma__ExternalVendorClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    budgetItem<T extends ExternalVendor$budgetItemArgs<ExtArgs> = {}>(args?: Subset<T, ExternalVendor$budgetItemArgs<ExtArgs>>): Prisma__BudgetItemClient<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17501,6 +17505,25 @@ export namespace Prisma {
      * Limit how many ExternalVendors to delete.
      */
     limit?: number
+  }
+
+  /**
+   * ExternalVendor.budgetItem
+   */
+  export type ExternalVendor$budgetItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BudgetItem
+     */
+    select?: BudgetItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BudgetItem
+     */
+    omit?: BudgetItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BudgetItemInclude<ExtArgs> | null
+    where?: BudgetItemWhereInput
   }
 
   /**
@@ -19891,6 +19914,7 @@ export namespace Prisma {
     planningStage: number
     cityUndecided: number
     guestsUndecided: number
+    dayPlan: number
     _all: number
   }
 
@@ -19948,6 +19972,7 @@ export namespace Prisma {
     planningStage?: true
     cityUndecided?: true
     guestsUndecided?: true
+    dayPlan?: true
     _all?: true
   }
 
@@ -20050,6 +20075,7 @@ export namespace Prisma {
     planningStage: string
     cityUndecided: boolean
     guestsUndecided: boolean
+    dayPlan: JsonValue | null
     _count: WeddingCountAggregateOutputType | null
     _avg: WeddingAvgAggregateOutputType | null
     _sum: WeddingSumAggregateOutputType | null
@@ -20084,6 +20110,7 @@ export namespace Prisma {
     planningStage?: boolean
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Wedding$membersArgs<ExtArgs>
     invites?: boolean | Wedding$invitesArgs<ExtArgs>
@@ -20108,6 +20135,7 @@ export namespace Prisma {
     planningStage?: boolean
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wedding"]>
 
@@ -20124,6 +20152,7 @@ export namespace Prisma {
     planningStage?: boolean
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wedding"]>
 
@@ -20140,9 +20169,10 @@ export namespace Prisma {
     planningStage?: boolean
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: boolean
   }
 
-  export type WeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "date" | "city" | "guests" | "budget" | "partnerOneName" | "partnerTwoName" | "couplePhotoUrl" | "planningStage" | "cityUndecided" | "guestsUndecided", ExtArgs["result"]["wedding"]>
+  export type WeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "date" | "city" | "guests" | "budget" | "partnerOneName" | "partnerTwoName" | "couplePhotoUrl" | "planningStage" | "cityUndecided" | "guestsUndecided" | "dayPlan", ExtArgs["result"]["wedding"]>
   export type WeddingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Wedding$membersArgs<ExtArgs>
@@ -20186,6 +20216,7 @@ export namespace Prisma {
       planningStage: string
       cityUndecided: boolean
       guestsUndecided: boolean
+      dayPlan: Prisma.JsonValue | null
     }, ExtArgs["result"]["wedding"]>
     composites: {}
   }
@@ -20629,6 +20660,7 @@ export namespace Prisma {
     readonly planningStage: FieldRef<"Wedding", 'String'>
     readonly cityUndecided: FieldRef<"Wedding", 'Boolean'>
     readonly guestsUndecided: FieldRef<"Wedding", 'Boolean'>
+    readonly dayPlan: FieldRef<"Wedding", 'Json'>
   }
     
 
@@ -25538,8 +25570,10 @@ export namespace Prisma {
     categorySlug: string | null
     status: $Enums.TaskStatus | null
     dueDate: Date | null
+    dueRemindedAt: Date | null
     sortOrder: number | null
     isCustom: boolean | null
+    assignee: string | null
   }
 
   export type TaskMaxAggregateOutputType = {
@@ -25549,8 +25583,10 @@ export namespace Prisma {
     categorySlug: string | null
     status: $Enums.TaskStatus | null
     dueDate: Date | null
+    dueRemindedAt: Date | null
     sortOrder: number | null
     isCustom: boolean | null
+    assignee: string | null
   }
 
   export type TaskCountAggregateOutputType = {
@@ -25560,8 +25596,10 @@ export namespace Prisma {
     categorySlug: number
     status: number
     dueDate: number
+    dueRemindedAt: number
     sortOrder: number
     isCustom: number
+    assignee: number
     _all: number
   }
 
@@ -25581,8 +25619,10 @@ export namespace Prisma {
     categorySlug?: true
     status?: true
     dueDate?: true
+    dueRemindedAt?: true
     sortOrder?: true
     isCustom?: true
+    assignee?: true
   }
 
   export type TaskMaxAggregateInputType = {
@@ -25592,8 +25632,10 @@ export namespace Prisma {
     categorySlug?: true
     status?: true
     dueDate?: true
+    dueRemindedAt?: true
     sortOrder?: true
     isCustom?: true
+    assignee?: true
   }
 
   export type TaskCountAggregateInputType = {
@@ -25603,8 +25645,10 @@ export namespace Prisma {
     categorySlug?: true
     status?: true
     dueDate?: true
+    dueRemindedAt?: true
     sortOrder?: true
     isCustom?: true
+    assignee?: true
     _all?: true
   }
 
@@ -25701,8 +25745,10 @@ export namespace Prisma {
     categorySlug: string | null
     status: $Enums.TaskStatus
     dueDate: Date | null
+    dueRemindedAt: Date | null
     sortOrder: number
     isCustom: boolean
+    assignee: string | null
     _count: TaskCountAggregateOutputType | null
     _avg: TaskAvgAggregateOutputType | null
     _sum: TaskSumAggregateOutputType | null
@@ -25731,8 +25777,10 @@ export namespace Prisma {
     categorySlug?: boolean
     status?: boolean
     dueDate?: boolean
+    dueRemindedAt?: boolean
     sortOrder?: boolean
     isCustom?: boolean
+    assignee?: boolean
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["task"]>
 
@@ -25743,8 +25791,10 @@ export namespace Prisma {
     categorySlug?: boolean
     status?: boolean
     dueDate?: boolean
+    dueRemindedAt?: boolean
     sortOrder?: boolean
     isCustom?: boolean
+    assignee?: boolean
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["task"]>
 
@@ -25755,8 +25805,10 @@ export namespace Prisma {
     categorySlug?: boolean
     status?: boolean
     dueDate?: boolean
+    dueRemindedAt?: boolean
     sortOrder?: boolean
     isCustom?: boolean
+    assignee?: boolean
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["task"]>
 
@@ -25767,11 +25819,13 @@ export namespace Prisma {
     categorySlug?: boolean
     status?: boolean
     dueDate?: boolean
+    dueRemindedAt?: boolean
     sortOrder?: boolean
     isCustom?: boolean
+    assignee?: boolean
   }
 
-  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "title" | "categorySlug" | "status" | "dueDate" | "sortOrder" | "isCustom", ExtArgs["result"]["task"]>
+  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "title" | "categorySlug" | "status" | "dueDate" | "dueRemindedAt" | "sortOrder" | "isCustom" | "assignee", ExtArgs["result"]["task"]>
   export type TaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
   }
@@ -25794,8 +25848,10 @@ export namespace Prisma {
       categorySlug: string | null
       status: $Enums.TaskStatus
       dueDate: Date | null
+      dueRemindedAt: Date | null
       sortOrder: number
       isCustom: boolean
+      assignee: string | null
     }, ExtArgs["result"]["task"]>
     composites: {}
   }
@@ -26226,8 +26282,10 @@ export namespace Prisma {
     readonly categorySlug: FieldRef<"Task", 'String'>
     readonly status: FieldRef<"Task", 'TaskStatus'>
     readonly dueDate: FieldRef<"Task", 'DateTime'>
+    readonly dueRemindedAt: FieldRef<"Task", 'DateTime'>
     readonly sortOrder: FieldRef<"Task", 'Int'>
     readonly isCustom: FieldRef<"Task", 'Boolean'>
+    readonly assignee: FieldRef<"Task", 'String'>
   }
     
 
@@ -27874,6 +27932,7 @@ export namespace Prisma {
     actual: number | null
     paid: boolean | null
     notes: string | null
+    externalVendorId: string | null
     createdAt: Date | null
   }
 
@@ -27886,6 +27945,7 @@ export namespace Prisma {
     actual: number | null
     paid: boolean | null
     notes: string | null
+    externalVendorId: string | null
     createdAt: Date | null
   }
 
@@ -27898,6 +27958,7 @@ export namespace Prisma {
     actual: number
     paid: number
     notes: number
+    externalVendorId: number
     createdAt: number
     _all: number
   }
@@ -27922,6 +27983,7 @@ export namespace Prisma {
     actual?: true
     paid?: true
     notes?: true
+    externalVendorId?: true
     createdAt?: true
   }
 
@@ -27934,6 +27996,7 @@ export namespace Prisma {
     actual?: true
     paid?: true
     notes?: true
+    externalVendorId?: true
     createdAt?: true
   }
 
@@ -27946,6 +28009,7 @@ export namespace Prisma {
     actual?: true
     paid?: true
     notes?: true
+    externalVendorId?: true
     createdAt?: true
     _all?: true
   }
@@ -28045,6 +28109,7 @@ export namespace Prisma {
     actual: number
     paid: boolean
     notes: string | null
+    externalVendorId: string | null
     createdAt: Date
     _count: BudgetItemCountAggregateOutputType | null
     _avg: BudgetItemAvgAggregateOutputType | null
@@ -28076,8 +28141,10 @@ export namespace Prisma {
     actual?: boolean
     paid?: boolean
     notes?: boolean
+    externalVendorId?: boolean
     createdAt?: boolean
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    externalVendor?: boolean | BudgetItem$externalVendorArgs<ExtArgs>
   }, ExtArgs["result"]["budgetItem"]>
 
   export type BudgetItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -28089,8 +28156,10 @@ export namespace Prisma {
     actual?: boolean
     paid?: boolean
     notes?: boolean
+    externalVendorId?: boolean
     createdAt?: boolean
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    externalVendor?: boolean | BudgetItem$externalVendorArgs<ExtArgs>
   }, ExtArgs["result"]["budgetItem"]>
 
   export type BudgetItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -28102,8 +28171,10 @@ export namespace Prisma {
     actual?: boolean
     paid?: boolean
     notes?: boolean
+    externalVendorId?: boolean
     createdAt?: boolean
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    externalVendor?: boolean | BudgetItem$externalVendorArgs<ExtArgs>
   }, ExtArgs["result"]["budgetItem"]>
 
   export type BudgetItemSelectScalar = {
@@ -28115,24 +28186,29 @@ export namespace Prisma {
     actual?: boolean
     paid?: boolean
     notes?: boolean
+    externalVendorId?: boolean
     createdAt?: boolean
   }
 
-  export type BudgetItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "category" | "title" | "estimated" | "actual" | "paid" | "notes" | "createdAt", ExtArgs["result"]["budgetItem"]>
+  export type BudgetItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "category" | "title" | "estimated" | "actual" | "paid" | "notes" | "externalVendorId" | "createdAt", ExtArgs["result"]["budgetItem"]>
   export type BudgetItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    externalVendor?: boolean | BudgetItem$externalVendorArgs<ExtArgs>
   }
   export type BudgetItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    externalVendor?: boolean | BudgetItem$externalVendorArgs<ExtArgs>
   }
   export type BudgetItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    externalVendor?: boolean | BudgetItem$externalVendorArgs<ExtArgs>
   }
 
   export type $BudgetItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "BudgetItem"
     objects: {
       wedding: Prisma.$WeddingPayload<ExtArgs>
+      externalVendor: Prisma.$ExternalVendorPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -28143,6 +28219,7 @@ export namespace Prisma {
       actual: number
       paid: boolean
       notes: string | null
+      externalVendorId: string | null
       createdAt: Date
     }, ExtArgs["result"]["budgetItem"]>
     composites: {}
@@ -28539,6 +28616,7 @@ export namespace Prisma {
   export interface Prisma__BudgetItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     wedding<T extends WeddingDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WeddingDefaultArgs<ExtArgs>>): Prisma__WeddingClient<$Result.GetResult<Prisma.$WeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    externalVendor<T extends BudgetItem$externalVendorArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$externalVendorArgs<ExtArgs>>): Prisma__ExternalVendorClient<$Result.GetResult<Prisma.$ExternalVendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -28576,6 +28654,7 @@ export namespace Prisma {
     readonly actual: FieldRef<"BudgetItem", 'Int'>
     readonly paid: FieldRef<"BudgetItem", 'Boolean'>
     readonly notes: FieldRef<"BudgetItem", 'String'>
+    readonly externalVendorId: FieldRef<"BudgetItem", 'String'>
     readonly createdAt: FieldRef<"BudgetItem", 'DateTime'>
   }
     
@@ -28970,6 +29049,25 @@ export namespace Prisma {
      * Limit how many BudgetItems to delete.
      */
     limit?: number
+  }
+
+  /**
+   * BudgetItem.externalVendor
+   */
+  export type BudgetItem$externalVendorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalVendor
+     */
+    select?: ExternalVendorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalVendor
+     */
+    omit?: ExternalVendorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExternalVendorInclude<ExtArgs> | null
+    where?: ExternalVendorWhereInput
   }
 
   /**
@@ -31616,7 +31714,8 @@ export namespace Prisma {
     couplePhotoUrl: 'couplePhotoUrl',
     planningStage: 'planningStage',
     cityUndecided: 'cityUndecided',
-    guestsUndecided: 'guestsUndecided'
+    guestsUndecided: 'guestsUndecided',
+    dayPlan: 'dayPlan'
   };
 
   export type WeddingScalarFieldEnum = (typeof WeddingScalarFieldEnum)[keyof typeof WeddingScalarFieldEnum]
@@ -31679,8 +31778,10 @@ export namespace Prisma {
     categorySlug: 'categorySlug',
     status: 'status',
     dueDate: 'dueDate',
+    dueRemindedAt: 'dueRemindedAt',
     sortOrder: 'sortOrder',
-    isCustom: 'isCustom'
+    isCustom: 'isCustom',
+    assignee: 'assignee'
   };
 
   export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
@@ -31717,6 +31818,7 @@ export namespace Prisma {
     actual: 'actual',
     paid: 'paid',
     notes: 'notes',
+    externalVendorId: 'externalVendorId',
     createdAt: 'createdAt'
   };
 
@@ -31767,6 +31869,14 @@ export namespace Prisma {
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const JsonNullValueInput: {
@@ -32912,6 +33022,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ExternalVendor"> | Date | string
     updatedAt?: DateTimeFilter<"ExternalVendor"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    budgetItem?: XOR<BudgetItemNullableScalarRelationFilter, BudgetItemWhereInput> | null
   }
 
   export type ExternalVendorOrderByWithRelationInput = {
@@ -32928,6 +33039,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
+    budgetItem?: BudgetItemOrderByWithRelationInput
   }
 
   export type ExternalVendorWhereUniqueInput = Prisma.AtLeast<{
@@ -32947,6 +33059,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ExternalVendor"> | Date | string
     updatedAt?: DateTimeFilter<"ExternalVendor"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    budgetItem?: XOR<BudgetItemNullableScalarRelationFilter, BudgetItemWhereInput> | null
   }, "id">
 
   export type ExternalVendorOrderByWithAggregationInput = {
@@ -33164,6 +33277,7 @@ export namespace Prisma {
     planningStage?: StringFilter<"Wedding"> | string
     cityUndecided?: BoolFilter<"Wedding"> | boolean
     guestsUndecided?: BoolFilter<"Wedding"> | boolean
+    dayPlan?: JsonNullableFilter<"Wedding">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WeddingMemberListRelationFilter
     invites?: WeddingInviteListRelationFilter
@@ -33187,6 +33301,7 @@ export namespace Prisma {
     planningStage?: SortOrder
     cityUndecided?: SortOrder
     guestsUndecided?: SortOrder
+    dayPlan?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     members?: WeddingMemberOrderByRelationAggregateInput
     invites?: WeddingInviteOrderByRelationAggregateInput
@@ -33213,6 +33328,7 @@ export namespace Prisma {
     planningStage?: StringFilter<"Wedding"> | string
     cityUndecided?: BoolFilter<"Wedding"> | boolean
     guestsUndecided?: BoolFilter<"Wedding"> | boolean
+    dayPlan?: JsonNullableFilter<"Wedding">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WeddingMemberListRelationFilter
     invites?: WeddingInviteListRelationFilter
@@ -33236,6 +33352,7 @@ export namespace Prisma {
     planningStage?: SortOrder
     cityUndecided?: SortOrder
     guestsUndecided?: SortOrder
+    dayPlan?: SortOrderInput | SortOrder
     _count?: WeddingCountOrderByAggregateInput
     _avg?: WeddingAvgOrderByAggregateInput
     _max?: WeddingMaxOrderByAggregateInput
@@ -33259,6 +33376,7 @@ export namespace Prisma {
     planningStage?: StringWithAggregatesFilter<"Wedding"> | string
     cityUndecided?: BoolWithAggregatesFilter<"Wedding"> | boolean
     guestsUndecided?: BoolWithAggregatesFilter<"Wedding"> | boolean
+    dayPlan?: JsonNullableWithAggregatesFilter<"Wedding">
   }
 
   export type WeddingWebsiteWhereInput = {
@@ -33524,8 +33642,10 @@ export namespace Prisma {
     categorySlug?: StringNullableFilter<"Task"> | string | null
     status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
     dueDate?: DateTimeNullableFilter<"Task"> | Date | string | null
+    dueRemindedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
     sortOrder?: IntFilter<"Task"> | number
     isCustom?: BoolFilter<"Task"> | boolean
+    assignee?: StringNullableFilter<"Task"> | string | null
     wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
   }
 
@@ -33536,8 +33656,10 @@ export namespace Prisma {
     categorySlug?: SortOrderInput | SortOrder
     status?: SortOrder
     dueDate?: SortOrderInput | SortOrder
+    dueRemindedAt?: SortOrderInput | SortOrder
     sortOrder?: SortOrder
     isCustom?: SortOrder
+    assignee?: SortOrderInput | SortOrder
     wedding?: WeddingOrderByWithRelationInput
   }
 
@@ -33551,8 +33673,10 @@ export namespace Prisma {
     categorySlug?: StringNullableFilter<"Task"> | string | null
     status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
     dueDate?: DateTimeNullableFilter<"Task"> | Date | string | null
+    dueRemindedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
     sortOrder?: IntFilter<"Task"> | number
     isCustom?: BoolFilter<"Task"> | boolean
+    assignee?: StringNullableFilter<"Task"> | string | null
     wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
   }, "id">
 
@@ -33563,8 +33687,10 @@ export namespace Prisma {
     categorySlug?: SortOrderInput | SortOrder
     status?: SortOrder
     dueDate?: SortOrderInput | SortOrder
+    dueRemindedAt?: SortOrderInput | SortOrder
     sortOrder?: SortOrder
     isCustom?: SortOrder
+    assignee?: SortOrderInput | SortOrder
     _count?: TaskCountOrderByAggregateInput
     _avg?: TaskAvgOrderByAggregateInput
     _max?: TaskMaxOrderByAggregateInput
@@ -33582,8 +33708,10 @@ export namespace Prisma {
     categorySlug?: StringNullableWithAggregatesFilter<"Task"> | string | null
     status?: EnumTaskStatusWithAggregatesFilter<"Task"> | $Enums.TaskStatus
     dueDate?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    dueRemindedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
     sortOrder?: IntWithAggregatesFilter<"Task"> | number
     isCustom?: BoolWithAggregatesFilter<"Task"> | boolean
+    assignee?: StringNullableWithAggregatesFilter<"Task"> | string | null
   }
 
   export type GuestWhereInput = {
@@ -33708,8 +33836,10 @@ export namespace Prisma {
     actual?: IntFilter<"BudgetItem"> | number
     paid?: BoolFilter<"BudgetItem"> | boolean
     notes?: StringNullableFilter<"BudgetItem"> | string | null
+    externalVendorId?: StringNullableFilter<"BudgetItem"> | string | null
     createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
     wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+    externalVendor?: XOR<ExternalVendorNullableScalarRelationFilter, ExternalVendorWhereInput> | null
   }
 
   export type BudgetItemOrderByWithRelationInput = {
@@ -33721,12 +33851,15 @@ export namespace Prisma {
     actual?: SortOrder
     paid?: SortOrder
     notes?: SortOrderInput | SortOrder
+    externalVendorId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     wedding?: WeddingOrderByWithRelationInput
+    externalVendor?: ExternalVendorOrderByWithRelationInput
   }
 
   export type BudgetItemWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    externalVendorId?: string
     AND?: BudgetItemWhereInput | BudgetItemWhereInput[]
     OR?: BudgetItemWhereInput[]
     NOT?: BudgetItemWhereInput | BudgetItemWhereInput[]
@@ -33739,7 +33872,8 @@ export namespace Prisma {
     notes?: StringNullableFilter<"BudgetItem"> | string | null
     createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
     wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
-  }, "id">
+    externalVendor?: XOR<ExternalVendorNullableScalarRelationFilter, ExternalVendorWhereInput> | null
+  }, "id" | "externalVendorId">
 
   export type BudgetItemOrderByWithAggregationInput = {
     id?: SortOrder
@@ -33750,6 +33884,7 @@ export namespace Prisma {
     actual?: SortOrder
     paid?: SortOrder
     notes?: SortOrderInput | SortOrder
+    externalVendorId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: BudgetItemCountOrderByAggregateInput
     _avg?: BudgetItemAvgOrderByAggregateInput
@@ -33770,6 +33905,7 @@ export namespace Prisma {
     actual?: IntWithAggregatesFilter<"BudgetItem"> | number
     paid?: BoolWithAggregatesFilter<"BudgetItem"> | boolean
     notes?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
+    externalVendorId?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BudgetItem"> | Date | string
   }
 
@@ -34920,6 +35056,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutExternalVendorsInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExternalVendorInput
   }
 
   export type ExternalVendorUncheckedCreateInput = {
@@ -34935,6 +35072,7 @@ export namespace Prisma {
     stage?: $Enums.VendorPipelineStage
     createdAt?: Date | string
     updatedAt?: Date | string
+    budgetItem?: BudgetItemUncheckedCreateNestedOneWithoutExternalVendorInput
   }
 
   export type ExternalVendorUpdateInput = {
@@ -34950,6 +35088,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutExternalVendorsNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExternalVendorNestedInput
   }
 
   export type ExternalVendorUncheckedUpdateInput = {
@@ -34965,6 +35104,7 @@ export namespace Prisma {
     stage?: EnumVendorPipelineStageFieldUpdateOperationsInput | $Enums.VendorPipelineStage
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    budgetItem?: BudgetItemUncheckedUpdateOneWithoutExternalVendorNestedInput
   }
 
   export type ExternalVendorCreateManyInput = {
@@ -35191,6 +35331,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -35214,6 +35355,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -35235,6 +35377,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -35258,6 +35401,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -35280,6 +35424,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type WeddingUpdateManyMutationInput = {
@@ -35294,6 +35439,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type WeddingUncheckedUpdateManyInput = {
@@ -35309,6 +35455,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type WeddingWebsiteCreateInput = {
@@ -35578,8 +35725,10 @@ export namespace Prisma {
     categorySlug?: string | null
     status?: $Enums.TaskStatus
     dueDate?: Date | string | null
+    dueRemindedAt?: Date | string | null
     sortOrder?: number
     isCustom?: boolean
+    assignee?: string | null
     wedding: WeddingCreateNestedOneWithoutTasksInput
   }
 
@@ -35590,8 +35739,10 @@ export namespace Prisma {
     categorySlug?: string | null
     status?: $Enums.TaskStatus
     dueDate?: Date | string | null
+    dueRemindedAt?: Date | string | null
     sortOrder?: number
     isCustom?: boolean
+    assignee?: string | null
   }
 
   export type TaskUpdateInput = {
@@ -35600,8 +35751,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
     wedding?: WeddingUpdateOneRequiredWithoutTasksNestedInput
   }
 
@@ -35612,8 +35765,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskCreateManyInput = {
@@ -35623,8 +35778,10 @@ export namespace Prisma {
     categorySlug?: string | null
     status?: $Enums.TaskStatus
     dueDate?: Date | string | null
+    dueRemindedAt?: Date | string | null
     sortOrder?: number
     isCustom?: boolean
+    assignee?: string | null
   }
 
   export type TaskUpdateManyMutationInput = {
@@ -35633,8 +35790,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskUncheckedUpdateManyInput = {
@@ -35644,8 +35803,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type GuestCreateInput = {
@@ -35790,6 +35951,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     wedding: WeddingCreateNestedOneWithoutBudgetItemsInput
+    externalVendor?: ExternalVendorCreateNestedOneWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateInput = {
@@ -35801,6 +35963,7 @@ export namespace Prisma {
     actual?: number
     paid?: boolean
     notes?: string | null
+    externalVendorId?: string | null
     createdAt?: Date | string
   }
 
@@ -35814,6 +35977,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     wedding?: WeddingUpdateOneRequiredWithoutBudgetItemsNestedInput
+    externalVendor?: ExternalVendorUpdateOneWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateInput = {
@@ -35825,6 +35989,7 @@ export namespace Prisma {
     actual?: IntFieldUpdateOperationsInput | number
     paid?: BoolFieldUpdateOperationsInput | boolean
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    externalVendorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -35837,6 +36002,7 @@ export namespace Prisma {
     actual?: number
     paid?: boolean
     notes?: string | null
+    externalVendorId?: string | null
     createdAt?: Date | string
   }
 
@@ -35860,6 +36026,7 @@ export namespace Prisma {
     actual?: IntFieldUpdateOperationsInput | number
     paid?: BoolFieldUpdateOperationsInput | boolean
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    externalVendorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -36954,6 +37121,11 @@ export namespace Prisma {
     _max?: NestedEnumVendorPipelineStageFilter<$PrismaModel>
   }
 
+  export type BudgetItemNullableScalarRelationFilter = {
+    is?: BudgetItemWhereInput | null
+    isNot?: BudgetItemWhereInput | null
+  }
+
   export type ExternalVendorCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -37110,6 +37282,29 @@ export namespace Prisma {
     phone?: SortOrder
     createdAt?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type WeddingMemberListRelationFilter = {
     every?: WeddingMemberWhereInput
@@ -37184,6 +37379,7 @@ export namespace Prisma {
     planningStage?: SortOrder
     cityUndecided?: SortOrder
     guestsUndecided?: SortOrder
+    dayPlan?: SortOrder
   }
 
   export type WeddingAvgOrderByAggregateInput = {
@@ -37224,6 +37420,32 @@ export namespace Prisma {
   export type WeddingSumOrderByAggregateInput = {
     guests?: SortOrder
     budget?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -37446,8 +37668,10 @@ export namespace Prisma {
     categorySlug?: SortOrder
     status?: SortOrder
     dueDate?: SortOrder
+    dueRemindedAt?: SortOrder
     sortOrder?: SortOrder
     isCustom?: SortOrder
+    assignee?: SortOrder
   }
 
   export type TaskAvgOrderByAggregateInput = {
@@ -37461,8 +37685,10 @@ export namespace Prisma {
     categorySlug?: SortOrder
     status?: SortOrder
     dueDate?: SortOrder
+    dueRemindedAt?: SortOrder
     sortOrder?: SortOrder
     isCustom?: SortOrder
+    assignee?: SortOrder
   }
 
   export type TaskMinOrderByAggregateInput = {
@@ -37472,8 +37698,10 @@ export namespace Prisma {
     categorySlug?: SortOrder
     status?: SortOrder
     dueDate?: SortOrder
+    dueRemindedAt?: SortOrder
     sortOrder?: SortOrder
     isCustom?: SortOrder
+    assignee?: SortOrder
   }
 
   export type TaskSumOrderByAggregateInput = {
@@ -37594,6 +37822,11 @@ export namespace Prisma {
     _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
+  export type ExternalVendorNullableScalarRelationFilter = {
+    is?: ExternalVendorWhereInput | null
+    isNot?: ExternalVendorWhereInput | null
+  }
+
   export type BudgetItemCountOrderByAggregateInput = {
     id?: SortOrder
     weddingId?: SortOrder
@@ -37603,6 +37836,7 @@ export namespace Prisma {
     actual?: SortOrder
     paid?: SortOrder
     notes?: SortOrder
+    externalVendorId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -37620,6 +37854,7 @@ export namespace Prisma {
     actual?: SortOrder
     paid?: SortOrder
     notes?: SortOrder
+    externalVendorId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -37632,6 +37867,7 @@ export namespace Prisma {
     actual?: SortOrder
     paid?: SortOrder
     notes?: SortOrder
+    externalVendorId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -38816,12 +39052,44 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type BudgetItemCreateNestedOneWithoutExternalVendorInput = {
+    create?: XOR<BudgetItemCreateWithoutExternalVendorInput, BudgetItemUncheckedCreateWithoutExternalVendorInput>
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutExternalVendorInput
+    connect?: BudgetItemWhereUniqueInput
+  }
+
+  export type BudgetItemUncheckedCreateNestedOneWithoutExternalVendorInput = {
+    create?: XOR<BudgetItemCreateWithoutExternalVendorInput, BudgetItemUncheckedCreateWithoutExternalVendorInput>
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutExternalVendorInput
+    connect?: BudgetItemWhereUniqueInput
+  }
+
   export type UserUpdateOneRequiredWithoutExternalVendorsNestedInput = {
     create?: XOR<UserCreateWithoutExternalVendorsInput, UserUncheckedCreateWithoutExternalVendorsInput>
     connectOrCreate?: UserCreateOrConnectWithoutExternalVendorsInput
     upsert?: UserUpsertWithoutExternalVendorsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutExternalVendorsInput, UserUpdateWithoutExternalVendorsInput>, UserUncheckedUpdateWithoutExternalVendorsInput>
+  }
+
+  export type BudgetItemUpdateOneWithoutExternalVendorNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutExternalVendorInput, BudgetItemUncheckedCreateWithoutExternalVendorInput>
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutExternalVendorInput
+    upsert?: BudgetItemUpsertWithoutExternalVendorInput
+    disconnect?: BudgetItemWhereInput | boolean
+    delete?: BudgetItemWhereInput | boolean
+    connect?: BudgetItemWhereUniqueInput
+    update?: XOR<XOR<BudgetItemUpdateToOneWithWhereWithoutExternalVendorInput, BudgetItemUpdateWithoutExternalVendorInput>, BudgetItemUncheckedUpdateWithoutExternalVendorInput>
+  }
+
+  export type BudgetItemUncheckedUpdateOneWithoutExternalVendorNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutExternalVendorInput, BudgetItemUncheckedCreateWithoutExternalVendorInput>
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutExternalVendorInput
+    upsert?: BudgetItemUpsertWithoutExternalVendorInput
+    disconnect?: BudgetItemWhereInput | boolean
+    delete?: BudgetItemWhereInput | boolean
+    connect?: BudgetItemWhereUniqueInput
+    update?: XOR<XOR<BudgetItemUpdateToOneWithWhereWithoutExternalVendorInput, BudgetItemUpdateWithoutExternalVendorInput>, BudgetItemUncheckedUpdateWithoutExternalVendorInput>
   }
 
   export type UserCreateNestedOneWithoutRequestsInput = {
@@ -39342,12 +39610,28 @@ export namespace Prisma {
     connect?: WeddingWhereUniqueInput
   }
 
+  export type ExternalVendorCreateNestedOneWithoutBudgetItemInput = {
+    create?: XOR<ExternalVendorCreateWithoutBudgetItemInput, ExternalVendorUncheckedCreateWithoutBudgetItemInput>
+    connectOrCreate?: ExternalVendorCreateOrConnectWithoutBudgetItemInput
+    connect?: ExternalVendorWhereUniqueInput
+  }
+
   export type WeddingUpdateOneRequiredWithoutBudgetItemsNestedInput = {
     create?: XOR<WeddingCreateWithoutBudgetItemsInput, WeddingUncheckedCreateWithoutBudgetItemsInput>
     connectOrCreate?: WeddingCreateOrConnectWithoutBudgetItemsInput
     upsert?: WeddingUpsertWithoutBudgetItemsInput
     connect?: WeddingWhereUniqueInput
     update?: XOR<XOR<WeddingUpdateToOneWithWhereWithoutBudgetItemsInput, WeddingUpdateWithoutBudgetItemsInput>, WeddingUncheckedUpdateWithoutBudgetItemsInput>
+  }
+
+  export type ExternalVendorUpdateOneWithoutBudgetItemNestedInput = {
+    create?: XOR<ExternalVendorCreateWithoutBudgetItemInput, ExternalVendorUncheckedCreateWithoutBudgetItemInput>
+    connectOrCreate?: ExternalVendorCreateOrConnectWithoutBudgetItemInput
+    upsert?: ExternalVendorUpsertWithoutBudgetItemInput
+    disconnect?: ExternalVendorWhereInput | boolean
+    delete?: ExternalVendorWhereInput | boolean
+    connect?: ExternalVendorWhereUniqueInput
+    update?: XOR<XOR<ExternalVendorUpdateToOneWithWhereWithoutBudgetItemInput, ExternalVendorUpdateWithoutBudgetItemInput>, ExternalVendorUncheckedUpdateWithoutBudgetItemInput>
   }
 
   export type ContentPostCreateNestedManyWithoutTopicInput = {
@@ -39689,6 +39973,29 @@ export namespace Prisma {
     _min?: NestedEnumRequestStatusFilter<$PrismaModel>
     _max?: NestedEnumRequestStatusFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -39952,6 +40259,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
@@ -39973,6 +40281,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -40138,6 +40447,7 @@ export namespace Prisma {
     stage?: $Enums.VendorPipelineStage
     createdAt?: Date | string
     updatedAt?: Date | string
+    budgetItem?: BudgetItemCreateNestedOneWithoutExternalVendorInput
   }
 
   export type ExternalVendorUncheckedCreateWithoutUserInput = {
@@ -40152,6 +40462,7 @@ export namespace Prisma {
     stage?: $Enums.VendorPipelineStage
     createdAt?: Date | string
     updatedAt?: Date | string
+    budgetItem?: BudgetItemUncheckedCreateNestedOneWithoutExternalVendorInput
   }
 
   export type ExternalVendorCreateOrConnectWithoutUserInput = {
@@ -40358,6 +40669,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
@@ -40379,6 +40691,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -42924,6 +43237,35 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutExternalVendorsInput, UserUncheckedCreateWithoutExternalVendorsInput>
   }
 
+  export type BudgetItemCreateWithoutExternalVendorInput = {
+    id?: string
+    category: string
+    title: string
+    estimated?: number
+    actual?: number
+    paid?: boolean
+    notes?: string | null
+    createdAt?: Date | string
+    wedding: WeddingCreateNestedOneWithoutBudgetItemsInput
+  }
+
+  export type BudgetItemUncheckedCreateWithoutExternalVendorInput = {
+    id?: string
+    weddingId: string
+    category: string
+    title: string
+    estimated?: number
+    actual?: number
+    paid?: boolean
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BudgetItemCreateOrConnectWithoutExternalVendorInput = {
+    where: BudgetItemWhereUniqueInput
+    create: XOR<BudgetItemCreateWithoutExternalVendorInput, BudgetItemUncheckedCreateWithoutExternalVendorInput>
+  }
+
   export type UserUpsertWithoutExternalVendorsInput = {
     update: XOR<UserUpdateWithoutExternalVendorsInput, UserUncheckedUpdateWithoutExternalVendorsInput>
     create: XOR<UserCreateWithoutExternalVendorsInput, UserUncheckedCreateWithoutExternalVendorsInput>
@@ -42973,6 +43315,41 @@ export namespace Prisma {
     requestMessages?: RequestMessageUncheckedUpdateManyWithoutAuthorNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type BudgetItemUpsertWithoutExternalVendorInput = {
+    update: XOR<BudgetItemUpdateWithoutExternalVendorInput, BudgetItemUncheckedUpdateWithoutExternalVendorInput>
+    create: XOR<BudgetItemCreateWithoutExternalVendorInput, BudgetItemUncheckedCreateWithoutExternalVendorInput>
+    where?: BudgetItemWhereInput
+  }
+
+  export type BudgetItemUpdateToOneWithWhereWithoutExternalVendorInput = {
+    where?: BudgetItemWhereInput
+    data: XOR<BudgetItemUpdateWithoutExternalVendorInput, BudgetItemUncheckedUpdateWithoutExternalVendorInput>
+  }
+
+  export type BudgetItemUpdateWithoutExternalVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    estimated?: IntFieldUpdateOperationsInput | number
+    actual?: IntFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    wedding?: WeddingUpdateOneRequiredWithoutBudgetItemsNestedInput
+  }
+
+  export type BudgetItemUncheckedUpdateWithoutExternalVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    estimated?: IntFieldUpdateOperationsInput | number
+    actual?: IntFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateWithoutRequestsInput = {
@@ -43566,8 +43943,10 @@ export namespace Prisma {
     categorySlug?: string | null
     status?: $Enums.TaskStatus
     dueDate?: Date | string | null
+    dueRemindedAt?: Date | string | null
     sortOrder?: number
     isCustom?: boolean
+    assignee?: string | null
   }
 
   export type TaskUncheckedCreateWithoutWeddingInput = {
@@ -43576,8 +43955,10 @@ export namespace Prisma {
     categorySlug?: string | null
     status?: $Enums.TaskStatus
     dueDate?: Date | string | null
+    dueRemindedAt?: Date | string | null
     sortOrder?: number
     isCustom?: boolean
+    assignee?: string | null
   }
 
   export type TaskCreateOrConnectWithoutWeddingInput = {
@@ -43645,6 +44026,7 @@ export namespace Prisma {
     paid?: boolean
     notes?: string | null
     createdAt?: Date | string
+    externalVendor?: ExternalVendorCreateNestedOneWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutWeddingInput = {
@@ -43655,6 +44037,7 @@ export namespace Prisma {
     actual?: number
     paid?: boolean
     notes?: string | null
+    externalVendorId?: string | null
     createdAt?: Date | string
   }
 
@@ -43847,8 +44230,10 @@ export namespace Prisma {
     categorySlug?: StringNullableFilter<"Task"> | string | null
     status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
     dueDate?: DateTimeNullableFilter<"Task"> | Date | string | null
+    dueRemindedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
     sortOrder?: IntFilter<"Task"> | number
     isCustom?: BoolFilter<"Task"> | boolean
+    assignee?: StringNullableFilter<"Task"> | string | null
   }
 
   export type GuestUpsertWithWhereUniqueWithoutWeddingInput = {
@@ -43917,6 +44302,7 @@ export namespace Prisma {
     actual?: IntFilter<"BudgetItem"> | number
     paid?: BoolFilter<"BudgetItem"> | boolean
     notes?: StringNullableFilter<"BudgetItem"> | string | null
+    externalVendorId?: StringNullableFilter<"BudgetItem"> | string | null
     createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
   }
 
@@ -43990,6 +44376,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -44012,6 +44399,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -44048,6 +44436,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -44070,6 +44459,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -44090,6 +44480,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -44112,6 +44503,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -44148,6 +44540,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -44170,6 +44563,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -44190,6 +44584,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
@@ -44212,6 +44607,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
@@ -44293,6 +44689,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
@@ -44315,6 +44712,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
@@ -44386,6 +44784,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
@@ -44408,6 +44807,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
@@ -44444,6 +44844,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
@@ -44466,6 +44867,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
@@ -44486,6 +44888,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -44508,6 +44911,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
@@ -44544,6 +44948,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -44566,6 +44971,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
@@ -44586,6 +44992,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -44608,6 +45015,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -44644,6 +45052,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -44666,6 +45075,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -44686,6 +45096,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -44708,6 +45119,7 @@ export namespace Prisma {
     planningStage?: string
     cityUndecided?: boolean
     guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -44719,6 +45131,41 @@ export namespace Prisma {
   export type WeddingCreateOrConnectWithoutBudgetItemsInput = {
     where: WeddingWhereUniqueInput
     create: XOR<WeddingCreateWithoutBudgetItemsInput, WeddingUncheckedCreateWithoutBudgetItemsInput>
+  }
+
+  export type ExternalVendorCreateWithoutBudgetItemInput = {
+    id?: string
+    name: string
+    category: string
+    city: string
+    phone?: string | null
+    website?: string | null
+    quotedPrice?: number | null
+    notes?: string | null
+    stage?: $Enums.VendorPipelineStage
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutExternalVendorsInput
+  }
+
+  export type ExternalVendorUncheckedCreateWithoutBudgetItemInput = {
+    id?: string
+    userId: string
+    name: string
+    category: string
+    city: string
+    phone?: string | null
+    website?: string | null
+    quotedPrice?: number | null
+    notes?: string | null
+    stage?: $Enums.VendorPipelineStage
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ExternalVendorCreateOrConnectWithoutBudgetItemInput = {
+    where: ExternalVendorWhereUniqueInput
+    create: XOR<ExternalVendorCreateWithoutBudgetItemInput, ExternalVendorUncheckedCreateWithoutBudgetItemInput>
   }
 
   export type WeddingUpsertWithoutBudgetItemsInput = {
@@ -44744,6 +45191,7 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -44766,12 +45214,54 @@ export namespace Prisma {
     planningStage?: StringFieldUpdateOperationsInput | string
     cityUndecided?: BoolFieldUpdateOperationsInput | boolean
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+  }
+
+  export type ExternalVendorUpsertWithoutBudgetItemInput = {
+    update: XOR<ExternalVendorUpdateWithoutBudgetItemInput, ExternalVendorUncheckedUpdateWithoutBudgetItemInput>
+    create: XOR<ExternalVendorCreateWithoutBudgetItemInput, ExternalVendorUncheckedCreateWithoutBudgetItemInput>
+    where?: ExternalVendorWhereInput
+  }
+
+  export type ExternalVendorUpdateToOneWithWhereWithoutBudgetItemInput = {
+    where?: ExternalVendorWhereInput
+    data: XOR<ExternalVendorUpdateWithoutBudgetItemInput, ExternalVendorUncheckedUpdateWithoutBudgetItemInput>
+  }
+
+  export type ExternalVendorUpdateWithoutBudgetItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    quotedPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumVendorPipelineStageFieldUpdateOperationsInput | $Enums.VendorPipelineStage
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutExternalVendorsNestedInput
+  }
+
+  export type ExternalVendorUncheckedUpdateWithoutBudgetItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    quotedPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumVendorPipelineStageFieldUpdateOperationsInput | $Enums.VendorPipelineStage
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContentPostCreateWithoutTopicInput = {
@@ -45207,6 +45697,7 @@ export namespace Prisma {
     stage?: EnumVendorPipelineStageFieldUpdateOperationsInput | $Enums.VendorPipelineStage
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    budgetItem?: BudgetItemUpdateOneWithoutExternalVendorNestedInput
   }
 
   export type ExternalVendorUncheckedUpdateWithoutUserInput = {
@@ -45221,6 +45712,7 @@ export namespace Prisma {
     stage?: EnumVendorPipelineStageFieldUpdateOperationsInput | $Enums.VendorPipelineStage
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    budgetItem?: BudgetItemUncheckedUpdateOneWithoutExternalVendorNestedInput
   }
 
   export type ExternalVendorUncheckedUpdateManyWithoutUserInput = {
@@ -45808,8 +46300,10 @@ export namespace Prisma {
     categorySlug?: string | null
     status?: $Enums.TaskStatus
     dueDate?: Date | string | null
+    dueRemindedAt?: Date | string | null
     sortOrder?: number
     isCustom?: boolean
+    assignee?: string | null
   }
 
   export type GuestCreateManyWeddingInput = {
@@ -45838,6 +46332,7 @@ export namespace Prisma {
     actual?: number
     paid?: boolean
     notes?: string | null
+    externalVendorId?: string | null
     createdAt?: Date | string
   }
 
@@ -45895,8 +46390,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskUncheckedUpdateWithoutWeddingInput = {
@@ -45905,8 +46402,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskUncheckedUpdateManyWithoutWeddingInput = {
@@ -45915,8 +46414,10 @@ export namespace Prisma {
     categorySlug?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dueRemindedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isCustom?: BoolFieldUpdateOperationsInput | boolean
+    assignee?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type GuestUpdateWithoutWeddingInput = {
@@ -45982,6 +46483,7 @@ export namespace Prisma {
     paid?: BoolFieldUpdateOperationsInput | boolean
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    externalVendor?: ExternalVendorUpdateOneWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutWeddingInput = {
@@ -45992,6 +46494,7 @@ export namespace Prisma {
     actual?: IntFieldUpdateOperationsInput | number
     paid?: BoolFieldUpdateOperationsInput | boolean
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    externalVendorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -46003,6 +46506,7 @@ export namespace Prisma {
     actual?: IntFieldUpdateOperationsInput | number
     paid?: BoolFieldUpdateOperationsInput | boolean
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    externalVendorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

@@ -1,0 +1,33 @@
+.wsite-closing {
+  text-align: center;
+  padding-bottom: 0;
+
+  &__ornament {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1.5rem;
+    color: var(--wsite-ink-soft);
+  }
+
+  &__title {
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+
+  &__text {
+    max-width: 26rem;
+    margin: 1rem auto 0;
+  }
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 3rem;
+    min-height: 42px;
+    background: var(--wsite-dark);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+  }
+}

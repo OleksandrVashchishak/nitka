@@ -8,6 +8,7 @@ import {
   CreateBudgetItemDto,
   UpdateBudgetItemDto,
 } from './dto/budget.dto';
+import { syncAllExternalVendorBudgetItems } from './vendor-budget-sync';
 
 const DEFAULT_ITEMS: Array<{
   category: string;
@@ -127,6 +128,9 @@ export class BudgetService {
 
   async getMine(userId: string) {
     const wedding = await this.getWeddingForUser(userId);
+
+    // Keep vendor-linked expenses in sync (also backfills existing vendors).
+    await syncAllExternalVendorBudgetItems(this.prisma, userId);
 
     const items = await this.prisma.budgetItem.findMany({
       where: { weddingId: wedding.id },

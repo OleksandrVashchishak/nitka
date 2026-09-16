@@ -17,10 +17,12 @@ import {
 } from "@/lib/dashboard-api";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { IconMore } from "@/components/icon-more";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
+import { IconTaskCheck } from "@/components/cabinet-task-icons";
 import { toast } from "@/lib/toast";
 import { VENDOR_MANAGER_CATEGORIES } from "@/lib/vendor-manager";
 import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
@@ -64,8 +66,11 @@ function daysWord(n: number) {
   return "днів";
 }
 
-function formatMoney(value: number) {
-  return new Intl.NumberFormat("uk-UA").format(Math.round(value));
+const USD_RATE = 41;
+
+function formatMoneyUsd(uah: number) {
+  const usd = Math.round(uah / USD_RATE);
+  return `$${new Intl.NumberFormat("uk-UA").format(usd)}`;
 }
 
 function formatTaskDate(iso: string) {
@@ -320,6 +325,9 @@ export function CoupleOverview({
   return (
     <div className="cabinet-overview">
       <div className="cabinet-overview-top">
+        <Link href="/dashboard" className="cabinet-mobile-brand">
+          fata.studi<span className="cabinet-logo-dot">o</span>
+        </Link>
         <div className="cabinet-overview-greeting">
           <h1>Привіт, {greetingName}!</h1>
           <p>
@@ -335,6 +343,31 @@ export function CoupleOverview({
 
       <div className="cabinet-body">
         <div className="cabinet-stats">
+          {statsReady && !hasSpend ? (
+            <article className="cabinet-stat is-light is-cta">
+              <p className="cabinet-stat-cta-title">
+                Тут можна разом контролювати витрати{" "}
+                <span aria-hidden>❤️</span>
+              </p>
+              <Link href="/budget" className="cabinet-stat-link">
+                Внести витрати
+              </Link>
+            </article>
+          ) : (
+            <article className="cabinet-stat is-light">
+              <p className="cabinet-stat-value">
+                {statsReady && spend != null ? formatMoneyUsd(spend) : "—"}
+              </p>
+              <p className="cabinet-stat-label cabinet-stat-label--full">
+                Витрат (фактичні і плановані)
+              </p>
+              <p className="cabinet-stat-label cabinet-stat-label--short">Витрат</p>
+              <Link href="/budget" className="cabinet-stat-link">
+                Детальніше
+              </Link>
+            </article>
+          )}
+
           {statsReady && !hasVendors ? (
             <article className="cabinet-stat is-light is-cta">
               <p className="cabinet-stat-cta-title">
@@ -351,28 +384,6 @@ export function CoupleOverview({
               </p>
               <p className="cabinet-stat-label">Підрядників</p>
               <Link href="/my-vendors" className="cabinet-stat-link">
-                Детальніше
-              </Link>
-            </article>
-          )}
-
-          {statsReady && !hasSpend ? (
-            <article className="cabinet-stat is-light is-cta">
-              <p className="cabinet-stat-cta-title">
-                Тут можна разом контролювати витрати{" "}
-                <span aria-hidden>❤️</span>
-              </p>
-              <Link href="/budget" className="cabinet-stat-link">
-                Внести витрати
-              </Link>
-            </article>
-          ) : (
-            <article className="cabinet-stat is-light">
-              <p className="cabinet-stat-value">
-                {statsReady && spend != null ? `${formatMoney(spend)} ₴` : "—"}
-              </p>
-              <p className="cabinet-stat-label">Витрат (фактичні і плановані)</p>
-              <Link href="/budget" className="cabinet-stat-link">
                 Детальніше
               </Link>
             </article>
@@ -403,7 +414,7 @@ export function CoupleOverview({
         <aside className="cabinet-right-col">
           <article className="cabinet-side-progress">
             <div className="cabinet-side-progress-head">
-              <div>
+              <div className="cabinet-side-progress-title">
                 <p className="cabinet-side-progress-value">{progress}%</p>
                 <p className="cabinet-side-progress-label">готовність весілля</p>
               </div>
@@ -443,7 +454,7 @@ export function CoupleOverview({
           </article>
         </aside>
 
-        <section className="cabinet-panel cabinet-tasks-panel">
+        <section className="cabinet-tasks-panel">
           <h2>Завдання</h2>
           <ul className="cabinet-task-list">
             {showInviteTask ? (
@@ -507,17 +518,22 @@ export function CoupleOverview({
               ? STARTER_TASKS.map((item) => (
                   <li key={item.id} className="cabinet-task-row is-starter">
                     <span className="cabinet-task-check" aria-hidden />
-                    <Link href={item.href} className="cabinet-task-title">
-                      {item.title}
-                    </Link>
-                    <div className="cabinet-task-meta-wrap">
-                      <Link
-                        href={item.href}
-                        className="cabinet-task-menu"
-                        aria-label="Відкрити"
-                      >
-                        ⋯
+                    <div className="cabinet-task-body">
+                      <Link href={item.href} className="cabinet-task-title">
+                        {item.title}
                       </Link>
+                      <div className="cabinet-task-meta-wrap">
+                        <div className="cabinet-task-meta" />
+                        <div className="cabinet-task-actions">
+                          <Link
+                            href={item.href}
+                            className="cabinet-task-menu"
+                            aria-label="Відкрити"
+                          >
+                            <IconMore />
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </li>
                 ))
@@ -535,39 +551,38 @@ export function CoupleOverview({
                         aria-label={isDone ? "Повернути в роботу" : "Виконано"}
                         onClick={() => void onToggleTask(task, isDone)}
                       >
-                        {isDone ? (
-                          <svg width="10" height="10" viewBox="0 0 16 16" aria-hidden>
-                            <path
-                              fill="currentColor"
-                              d="M6.2 11.4 2.8 8l1.1-1.1 2.3 2.3 5-5L12.3 5z"
-                            />
-                          </svg>
-                        ) : null}
+                        <IconTaskCheck className="cabinet-task-check__mark" />
                       </button>
-                      <p className="cabinet-task-title">{task.title}</p>
-                      <div className="cabinet-task-meta-wrap">
-                        <span className={`cabinet-task-tag is-${cat.tone}`}>
-                          {cat.label}
-                        </span>
-                        {due ? (
-                          <span
-                            className={`cabinet-task-date${taskDateTone(due, isDone)}`}
-                          >
-                            {formatTaskDate(due)}
-                          </span>
-                        ) : null}
-                        <span className={`cabinet-task-who is-${who}`}>
-                          {who === "owner"
-                            ? greetingName.charAt(0)
-                            : partnerName.charAt(0) || "P"}
-                        </span>
-                        <Link
-                          href="/checklist"
-                          className="cabinet-task-menu"
-                          aria-label="Відкрити всі завдання"
-                        >
-                          ⋯
-                        </Link>
+                      <div className="cabinet-task-body">
+                        <p className="cabinet-task-title">{task.title}</p>
+                        <div className="cabinet-task-meta-wrap">
+                          <div className="cabinet-task-meta">
+                            <span className={`cabinet-task-tag is-${cat.tone}`}>
+                              {cat.label}
+                            </span>
+                            {due ? (
+                              <span
+                                className={`cabinet-task-date${taskDateTone(due, isDone)}`}
+                              >
+                                {formatTaskDate(due)}
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="cabinet-task-actions">
+                            <span className={`cabinet-task-who is-${who}`}>
+                              {who === "owner"
+                                ? greetingName.charAt(0)
+                                : partnerName.charAt(0) || "P"}
+                            </span>
+                            <Link
+                              href="/checklist"
+                              className="cabinet-task-menu"
+                              aria-label="Відкрити всі завдання"
+                            >
+                              <IconMore />
+                            </Link>
+                          </div>
+                        </div>
                       </div>
                     </li>
                   );

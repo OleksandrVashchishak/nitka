@@ -1,0 +1,116 @@
+.we-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  height: var(--we-header-h);
+  padding: 0 20px;
+  border-bottom: 1px solid var(--we-line);
+  background: var(--we-white);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--we-ink);
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--we-panel);
+    }
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--we-font);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--we-ink);
+    text-decoration: none;
+  }
+
+  &__brand-dot {
+    color: var(--we-orange);
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  &__autosave {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--we-muted);
+    white-space: nowrap;
+  }
+
+  &__autosave-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+
+    &--pending {
+      background: #f59e0b;
+    }
+
+    &--error {
+      background: #ef4444;
+    }
+  }
+
+  &__publish {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 172px;
+    height: 37px;
+    padding: 0 32px;
+    border: 0;
+    border-radius: 40px;
+    background: var(--we-orange);
+    color: #fff;
+    font-family: var(--we-font-btn);
+    font-size: 14px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 100%;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+
+    &:hover:not(:disabled) {
+      opacity: 0.92;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  }
+}

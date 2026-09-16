@@ -4,7 +4,8 @@
   --photo-col: calc(min(100vw, 1440px) * 595 / 1440);
   background: #61040f;
   color: #f0febb;
-  overflow-x: hidden;
+  /* clip keeps horizontal containment without killing position:sticky */
+  overflow-x: clip;
 }
 
 .fata-shell {
@@ -65,6 +66,7 @@
   position: absolute;
   left: 0;
   top: 0;
+  z-index: 3;
   width: 36%;
   max-width: 500px;
 
@@ -240,9 +242,19 @@ position: absolute;
   transform: translate(-50%, -50%);
   top: 35%;
   width: 150%;
+  max-width: 464px;
   pointer-events: none;
   object-fit: contain;
-  max-width: 464px;
+  opacity: 0;
+  clip-path: inset(0 72% 0 0);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    clip-path 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-compare-pair.is-circled .fata-scribble {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
 }
 
 .fata-x {
@@ -253,7 +265,116 @@ position: absolute;
   height: 172px;
   pointer-events: none;
   overflow: visible;
-  object-fit: contain;
+}
+
+.fata-x-a,
+.fata-x-b {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transform-origin: center;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    clip-path 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-compare-pair.is-crossed .fata-x-a {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+
+.fata-compare-pair.is-crossed .fata-x-b {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition-delay: 0.22s;
+}
+
+.fata-compare-pair:not(.is-crossed) .fata-x-b {
+  transition-delay: 0s;
+}
+
+.fata-compare-cell--before > .fata-kicker,
+.fata-compare-cell--before > .fata-compare-title,
+.fata-compare-cell--before > .fata-compare-copy {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-compare-cell--after > .fata-kicker,
+.fata-compare-cell--after > .fata-compare-title,
+.fata-compare-cell--after > .fata-compare-copy {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-compare-pair.is-before-in .fata-compare-cell--before > .fata-kicker,
+.fata-compare-pair.is-before-in .fata-compare-cell--before > .fata-compare-title,
+.fata-compare-pair.is-before-in .fata-compare-cell--before > .fata-compare-copy {
+  opacity: 1;
+  transform: none;
+}
+
+.fata-compare-pair.is-after-in .fata-compare-cell--after > .fata-kicker,
+.fata-compare-pair.is-after-in .fata-compare-cell--after > .fata-compare-title,
+.fata-compare-pair.is-after-in .fata-compare-cell--after > .fata-compare-copy {
+  opacity: 1;
+  transform: none;
+}
+
+.fata-compare-rule {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-compare-pair.is-before-in .fata-compare-rule {
+  opacity: 1;
+}
+
+.fata-reveal-photo {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 1.05s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.fata-reveal-photo.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fata-sec2-photos > .fata-reveal-photo:nth-child(2) {
+  transition-delay: 0.08s;
+}
+
+.fata-sec2-photos > .fata-reveal-photo:nth-child(3) {
+  transition-delay: 0.16s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fata-compare-cell--before > .fata-kicker,
+  .fata-compare-cell--before > .fata-compare-title,
+  .fata-compare-cell--before > .fata-compare-copy,
+  .fata-compare-cell--after > .fata-kicker,
+  .fata-compare-cell--after > .fata-compare-title,
+  .fata-compare-cell--after > .fata-compare-copy,
+  .fata-scribble,
+  .fata-x-a,
+  .fata-x-b,
+  .fata-compare-rule,
+  .fata-reveal-photo {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    clip-path: none !important;
+  }
 }
 
 .fata-mobile {
@@ -263,6 +384,7 @@ position: absolute;
   padding: 0 20px;
   padding-top: 20px;
   padding-bottom: 100px;
+  overflow: hidden;
 }
 
 .fata-mobile::after {
@@ -273,7 +395,37 @@ position: absolute;
   top: 91px;
   background: #D3DFAE;
   left: 0;
+  z-index: 0;
   pointer-events: none;
+}
+
+.fata-phrase {
+  position: absolute;
+  top: 43%;
+  left: 0;
+  z-index: 1;
+  width: max-content;
+  margin: 0;
+  color: #f0febb;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: 132.74px;
+  line-height: 0.8;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.fata-phrase em {
+  font-style: italic;
+  font-weight: 300;
+}
+
+.fata-phrase span {
+  font-family: var(--font-mak), serif;
+  font-style: normal;
+  font-weight: 300;
+  color: #ff4200;
 }
 
 .fata-mobile-stage {
@@ -281,13 +433,27 @@ position: absolute;
   height: 100%;
   display: flex;
   justify-content: space-between;
-  z-index: 1;
+  z-index: 2;
   max-width: 1240px;
   gap: 39px;
 }
 
 .fata-mobile-copy {
+  position: relative;
+  z-index: 2;
   margin-top: 150px;
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .fata-mobile-copy {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+
+  .fata-dl {
+    opacity: 0;
+    transform: translateX(-71px) translateY(36px);
+  }
 }
 
 .fata-mobile-copy p {
@@ -300,6 +466,8 @@ position: absolute;
 }
 
 .fata-phone {
+  position: relative;
+  z-index: 2;
   height: 773px;
   flex-shrink: 0;
   transform: translateX(-32px);
@@ -313,6 +481,8 @@ position: absolute;
 }
 
 .fata-dl {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -329,7 +499,7 @@ position: absolute;
   text-decoration: none;
   margin-top: 406px;
   min-width: fit-content;
-  transition: all .4s;
+  transition: background .4s;
   transform: translateX(-71px);
 }
 
@@ -347,11 +517,6 @@ position: absolute;
   padding-bottom: 100px;
 }
 
-.fata-feature:focus-visible {
-  outline: 2px solid #ff4200;
-  outline-offset: -2px;
-}
-
 .fata-feature {
   display: grid;
   grid-template-columns: 80px minmax(0, 1fr) minmax(180px, 387px);
@@ -360,14 +525,10 @@ position: absolute;
     "n body img";
   align-items: start;
   padding: 32px var(--gutter) 32px 84px;
-  padding-bottom: 0;
   border-top: 2px solid #ebe5d4;
-  cursor: pointer;
-}
-
-.fata-feature.is-open {
-  align-items: start;
-  padding-bottom: 32px;
+  background: #fff;
+  position: sticky;
+  top: var(--fata-header-h);
 }
 
 .fata-feature-n {
@@ -395,24 +556,14 @@ position: absolute;
 .fata-feature-panel {
   padding-left: 58px;
   grid-area: body;
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition: grid-template-rows 0.4s ease, opacity 0.25s ease;
-}
-
-.fata-feature.is-open .fata-feature-panel {
-  grid-template-rows: 1fr;
-  opacity: 1;
 }
 
 .fata-feature-panel-inner {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: 0;
-  overflow: hidden;
   max-width: 623px;
+  padding-top: 16px;
 }
 
 .fata-feature-point {
@@ -441,14 +592,9 @@ position: absolute;
   grid-area: img;
   position: relative;
   width: min(390px, 32vw);
-  height: 58px;
+  height: 218px;
   justify-self: end;
   overflow: hidden;
-  transition: height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fata-feature.is-open .fata-feature-img {
-  height: 218px;
 }
 
 .fata-feature-img img {
@@ -561,7 +707,6 @@ position: absolute;
 
   .fata-feature {
     padding: 32px 20px;
-    padding-bottom: 0;
   }
 
 }
@@ -612,6 +757,11 @@ position: absolute;
 
   .fata-mobile::after {
     height: 467px;
+  }
+
+  .fata-phrase {
+    font-size: 100.74px;
+    top: 50%;
   }
 
   .fata-mobile-copy {
@@ -767,6 +917,11 @@ position: absolute;
     top: 72px;
   }
 
+  .fata-phrase {
+    top: 38%;
+    font-size: 51.89px;
+  }
+
   .fata-phone {
     order: -1;
     height: 560px;
@@ -839,14 +994,9 @@ position: absolute;
 
   .fata-feature-img {
     width: 100%;
-    height: 0;
-    margin-top: 0;
-    justify-self: stretch;
-  }
-
-  .fata-feature.is-open .fata-feature-img {
     height: 218px;
     margin-top: 16px;
+    justify-self: stretch;
   }
 
   .fata-foot-top {
@@ -885,7 +1035,6 @@ position: absolute;
 
   .fata-feature {
     padding: 32px 16px;
-    padding-bottom: 0;
   }
 }
 
@@ -993,10 +1142,7 @@ position: absolute;
   padding: 24px 20px 36px;
 }
 
-.fata-mobile-wordmark {
-  display: none !important;
-}
-
+.fata-mobile-wordmark,
 .fata-mobile-band {
-  display: none;
+  display: none !important;
 }

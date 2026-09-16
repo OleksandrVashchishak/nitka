@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FavoritesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const vendor_budget_sync_1 = require("../budget/vendor-budget-sync");
 const favoriteInclude = {
     vendor: {
         include: {
@@ -100,7 +101,7 @@ let FavoritesService = class FavoritesService {
             where: { userId },
             select: { city: true },
         });
-        return this.prisma.externalVendor.create({
+        const vendor = await this.prisma.externalVendor.create({
             data: {
                 userId,
                 name: dto.name.trim(),
@@ -113,10 +114,12 @@ let FavoritesService = class FavoritesService {
                 stage: dto.stage,
             },
         });
+        await (0, vendor_budget_sync_1.syncBudgetItemForExternalVendor)(this.prisma, userId, vendor);
+        return vendor;
     }
     async updateExternal(userId, id, dto) {
         await this.assertExternalOwner(userId, id);
-        return this.prisma.externalVendor.update({
+        const vendor = await this.prisma.externalVendor.update({
             where: { id },
             data: {
                 ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
@@ -139,9 +142,12 @@ let FavoritesService = class FavoritesService {
                 ...(dto.stage !== undefined ? { stage: dto.stage } : {}),
             },
         });
+        await (0, vendor_budget_sync_1.syncBudgetItemForExternalVendor)(this.prisma, userId, vendor);
+        return vendor;
     }
     async removeExternal(userId, id) {
         await this.assertExternalOwner(userId, id);
+        await (0, vendor_budget_sync_1.removeBudgetItemForExternalVendor)(this.prisma, id);
         await this.prisma.externalVendor.delete({ where: { id } });
         return { ok: true };
     }

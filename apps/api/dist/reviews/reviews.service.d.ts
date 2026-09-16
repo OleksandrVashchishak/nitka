@@ -9,57 +9,57 @@ export declare class ReviewsService implements OnModuleInit {
     private recalcVendorRating;
     listByVendor(vendorId: string): import(".prisma/client").Prisma.PrismaPromise<({
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     })[]>;
     create(userId: string, dto: CreateReviewDto): Promise<{
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     }>;
     update(userId: string, reviewId: string, dto: UpdateReviewDto): Promise<{
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     }>;
     remove(userId: string, reviewId: string): Promise<{
         ok: boolean;
     }>;
     mineForVendor(userId: string, vendorId: string): Promise<({
         user: {
-            id: string;
             name: string;
+            id: string;
         };
     } & {
         id: string;
-        vendorId: string;
         userId: string;
+        createdAt: Date;
+        vendorId: string;
         rating: number;
         text: string;
-        createdAt: Date;
     }) | null>;
 }

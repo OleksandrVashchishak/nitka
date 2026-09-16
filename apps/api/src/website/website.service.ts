@@ -77,6 +77,10 @@ export type WebsiteContent = {
   introEnabled: boolean;
   introTitle: string;
   musicUrl: string;
+  timerEnabled: boolean;
+  shareDescription: string;
+  groomBio: string;
+  proposalBody: string;
 };
 
 const TEMPLATE_IDS = new Set([
@@ -187,6 +191,10 @@ function defaultContent(wedding: {
     introEnabled: false,
     introTitle: 'Відкрити запрошення',
     musicUrl: '',
+    timerEnabled: true,
+    shareDescription: '',
+    groomBio: '',
+    proposalBody: '',
   };
 }
 
@@ -301,6 +309,12 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
     introEnabled: Boolean(raw.introEnabled ?? fallback.introEnabled),
     introTitle: String(raw.introTitle ?? fallback.introTitle),
     musicUrl: String(raw.musicUrl ?? fallback.musicUrl ?? ''),
+    timerEnabled: Boolean(raw.timerEnabled ?? fallback.timerEnabled),
+    shareDescription: String(
+      raw.shareDescription ?? fallback.shareDescription ?? '',
+    ),
+    groomBio: String(raw.groomBio ?? fallback.groomBio ?? ''),
+    proposalBody: String(raw.proposalBody ?? fallback.proposalBody ?? ''),
   };
 }
 
@@ -310,6 +324,7 @@ function serialize(
     slug: string;
     templateId: string;
     published: boolean;
+    publishedAt?: Date | null;
     content: Prisma.JsonValue;
     updatedAt: Date;
   },
@@ -326,6 +341,7 @@ function serialize(
     slug: site.slug,
     templateId: site.templateId,
     published: site.published,
+    publishedAt: site.publishedAt ?? null,
     content: asContent(site.content, fallback),
     updatedAt: site.updatedAt,
     publicPath: `/w/${site.slug}`,
@@ -342,6 +358,37 @@ function serialize(
 export class WebsiteService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getPublishedAt(siteId: string): Promise<Date | null> {
+    try {
+      const rows = await this.prisma.$queryRaw<
+        Array<{ published_at: Date | null }>
+      >`SELECT published_at FROM wedding_websites WHERE id = ${siteId}`;
+      return rows[0]?.published_at ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async touchPublishedAt(siteId: string, force = false) {
+    try {
+      if (force) {
+        await this.prisma.$executeRaw`
+          UPDATE wedding_websites
+          SET published_at = COALESCE(published_at, NOW())
+          WHERE id = ${siteId}
+        `;
+      } else {
+        await this.prisma.$executeRaw`
+          UPDATE wedding_websites
+          SET published_at = NOW()
+          WHERE id = ${siteId} AND published_at IS NULL
+        `;
+      }
+    } catch {
+      // Column may be missing until ensure-schema runs.
+    }
+  }
+
   async getMine(userId: string) {
     const { wedding } = await requireWeddingForUser(this.prisma, userId);
     const site = await this.prisma.weddingWebsite.findUnique({
@@ -355,8 +402,18 @@ export class WebsiteService {
         templates: TEMPLATES_LIST,
       };
     }
+    const publishedAt = await this.getPublishedAt(site.id);
+    if (site.published && !publishedAt) {
+      await this.touchPublishedAt(site.id);
+    }
     return {
-      site: serialize(site, wedding),
+      site: serialize(
+        {
+          ...site,
+          publishedAt: publishedAt ?? (site.published ? new Date() : null),
+        },
+        wedding,
+      ),
       suggestedSlug: site.slug,
       defaults: defaultContent(wedding),
       templates: TEMPLATES_LIST,
@@ -398,7 +455,12 @@ export class WebsiteService {
       throw new ConflictException('Цей адрес уже зайнятий');
     }
 
-    const published = dto.published ?? existing?.published ?? false;
+    const wasPublished = existing?.published ?? false;
+    const published = dto.published ?? wasPublished;
+    const existingPublishedAt = existing
+      ? await this.getPublishedAt(existing.id)
+      : null;
+    const becomingUnpublished = !published && wasPublished;
 
     const site = existing
       ? await this.prisma.weddingWebsite.update({
@@ -420,7 +482,19 @@ export class WebsiteService {
           },
         });
 
-    return serialize(site, wedding);
+    // Remember first publish forever — needed to tell draft vs unpublish.
+    if (published || becomingUnpublished) {
+      await this.touchPublishedAt(
+        site.id,
+        becomingUnpublished && !existingPublishedAt,
+      );
+    }
+
+    const publishedAt =
+      (await this.getPublishedAt(site.id)) ??
+      (published || becomingUnpublished ? new Date() : existingPublishedAt);
+
+    return serialize({ ...site, publishedAt }, wedding);
   }
 
   async getPublicBySlug(slugRaw: string) {
@@ -432,7 +506,8 @@ export class WebsiteService {
     if (!site || !site.published) {
       throw new NotFoundException('Сайт не знайдено');
     }
-    return serialize(site, site.wedding);
+    const publishedAt = await this.getPublishedAt(site.id);
+    return serialize({ ...site, publishedAt }, site.wedding);
   }
 
   private suggestSlug(wedding: {

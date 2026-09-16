@@ -264,7 +264,8 @@ model ExternalVendor {
   createdAt   DateTime            @default(now()) @map("created_at")
   updatedAt   DateTime            @default(now()) @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgetItem BudgetItem?
 
   @@index([userId, stage])
   @@map("external_vendors")
@@ -334,14 +335,15 @@ model Wedding {
 }
 
 model WeddingWebsite {
-  id         String   @id @default(cuid())
-  weddingId  String   @unique @map("wedding_id")
-  slug       String   @unique
-  templateId String   @default("classic") @map("template_id")
-  published  Boolean  @default(false)
-  content    Json     @default("{}")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id          String    @id @default(cuid())
+  weddingId   String    @unique @map("wedding_id")
+  slug        String    @unique
+  templateId  String    @default("classic") @map("template_id")
+  published   Boolean   @default(false)
+  publishedAt DateTime? @map("published_at")
+  content     Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 
@@ -444,17 +446,19 @@ model Guest {
 }
 
 model BudgetItem {
-  id        String   @id @default(cuid())
-  weddingId String   @map("wedding_id")
-  category  String
-  title     String
-  estimated Int      @default(0)
-  actual    Int      @default(0)
-  paid      Boolean  @default(false)
-  notes     String?
-  createdAt DateTime @default(now()) @map("created_at")
+  id               String   @id @default(cuid())
+  weddingId        String   @map("wedding_id")
+  category         String
+  title            String
+  estimated        Int      @default(0)
+  actual           Int      @default(0)
+  paid             Boolean  @default(false)
+  notes            String?
+  externalVendorId String?  @unique @map("external_vendor_id")
+  createdAt        DateTime @default(now()) @map("created_at")
 
-  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  wedding        Wedding         @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  externalVendor ExternalVendor? @relation(fields: [externalVendorId], references: [id], onDelete: Cascade)
 
   @@index([weddingId])
   @@map("budget_items")

@@ -1,0 +1,48 @@
+.wsite-countdown {
+  text-align: center;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    max-width: 40rem;
+    margin: 1.75rem auto 0;
+  }
+
+  &__item {
+    padding: 0.5rem 0.75rem;
+    border-right: 1px solid var(--wsite-line);
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  &__value {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  &__label {
+    margin: 0.5rem 0 0;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wsite-ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 1.25rem;
+    }
+
+    &__item:nth-child(2) {
+      border-right: 0;
+    }
+  }
+}
