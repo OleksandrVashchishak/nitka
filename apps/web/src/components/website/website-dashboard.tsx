@@ -65,9 +65,9 @@ function genitiveFirst(name: string) {
   return first;
 }
 
-function markInvitedNotes(notes: string | null) {
+function markInvitedNotes(notes: string | null): string | undefined {
   const raw = notes ?? "";
-  if (raw.includes("[invited]")) return raw || null;
+  if (raw.includes("[invited]")) return raw || undefined;
   return `${raw} [invited]`.trim() || "[invited]";
 }
 
