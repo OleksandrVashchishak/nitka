@@ -127,24 +127,24 @@ function WebsiteDashboardInner() {
   }, []);
 
   async function onCreate() {
-    if (!mine) return;
+    if (creating) return;
     setCreating(true);
     setError(null);
     try {
+      if (!mine) {
+        throw new Error("Не вдалось підготувати сайт. Оновіть сторінку.");
+      }
       const templateId = mine.templates[0]?.id ?? "classic-white";
-      const created = await upsertMyWebsite({
+      await upsertMyWebsite({
         slug: mine.suggestedSlug || mine.site?.slug,
         templateId,
         published: false,
         content: mine.defaults,
       });
-      setSite(created);
-      toast.success("Чернетку збережено");
-      router.push("/website/edit");
+      router.replace("/website/edit");
     } catch (err) {
-      setError(getErrorMessage(err, "Не вдалось створити сайт"));
-    } finally {
       setCreating(false);
+      setError(getErrorMessage(err, "Не вдалось створити сайт"));
     }
   }
 
@@ -253,7 +253,7 @@ function WebsiteDashboardInner() {
             Імена й дата підтягнуться в сайт-запрошення автоматично.
           </p>
           <div className="ws-empty__cta">
-            <Link href="/dashboard" className="ws-btn ws-btn--solid">
+            <Link href="/dashboard" className="ws-btn ws-btn--empty">
               До огляду
             </Link>
           </div>

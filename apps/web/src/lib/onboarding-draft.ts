@@ -5,9 +5,7 @@ export type OnboardingScreen = 1 | 2 | "2.1" | "2.2" | 3;
 export type OnboardingDraft = {
   planningStage: string;
   firstName: string;
-  lastName: string;
   partnerFirstName: string;
-  partnerLastName: string;
   date: string;
   dateUndecided: boolean;
   city: string;
@@ -36,9 +34,7 @@ export function loadOnboardingDraft(): OnboardingDraft | null {
     return {
       planningStage: parsed.planningStage ?? "PLANNING_WITH_VENUE",
       firstName: parsed.firstName ?? "",
-      lastName: parsed.lastName ?? "",
       partnerFirstName: parsed.partnerFirstName ?? "",
-      partnerLastName: parsed.partnerLastName ?? "",
       date: parsed.date ?? "",
       dateUndecided: Boolean(parsed.dateUndecided),
       city: parsed.city ?? "",

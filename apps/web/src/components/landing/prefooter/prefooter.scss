@@ -99,8 +99,8 @@
     align-items: center;
     width: max-content;
     height: 100%;
-    gap: 32px;
-    padding: 0 8vw;
+    gap: 18px;
+    padding: 0 4vw;
     pointer-events: none;
     will-change: transform;
   }
@@ -277,6 +277,11 @@
     height: 100%;
     margin: 0;
     transform: none;
+  }
+
+  /* Off-screen right until GSAP pin scrub pulls the track through */
+  .prefooter__track {
+    transform: translate3d(100vw, 0, 0);
   }
 
   .prefooter__content {

@@ -10,9 +10,31 @@
   box-shadow: var(--ws-shadow);
 
   &--empty {
-    justify-content: flex-start;
-    gap: 16px;
-    min-height: auto;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    min-height: min(420px, calc(100vh - 220px));
+    text-align: center;
+
+    .ws-invites__title {
+      max-width: 28rem;
+      font-family: var(--ws-font-btn);
+      font-size: 24px;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 100%;
+    }
+
+    .ws-invites__text {
+      max-width: 26rem;
+      line-height: 150%;
+      color: #7f8791;
+    }
+
+    .ws-invites__cta-row {
+      justify-content: center;
+      margin-top: 12px;
+    }
   }
 
   &__title {

@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { LANDING_PIN_IDS } from "@/components/landing/landing-pin-ids";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,6 +47,7 @@ export function setupPrefooterOrbit(opts: {
   window.addEventListener("load", onLoad);
 
   const ctx = gsap.context(() => {
+    const content = section.querySelector<HTMLElement>(".prefooter__content");
     const dirs = cards.map((card) => {
       const raw = Number(card.dataset.orbit);
       return raw === -1 ? -1 : 1;
@@ -63,33 +65,57 @@ export function setupPrefooterOrbit(opts: {
     };
 
     gsap.set(cards, { force3D: true, y: 0, rotation: 0 });
-    gsap.set(track, { force3D: true, x: 0 });
+    // Own the CSS translate(-50%, -50%) so runway y doesn't un-center the title
+    if (content) {
+      gsap.set(content, {
+        xPercent: -50,
+        yPercent: -50,
+        y: 28,
+        opacity: 0.65,
+        force3D: true,
+      });
+    }
 
-    const travel = () => {
-      const pad = Math.round(window.innerWidth * 0.25);
-      return Math.max(
-        track.scrollWidth - window.innerWidth + pad,
-        window.innerWidth,
-      );
-    };
+    // Fully off-screen right → fully off-screen left; pin holds until exit
+    const startX = () => Math.round(window.innerWidth);
+    const endX = () => -Math.round(track.scrollWidth + window.innerWidth * 0.08);
+    const travel = () => startX() - endX();
+
+    gsap.set(track, { force3D: true, x: startX(), opacity: 1 });
 
     const syncOrbit = () =>
       applyOrbit(cards, ySetters, rotSetters, dirs, amps);
 
-    gsap.fromTo(
-      track,
-      { x: () => -Math.round(travel() * 0.06) },
-      {
-        x: () => -travel(),
+    // Soft runway: settle title before pin locks (photos stay off-screen)
+    if (content) {
+      gsap.to(content, {
+        y: 0,
+        opacity: 1,
         ease: "none",
         scrollTrigger: {
           trigger: section,
+          start: "top 85%",
+          end: "top top",
+          scrub: 1.2,
+        },
+      });
+    }
+
+    gsap.fromTo(
+      track,
+      { x: () => startX() },
+      {
+        x: () => endX(),
+        ease: "none",
+        scrollTrigger: {
+          id: LANDING_PIN_IDS[1],
+          trigger: section,
           start: "top top",
-          // ~2× scroll distance so the orbit has room to land
-          end: () => `+=${Math.round(travel() * 2.15)}`,
+          // Slightly longer than travel so the dense mid-pass lingers
+          end: () => `+=${Math.round(travel() * 1.35)}`,
           pin: true,
-          scrub: 1.4,
-          anticipatePin: 1,
+          scrub: 1.2,
+          anticipatePin: 0,
           invalidateOnRefresh: true,
           onUpdate: syncOrbit,
           onRefresh: () => {

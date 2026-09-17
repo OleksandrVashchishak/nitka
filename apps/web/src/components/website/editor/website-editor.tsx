@@ -77,7 +77,17 @@ function WebsiteEditorInner() {
     setLoading(true);
     setError(null);
     try {
-      const res = await getMyWebsite();
+      let res = await getMyWebsite();
+      if (!res.site) {
+        const templateId = res.templates[0]?.id ?? "classic-white";
+        const created = await upsertMyWebsite({
+          slug: res.suggestedSlug,
+          templateId,
+          published: false,
+          content: res.defaults,
+        });
+        res = { ...res, site: created };
+      }
       if (!res.site) {
         setSite(null);
         setContent(null);

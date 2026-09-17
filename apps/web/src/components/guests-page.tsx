@@ -5,6 +5,11 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import {
+  IconClose,
+  IconFilters,
+  IconQuickAdd,
+} from "@/components/cabinet-task-icons";
 import { IconMore } from "@/components/icon-more";
 import { RequireAuth } from "@/components/require-auth";
 import {
@@ -61,7 +66,7 @@ const RSVP_UI: Record<
   YES: { label: "Прийде", tone: "yes" },
   NO: { label: "Відмова", tone: "no" },
   MAYBE: { label: "Можливо прийде", tone: "maybe" },
-  PENDING: { label: "Ще немає відповіді", tone: "pending" },
+  PENDING: { label: "Ще не відповіли", tone: "pending" },
 };
 
 function isChild(guest: Guest) {
@@ -118,8 +123,17 @@ function GuestsInner() {
   const [ageFilter, setAgeFilter] = useState<AgeFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("recent");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [filtersMounted, setFiltersMounted] = useState(false);
+  const [draftSide, setDraftSide] = useState<SideFilter>("all");
+  const [draftInvite, setDraftInvite] = useState<InviteFilter>("all");
+  const [draftRsvp, setDraftRsvp] = useState<RsvpFilter>("all");
+  const [draftAge, setDraftAge] = useState<AgeFilter>("all");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerMounted, setDrawerMounted] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [plusOne, setPlusOne] = useState(false);
@@ -169,6 +183,62 @@ function GuestsInner() {
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
+
+  useEffect(() => {
+    if (!filtersOpen) {
+      setFiltersVisible(false);
+      const timer = window.setTimeout(() => setFiltersMounted(false), 320);
+      return () => window.clearTimeout(timer);
+    }
+
+    setDraftSide(sideFilter);
+    setDraftInvite(inviteFilter);
+    setDraftRsvp(rsvpFilter);
+    setDraftAge(ageFilter);
+    setFiltersMounted(true);
+    const id = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setFiltersVisible(true));
+    });
+    return () => window.cancelAnimationFrame(id);
+    // Sync draft only when opening the sheet.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersOpen]);
+
+  useEffect(() => {
+    if (!filtersOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setFiltersOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [filtersOpen]);
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      setDrawerVisible(false);
+      const timer = window.setTimeout(() => setDrawerMounted(false), 320);
+      return () => window.clearTimeout(timer);
+    }
+    setDrawerMounted(true);
+    const id = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setDrawerVisible(true));
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [drawerOpen]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setDrawerOpen(false);
+        resetDrawer();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // resetDrawer is stable enough for Escape close
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawerOpen]);
 
   useEffect(() => {
     if (!menuOpenId) return;
@@ -248,6 +318,29 @@ function GuestsInner() {
   }, [guests, sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
 
   const visible = filtered.slice(0, visibleCount);
+
+  const activeFilterCount = [
+    sideFilter !== "all",
+    inviteFilter !== "all",
+    rsvpFilter !== "all",
+    ageFilter !== "all",
+  ].filter(Boolean).length;
+  const filtersActive = activeFilterCount > 0;
+
+  function applyDraftFilters() {
+    setSideFilter(draftSide);
+    setInviteFilter(draftInvite);
+    setRsvpFilter(draftRsvp);
+    setAgeFilter(draftAge);
+    setFiltersOpen(false);
+  }
+
+  function resetDraftFilters() {
+    setDraftSide("all");
+    setDraftInvite("all");
+    setDraftRsvp("all");
+    setDraftAge("all");
+  }
 
   function resetDrawer() {
     setEditingId(null);
@@ -472,10 +565,30 @@ function GuestsInner() {
   return (
     <div className="cabinet-tasks-page">
       <div className="cabinet-tasks-top">
-        <h1 className="cabinet-tasks-title">Гості</h1>
-        <div className="cabinet-overview-actions">
-          <CabinetNotificationsBell summary={summary} />
-          <CabinetProfileMenu initials={partnerInitials} />
+        <h1 className="cabinet-tasks-title">
+          Гості
+          {guests.length > 0 ? (
+            <span className="cabinet-guests-title-count">
+              {" "}
+              ({filtered.length})
+            </span>
+          ) : null}
+        </h1>
+        <div className="cabinet-tasks-top-actions">
+          {guests.length > 0 ? (
+            <button
+              type="button"
+              className="cabinet-tasks-quick-add"
+              aria-label="Додати гостя"
+              onClick={openCreate}
+            >
+              <IconQuickAdd />
+            </button>
+          ) : null}
+          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
+            <CabinetNotificationsBell summary={summary} />
+            <CabinetProfileMenu initials={partnerInitials} />
+          </div>
         </div>
       </div>
 
@@ -494,10 +607,9 @@ function GuestsInner() {
           <div className="cabinet-guests-empty-actions">
             <button
               type="button"
-              className="cabinet-tasks-add-btn"
+              className="cabinet-empty-cta"
               onClick={openCreate}
             >
-              <span aria-hidden>+</span>
               Додати гостей
             </button>
             <button
@@ -522,298 +634,471 @@ function GuestsInner() {
           />
         </div>
       ) : (
-      <div className="cabinet-tasks-layout" style={{ marginTop: 24 }}>
-        <aside className="cabinet-tasks-filters">
-          <FilterGroup
-            title="Чиї гості"
-            items={[
-              { id: "all", label: "Всі", count: counts.side.all },
-              {
-                id: "BRIDE",
-                label: "Гості нареченої",
-                count: counts.side.BRIDE,
-              },
-              {
-                id: "GROOM",
-                label: "Гості нареченого",
-                count: counts.side.GROOM,
-              },
-            ]}
-            active={sideFilter}
-            onChange={(id) => setSideFilter(id as SideFilter)}
-          />
-          <FilterGroup
-            title="Статус запрошення"
-            items={[
-              { id: "all", label: "Всі", count: counts.invite.all },
-              {
-                id: "not_invited",
-                label: "Не запрошені",
-                count: counts.invite.not_invited,
-              },
-              {
-                id: "invited",
-                label: "Запрошені",
-                count: counts.invite.invited,
-              },
-            ]}
-            active={inviteFilter}
-            onChange={(id) => setInviteFilter(id as InviteFilter)}
-          />
-          <FilterGroup
-            title="Результат запрошення"
-            items={[
-              { id: "all", label: "Усі", count: counts.rsvp.all },
-              { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
-              { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
-              {
-                id: "MAYBE",
-                label: "Можливо прийдуть",
-                count: counts.rsvp.MAYBE,
-              },
-              {
-                id: "PENDING",
-                label: "Ще не відповіли",
-                count: counts.rsvp.PENDING,
-              },
-            ]}
-            active={rsvpFilter}
-            onChange={(id) => setRsvpFilter(id as RsvpFilter)}
-          />
-          <FilterGroup
-            title="Вік"
-            items={[
-              { id: "all", label: "Усі", count: counts.age.all },
-              { id: "adult", label: "Дорослі", count: counts.age.adult },
-              { id: "child", label: "Діти", count: counts.age.child },
-            ]}
-            active={ageFilter}
-            onChange={(id) => setAgeFilter(id as AgeFilter)}
-          />
-        </aside>
-
-        <section className="cabinet-guest-list-panel">
-          <div className="cabinet-tasks-list-head">
-            <h2>
-              Список гостей{" "}
-              <span className="cabinet-guests-count">({filtered.length})</span>
-            </h2>
-            <div className="cabinet-tasks-list-actions">
-              <label className="cabinet-tasks-sort">
-                <select
-                  value={sortMode}
-                  onChange={(e) => setSortMode(e.target.value as SortMode)}
-                >
-                  <option value="recent">Недавно додані</option>
-                  <option value="alpha">За алфавітом</option>
-                  <option value="rsvp">За відповіддю</option>
-                </select>
-              </label>
-              <button
-                type="button"
-                className="cabinet-tasks-add-btn"
-                onClick={openCreate}
-              >
-                <span aria-hidden>+</span>
-                Додати гостей
-              </button>
-              <button
-                type="button"
-                className="cabinet-guests-import-btn"
-                onClick={() => fileRef.current?.click()}
-                disabled={busy}
-              >
-                Імпорт CSV
-              </button>
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".csv,text/csv"
-                hidden
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void onImportCsv(file);
-                  e.target.value = "";
-                }}
-              />
-            </div>
-          </div>
-
-          {visible.length === 0 ? (
-            <p className="cabinet-tasks-empty">Немає гостей у цьому фільтрі.</p>
-          ) : (
-            <ul className="cabinet-guests-list">
-              {visible.map((guest) => {
-                const ui = RSVP_UI[guest.rsvpStatus];
-                const mark =
-                  guest.side === "GROOM" ? "P" : guest.side === "BRIDE" ? "O" : "G";
-                return (
-                  <li
-                    key={guest.id}
-                    className={`cabinet-guest-row${
-                      guest.rsvpStatus === "YES" ? " is-yes" : ""
-                    }`}
-                  >
-                    <div className="cabinet-guest-main">
-                      <p className="cabinet-guest-name">
-                        {guest.name}
-                        {isChild(guest) ? (
-                          <span className="cabinet-guest-child" title="Дитина" aria-label="Дитина">
-                            ☺
-                          </span>
-                        ) : null}
-                      </p>
-                    </div>
-                    <div className="cabinet-guest-meta">
-                      <span className={`cabinet-guest-status is-${ui.tone}`}>
-                        <StatusIcon tone={ui.tone} />
-                        {ui.label}
-                      </span>
-                      <span
-                        className={`cabinet-task-who ${
-                          guest.side === "GROOM" ? "is-partner" : "is-owner"
-                        }`}
-                      >
-                        {mark}
-                      </span>
-                      <div className="cabinet-guest-menu-wrap">
-                        <button
-                          type="button"
-                          className="cabinet-task-menu"
-                          aria-label="Меню гостя"
-                          aria-expanded={menuOpenId === guest.id}
-                          onClick={() =>
-                            setMenuOpenId((id) =>
-                              id === guest.id ? null : guest.id,
-                            )
-                          }
-                        >
-                          <IconMore />
-                        </button>
-                        {menuOpenId === guest.id ? (
-                          <div className="cabinet-guest-menu" role="menu">
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className="cabinet-guest-menu-item"
-                              disabled={busy}
-                              onClick={() => openEdit(guest)}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden
-                              >
-                                <path
-                                  d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.6"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                              Редагувати
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className="cabinet-guest-menu-item is-danger"
-                              disabled={busy}
-                              onClick={() => void onDelete(guest)}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden
-                              >
-                                <path
-                                  d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-                                  stroke="currentColor"
-                                  strokeWidth="1.6"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                              Видалити
-                            </button>
-
-                            <div className="cabinet-guest-menu-divider" />
-                            <p className="cabinet-guest-menu-label">
-                              з чиєї сторони
-                            </p>
-
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                guest.side === "BRIDE" ? " is-active" : ""
-                              }`}
-                              disabled={busy}
-                              onClick={() => void onSetSide(guest, "BRIDE")}
-                            >
-                              <span className="cabinet-task-who is-owner">o</span>
-                              {ownerName}
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                guest.side === "GROOM" ? " is-active" : ""
-                              }`}
-                              disabled={busy}
-                              onClick={() => void onSetSide(guest, "GROOM")}
-                            >
-                              <span className="cabinet-task-who is-partner">p</span>
-                              {partnerName}
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                guest.side === "BOTH" ? " is-active" : ""
-                              }`}
-                              disabled={busy}
-                              onClick={() => void onSetSide(guest, "BOTH")}
-                            >
-                              <span className="cabinet-guest-menu-duo" aria-hidden>
-                                <span className="cabinet-task-who is-partner">
-                                  p
-                                </span>
-                                <span className="cabinet-task-who is-owner">
-                                  o
-                                </span>
-                              </span>
-                              Обоє
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {filtered.length > visibleCount ? (
+        <>
+          <div className="cabinet-tasks-mobile-bar">
             <button
               type="button"
-              className="cabinet-panel-link cabinet-tasks-more"
-              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+              className={`cabinet-tasks-chip${filtersActive ? " is-active" : ""}`}
+              onClick={() => setFiltersOpen(true)}
             >
-              Показати більше
+              <IconFilters size={14} />
+              Фільтри
+              {filtersActive ? (
+                <span className="cabinet-tasks-chip-badge">
+                  {activeFilterCount}
+                </span>
+              ) : null}
             </button>
-          ) : null}
-        </section>
-      </div>
+            <label className="cabinet-tasks-chip cabinet-tasks-chip--select">
+              <select
+                value={sortMode}
+                onChange={(e) => setSortMode(e.target.value as SortMode)}
+                aria-label="Сортування"
+              >
+                <option value="recent">Недавно додані</option>
+                <option value="alpha">За алфавітом</option>
+                <option value="rsvp">За відповіддю</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="cabinet-tasks-layout">
+            <aside className="cabinet-tasks-filters">
+              <FilterGroup
+                title="Чиї гості"
+                items={[
+                  { id: "all", label: "Всі", count: counts.side.all },
+                  {
+                    id: "BRIDE",
+                    label: "Гості нареченої",
+                    count: counts.side.BRIDE,
+                  },
+                  {
+                    id: "GROOM",
+                    label: "Гості нареченого",
+                    count: counts.side.GROOM,
+                  },
+                ]}
+                active={sideFilter}
+                onChange={(id) => setSideFilter(id as SideFilter)}
+              />
+              <FilterGroup
+                title="Статус запрошення"
+                items={[
+                  { id: "all", label: "Всі", count: counts.invite.all },
+                  {
+                    id: "not_invited",
+                    label: "Не запрошені",
+                    count: counts.invite.not_invited,
+                  },
+                  {
+                    id: "invited",
+                    label: "Запрошені",
+                    count: counts.invite.invited,
+                  },
+                ]}
+                active={inviteFilter}
+                onChange={(id) => setInviteFilter(id as InviteFilter)}
+              />
+              <FilterGroup
+                title="Результат запрошення"
+                items={[
+                  { id: "all", label: "Усі", count: counts.rsvp.all },
+                  { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
+                  { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
+                  {
+                    id: "MAYBE",
+                    label: "Можливо прийдуть",
+                    count: counts.rsvp.MAYBE,
+                  },
+                  {
+                    id: "PENDING",
+                    label: "Ще не відповіли",
+                    count: counts.rsvp.PENDING,
+                  },
+                ]}
+                active={rsvpFilter}
+                onChange={(id) => setRsvpFilter(id as RsvpFilter)}
+              />
+              <FilterGroup
+                title="Вік"
+                items={[
+                  { id: "all", label: "Усі", count: counts.age.all },
+                  { id: "adult", label: "Дорослі", count: counts.age.adult },
+                  { id: "child", label: "Діти", count: counts.age.child },
+                ]}
+                active={ageFilter}
+                onChange={(id) => setAgeFilter(id as AgeFilter)}
+              />
+            </aside>
+
+            <section className="cabinet-guest-list-panel">
+              <div className="cabinet-tasks-list-head">
+                <h2>
+                  Список гостей{" "}
+                  <span className="cabinet-guests-count">
+                    ({filtered.length})
+                  </span>
+                </h2>
+                <div className="cabinet-tasks-list-actions">
+                  <label className="cabinet-tasks-sort">
+                    <select
+                      value={sortMode}
+                      onChange={(e) => setSortMode(e.target.value as SortMode)}
+                    >
+                      <option value="recent">Недавно додані</option>
+                      <option value="alpha">За алфавітом</option>
+                      <option value="rsvp">За відповіддю</option>
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    className="cabinet-tasks-add-btn"
+                    onClick={openCreate}
+                  >
+                    <span aria-hidden>+</span>
+                    Додати гостей
+                  </button>
+                  <button
+                    type="button"
+                    className="cabinet-guests-import-btn"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={busy}
+                  >
+                    Імпорт CSV
+                  </button>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".csv,text/csv"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void onImportCsv(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </div>
+              </div>
+
+              {visible.length === 0 ? (
+                <p className="cabinet-tasks-empty">
+                  Немає гостей у цьому фільтрі.
+                </p>
+              ) : (
+                <ul className="cabinet-guests-list">
+                  {visible.map((guest) => {
+                    const ui = RSVP_UI[guest.rsvpStatus];
+                    const mark =
+                      guest.side === "GROOM"
+                        ? "P"
+                        : guest.side === "BRIDE"
+                          ? "O"
+                          : "G";
+                    return (
+                      <li
+                        key={guest.id}
+                        className={`cabinet-guest-row${
+                          guest.rsvpStatus === "YES" ? " is-yes" : ""
+                        }`}
+                      >
+                        <div className="cabinet-guest-main">
+                          <p className="cabinet-guest-name">
+                            <span className="cabinet-guest-name-text">
+                              {guest.name}
+                            </span>
+                            {isChild(guest) ? (
+                              <span
+                                className="cabinet-guest-child"
+                                title="Дитина"
+                                aria-label="Дитина"
+                              >
+                                ☺
+                              </span>
+                            ) : null}
+                          </p>
+                        </div>
+                        <div className="cabinet-guest-meta">
+                          <span
+                            className={`cabinet-guest-status is-${ui.tone}`}
+                          >
+                            <StatusIcon tone={ui.tone} />
+                            {ui.label}
+                          </span>
+                          <span
+                            className={`cabinet-task-who ${
+                              guest.side === "GROOM"
+                                ? "is-partner"
+                                : "is-owner"
+                            }`}
+                          >
+                            {mark}
+                          </span>
+                          <div className="cabinet-guest-menu-wrap">
+                            <button
+                              type="button"
+                              className="cabinet-task-menu"
+                              aria-label="Меню гостя"
+                              aria-expanded={menuOpenId === guest.id}
+                              onClick={() =>
+                                setMenuOpenId((id) =>
+                                  id === guest.id ? null : guest.id,
+                                )
+                              }
+                            >
+                              <IconMore />
+                            </button>
+                            {menuOpenId === guest.id ? (
+                              <div className="cabinet-guest-menu" role="menu">
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className="cabinet-guest-menu-item"
+                                  disabled={busy}
+                                  onClick={() => openEdit(guest)}
+                                >
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden
+                                  >
+                                    <path
+                                      d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
+                                      stroke="currentColor"
+                                      strokeWidth="1.6"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                  Редагувати
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className="cabinet-guest-menu-item is-danger"
+                                  disabled={busy}
+                                  onClick={() => void onDelete(guest)}
+                                >
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden
+                                  >
+                                    <path
+                                      d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                                      stroke="currentColor"
+                                      strokeWidth="1.6"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                  Видалити
+                                </button>
+
+                                <div className="cabinet-guest-menu-divider" />
+                                <p className="cabinet-guest-menu-label">
+                                  з чиєї сторони
+                                </p>
+
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    guest.side === "BRIDE" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() => void onSetSide(guest, "BRIDE")}
+                                >
+                                  <span className="cabinet-task-who is-owner">
+                                    o
+                                  </span>
+                                  {ownerName}
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    guest.side === "GROOM" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() => void onSetSide(guest, "GROOM")}
+                                >
+                                  <span className="cabinet-task-who is-partner">
+                                    p
+                                  </span>
+                                  {partnerName}
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={`cabinet-guest-menu-item${
+                                    guest.side === "BOTH" ? " is-active" : ""
+                                  }`}
+                                  disabled={busy}
+                                  onClick={() => void onSetSide(guest, "BOTH")}
+                                >
+                                  <span
+                                    className="cabinet-guest-menu-duo"
+                                    aria-hidden
+                                  >
+                                    <span className="cabinet-task-who is-partner">
+                                      p
+                                    </span>
+                                    <span className="cabinet-task-who is-owner">
+                                      o
+                                    </span>
+                                  </span>
+                                  Обоє
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              {filtered.length > visibleCount ? (
+                <button
+                  type="button"
+                  className="cabinet-panel-link cabinet-tasks-more"
+                  onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+                >
+                  Показати більше
+                </button>
+              ) : null}
+            </section>
+          </div>
+        </>
       )}
 
-      {drawerOpen ? (
-        <div className="cabinet-drawer-root">
+      {filtersMounted ? (
+        <div
+          className={`cabinet-tasks-filters-sheet${
+            filtersVisible ? " is-open" : ""
+          }`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Фільтри"
+        >
+          <button
+            type="button"
+            className="cabinet-tasks-filters-sheet__backdrop"
+            aria-label="Закрити фільтри"
+            onClick={() => setFiltersOpen(false)}
+          />
+          <div className="cabinet-tasks-filters-sheet__panel">
+            <div className="cabinet-tasks-filters-sheet__head">
+              <h2 className="cabinet-tasks-filters-sheet__title">Фільтри</h2>
+              <button
+                type="button"
+                className="cabinet-tasks-filters-sheet__close"
+                aria-label="Закрити"
+                onClick={() => setFiltersOpen(false)}
+              >
+                <IconClose size={18} />
+              </button>
+            </div>
+
+            <div className="cabinet-tasks-filters-sheet__body">
+              <FilterGroup
+                title="Чиї гості"
+                items={[
+                  { id: "all", label: "Всі", count: counts.side.all },
+                  {
+                    id: "BRIDE",
+                    label: "Гості нареченої",
+                    count: counts.side.BRIDE,
+                  },
+                  {
+                    id: "GROOM",
+                    label: "Гості нареченого",
+                    count: counts.side.GROOM,
+                  },
+                ]}
+                active={draftSide}
+                onChange={(id) => setDraftSide(id as SideFilter)}
+              />
+              <FilterGroup
+                title="Статус запрошення"
+                items={[
+                  { id: "all", label: "Всі", count: counts.invite.all },
+                  {
+                    id: "not_invited",
+                    label: "Не запрошені",
+                    count: counts.invite.not_invited,
+                  },
+                  {
+                    id: "invited",
+                    label: "Запрошені",
+                    count: counts.invite.invited,
+                  },
+                ]}
+                active={draftInvite}
+                onChange={(id) => setDraftInvite(id as InviteFilter)}
+              />
+              <FilterGroup
+                title="Результат запрошення"
+                items={[
+                  { id: "all", label: "Усі", count: counts.rsvp.all },
+                  { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
+                  { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
+                  {
+                    id: "MAYBE",
+                    label: "Можливо прийдуть",
+                    count: counts.rsvp.MAYBE,
+                  },
+                  {
+                    id: "PENDING",
+                    label: "Ще не відповіли",
+                    count: counts.rsvp.PENDING,
+                  },
+                ]}
+                active={draftRsvp}
+                onChange={(id) => setDraftRsvp(id as RsvpFilter)}
+              />
+              <FilterGroup
+                title="Вік"
+                items={[
+                  { id: "all", label: "Усі", count: counts.age.all },
+                  { id: "adult", label: "Дорослі", count: counts.age.adult },
+                  { id: "child", label: "Діти", count: counts.age.child },
+                ]}
+                active={draftAge}
+                onChange={(id) => setDraftAge(id as AgeFilter)}
+              />
+            </div>
+
+            <div className="cabinet-tasks-filters-sheet__foot">
+              <button
+                type="button"
+                className="cabinet-tasks-filters-sheet__apply"
+                onClick={applyDraftFilters}
+              >
+                Застосувати
+              </button>
+              <button
+                type="button"
+                className="cabinet-tasks-filters-sheet__reset"
+                onClick={resetDraftFilters}
+              >
+                Скинути фільтри
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {drawerMounted ? (
+        <div
+          className={`cabinet-drawer-root${drawerVisible ? " is-open" : ""}`}
+        >
           <button
             type="button"
             className="cabinet-drawer-backdrop"
@@ -1021,10 +1306,29 @@ function StatusIcon({ tone }: { tone: "yes" | "no" | "maybe" | "pending" }) {
       </svg>
     );
   }
+  if (tone === "maybe") {
+    return (
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="M6.2 6.2a1.8 1.8 0 1 1 2.5 1.6c-.5.3-.9.7-.9 1.4"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+        <circle cx="8" cy="11.4" r="0.9" fill="currentColor" />
+      </svg>
+    );
+  }
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8 4.5V8l2.2 1.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M8 4.5V8l2.2 1.4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

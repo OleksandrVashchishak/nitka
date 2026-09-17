@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { LANDING_PIN_IDS } from "@/components/landing/landing-pin-ids";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -27,17 +28,18 @@ export function MobileAppSection() {
       mm.add(
         "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
         () => {
-          // Longer pin distance so the marquee breathes instead of flying past
           const travel = () =>
             Math.round(
-              (phrase.scrollWidth + window.innerWidth) * 1.85 +
-                window.innerHeight * 0.9,
+              (phrase.scrollWidth + window.innerWidth) * 0.7 +
+                window.innerHeight * 0.35,
             );
           const headerOffset = () => {
             const header = document.querySelector(".fata-site-header");
             if (!(header instanceof HTMLElement)) return 0;
             return Math.round(header.getBoundingClientRect().height);
           };
+          const pinStart = () => `top top+=${headerOffset()}`;
+          const phone = section.querySelector<HTMLElement>(".fata-phone");
 
           gsap.set(phrase, {
             x: () => window.innerWidth,
@@ -48,15 +50,18 @@ export function MobileAppSection() {
           // CTA keeps its layout offset (CSS translateX(-71px)); animate y+opacity only.
           gsap.set(copy, { opacity: 0, y: 36 });
           gsap.set(cta, { opacity: 0, x: -71, y: 36 });
+          // Keep CSS translateX(-32px) under GSAP so runway y doesn't wipe it
+          if (phone) gsap.set(phone, { x: -32, y: 40, force3D: true });
 
+          // Timed reveal = soft approach before pin (not scrub — avoids dead feel)
           gsap.to(copy, {
             opacity: 1,
             y: 0,
-            duration: 1.35,
+            duration: 1.2,
             ease: "power2.out",
             scrollTrigger: {
               trigger: section,
-              start: "top 70%",
+              start: "top 78%",
               toggleActions: "play none none reverse",
             },
           });
@@ -65,27 +70,42 @@ export function MobileAppSection() {
             opacity: 1,
             x: -71,
             y: 0,
-            duration: 1.35,
-            delay: 0.16,
+            duration: 1.2,
+            delay: 0.12,
             ease: "power2.out",
             scrollTrigger: {
               trigger: section,
-              start: "top 70%",
+              start: "top 78%",
               toggleActions: "play none none reverse",
             },
           });
 
+          // Phone settles before pin — low scrub so it doesn't lag into the lock
+          if (phone) {
+            gsap.to(phone, {
+              x: -32,
+              y: 0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top 88%",
+                end: "top 22%",
+                scrub: 0.45,
+              },
+            });
+          }
+
           gsap.to(phrase, {
             x: () => -phrase.scrollWidth,
-            // soft start/end mapped onto scroll — kills the “hit”
-            ease: "power1.inOut",
+            ease: "none",
             scrollTrigger: {
+              id: LANDING_PIN_IDS[0],
               trigger: section,
-              start: () => `top top+=${headerOffset()}`,
+              start: pinStart,
               end: () => `+=${travel()}`,
               pin: true,
-              scrub: 1.45,
-              anticipatePin: 1,
+              scrub: 0.4,
+              anticipatePin: 0,
               invalidateOnRefresh: true,
             },
           });
@@ -99,6 +119,7 @@ export function MobileAppSection() {
       mm.add(
         "(max-width: 1023px), (prefers-reduced-motion: reduce)",
         () => {
+          const phone = section.querySelector<HTMLElement>(".fata-phone");
           gsap.set(phrase, {
             x: () => Math.round((window.innerWidth - phrase.scrollWidth) * 0.12),
             yPercent: -50,
@@ -106,6 +127,7 @@ export function MobileAppSection() {
           });
           gsap.set(copy, { opacity: 1, y: 0 });
           gsap.set(cta, { opacity: 1, y: 0, clearProps: "x" });
+          if (phone) gsap.set(phone, { clearProps: "x,y,force3D" });
         },
       );
     }, section);

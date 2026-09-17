@@ -67,27 +67,31 @@ export function Prefooter() {
 
         {prefersOrbit ? (
           <div ref={trackRef} className="prefooter__track" aria-hidden>
-            {SHOTS.map((shot, i) => {
-              const w = Math.round(shot.width * 1.25);
-              const h = Math.round(shot.height * 1.25);
-              return (
-                <div
-                  key={`orbit-${shot.id}`}
-                  className="prefooter__card"
-                  data-orbit={shot.orbit}
-                  style={{ width: w, height: h }}
-                >
-                  <Image
-                    src={shot.src}
-                    alt=""
-                    width={w}
-                    height={h}
-                    sizes={`${w}px`}
-                    priority={i < 6}
-                  />
-                </div>
-              );
-            })}
+            {/* Two loops so the strip stays dense while crossing the viewport */}
+            {[0, 1].flatMap((loop) =>
+              SHOTS.map((shot, i) => {
+                const w = Math.round(shot.width * 1.45);
+                const h = Math.round(shot.height * 1.45);
+                const idx = loop * SHOTS.length + i;
+                return (
+                  <div
+                    key={`orbit-${loop}-${shot.id}`}
+                    className="prefooter__card"
+                    data-orbit={shot.orbit}
+                    style={{ width: w, height: h }}
+                  >
+                    <Image
+                      src={shot.src}
+                      alt=""
+                      width={w}
+                      height={h}
+                      sizes={`${w}px`}
+                      priority={idx < 8}
+                    />
+                  </div>
+                );
+              }),
+            )}
           </div>
         ) : (
           <div className="prefooter__collage" aria-hidden>

@@ -232,9 +232,17 @@ body.has-fata-header-home .fata-hero-mobile {
   height: 100%;
   overflow: hidden;
   max-height: 808px;
+  will-change: transform;
 }
 
-.fata-photo img {
+.fata-photo-media {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+}
+
+.fata-photo img,
+.fata-photo-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -242,9 +250,32 @@ body.has-fata-header-home .fata-hero-mobile {
   position: static !important;
 }
 
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .fata-hero:not(.is-ready) .fata-tagline,
+  .fata-hero:not(.is-ready) .fata-title-you,
+  .fata-hero:not(.is-ready) .fata-title-fill,
+  .fata-hero:not(.is-ready) .fata-title-sans,
+  .fata-hero:not(.is-ready) .fata-desc,
+  .fata-hero:not(.is-ready) .fata-cta,
+  .fata-hero:not(.is-ready) .fata-photo-media {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .fata-hero:not(.is-ready) .fata-m-kicker,
+  .fata-hero:not(.is-ready) .fata-m-title,
+  .fata-hero:not(.is-ready) .fata-m-desc,
+  .fata-hero:not(.is-ready) .fata-m-photo,
+  .fata-hero:not(.is-ready) .fata-m-cta {
+    opacity: 0;
+  }
+}
+
 .fata-hero-main-text {
   padding-top: 200px;
   width: 59%;
+  will-change: transform;
 }
 
 .fata-tagline {

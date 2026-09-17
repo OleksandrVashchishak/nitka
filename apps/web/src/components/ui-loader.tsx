@@ -6,9 +6,9 @@ type LoaderProps = {
 export function Spinner({ className = "size-10" }: { className?: string }) {
   return (
     <div className={`relative ${className}`} aria-hidden>
-      <span className="absolute inset-0 rounded-full border-2 border-sage/15" />
-      <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-sage border-r-sage/40" />
-      <span className="absolute inset-[22%] animate-loader-pulse rounded-full bg-sage/20" />
+      <span className="absolute inset-0 rounded-full border-2 border-lime/50" />
+      <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-ink border-r-lime" />
+      <span className="absolute inset-[22%] animate-loader-pulse rounded-full bg-lime" />
     </div>
   );
 }
@@ -24,7 +24,7 @@ export function PageLoader({
       aria-live="polite"
     >
       <div className="relative">
-        <div className="absolute -inset-6 animate-loader-ring rounded-full border border-sage/20" />
+        <div className="absolute -inset-6 animate-loader-ring rounded-full border border-lime/60" />
         <Spinner className="size-12" />
       </div>
       <div className="text-center">
@@ -34,9 +34,9 @@ export function PageLoader({
         <p className="mt-2 text-sm text-ink-soft">{label}</p>
       </div>
       <div className="flex gap-1.5">
-        <span className="size-1.5 animate-loader-dot rounded-full bg-sage [animation-delay:0ms]" />
-        <span className="size-1.5 animate-loader-dot rounded-full bg-sage [animation-delay:160ms]" />
-        <span className="size-1.5 animate-loader-dot rounded-full bg-sage [animation-delay:320ms]" />
+        <span className="size-1.5 animate-loader-dot rounded-full bg-lime [animation-delay:0ms]" />
+        <span className="size-1.5 animate-loader-dot rounded-full bg-lime [animation-delay:160ms]" />
+        <span className="size-1.5 animate-loader-dot rounded-full bg-lime [animation-delay:320ms]" />
       </div>
     </div>
   );

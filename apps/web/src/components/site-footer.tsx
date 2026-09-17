@@ -74,7 +74,6 @@ export function SiteFooterWrapper() {
     pathname.startsWith("/verify-email") ||
     pathname.startsWith("/w/") ||
     pathname.startsWith("/rsvp/") ||
-    pathname === "/tasks" ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/checklist") ||
     pathname.startsWith("/day-plan") ||

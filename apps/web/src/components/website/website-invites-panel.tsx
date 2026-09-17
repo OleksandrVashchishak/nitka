@@ -120,7 +120,7 @@ export function WebsiteInvitesPanel({
           написати.
         </p>
         <div className="ws-invites__cta-row">
-          <Link href="/guests" className="ws-btn ws-btn--solid">
+          <Link href="/guests" className="ws-btn ws-btn--empty">
             Додати гостей
           </Link>
           <Link href="/guests" className="ws-btn ws-btn--outline">

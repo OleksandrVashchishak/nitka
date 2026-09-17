@@ -21,10 +21,6 @@ function looksLikeEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
-function joinName(first: string, last: string) {
-  return [first.trim(), last.trim()].filter(Boolean).join(" ").slice(0, 80);
-}
-
 function ukDateToIso(value: string) {
   const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value.trim());
   if (!match) return null;
@@ -152,9 +148,7 @@ export function RegisterForm() {
   const [planningStage, setPlanningStage] =
     useState<PlanningStage>("PLANNING_WITH_VENUE");
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [partnerFirstName, setPartnerFirstName] = useState("");
-  const [partnerLastName, setPartnerLastName] = useState("");
   const [date, setDate] = useState("");
   const [dateUndecided, setDateUndecided] = useState(false);
   const [city, setCity] = useState("");
@@ -170,17 +164,15 @@ export function RegisterForm() {
     "idle" | "available" | "taken" | "invalid"
   >("idle");
 
-  const partnerOneName = joinName(firstName, lastName);
-  const partnerTwoName = joinName(partnerFirstName, partnerLastName);
+  const partnerOneName = firstName.trim().slice(0, 80);
+  const partnerTwoName = partnerFirstName.trim().slice(0, 80);
   const visualStep = screen === "2.1" || screen === "2.2" ? 2 : screen;
 
   function persistDraft(nextScreen: OnboardingScreen, accountSaved = false) {
     saveOnboardingDraft({
       planningStage,
       firstName,
-      lastName,
       partnerFirstName,
-      partnerLastName,
       date,
       dateUndecided,
       city,
@@ -206,9 +198,7 @@ export function RegisterForm() {
           : "PLANNING_WITH_VENUE") as PlanningStage,
       );
       setFirstName(draft.firstName);
-      setLastName(draft.lastName);
       setPartnerFirstName(draft.partnerFirstName);
-      setPartnerLastName(draft.partnerLastName);
       setDate(normalizeWeddingDate(draft.date));
       setDateUndecided(draft.dateUndecided);
       setCity(draft.city);
@@ -483,7 +473,7 @@ export function RegisterForm() {
                 Як і будь-які хороші стосунки, планування весілля починається з
                 основного.
               </p>
-              <div className="mx-auto mt-8 grid w-full gap-x-4 gap-y-5 md:mt-10 sm:grid-cols-2">
+              <div className="mx-auto mt-8 grid w-full gap-y-5 md:mt-10">
                 <Field label="Імʼя">
                   <input
                     value={firstName}
@@ -491,16 +481,6 @@ export function RegisterForm() {
                     className={inputClass}
                     placeholder="Ваше імʼя"
                     autoComplete="given-name"
-                    maxLength={40}
-                  />
-                </Field>
-                <Field label="Прізвище">
-                  <input
-                    value={lastName}
-                    onChange={(event) => setLastName(event.target.value)}
-                    className={inputClass}
-                    placeholder="Ваше прізвище"
-                    autoComplete="family-name"
                     maxLength={40}
                   />
                 </Field>
@@ -514,17 +494,7 @@ export function RegisterForm() {
                     maxLength={40}
                   />
                 </Field>
-                <Field label="Прізвище партнера / партнерки">
-                  <input
-                    value={partnerLastName}
-                    onChange={(event) => setPartnerLastName(event.target.value)}
-                    className={inputClass}
-                    placeholder="Прізвище партнера / партнерки"
-                    autoComplete="off"
-                    maxLength={40}
-                  />
-                </Field>
-                <div className="sm:col-span-2">
+                <div>
                   <Field label="Дата весілля">
                     <input
                       type="date"

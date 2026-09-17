@@ -33,7 +33,6 @@ export default function robots(): MetadataRoute.Robots {
           "/verify-email",
           "/register",
           "/rsvp",
-          "/tasks",
         ],
       },
     ],

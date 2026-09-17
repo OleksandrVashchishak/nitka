@@ -244,17 +244,24 @@ position: absolute;
   width: 150%;
   max-width: 464px;
   pointer-events: none;
-  object-fit: contain;
+  overflow: visible;
   opacity: 0;
-  clip-path: inset(0 72% 0 0);
-  transition:
-    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-    clip-path 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-scribble-path {
+  stroke-dasharray: 1;
+  /* -1 → 0: draw from path end (outer tip) toward start (inner) */
+  stroke-dashoffset: -1;
+  transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fata-compare-pair.is-circled .fata-scribble {
   opacity: 1;
-  clip-path: inset(0 0 0 0);
+}
+
+.fata-compare-pair.is-circled .fata-scribble-path {
+  stroke-dashoffset: 0;
 }
 
 .fata-x {
@@ -349,6 +356,21 @@ position: absolute;
   transform: translateY(0);
 }
 
+/* Lift-in for compare intro copy — clear fade + rise */
+.fata-reveal-text {
+  opacity: 0;
+  transform: translateY(42px);
+  transition:
+    opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.fata-reveal-text.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .fata-sec2-photos > .fata-reveal-photo:nth-child(2) {
   transition-delay: 0.08s;
 }
@@ -365,15 +387,18 @@ position: absolute;
   .fata-compare-cell--after > .fata-compare-title,
   .fata-compare-cell--after > .fata-compare-copy,
   .fata-scribble,
+  .fata-scribble-path,
   .fata-x-a,
   .fata-x-b,
   .fata-compare-rule,
-  .fata-reveal-photo {
+  .fata-reveal-photo,
+  .fata-reveal-text {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
     animation: none !important;
     clip-path: none !important;
+    stroke-dashoffset: 0 !important;
   }
 }
 
@@ -403,7 +428,7 @@ position: absolute;
   position: absolute;
   top: 43%;
   left: 0;
-  z-index: 1;
+  z-index: 3;
   width: max-content;
   margin: 0;
   color: #f0febb;
@@ -440,7 +465,7 @@ position: absolute;
 
 .fata-mobile-copy {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   margin-top: 150px;
 }
 
@@ -467,7 +492,7 @@ position: absolute;
 
 .fata-phone {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   height: 773px;
   flex-shrink: 0;
   transform: translateX(-32px);
@@ -482,7 +507,7 @@ position: absolute;
 
 .fata-dl {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -512,9 +537,21 @@ position: absolute;
 }
 
 .fata-features {
+  /* Height of the collapsed header peek (number + title + image strip). */
+  --fata-feature-stack-h: 88px;
   background: #fff;
   color: #1a1a1a;
-  padding-bottom: 100px;
+  padding-bottom: 0;
+}
+
+/* Covers the last card's body so it collapses like the others, then hands off scroll. */
+.fata-features-end {
+  position: sticky;
+  top: calc(var(--fata-header-h) + 4 * var(--fata-feature-stack-h));
+  z-index: 5;
+  height: max(240px, calc(100vh - var(--fata-header-h) - 4 * var(--fata-feature-stack-h)));
+  background: #fff;
+  pointer-events: none;
 }
 
 .fata-feature {
@@ -524,10 +561,11 @@ position: absolute;
     "n title img"
     "n body img";
   align-items: start;
-  padding: 32px var(--gutter) 32px 84px;
+  padding: 28px var(--gutter) 32px 84px;
   border-top: 2px solid #ebe5d4;
   background: #fff;
   position: sticky;
+  /* Per-index top is set inline so collapsed headers stack and stay visible. */
   top: var(--fata-header-h);
 }
 
@@ -942,7 +980,12 @@ position: absolute;
   }
 
   .fata-features {
-    padding-bottom: 48px;
+    --fata-feature-stack-h: 72px;
+    padding-bottom: 0;
+  }
+
+  .fata-features-end {
+    height: max(200px, calc(100vh - var(--fata-header-h) - 4 * var(--fata-feature-stack-h)));
   }
 
   .fata-feature {

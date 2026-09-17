@@ -20,16 +20,3 @@ export function renderWebsiteTemplate(
     />
   );
 }
-
-/** @deprecated use renderWebsiteTemplate */
-export function ClassicWeddingTemplate({
-  content,
-  compact,
-}: {
-  content: WebsiteContent;
-  compact?: boolean;
-}) {
-  return (
-    <WeddingSite templateId="classic-white" content={content} compact={compact} />
-  );
-}

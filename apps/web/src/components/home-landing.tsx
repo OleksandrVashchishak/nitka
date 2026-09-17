@@ -8,6 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { MobileAppSection } from "@/components/landing/mobile-app-section";
@@ -15,6 +17,8 @@ import { Prefooter } from "@/components/landing/prefooter/Prefooter";
 import { useHomeSmoothScroll } from "@/components/landing/smooth-scroll";
 import "@/app/hero-artboard.css";
 import "@/app/landing-rest.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const DARK_ROWS = [
   {
@@ -140,7 +144,10 @@ function FeaturesStack() {
           <article
             key={feature.n}
             className="fata-feature"
-            style={{ zIndex: i + 1 }}
+            style={{
+              zIndex: i + 1,
+              top: `calc(var(--fata-header-h) + ${i} * var(--fata-feature-stack-h))`,
+            }}
           >
             <p className="fata-feature-n">{feature.n}</p>
             <h3>{feature.title}</h3>
@@ -164,6 +171,7 @@ function FeaturesStack() {
             </div>
           </article>
         ))}
+        <div className="fata-features-end" aria-hidden />
       </div>
     </section>
   );
@@ -171,12 +179,22 @@ function FeaturesStack() {
 
 function Scribble() {
   return (
-    <img
+    <svg
       className="fata-scribble"
-      src="/landing/scribble.png"
-      alt=""
+      viewBox="0 0 420 140"
+      fill="none"
       aria-hidden
-    />
+    >
+      <path
+        className="fata-scribble-path"
+        d="M48 78c-18-28 38-58 118-64 86-6 168 8 198 38 28 28 8 54-48 64-62 12-168 16-228-2-42-12-52-38-28-52 18-10 62-4 96 6"
+        pathLength={1}
+        stroke="#FF4200"
+        strokeWidth={3.25}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -271,9 +289,14 @@ function useCompareScrollStage(reduced: boolean) {
   return { ref, stage };
 }
 
-function useRevealOnScroll(reduced: boolean) {
-  const ref = useRef<HTMLDivElement>(null);
+function useRevealOnScroll<T extends HTMLElement = HTMLElement>(
+  reduced: boolean,
+  opts?: { rootMargin?: string; minRatio?: number },
+) {
+  const ref = useRef<T>(null);
   const [visible, setVisible] = useState(false);
+  const rootMargin = opts?.rootMargin ?? "8% 0px 0px 0px";
+  const minRatio = opts?.minRatio ?? 0.06;
 
   useEffect(() => {
     if (reduced) {
@@ -285,13 +308,13 @@ function useRevealOnScroll(reduced: boolean) {
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        setVisible(entry.isIntersecting && entry.intersectionRatio > 0.06);
+        setVisible(entry.isIntersecting && entry.intersectionRatio > minRatio);
       },
-      { threshold: [0, 0.06, 0.15, 0.3], rootMargin: "8% 0px 0px 0px" },
+      { threshold: [0, 0.06, 0.15, 0.3, 0.45], rootMargin },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [reduced]);
+  }, [reduced, rootMargin, minRatio]);
 
   return { ref, visible };
 }
@@ -304,7 +327,7 @@ function RevealPhoto({
   children: ReactNode;
 }) {
   const reduced = usePrefersReducedMotion();
-  const { ref, visible } = useRevealOnScroll(reduced);
+  const { ref, visible } = useRevealOnScroll<HTMLDivElement>(reduced);
 
   return (
     <div
@@ -315,6 +338,26 @@ function RevealPhoto({
     >
       {children}
     </div>
+  );
+}
+
+function RevealCompareIntro({ children }: { children: ReactNode }) {
+  const reduced = usePrefersReducedMotion();
+  const { ref, visible } = useRevealOnScroll<HTMLParagraphElement>(reduced, {
+    // Start later so the rise is seen in-frame, not below the fold.
+    rootMargin: "0px 0px -12% 0px",
+    minRatio: 0.2,
+  });
+
+  return (
+    <p
+      ref={ref}
+      className={["fata-compare-intro", "fata-reveal-text", visible ? "is-in" : ""]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {children}
+    </p>
   );
 }
 
@@ -391,12 +434,151 @@ function HeroCta({ className }: { className: string }) {
 }
 
 function HeroArtboard() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
+  const photoMediaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const tagline = section.querySelector(".fata-tagline");
+          const titleYou = section.querySelector(".fata-title-you");
+          const titleFill = section.querySelector(".fata-title-fill");
+          const titleSans = section.querySelector(".fata-title-sans");
+          const desc = section.querySelector(".fata-desc");
+          const cta = section.querySelector(".fata-cta");
+          const text = textRef.current;
+          const photo = photoRef.current;
+          const photoMedia = photoMediaRef.current;
+          if (
+            !tagline ||
+            !titleYou ||
+            !titleFill ||
+            !titleSans ||
+            !desc ||
+            !cta ||
+            !text ||
+            !photo ||
+            !photoMedia
+          ) {
+            return;
+          }
+
+          const textBits = [tagline, titleYou, titleFill, titleSans, desc, cta];
+
+          gsap.set(textBits, { opacity: 0, y: 36 });
+          gsap.set(photoMedia, {
+            opacity: 0,
+            x: 72,
+            scale: 1.06,
+            transformOrigin: "50% 60%",
+            force3D: true,
+          });
+          gsap.set(text, { x: 0, force3D: true });
+          gsap.set(photo, { x: 0, force3D: true });
+
+          const enter = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            onComplete: () => section.classList.add("is-ready"),
+          });
+
+          enter
+            .to(tagline, { opacity: 1, y: 0, duration: 0.7 })
+            .to(titleYou, { opacity: 1, y: 0, duration: 0.75 }, "-=0.45")
+            .to(
+              titleFill,
+              { opacity: 1, y: 0, duration: 0.85, ease: "power2.out" },
+              "-=0.55",
+            )
+            .to(titleSans, { opacity: 1, y: 0, duration: 0.75 }, "-=0.55")
+            .to(desc, { opacity: 1, y: 0, duration: 0.7 }, "-=0.45")
+            .to(cta, { opacity: 1, y: 0, duration: 0.65 }, "-=0.5")
+            .to(
+              photoMedia,
+              {
+                opacity: 1,
+                x: 0,
+                scale: 1,
+                duration: 1.15,
+                ease: "power3.out",
+              },
+              0.28,
+            );
+
+          const scrollOut = {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.55,
+            invalidateOnRefresh: true,
+          };
+
+          gsap.to(text, {
+            x: () => Math.round(Math.min(window.innerWidth * 0.18, 220)),
+            ease: "none",
+            scrollTrigger: scrollOut,
+          });
+
+          gsap.to(photo, {
+            x: () => Math.round(photo.offsetWidth * 1.2 + 96),
+            ease: "none",
+            scrollTrigger: { ...scrollOut },
+          });
+
+          const onLoad = () => ScrollTrigger.refresh();
+          window.addEventListener("load", onLoad);
+          return () => window.removeEventListener("load", onLoad);
+        },
+      );
+
+      mm.add(
+        "(max-width: 1023px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const kicker = section.querySelector(".fata-m-kicker");
+          const title = section.querySelector(".fata-m-title");
+          const desc = section.querySelector(".fata-m-desc");
+          const photo = section.querySelector(".fata-m-photo");
+          const cta = section.querySelector(".fata-m-cta");
+          if (!kicker || !title || !desc || !photo || !cta) return;
+
+          const bits = [kicker, title, desc, photo, cta];
+          gsap.set(bits, { opacity: 0, y: 28 });
+
+          gsap
+            .timeline({
+              defaults: { ease: "power3.out" },
+              onComplete: () => section.classList.add("is-ready"),
+            })
+            .to(kicker, { opacity: 1, y: 0, duration: 0.65 })
+            .to(title, { opacity: 1, y: 0, duration: 0.8 }, "-=0.4")
+            .to(desc, { opacity: 1, y: 0, duration: 0.65 }, "-=0.45")
+            .to(photo, { opacity: 1, y: 0, duration: 0.85 }, "-=0.4")
+            .to(cta, { opacity: 1, y: 0, duration: 0.6 }, "-=0.5");
+        },
+      );
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        section.classList.add("is-ready");
+      });
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="fata-hero">
+    <section ref={sectionRef} className="fata-hero">
       <div className="fata-hero-stage hidden min-[1024px]:block">
         <div className="fata-hero-board">
           <div className="fata-hero-main">
-            <div className="fata-hero-main-text">
+            <div ref={textRef} className="fata-hero-main-text">
               <p className="fata-tagline">
                 Єдина платформа <em>для всіх весільних завдань</em>
               </p>
@@ -416,14 +598,16 @@ function HeroArtboard() {
                 Розпочати
               </Link>
             </div>
-            <div className="fata-photo">
-              <Image
-                src="/landing/hero-photo.jpg"
-                alt="Сукня нареченої"
-                fill
-                priority
-                sizes="555px"
-              />
+            <div ref={photoRef} className="fata-photo">
+              <div ref={photoMediaRef} className="fata-photo-media">
+                <Image
+                  src="/landing/hero-photo.jpg"
+                  alt="Сукня нареченої"
+                  fill
+                  priority
+                  sizes="555px"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -486,10 +670,10 @@ export function HomeLanding() {
         </div>
         <div className="fata-sec2-body">
           <div className="fata-sec2-body-wrap">
-            <p className="fata-compare-intro">
+            <RevealCompareIntro>
               Ми змінюємо хаос і нерви на упорядковану спокійну організацію
               весілля:
-            </p>
+            </RevealCompareIntro>
             <div className="fata-sec2-pairs">
               {DARK_ROWS.map((row) => (
                 <ComparePair key={row.afterTitle} row={row} />
