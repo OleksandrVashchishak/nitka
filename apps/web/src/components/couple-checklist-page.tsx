@@ -181,7 +181,7 @@ function typeMeta(
 ) {
   switch (type) {
     case "vendors":
-      return { label: "Підрядники", tone: "green" as const };
+      return { label: "Підрядники", tone: "lilac" as const };
     case "seating":
       return { label: "Розсадка", tone: "pink" as const };
     case "attire":

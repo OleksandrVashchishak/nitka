@@ -11,16 +11,18 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function MobileAppSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const bandRef = useRef<HTMLDivElement>(null);
   const phraseRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
+    const band = bandRef.current;
     const phrase = phraseRef.current;
     const copy = copyRef.current;
     const cta = ctaRef.current;
-    if (!section || !phrase || !copy || !cta) return;
+    if (!section || !band || !phrase || !copy || !cta) return;
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
@@ -50,8 +52,18 @@ export function MobileAppSection() {
           // CTA keeps its layout offset (CSS translateX(-71px)); animate y+opacity only.
           gsap.set(copy, { opacity: 0, y: 36 });
           gsap.set(cta, { opacity: 0, x: -71, y: 36 });
+          gsap.set(band, { y: 0, force3D: true });
           // Keep CSS translateX(-32px) under GSAP so runway y doesn't wipe it
-          if (phone) gsap.set(phone, { x: -32, y: 40, force3D: true });
+          if (phone) {
+            gsap.set(phone, {
+              x: -32,
+              y: 40,
+              rotateX: 0,
+              rotateY: 0,
+              transformPerspective: 1100,
+              force3D: true,
+            });
+          }
 
           // Timed reveal = soft approach before pin (not scrub — avoids dead feel)
           gsap.to(copy, {
@@ -95,9 +107,8 @@ export function MobileAppSection() {
             });
           }
 
-          gsap.to(phrase, {
-            x: () => -phrase.scrollWidth,
-            ease: "none",
+          // Pin: phrase scrolls; phone + band parallax on separate depths
+          const pinTl = gsap.timeline({
             scrollTrigger: {
               id: LANDING_PIN_IDS[0],
               trigger: section,
@@ -109,6 +120,39 @@ export function MobileAppSection() {
               invalidateOnRefresh: true,
             },
           });
+
+          pinTl.to(
+            phrase,
+            {
+              x: () => -phrase.scrollWidth,
+              ease: "none",
+            },
+            0,
+          );
+
+          // Band barely creeps down — stays "behind"
+          pinTl.to(
+            band,
+            {
+              y: 22,
+              ease: "none",
+            },
+            0,
+          );
+
+          // Phone drifts up + micro tilt — reads as a separate layer
+          if (phone) {
+            pinTl.to(
+              phone,
+              {
+                y: -42,
+                rotateY: -7,
+                rotateX: 3.5,
+                ease: "none",
+              },
+              0,
+            );
+          }
 
           const onLoad = () => ScrollTrigger.refresh();
           window.addEventListener("load", onLoad);
@@ -127,7 +171,12 @@ export function MobileAppSection() {
           });
           gsap.set(copy, { opacity: 1, y: 0 });
           gsap.set(cta, { opacity: 1, y: 0, clearProps: "x" });
-          if (phone) gsap.set(phone, { clearProps: "x,y,force3D" });
+          gsap.set(band, { clearProps: "y,force3D" });
+          if (phone) {
+            gsap.set(phone, {
+              clearProps: "x,y,rotateX,rotateY,transformPerspective,force3D",
+            });
+          }
         },
       );
     }, section);
@@ -137,6 +186,7 @@ export function MobileAppSection() {
 
   return (
     <section ref={sectionRef} className="fata-mobile">
+      <div ref={bandRef} className="fata-mobile-band" aria-hidden="true" />
       <div
         ref={phraseRef}
         className="fata-phrase"

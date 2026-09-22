@@ -139,40 +139,52 @@ const FOOT_PRODUCT = [
 function FeaturesStack() {
   return (
     <section className="fata-features">
-      <div className="fata-shell">
-        {FEATURES.map((feature, i) => (
-          <article
-            key={feature.n}
-            className="fata-feature"
-            style={{
-              zIndex: i + 1,
-              top: `calc(var(--fata-header-h) + ${i} * var(--fata-feature-stack-h))`,
-            }}
-          >
-            <p className="fata-feature-n">{feature.n}</p>
-            <h3>{feature.title}</h3>
-            <div className="fata-feature-panel">
-              <div className="fata-feature-panel-inner">
-                {feature.points.map((point) => (
-                  <p key={point.title} className="fata-feature-point">
-                    <strong>{point.title}</strong>
-                    <span>{point.text}</span>
-                  </p>
-                ))}
+      {FEATURES.map((feature, i) => (
+        <article
+          key={feature.n}
+          className="fata-feature"
+          style={{
+            zIndex: i + 1,
+            top: `calc(var(--fata-header-h) + ${i} * var(--fata-feature-stack-h))`,
+          }}
+        >
+          <div className="fata-shell fata-feature-inner">
+            <div className="fata-feature-head">
+              <p className="fata-feature-n">{feature.n}</p>
+              <h3>{feature.title}</h3>
+            </div>
+            <div className="fata-feature-main">
+              <div className="fata-feature-panel">
+                <div className="fata-feature-panel-inner">
+                  {feature.points.map((point) => (
+                    <p key={point.title} className="fata-feature-point">
+                      <strong>{point.title}</strong>
+                      <span>{point.text}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <div className="fata-feature-img">
+                <Image
+                  src={feature.img}
+                  alt=""
+                  fill
+                  sizes="(max-width: 1023px) 100vw, 390px"
+                />
               </div>
             </div>
-            <div className="fata-feature-img">
-              <Image
-                src={feature.img}
-                alt=""
-                fill
-                sizes="(max-width: 1023px) 100vw, 390px"
-              />
-            </div>
-          </article>
-        ))}
-        <div className="fata-features-end" aria-hidden />
-      </div>
+          </div>
+        </article>
+      ))}
+      {/* White lid under title stack — stays above prefooter during handoff */}
+      <div
+        className="fata-features-end"
+        style={{
+          top: `calc(var(--fata-header-h) + ${FEATURES.length} * var(--fata-feature-stack-h))`,
+        }}
+        aria-hidden
+      />
+      <div className="fata-features-runway" aria-hidden />
     </section>
   );
 }

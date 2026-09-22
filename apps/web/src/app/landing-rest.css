@@ -412,16 +412,16 @@ position: absolute;
   overflow: hidden;
 }
 
-.fata-mobile::after {
+.fata-mobile-band {
   position: absolute;
-  content: '';
   width: 100%;
   height: 617px;
   top: 91px;
-  background: #D3DFAE;
   left: 0;
   z-index: 0;
+  background: #D3DFAE;
   pointer-events: none;
+  will-change: transform;
 }
 
 .fata-phrase {
@@ -496,6 +496,10 @@ position: absolute;
   height: 773px;
   flex-shrink: 0;
   transform: translateX(-32px);
+  transform-style: preserve-3d;
+  transform-origin: 50% 55%;
+  will-change: transform;
+  filter: drop-shadow(0 28px 40px rgba(26, 26, 26, 0.18));
 }
 
 .fata-phone img {
@@ -537,40 +541,62 @@ position: absolute;
 }
 
 .fata-features {
-  /* Height of the collapsed header peek (number + title + image strip). */
-  --fata-feature-stack-h: 88px;
+  /* Exact height of .fata-feature-head — next card covers body, peek = titles only. */
+  --fata-feature-stack-h: 74px;
+  position: relative;
+  /* Above prefooter (incl. GSAP pin) so dark section can't slice stuck titles. */
+  z-index: 10;
   background: #fff;
   color: #1a1a1a;
-  padding-bottom: 0;
+  overflow: visible;
 }
 
-/* Covers the last card's body so it collapses like the others, then hands off scroll. */
+.fata-feature {
+  position: sticky;
+  top: var(--fata-header-h);
+  background: #fff;
+}
+
+.fata-feature-head {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  min-height: var(--fata-feature-stack-h);
+  box-sizing: border-box;
+  padding: 20px var(--gutter) 20px 84px;
+  border-top: 2px solid #ebe5d4;
+  background: #fff;
+}
+
+.fata-feature-main {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr) minmax(180px, 387px);
+  align-items: start;
+  padding: 0 var(--gutter) 32px 84px;
+  background: #fff;
+}
+
+/*
+  Sticky white lid flush under the 4 title peeks. Fills the viewport below the stack
+  so handoff is a solid white plane, not a dark prefooter edge cutting mid-title.
+*/
 .fata-features-end {
   position: sticky;
-  top: calc(var(--fata-header-h) + 4 * var(--fata-feature-stack-h));
   z-index: 5;
-  height: max(240px, calc(100vh - var(--fata-header-h) - 4 * var(--fata-feature-stack-h)));
+  height: calc(100vh - var(--fata-header-h) - 4 * var(--fata-feature-stack-h));
+  min-height: 240px;
   background: #fff;
   pointer-events: none;
 }
 
-.fata-feature {
-  display: grid;
-  grid-template-columns: 80px minmax(0, 1fr) minmax(180px, 387px);
-  grid-template-areas:
-    "n title img"
-    "n body img";
-  align-items: start;
-  padding: 28px var(--gutter) 32px 84px;
-  border-top: 2px solid #ebe5d4;
+/* Scroll room after the lid so the whole stack can slide up before section ends. */
+.fata-features-runway {
+  height: 100vh;
   background: #fff;
-  position: sticky;
-  /* Per-index top is set inline so collapsed headers stack and stay visible. */
-  top: var(--fata-header-h);
+  pointer-events: none;
 }
 
 .fata-feature-n {
-  grid-area: n;
   margin: 0;
   font-family: var(--font-script), serif;
   font-size: 55px;
@@ -580,20 +606,20 @@ position: absolute;
 }
 
 .fata-feature h3 {
-  grid-area: title;
   font-family: var(--font-display), sans-serif;
   font-size: 32px;
   font-weight: 400;
   font-style: italic;
   letter-spacing: 0;
-  margin-left: 58px;
+  margin: 0 0 0 58px;
   color: #1a1a1a;
   line-height: 1;
 }
 
 .fata-feature-panel {
   padding-left: 58px;
-  grid-area: body;
+  grid-column: 2;
+  min-width: 0;
 }
 
 .fata-feature-panel-inner {
@@ -601,7 +627,7 @@ position: absolute;
   flex-direction: column;
   gap: 16px;
   max-width: 623px;
-  padding-top: 16px;
+  padding-top: 0;
 }
 
 .fata-feature-point {
@@ -627,9 +653,10 @@ position: absolute;
 }
 
 .fata-feature-img {
-  grid-area: img;
+  grid-column: 3;
   position: relative;
-  width: min(390px, 32vw);
+  width: 100%;
+  max-width: 387px;
   height: 218px;
   justify-self: end;
   overflow: hidden;
@@ -743,8 +770,12 @@ position: absolute;
     margin-left: 0;
   }
 
-  .fata-feature {
-    padding: 32px 20px;
+  .fata-feature-head {
+    padding: 20px;
+  }
+
+  .fata-feature-main {
+    padding: 0 20px 32px;
   }
 
 }
@@ -793,7 +824,7 @@ position: absolute;
     width: 110%;
   }
 
-  .fata-mobile::after {
+  .fata-mobile-band {
     height: 467px;
   }
 
@@ -950,7 +981,7 @@ position: absolute;
     gap: 32px;
   }
 
-  .fata-mobile::after {
+  .fata-mobile-band {
     height: calc(100% - 72px);
     top: 72px;
   }
@@ -980,25 +1011,27 @@ position: absolute;
   }
 
   .fata-features {
-    --fata-feature-stack-h: 72px;
-    padding-bottom: 0;
+    --fata-feature-stack-h: 88px;
   }
 
   .fata-features-end {
-    height: max(200px, calc(100vh - var(--fata-header-h) - 4 * var(--fata-feature-stack-h)));
+    min-height: 200px;
   }
 
-  .fata-feature {
+  .fata-features-runway {
+    height: 100vh;
+  }
+
+  .fata-feature-head {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "n"
-      "title"
-      "body"
-      "img";
-    row-gap: 0;
-    column-gap: 0;
-    padding: 20px clamp(16px, 5.13vw, 28px) 16px;
+    padding: 16px clamp(16px, 5.13vw, 28px);
     border-top-width: 1px;
+    align-items: start;
+  }
+
+  .fata-feature-main {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 clamp(16px, 5.13vw, 28px) 16px;
   }
 
   .fata-feature-n {
@@ -1008,7 +1041,7 @@ position: absolute;
   }
 
   .fata-feature h3 {
-    margin: 0 0 10px;
+    margin: 0;
     font-size: 32px;
     line-height: 1.1;
     overflow-wrap: break-word;
@@ -1016,6 +1049,7 @@ position: absolute;
 
   .fata-feature-panel {
     padding-left: 0;
+    grid-column: 1;
   }
 
   .fata-feature-panel-inner {
@@ -1036,6 +1070,7 @@ position: absolute;
   }
 
   .fata-feature-img {
+    grid-column: 1;
     width: 100%;
     height: 218px;
     margin-top: 16px;
@@ -1076,8 +1111,12 @@ position: absolute;
     top: 7%;
   }
 
-  .fata-feature {
-    padding: 32px 16px;
+  .fata-feature-head {
+    padding: 16px;
+  }
+
+  .fata-feature-main {
+    padding: 0 16px 24px;
   }
 }
 
@@ -1185,7 +1224,6 @@ position: absolute;
   padding: 24px 20px 36px;
 }
 
-.fata-mobile-wordmark,
-.fata-mobile-band {
+.fata-mobile-wordmark {
   display: none !important;
 }

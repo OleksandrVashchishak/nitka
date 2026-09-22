@@ -51,7 +51,7 @@ export function WebsiteSummary({
               src={coverUrl}
               alt=""
               width={361}
-              height={361}
+              height={316}
               className="ws-summary__cover-img"
               unoptimized={coverUrl.startsWith("http")}
             />
@@ -62,13 +62,11 @@ export function WebsiteSummary({
               {unpublishedBadge}
             </div>
             {lastEditedLabel ? (
-              <>
-                <hr className="ws-summary__divider" />
-                <p className="ws-summary__meta">
-                  Останнє редагування: {lastEditedLabel}
-                </p>
-              </>
+              <p className="ws-summary__meta">
+                Останнє редагування: {lastEditedLabel}
+              </p>
             ) : null}
+            <hr className="ws-summary__divider" />
             <div className="ws-summary__buttons">
               <button
                 type="button"
@@ -93,7 +91,7 @@ export function WebsiteSummary({
               src={coverUrl}
               alt=""
               width={361}
-              height={361}
+              height={316}
               className="ws-summary__cover-img"
               unoptimized={coverUrl.startsWith("http")}
             />

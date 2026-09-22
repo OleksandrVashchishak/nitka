@@ -743,10 +743,11 @@ background: #F3F3F3;
 }
 
 .cabinet-task-row {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  align-items: start;
-  gap: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  height: 52px;
   padding: 14px 16px;
   border-bottom: 1px solid #f0f0f0;
   background: #ffffff;
@@ -756,34 +757,34 @@ background: #F3F3F3;
 
 .cabinet-task-body {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
   min-width: 0;
 }
 
 .cabinet-task-meta-wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  width: 100%;
+  flex-shrink: 0;
   min-width: 0;
 }
 
 .cabinet-task-meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
 }
 
 .cabinet-task-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
-  margin-left: auto;
 }
 
 .cabinet-task-row:last-child {
@@ -798,9 +799,9 @@ background: #F3F3F3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin-top: 2px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
   padding: 0;
   border: 1.5px solid #7f8791;
   border-radius: 7px;
@@ -863,8 +864,12 @@ background: #F3F3F3;
 }
 
 .cabinet-task-title {
+  flex: 1 1 0;
   min-width: 0;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--font-sans), sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -890,6 +895,11 @@ background: #F3F3F3;
   color: #4a5c34;
 }
 
+.cabinet-task-tag.is-lilac {
+  background: #f4f5ff;
+  color: #252525;
+}
+
 .cabinet-task-tag.is-pink {
   background: #f7ecef;
   color: #7a4456;
@@ -911,9 +921,11 @@ background: #F3F3F3;
 }
 
 .cabinet-task-date {
+  flex-shrink: 0;
+  width: 85px;
   font-family: var(--font-sans), sans-serif;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1;
   color: #838383;
   white-space: nowrap;
@@ -921,7 +933,7 @@ background: #F3F3F3;
 
 .cabinet-task-date.is-soon,
 .cabinet-task-date.is-overdue {
-  color: #c45b4a;
+  color: #ff4200;
 }
 
 .cabinet-task-row.is-done .cabinet-task-date {
@@ -943,7 +955,7 @@ background: #F3F3F3;
 }
 
 .cabinet-task-who.is-owner {
-  background: #8a9a6b;
+  background: #bfd47e;
 }
 
 .cabinet-task-who.is-partner {
@@ -959,12 +971,13 @@ background: #F3F3F3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border: 0;
   background: transparent;
   color: #b3b3b3;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .cabinet-panel-link {
@@ -1333,8 +1346,17 @@ margin-bottom: 25px;
   }
 
   .cabinet-task-row {
-    grid-template-columns: 20px minmax(0, 1fr);
-    gap: 8px 12px;
+    height: auto;
+    min-height: 52px;
+  }
+
+  .cabinet-task-meta-wrap {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .cabinet-task-date {
+    width: auto;
   }
 
   .cabinet-task-invite {

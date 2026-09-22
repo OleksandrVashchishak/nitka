@@ -12,22 +12,17 @@
   &__stack {
     display: flex;
     flex-direction: column;
+    gap: 12px;
     width: 100%;
-    overflow: hidden;
-    border-radius: var(--ws-radius-card);
-    background: var(--ws-card);
-    box-shadow: var(--ws-shadow);
   }
 
   &__stack &__cover {
-    border-radius: 0;
-    aspect-ratio: 361 / 280;
+    aspect-ratio: 361 / 316;
   }
 
   &__stack &__card {
-    box-shadow: none;
-    border-radius: 0;
-    min-height: 0;
+    min-height: 151px;
+    background: var(--ws-card-soft);
   }
 
   &__cover {
@@ -90,15 +85,16 @@
     font-weight: 500;
     font-size: 14px;
     line-height: 140%;
-    color: var(--ws-ink-soft);
+    letter-spacing: 0;
+    color: #000;
   }
 
   &__divider {
     width: 100%;
-    height: 1px;
+    height: 0;
     border: 0;
+    border-top: 1px solid #000;
     margin: 0;
-    background: var(--ws-line);
   }
 
   &__url {
@@ -115,7 +111,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 4px;
+    margin-top: 0;
   }
 
   &__actions {

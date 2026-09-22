@@ -141,7 +141,7 @@ function taskCategoryMeta(slug: string | null | undefined, title: string) {
     lower.includes("місц") ||
     lower.includes("ведуч")
   ) {
-    return { label: "Підрядники", tone: "green" as const };
+    return { label: "Підрядники", tone: "lilac" as const };
   }
   if (key === "guests" || key === "rsvp") {
     return { label: "Гості", tone: "gray" as const };
