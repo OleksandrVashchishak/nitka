@@ -1,7 +1,6 @@
 import type { Response } from 'express';
 import { AuthUser } from '../auth/current-user.decorator';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpsertDayPlanDto } from './dto/day-plan.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import { WeddingsService } from './weddings.service';
@@ -131,32 +130,6 @@ export declare class WeddingsController {
             counts: Record<string, number>;
         };
     } | null>;
-    getDayPlan(user: AuthUser): Promise<{
-        dayPlan: {
-            use24h?: boolean | undefined;
-            version: 1;
-            events: {
-                icon?: string | undefined;
-                id: string;
-                title: string;
-                durationMin: number;
-                startMin: number | null;
-            }[];
-        } | null;
-    }>;
-    upsertDayPlan(user: AuthUser, dto: UpsertDayPlanDto): Promise<{
-        dayPlan: {
-            use24h?: boolean | undefined;
-            version: 1;
-            events: {
-                icon?: string | undefined;
-                id: string;
-                title: string;
-                durationMin: number;
-                startMin: number | null;
-            }[];
-        };
-    }>;
     createPartnerInvite(user: AuthUser): Promise<{
         token: string;
         expiresAt: Date;

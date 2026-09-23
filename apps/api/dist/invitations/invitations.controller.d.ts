@@ -20,13 +20,6 @@ export declare class InvitationsController {
             slug: string;
             url: string;
         } | null;
-        guestsPreview: {
-            name: string;
-            id: string;
-            rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-            inviteToken: string;
-        }[];
-        guestsTotal: number;
         templates: {
             id: string;
             name: string;

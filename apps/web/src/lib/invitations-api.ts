@@ -33,13 +33,6 @@ export type InvitationMineResponse = {
     coupleName: string;
   };
   website: { slug: string; url: string } | null;
-  guestsPreview: Array<{
-    id: string;
-    name: string;
-    inviteToken: string;
-    rsvpStatus: string;
-  }>;
-  guestsTotal: number;
   templates: InvitationTemplateMeta[];
 };
 

@@ -8,7 +8,6 @@ const MORE_LINKS = [
   { href: "/my-vendors", label: "Підрядники", icon: "vendors" },
   { href: "/guests", label: "Гості", icon: "guests" },
   { href: "/seating", label: "Розсадка", icon: "seating" },
-  { href: "/day-plan", label: "План дня", icon: "day" },
   { href: "/blog", label: "Дошка натхнення", icon: "board" },
   { href: "/settings", label: "Налаштування", icon: "settings" },
 ] as const;

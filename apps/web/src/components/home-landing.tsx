@@ -133,7 +133,6 @@ const FOOT_PRODUCT = [
   { href: "/spysok-gostey", label: "Список гостей" },
   { href: "/vesilnyy-byudzhet", label: "Бюджет" },
   { href: "/zaprosinnya", label: "Запрошення" },
-  { href: "/plan-dnya-vesillya", label: "План дня" },
 ] as const;
 
 function FeaturesStack() {

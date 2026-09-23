@@ -1,7 +1,6 @@
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpsertDayPlanDto } from './dto/day-plan.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 export declare class WeddingsService {
@@ -199,33 +198,6 @@ export declare class WeddingsService {
     deleteTask(userId: string, taskId: string): Promise<{
         ok: boolean;
     }>;
-    getDayPlan(userId: string): Promise<{
-        dayPlan: {
-            use24h?: boolean | undefined;
-            version: 1;
-            events: {
-                icon?: string | undefined;
-                id: string;
-                title: string;
-                durationMin: number;
-                startMin: number | null;
-            }[];
-        } | null;
-    }>;
-    upsertDayPlan(userId: string, dto: UpsertDayPlanDto): Promise<{
-        dayPlan: {
-            use24h?: boolean | undefined;
-            version: 1;
-            events: {
-                icon?: string | undefined;
-                id: string;
-                title: string;
-                durationMin: number;
-                startMin: number | null;
-            }[];
-        };
-    }>;
-    private normalizeDayPlan;
     private requireMemberTask;
     private syncDefaultTasks;
 }

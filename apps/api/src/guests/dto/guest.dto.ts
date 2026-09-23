@@ -135,33 +135,3 @@ export class UpdateGuestDto {
   @IsString()
   notes?: string | null;
 }
-
-export class PublicRsvpDto {
-  @IsEnum(RsvpStatus)
-  rsvpStatus!: RsvpStatus;
-
-  @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  plusOneAttending?: boolean;
-
-  @IsOptional()
-  @IsString()
-  plusOneName?: string;
-
-  @IsOptional()
-  @IsString()
-  allergies?: string;
-
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @IsOptional()
-  @IsString()
-  notes?: string;
-}

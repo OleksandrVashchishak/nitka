@@ -8,13 +8,6 @@ export const PRODUCT_NAV = [
     coupleHref: "/checklist",
   },
   {
-    id: "dayPlan",
-    label: "План дня весілля",
-    shortLabel: "План дня",
-    guestHref: "/plan-dnya-vesillya",
-    coupleHref: "/day-plan",
-  },
-  {
     id: "budget",
     label: "Бюджет весілля",
     shortLabel: "Бюджет",

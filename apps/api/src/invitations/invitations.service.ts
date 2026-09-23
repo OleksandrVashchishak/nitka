@@ -119,12 +119,6 @@ export class InvitationsService {
         invitation: true,
         website: { select: { slug: true, published: true } },
         user: { select: { name: true } },
-        guestList: {
-          select: { id: true, name: true, inviteToken: true, rsvpStatus: true },
-          orderBy: { name: 'asc' },
-          take: 8,
-        },
-        _count: { select: { guestList: true } },
       },
     });
 
@@ -151,8 +145,6 @@ export class InvitationsService {
         full.website?.published && full.website.slug
           ? { slug: full.website.slug, url: `/w/${full.website.slug}` }
           : null,
-      guestsPreview: full.guestList,
-      guestsTotal: full._count.guestList,
       templates: INVITATION_TEMPLATES,
     };
   }

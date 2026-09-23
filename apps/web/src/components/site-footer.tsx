@@ -73,7 +73,6 @@ export function SiteFooterWrapper() {
     pathname.startsWith("/w/") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/checklist") ||
-    pathname.startsWith("/day-plan") ||
     pathname.startsWith("/budget") ||
     pathname.startsWith("/guests") ||
     pathname.startsWith("/seating") ||

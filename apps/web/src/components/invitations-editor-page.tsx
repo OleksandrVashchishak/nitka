@@ -23,7 +23,6 @@ import {
   type InvitationMineResponse,
 } from "@/lib/invitations-api";
 import { getErrorMessage, toast } from "@/lib/toast";
-import { InviteShareLinks } from "@/components/invite-share-links";
 
 const fieldClass =
   "w-full border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-sage";
@@ -98,12 +97,7 @@ function InvitationsEditorInner() {
   const [content, setContent] = useState<InvitationContent>(
     normalizeInvitationContent(null),
   );
-  const [origin, setOrigin] = useState("");
   const [printGuestName, setPrintGuestName] = useState("");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
 
   function printInvitation() {
     document.body.classList.add("printing-invitation");
@@ -164,16 +158,6 @@ function InvitationsEditorInner() {
     }
   }
 
-  async function copyGuestLink(token: string, name: string) {
-    const url = `${origin}/rsvp/${token}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Скопійовано", `Запрошення для ${name}`);
-    } catch {
-      toast.error("Не вдалось скопіювати");
-    }
-  }
-
   if (loading || !data) {
     return <PageLoader label="Завантажуємо запрошення…" />;
   }
@@ -187,7 +171,7 @@ function InvitationsEditorInner() {
       <div className="no-print flex flex-wrap items-end justify-between gap-4">
         <CabinetHeader
           title="Запрошення"
-          description="Обери стиль і текст — гості побачать листівку за персональним лінком. Роздача — у розділі Гості."
+          description="Обери стиль і текст листівки. Роздача й статус гостей — у розділі Гості."
         />
         <div className="flex flex-wrap gap-2">
           <Button href="/guests" tone="outline" size="s">
@@ -358,52 +342,6 @@ function InvitationsEditorInner() {
                 ) : null}
               </span>
             </label>
-          </section>
-
-          <section className={`${cabCard} p-4 sm:p-5`}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-                Роздати гостям
-              </p>
-              <Link
-                href="/guests"
-                className="text-sm text-sage-deep underline-offset-4 hover:underline"
-              >
-                Усі гості →
-              </Link>
-            </div>
-            {data.guestsPreview.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-soft">
-                Додай гостей у списку — кожному зʼявиться персональний лінк.
-              </p>
-            ) : (
-              <ul className="mt-4 space-y-2">
-                {data.guestsPreview.map((g) => {
-                  const url =
-                    typeof window !== "undefined"
-                      ? `${window.location.origin}/rsvp/${g.inviteToken}`
-                      : `/rsvp/${g.inviteToken}`;
-                  return (
-                    <li
-                      key={g.id}
-                      className="flex flex-col gap-1.5 border-b border-line/70 py-2 last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-                    >
-                      <span className="min-w-0 truncate text-sm text-ink">
-                        {g.name}
-                      </span>
-                      <InviteShareLinks
-                        url={url}
-                        guestName={g.name}
-                        onCopy={() => void copyGuestLink(g.inviteToken, g.name)}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            <p className="mt-3 text-xs text-ink-soft">
-              Усього гостей: {data.guestsTotal}
-            </p>
           </section>
         </form>
 

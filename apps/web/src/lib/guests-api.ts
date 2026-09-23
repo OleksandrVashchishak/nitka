@@ -38,39 +38,6 @@ export type GuestListResponse = {
   guests: Guest[];
 };
 
-export type PublicInvite = {
-  token: string;
-  name: string;
-  rsvpStatus: RsvpStatus;
-  plusOne: boolean;
-  plusOneName: string | null;
-  plusOneAttending: boolean | null;
-  allergies: string | null;
-  notes: string | null;
-  wedding: {
-    date: string;
-    city: string;
-    coupleName: string;
-    websiteUrl?: string | null;
-  };
-  invitation?: {
-    templateId: string;
-    content: {
-      headline: string;
-      opener: string;
-      body: string;
-      dateLabel: string;
-      timeLabel: string;
-      venue: string;
-      address: string;
-      dressCode: string;
-      rsvpNote: string;
-      coverImageUrl: string;
-      showWebsiteLink: boolean;
-    };
-  };
-};
-
 export type GuestInput = {
   name: string;
   email?: string;
@@ -122,50 +89,4 @@ export function deleteGuest(id: string) {
   return apiFetch<{ ok: boolean }>(`/api/guests/${id}`, {
     method: "DELETE",
   });
-}
-
-const API_BASE =
-  process.env.API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:3001";
-
-export async function getPublicInvite(token: string): Promise<PublicInvite> {
-  const res = await fetch(`${API_BASE}/api/rsvp/${token}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    throw new Error("Запрошення не знайдено");
-  }
-  return res.json();
-}
-
-export async function submitPublicRsvp(
-  token: string,
-  input: {
-    rsvpStatus: RsvpStatus;
-    plusOneAttending?: boolean;
-    plusOneName?: string;
-    allergies?: string;
-    email?: string;
-    phone?: string;
-    notes?: string;
-  },
-) {
-  const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-  const res = await fetch(`${api}/api/rsvp/${token}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(
-      typeof body?.message === "string"
-        ? body.message
-        : Array.isArray(body?.message)
-          ? body.message.join(", ")
-          : "Не вдалось надіслати запрошення",
-    );
-  }
-  return res.json();
 }

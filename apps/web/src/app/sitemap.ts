@@ -48,12 +48,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.85,
     },
-    {
-      url: `${siteUrl}/plan-dnya-vesillya`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.85,
-    },
   ];
 
   let contentRoutes: MetadataRoute.Sitemap = [];

@@ -24,7 +24,6 @@ const NAV = [
   { href: "/budget", label: "Бюджет", icon: "budget" },
   { href: "/website", label: "Сайт-запрошення", icon: "website" },
   { href: "/seating", label: "Розсадка", icon: "seating" },
-  { href: "/day-plan", label: "План дня", icon: "day" },
   { href: "/blog", label: "Дошка натхнення", icon: "board" },
 ] as const;
 

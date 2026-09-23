@@ -19,7 +19,6 @@ type NavLink = {
 const COUPLE_PRIMARY: NavLink[] = [
   { href: "/dashboard", label: "Огляд" },
   { href: "/checklist", label: "Чекліст" },
-  { href: "/day-plan", label: "План дня" },
   { href: "/budget", label: "Бюджет" },
   { href: "/guests", label: "Гості", badgeKeys: ["newRsvp", "pendingRsvp"] },
   { href: "/seating", label: "Розсадка" },

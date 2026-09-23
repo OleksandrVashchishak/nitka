@@ -16,7 +16,6 @@ const BOTTOM_TABS = [
 const MORE_PREFIXES = [
   "/my-vendors",
   "/seating",
-  "/day-plan",
   "/blog",
   "/settings",
   "/website",

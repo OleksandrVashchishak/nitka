@@ -62,15 +62,9 @@ export default function MoreScreen() {
         contentContainerStyle={styles.pad}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Ще" subtitle="План дня та налаштування" />
+        <ScreenHeader title="Ще" subtitle="Налаштування та партнери" />
 
         <ListGroup header="Планування">
-          <ListRow
-            icon="📅"
-            title="План дня"
-            subtitle="Таймінг подій"
-            onPress={() => router.push(href("/(app)/(couple)/day-plan"))}
-          />
           <ListRow
             icon="🌐"
             title="Весільний сайт"

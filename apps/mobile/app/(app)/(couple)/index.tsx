@@ -311,11 +311,6 @@ export default function CoupleHomeScreen() {
 
         <ListGroup header="Ще">
           <ListRow
-            icon="📅"
-            title="План дня"
-            onPress={() => router.push(href("/(app)/(couple)/day-plan"))}
-          />
-          <ListRow
             icon="🌐"
             title="Весільний сайт"
             subtitle="Лінк для гостей"

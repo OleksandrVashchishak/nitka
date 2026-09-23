@@ -130,7 +130,6 @@ export default function CoupleLayout() {
       />
       <Tabs.Screen name="favorites" options={{ href: null }} />
       <Tabs.Screen name="wedding" options={{ href: null }} />
-      <Tabs.Screen name="day-plan" options={{ href: null }} />
       <Tabs.Screen name="onboarding" options={{ href: null }} />
       <Tabs.Screen name="website" options={{ href: null }} />
     </Tabs>

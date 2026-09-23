@@ -251,36 +251,6 @@ export function upsertWedding(input: {
 
 
 
-export type DayPlanEvent = {
-  id: string;
-  title: string;
-  durationMin: number;
-  startMin: number | null;
-  icon?: string;
-};
-
-export type DayPlanDto = {
-  version: 1;
-  events: DayPlanEvent[];
-  use24h?: boolean;
-};
-
-export function getDayPlan() {
-  return apiFetch<{ dayPlan: DayPlanDto | null }>("/api/weddings/me/day-plan", {
-    silent: true,
-  });
-}
-
-export function upsertDayPlan(plan: DayPlanDto) {
-  return apiFetch<{ dayPlan: DayPlanDto }>("/api/weddings/me/day-plan", {
-    method: "PUT",
-    body: JSON.stringify(plan),
-    silent: true,
-  });
-}
-
-
-
 export function updateTask(
 
   taskId: string,
