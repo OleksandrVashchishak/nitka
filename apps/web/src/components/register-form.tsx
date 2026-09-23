@@ -7,7 +7,7 @@ import { CityAutocomplete } from "@/components/city-autocomplete";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioOption } from "@/components/ui/radio";
+import { RadioGroup, RadioOption } from "@/components/ui/radio";
 import {
   TextInput,
   textInputControlClassName,
@@ -430,7 +430,7 @@ export function RegisterForm() {
               <p className="mt-8 text-left font-[family-name:var(--font-sans)] text-[13px] font-semibold uppercase leading-none tracking-[0.1em] text-[#1A1A1A] md:mt-10">
                 В якому ви статусі?
               </p>
-              <div className="mt-3 space-y-3" role="radiogroup">
+              <RadioGroup className="mt-3">
                 {PLANNING_OPTIONS.map((option) => (
                   <RadioOption
                     key={option.value}
@@ -440,7 +440,7 @@ export function RegisterForm() {
                     {option.label}
                   </RadioOption>
                 ))}
-              </div>
+              </RadioGroup>
             </>
           ) : null}
 

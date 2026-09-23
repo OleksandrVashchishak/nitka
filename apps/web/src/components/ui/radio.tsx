@@ -1,11 +1,16 @@
 "use client";
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
 export type RadioProps = {
   checked: boolean;
   className?: string;
 };
+
+export type RadioGroupProps = {
+  className?: string;
+  children: ReactNode;
+} & Omit<HTMLAttributes<HTMLDivElement>, "role" | "children">;
 
 export type RadioOptionProps = {
   selected: boolean;
@@ -25,6 +30,10 @@ function radioClassName(checked: boolean, className?: string) {
     .join(" ");
 }
 
+function radioGroupClassName(className?: string) {
+  return ["fata-radio-group", className ?? ""].filter(Boolean).join(" ");
+}
+
 function radioOptionClassName(selected: boolean, className?: string) {
   return [
     "fata-radio-option",
@@ -41,6 +50,23 @@ export function Radio({ checked, className }: RadioProps) {
     <span className={radioClassName(checked, className)} aria-hidden>
       <span className="fata-radio__dot" />
     </span>
+  );
+}
+
+/** Vertical stack of radio options — 16px gap. */
+export function RadioGroup({
+  className,
+  children,
+  ...rest
+}: RadioGroupProps) {
+  return (
+    <div
+      role="radiogroup"
+      className={radioGroupClassName(className)}
+      {...rest}
+    >
+      {children}
+    </div>
   );
 }
 

@@ -42,11 +42,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/lib/toast";
 import { useAnimatedProgress } from "@/lib/use-animated-progress";
-import { VENDOR_MANAGER_CATEGORIES } from "@/lib/vendor-manager";
-
-const VENDOR_TARGET = VENDOR_MANAGER_CATEGORIES.filter(
-  (category) => category.slug !== "other",
-).length;
 
 function inviteDismissKey(weddingId: string) {
   return `fata-dashboard-invite-dismissed:${weddingId}`;
@@ -91,15 +86,19 @@ function taskDateTone(due: string | null, isDone: boolean) {
   return "";
 }
 
-function countChosenVendorCategories(pipeline: VendorPipeline | null) {
-  if (!pipeline) return 0;
-  const categories = new Set<string>();
-  for (const item of pipeline.manual) {
-    if (item.stage === "CHOSEN") {
-      categories.add(item.category);
-    }
+/** Заповнені категорії з обраного плану / розмір плану. */
+function vendorPlanProgress(pipeline: VendorPipeline | null) {
+  if (!pipeline) return { filled: 0, total: 0 };
+  const plan = pipeline.plan ?? [];
+  if (!plan.length) return { filled: 0, total: 0 };
+  const filledCategories = new Set(
+    pipeline.manual.map((item) => item.category).filter(Boolean),
+  );
+  let filled = 0;
+  for (const slug of plan) {
+    if (filledCategories.has(slug)) filled += 1;
   }
-  return categories.size;
+  return { filled, total: plan.length };
 }
 
 function taskCategoryMeta(slug: string | null | undefined, title: string) {
@@ -270,11 +269,12 @@ export function CoupleOverview({
       .slice(0, 7);
   }, [wedding.tasks, wedding.date]);
 
-  const vendorChosen = countChosenVendorCategories(pipeline);
+  const { filled: vendorFilled, total: vendorPlanTotal } =
+    vendorPlanProgress(pipeline);
   const guestsInList = insights?.rsvp.total ?? 0;
   const guestCount = guestsInList || wedding.guests;
   const spendValue = spend ?? 0;
-  const hasVendors = vendorChosen > 0;
+  const hasVendorPlan = vendorPlanTotal > 0;
   const hasSpend = spendValue > 0;
   const hasGuests = guestsInList > 0;
   const isOwner = (wedding.myRole ?? "OWNER") === "OWNER";
@@ -427,7 +427,7 @@ export function CoupleOverview({
             </article>
           )}
 
-          {statsReady && !hasVendors ? (
+          {statsReady && !hasVendorPlan ? (
             <article className="cabinet-stat is-light is-cta">
               <p className="cabinet-stat-cta-title">
                 Чи забронювали ви уже підрядників?
@@ -439,7 +439,7 @@ export function CoupleOverview({
           ) : (
             <article className="cabinet-stat is-light">
               <p className="cabinet-stat-value">
-                {statsReady ? `${vendorChosen}/${VENDOR_TARGET}` : "—"}
+                {statsReady ? `${vendorFilled}/${vendorPlanTotal}` : "—"}
               </p>
               <p className="cabinet-stat-label">Підрядників</p>
               <Link href="/my-vendors" className="cabinet-stat-link">

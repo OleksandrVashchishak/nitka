@@ -8,7 +8,7 @@ import {
 } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { IconMore } from "@/components/icon-more";
-import { RadioOption } from "@/components/ui/radio";
+import { RadioGroup, RadioOption } from "@/components/ui/radio";
 import { TextInput } from "@/components/ui/text-input";
 import type { Guest } from "@/lib/guests-api";
 import "@/app/seating-wizard.css";
@@ -451,7 +451,7 @@ function StepTables({
         <p className="seat-wiz-question">
           Чи буде президіум (головний стіл для наречених)?
         </p>
-        <div className="seat-wiz-radios" role="radiogroup">
+        <RadioGroup>
           <RadioOption
             selected={hasPresidium}
             onSelect={() => setHasPresidium(true)}
@@ -464,7 +464,7 @@ function StepTables({
           >
             Ні, без окремого президіуму
           </RadioOption>
-        </div>
+        </RadioGroup>
         {hasPresidium ? (
           <TextInput
             id="presidium-seats"
@@ -565,7 +565,7 @@ function StepTables({
 
       <section className="seat-wiz-card">
         <p className="seat-wiz-question">Чи буде окремий дитячий стіл?</p>
-        <div className="seat-wiz-radios" role="radiogroup">
+        <RadioGroup>
           <RadioOption
             selected={hasKidsTable}
             onSelect={() => setHasKidsTable(true)}
@@ -578,7 +578,7 @@ function StepTables({
           >
             Ні, діти сидітимуть з батьками
           </RadioOption>
-        </div>
+        </RadioGroup>
       </section>
     </div>
   );

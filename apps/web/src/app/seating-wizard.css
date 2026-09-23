@@ -197,12 +197,6 @@
   color: var(--seat-wiz-ink);
 }
 
-.seat-wiz-radios {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .seat-wiz-formats {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
