@@ -15,6 +15,7 @@ import { Roles, RolesGuard } from '../auth/roles.guard';
 import {
   CreateGuestDto,
   ImportGuestsDto,
+  PublicRsvpDto,
   UpdateGuestDto,
 } from './dto/guest.dto';
 import { GuestsService } from './guests.service';
@@ -60,5 +61,15 @@ export class GuestsController {
   @Roles(Role.COUPLE, Role.ADMIN)
   remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.guestsService.remove(user.id, id);
+  }
+
+  @Get('rsvp/:token')
+  getPublic(@Param('token') token: string) {
+    return this.guestsService.getPublicInvite(token);
+  }
+
+  @Post('rsvp/:token')
+  submitPublic(@Param('token') token: string, @Body() dto: PublicRsvpDto) {
+    return this.guestsService.submitPublicRsvp(token, dto);
   }
 }
