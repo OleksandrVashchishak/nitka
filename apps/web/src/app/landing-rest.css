@@ -512,32 +512,10 @@ position: absolute;
 .fata-dl {
   position: relative;
   z-index: 4;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 56px;
-  padding: 14px 32px;
-  border-radius: 40px;
-  background: #000;
-  color: #fff;
-  font-family: var(--font-akzidenz), sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1;
-  text-decoration: none;
   margin-top: 406px;
   min-width: fit-content;
-  transition: background .4s;
   transform: translateX(-71px);
-}
-
-.fata-dl:hover {
-  background: #222222;
-}
-
-.fata-dl:focus {
-  background: #333333;
+  /* visual styles → .fata-button */
 }
 
 .fata-features {
@@ -594,6 +572,44 @@ position: absolute;
   height: 100vh;
   background: #fff;
   pointer-events: none;
+}
+
+/*
+  Exit handoff: full-card sticky collapses and left opaque whites (section bg,
+  .fata-feature-main, .fata-features-end) masking the dark prefooter. Clear those
+  and drop z so prefooter can wipe up. Fill with prefooter ink so the gap under
+  the header matches instead of flashing page burgundy / white.
+*/
+.fata-features.is-leaving {
+  z-index: 1;
+  background: #1a1a1a;
+}
+
+.fata-features.is-leaving .fata-feature {
+  background: transparent;
+}
+
+.fata-features.is-leaving .fata-feature-head {
+  background: #1a1a1a;
+  border-top-color: transparent;
+  color: transparent;
+}
+
+.fata-features.is-leaving .fata-feature-head * {
+  color: transparent;
+}
+
+.fata-features.is-leaving .fata-feature-main,
+.fata-features.is-leaving .fata-features-end,
+.fata-features.is-leaving .fata-features-runway {
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fata-features.is-leaving ~ .prefooter,
+.fata-features.is-leaving ~ .pin-spacer .prefooter {
+  z-index: 12;
 }
 
 .fata-feature-n {

@@ -1,0 +1,185 @@
+/* Shared CTA button — sizes + tones. Hover/focus live here once. */
+
+.fata-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 40px;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease,
+    opacity 0.2s ease;
+}
+
+.fata-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.fata-button--full {
+  width: 100%;
+}
+
+/* ——— sizes ——— */
+
+.fata-button--s {
+  height: 36px;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.fata-button--m {
+  height: 46px;
+  padding: 12px 24px;
+  font-size: 15px;
+}
+
+.fata-button--l {
+  height: 56px;
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+.fata-button--xl {
+  height: 56px;
+  min-width: 203px;
+  padding: 14px 40px;
+  font-size: 16px;
+}
+
+/* ——— tones ———
+   Double class beats `.fata-site-header a { color: inherit }` (0,1,1). */
+
+.fata-button.fata-button--light {
+  background: #f0febb;
+  color: #61040f;
+}
+
+.fata-button.fata-button--light:hover:not(:disabled) {
+  background: #e5f5a3;
+}
+
+.fata-button.fata-button--light:focus-visible {
+  background: #d9eb8a;
+  outline: none;
+}
+
+.fata-button.fata-button--dark {
+  background: #61040f;
+  color: #fff;
+}
+
+.fata-button.fata-button--dark:hover:not(:disabled) {
+  background: #4a030c;
+}
+
+.fata-button.fata-button--dark:focus-visible {
+  background: #4a030c;
+  outline: 2px solid #f0febb;
+  outline-offset: 2px;
+}
+
+/* Header «Увійти»: wine + lime text/border */
+.fata-button.fata-button--brand {
+  border: 1px solid #f0febb;
+  background: #61040f;
+  color: #f0febb;
+}
+
+.fata-button.fata-button--brand:hover:not(:disabled) {
+  background: #4a0310;
+  border-color: #4a0310;
+}
+
+.fata-button.fata-button--brand:focus-visible {
+  outline: 2px solid #f0febb;
+  outline-offset: 2px;
+}
+
+/* Google / secondary on light surfaces */
+.fata-button.fata-button--outline {
+  border: 1px solid #ebe5d4;
+  background: #fff;
+  font-family: var(--font-sans), sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  color: #1b1b19;
+}
+
+.fata-button.fata-button--outline:hover:not(:disabled) {
+  border-color: rgba(26, 26, 26, 0.25);
+}
+
+.fata-button.fata-button--outline:focus-visible {
+  border-color: #1b1b19;
+  outline: none;
+}
+
+/* «Назад» on onboarding */
+.fata-button.fata-button--ghost {
+  border: 1px solid #000;
+  background: transparent;
+  color: #1a1a1a;
+}
+
+.fata-button.fata-button--ghost:hover:not(:disabled) {
+  background: rgba(26, 26, 26, 0.04);
+}
+
+.fata-button.fata-button--ghost:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+}
+
+.fata-button.fata-button--black {
+  background: #000;
+  color: #fff;
+}
+
+.fata-button.fata-button--black:hover:not(:disabled) {
+  background: #222;
+}
+
+.fata-button.fata-button--black:focus-visible {
+  background: #333;
+  outline: none;
+}
+
+/* Cabinet primary: ink + lime text */
+.fata-button.fata-button--ink {
+  background: #1a1a1a;
+  color: #f0febb;
+}
+
+.fata-button.fata-button--ink:hover:not(:disabled) {
+  background: #000;
+}
+
+.fata-button.fata-button--ink:focus-visible {
+  outline: 2px solid #f0febb;
+  outline-offset: 2px;
+}
+
+.fata-button.fata-button--accent {
+  background: #ff4200;
+  color: #1a1a1a;
+}
+
+.fata-button.fata-button--accent:hover:not(:disabled) {
+  background: #e63b00;
+}
+
+.fata-button.fata-button--accent:focus-visible {
+  outline: 2px solid #f0febb;
+  outline-offset: 3px;
+}

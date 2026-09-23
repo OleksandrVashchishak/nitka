@@ -17,12 +17,15 @@ import {
 } from "@/lib/dashboard-api";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { BrandLogo } from "@/components/brand-logo";
 import { IconMore } from "@/components/icon-more";
+import { TaskResponsibleAvatar } from "@/components/responsible-avatar";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import { IconTaskCheck } from "@/components/cabinet-task-icons";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
 import { VENDOR_MANAGER_CATEGORIES } from "@/lib/vendor-manager";
 import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
@@ -116,9 +119,6 @@ function taskCategoryMeta(slug: string | null | undefined, title: string) {
   const lower = title.toLowerCase();
   if (key === "invitations" || key === "invite-guests" || key === "website") {
     return { label: "Запрошення", tone: "orange" as const };
-  }
-  if (lower.includes("розсад")) {
-    return { label: "Розсадка", tone: "pink" as const };
   }
   if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
     return { label: "Вбрання", tone: "blue" as const };
@@ -325,9 +325,7 @@ export function CoupleOverview({
   return (
     <div className="cabinet-overview">
       <div className="cabinet-overview-top">
-        <Link href="/dashboard" className="cabinet-mobile-brand">
-          fata.studi<span className="cabinet-logo-dot">o</span>
-        </Link>
+        <BrandLogo href="/dashboard" className="cabinet-mobile-brand" />
         <div className="cabinet-overview-greeting">
           <h1>Привіт, {greetingName}!</h1>
           <p>
@@ -487,14 +485,17 @@ export function CoupleOverview({
                   </p>
                 </div>
                 <div className="cabinet-task-invite-actions">
-                  <button
+                  <Button
                     type="button"
+                    tone="black"
+                    size="s"
                     className="cabinet-task-invite-btn"
-                    disabled={inviteBusy}
+                    loading={inviteBusy}
+                    loadingText="…"
                     onClick={() => void onInvitePartner()}
                   >
-                    {inviteBusy ? "…" : "Запросити"}
-                  </button>
+                    Запросити
+                  </Button>
                   <button
                     type="button"
                     className="cabinet-task-invite-dismiss"
@@ -539,7 +540,16 @@ export function CoupleOverview({
                 ))
               : tasks.map(({ task, due, done: isDone }) => {
                   const cat = taskCategoryMeta(task.categorySlug, task.title);
-                  const who = task.sortOrder % 2 === 0 ? "owner" : "partner";
+                  const who =
+                    task.assignee === "owner" ||
+                    task.assignee === "partner" ||
+                    task.assignee === "both" ||
+                    task.assignee === "none" ||
+                    task.assignee === "other"
+                      ? task.assignee
+                      : task.sortOrder % 2 === 0
+                        ? "owner"
+                        : "partner";
                   return (
                     <li
                       key={task.id}
@@ -569,11 +579,11 @@ export function CoupleOverview({
                             ) : null}
                           </div>
                           <div className="cabinet-task-actions">
-                            <span className={`cabinet-task-who is-${who}`}>
-                              {who === "owner"
-                                ? greetingName.charAt(0)
-                                : partnerName.charAt(0) || "P"}
-                            </span>
+                            <TaskResponsibleAvatar
+                              who={who}
+                              ownerName={greetingName}
+                              partnerName={partnerName}
+                            />
                             <Link
                               href="/checklist"
                               className="cabinet-task-menu"

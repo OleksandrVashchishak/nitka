@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLogo, AuthSplitShell } from "@/components/auth-split-shell";
+import { Button } from "@/components/ui/button";
 
 export function EmailConfirmedForm() {
   const router = useRouter();
@@ -26,9 +27,9 @@ export function EmailConfirmedForm() {
       </p>
 
       <div className="login-form">
-        <button type="button" className="login-btn login-submit" onClick={continueNext}>
+        <Button type="button" tone="dark" fullWidth className="mt-8" onClick={continueNext}>
           Продовжити
-        </button>
+        </Button>
       </div>
     </AuthSplitShell>
   );

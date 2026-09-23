@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { Button } from "@/components/ui/button";
 import {
   SMART_DONE_GROUPS,
   SMART_FEATURES,
@@ -169,9 +170,7 @@ export function SmartPlanningWizard({
   return (
     <div className="smart-plan-root" role="dialog" aria-modal="true">
       <header className="smart-plan-top">
-        <Link href="/" className="smart-plan-logo" aria-label="fata.studio">
-          fata.studi<span className="cabinet-logo-dot">o</span>
-        </Link>
+        <BrandLogo className="smart-plan-logo" />
         <CabinetProfileMenu initials={partnerInitials} />
       </header>
 
@@ -282,39 +281,52 @@ export function SmartPlanningWizard({
               </p>
             ) : (
               <div className="smart-plan-result-grid">
-                {planGroups.map((group) => (
-                  <section key={group.categoryId} className="smart-plan-card">
-                    <h2 className="smart-plan-cat-title">{group.title}</h2>
-                    <ul className="smart-plan-result-list">
-                      {group.tasks.map((task) => (
-                        <li key={task.id}>
-                          <span>{task.title}</span>
-                          <button
-                            type="button"
-                            className="smart-plan-trash"
-                            aria-label={`Видалити «${task.title}»`}
-                            onClick={() => removePlanTask(task.id)}
-                          >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              aria-hidden
-                            >
-                              <path
-                                d="M3.5 4.5h9M6.5 4.5V3.25A.75.75 0 0 1 7.25 2.5h1.5a.75.75 0 0 1 .75.75V4.5m1.5 0v8.25a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1-.75-.75V4.5"
-                                stroke="currentColor"
-                                strokeWidth="1.2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </button>
-                        </li>
+                {[0, 1].map((col) => (
+                  <div key={col} className="smart-plan-result-col">
+                    {planGroups
+                      .map((group, i) => ({ group, i }))
+                      .filter(({ i }) => i % 2 === col)
+                      .map(({ group, i }) => (
+                        <section
+                          key={group.categoryId}
+                          className="smart-plan-card"
+                          style={{ order: i }}
+                        >
+                          <h2 className="smart-plan-cat-title">
+                            {group.title}
+                          </h2>
+                          <ul className="smart-plan-result-list">
+                            {group.tasks.map((task) => (
+                              <li key={task.id}>
+                                <span>{task.title}</span>
+                                <button
+                                  type="button"
+                                  className="smart-plan-trash"
+                                  aria-label={`Видалити «${task.title}»`}
+                                  onClick={() => removePlanTask(task.id)}
+                                >
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    aria-hidden
+                                  >
+                                    <path
+                                      d="M3.5 4.5h9M6.5 4.5V3.25A.75.75 0 0 1 7.25 2.5h1.5a.75.75 0 0 1 .75.75V4.5m1.5 0v8.25a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1-.75-.75V4.5"
+                                      stroke="currentColor"
+                                      strokeWidth="1.2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
                       ))}
-                    </ul>
-                  </section>
+                  </div>
                 ))}
               </div>
             )}
@@ -324,45 +336,61 @@ export function SmartPlanningWizard({
 
       <footer className="smart-plan-footer">
         {step === 1 ? (
-          <button type="button" className="smart-plan-btn is-ghost" onClick={onClose}>
-            Скасувати
-          </button>
-        ) : (
-          <button
+          <Button
             type="button"
+            tone="ghost"
+            size="m"
+            className="smart-plan-btn is-ghost"
+            onClick={onClose}
+          >
+            Скасувати
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            tone="ghost"
+            size="m"
             className="smart-plan-btn is-ghost"
             onClick={() => setStep((s) => (s === 3 ? 2 : 1))}
           >
             Назад
-          </button>
+          </Button>
         )}
         {step === 1 ? (
-          <button
+          <Button
             type="button"
+            tone="black"
+            size="m"
             className="smart-plan-btn is-primary"
             onClick={() => setStep(2)}
           >
             Далі
-          </button>
+          </Button>
         ) : null}
         {step === 2 ? (
-          <button
+          <Button
             type="button"
+            tone="black"
+            size="m"
             className="smart-plan-btn is-primary"
             onClick={goToStep3}
           >
             Далі
-          </button>
+          </Button>
         ) : null}
         {step === 3 ? (
-          <button
+          <Button
             type="button"
-            className="smart-plan-btn is-primary"
+            tone="ink"
+            size="m"
+            className="smart-plan-btn is-primary is-lime"
             disabled={submitting || planTasks.length === 0}
+            loading={submitting}
+            loadingText="Додаємо…"
             onClick={() => void submit()}
           >
-            {submitting ? "Додаємо…" : "Додати завдання"}
-          </button>
+            Додати завдання
+          </Button>
         ) : null}
       </footer>
     </div>

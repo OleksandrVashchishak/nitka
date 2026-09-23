@@ -11,7 +11,12 @@ import {
   IconQuickAdd,
 } from "@/components/cabinet-task-icons";
 import { IconMore } from "@/components/icon-more";
+import {
+  ResponsibleAvatar,
+  ResponsibleAvatarDuo,
+} from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import {
   createGuest,
   deleteGuest,
@@ -605,21 +610,19 @@ function GuestsInner() {
           </p>
           <p>Додайте гостей вручну або імпортуйте список із CSV файлу</p>
           <div className="cabinet-guests-empty-actions">
-            <button
-              type="button"
-              className="cabinet-empty-cta"
-              onClick={openCreate}
-            >
+            <Button type="button" tone="ink" size="m" className="cabinet-empty-cta" onClick={openCreate}>
               Додати гостей
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              tone="ghost"
+              size="m"
               className="cabinet-guests-import-btn"
               onClick={() => fileRef.current?.click()}
               disabled={busy}
             >
               Імпорт CSV
-            </button>
+            </Button>
           </div>
           <input
             ref={fileRef}
@@ -751,22 +754,26 @@ function GuestsInner() {
                       <option value="rsvp">За відповіддю</option>
                     </select>
                   </label>
-                  <button
+                  <Button
                     type="button"
+                    tone="black"
+                    size="s"
                     className="cabinet-tasks-add-btn"
                     onClick={openCreate}
                   >
                     <span aria-hidden>+</span>
                     Додати гостей
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    tone="ghost"
+                    size="m"
                     className="cabinet-guests-import-btn"
                     onClick={() => fileRef.current?.click()}
                     disabled={busy}
                   >
                     Імпорт CSV
-                  </button>
+                  </Button>
                   <input
                     ref={fileRef}
                     type="file"
@@ -789,12 +796,6 @@ function GuestsInner() {
                 <ul className="cabinet-guests-list">
                   {visible.map((guest) => {
                     const ui = RSVP_UI[guest.rsvpStatus];
-                    const mark =
-                      guest.side === "GROOM"
-                        ? "P"
-                        : guest.side === "BRIDE"
-                          ? "O"
-                          : "G";
                     return (
                       <li
                         key={guest.id}
@@ -825,15 +826,25 @@ function GuestsInner() {
                             <StatusIcon tone={ui.tone} />
                             {ui.label}
                           </span>
-                          <span
-                            className={`cabinet-task-who ${
-                              guest.side === "GROOM"
-                                ? "is-partner"
-                                : "is-owner"
-                            }`}
-                          >
-                            {mark}
-                          </span>
+                          {guest.side === "BOTH" ? (
+                            <ResponsibleAvatarDuo
+                              ownerName={ownerName}
+                              partnerName={partnerName}
+                              title="Обоє"
+                              aria-hidden
+                            />
+                          ) : (
+                            <ResponsibleAvatar
+                              name={
+                                guest.side === "GROOM"
+                                  ? partnerName
+                                  : ownerName
+                              }
+                              tone={
+                                guest.side === "GROOM" ? "partner" : "owner"
+                              }
+                            />
+                          )}
                           <div className="cabinet-guest-menu-wrap">
                             <button
                               type="button"
@@ -913,9 +924,10 @@ function GuestsInner() {
                                   disabled={busy}
                                   onClick={() => void onSetSide(guest, "BRIDE")}
                                 >
-                                  <span className="cabinet-task-who is-owner">
-                                    o
-                                  </span>
+                                  <ResponsibleAvatar
+                                    name={ownerName}
+                                    tone="owner"
+                                  />
                                   {ownerName}
                                 </button>
                                 <button
@@ -927,9 +939,10 @@ function GuestsInner() {
                                   disabled={busy}
                                   onClick={() => void onSetSide(guest, "GROOM")}
                                 >
-                                  <span className="cabinet-task-who is-partner">
-                                    p
-                                  </span>
+                                  <ResponsibleAvatar
+                                    name={partnerName}
+                                    tone="partner"
+                                  />
                                   {partnerName}
                                 </button>
                                 <button
@@ -941,17 +954,11 @@ function GuestsInner() {
                                   disabled={busy}
                                   onClick={() => void onSetSide(guest, "BOTH")}
                                 >
-                                  <span
-                                    className="cabinet-guest-menu-duo"
+                                  <ResponsibleAvatarDuo
+                                    ownerName={ownerName}
+                                    partnerName={partnerName}
                                     aria-hidden
-                                  >
-                                    <span className="cabinet-task-who is-partner">
-                                      p
-                                    </span>
-                                    <span className="cabinet-task-who is-owner">
-                                      o
-                                    </span>
-                                  </span>
+                                  />
                                   Обоє
                                 </button>
                               </div>
@@ -1217,8 +1224,10 @@ function GuestsInner() {
               </div>
 
               <div className="cabinet-drawer-actions">
-                <button
+                <Button
                   type="button"
+                  tone="ghost"
+                  size="m"
                   className="cabinet-drawer-cancel"
                   onClick={() => {
                     setDrawerOpen(false);
@@ -1226,14 +1235,18 @@ function GuestsInner() {
                   }}
                 >
                   Скасувати
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  tone="black"
+                  size="m"
                   className="cabinet-drawer-save"
                   disabled={busy || name.trim().length < 2}
+                  loading={busy}
+                  loadingText="…"
                 >
-                  {busy ? "…" : "Зберегти"}
-                </button>
+                  Зберегти
+                </Button>
               </div>
             </form>
           </aside>

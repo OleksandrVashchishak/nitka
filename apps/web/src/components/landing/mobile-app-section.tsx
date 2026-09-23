@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { LANDING_PIN_IDS } from "@/components/landing/landing-pin-ids";
+import { Button } from "@/components/ui/button";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -212,9 +212,15 @@ export function MobileAppSection() {
             sizes="(max-width: 1023px) 220px, 373px"
           />
         </div>
-        <Link ref={ctaRef} href="/register" className="fata-dl">
+        <Button
+          ref={ctaRef}
+          href="/register"
+          tone="black"
+          size="l"
+          className="fata-dl"
+        >
           Скачати мобільний застосунок
-        </Link>
+        </Button>
       </div>
     </section>
   );

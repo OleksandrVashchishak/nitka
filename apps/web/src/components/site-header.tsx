@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { FATA_NAV, FataMobileMenu } from "@/components/fata-mobile-menu";
+import { Button } from "@/components/ui/button";
 
 function shouldHideHeader(pathname: string) {
   return (
@@ -53,20 +54,20 @@ function AuthButtons() {
 
   if (user) {
     return (
-      <Link href={dashboardHref} className="fata-btn fata-btn-start">
+      <Button href={dashboardHref} tone="light" size="l">
         Кабінет
-      </Link>
+      </Button>
     );
   }
 
   return (
     <>
-      <Link href="/login" className="fata-btn fata-btn-login">
+      <Button href="/login" tone="brand" size="l">
         Увійти
-      </Link>
-      <Link href="/register" className="fata-btn fata-btn-start">
+      </Button>
+      <Button href="/register" tone="light" size="l">
         Розпочати
-      </Link>
+      </Button>
     </>
   );
 }

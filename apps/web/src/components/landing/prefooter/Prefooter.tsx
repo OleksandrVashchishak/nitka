@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { setupPrefooterOrbit } from "./prefooter-orbit";
 import { MOBILE_SHOT_IDS, SHOTS } from "./shots";
 import "./prefooter.scss";
@@ -60,9 +60,9 @@ export function Prefooter() {
             <br className="prefooter__br prefooter__br--m" />{" "}
             безкоштовно
           </h2>
-          <Link href="/register" className="prefooter__btn">
+          <Button href="/register" tone="accent" size="l" className="prefooter__btn">
             Розпочати безкоштовно
-          </Link>
+          </Button>
         </div>
 
         {prefersOrbit ? (

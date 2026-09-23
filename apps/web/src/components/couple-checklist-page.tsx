@@ -12,9 +12,15 @@ import {
   IconTaskCheck,
 } from "@/components/cabinet-task-icons";
 import { IconMore } from "@/components/icon-more";
+import {
+  ResponsibleAvatar,
+  ResponsibleAvatarDuo,
+  TaskResponsibleAvatar,
+} from "@/components/responsible-avatar";
 import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import {
   createPartnerInvite,
   createTask,
@@ -47,7 +53,6 @@ type TypeFilter =
   | "vendors"
   | "attire"
   | "guests"
-  | "seating"
   | "budget"
   | "invites"
   | "other"
@@ -69,7 +74,6 @@ const TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
   { id: "vendors", label: "Підрядники" },
   { id: "attire", label: "Вбрання" },
   { id: "guests", label: "Гості" },
-  { id: "seating", label: "Розсадка" },
   { id: "budget", label: "Бюджет" },
   { id: "invites", label: "Запрошення" },
 ];
@@ -79,7 +83,6 @@ const MOBILE_TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
   { id: "prep", label: "Підготовка" },
   { id: "vendors", label: "Підрядники" },
   { id: "guests_invites", label: "Гості і Запрошення" },
-  { id: "seating", label: "Розсадка" },
   { id: "other", label: "Інше" },
 ];
 
@@ -141,17 +144,18 @@ function resolveTaskType(
   ) {
     return "invites";
   }
-  if (lower.includes("розсад") || key === "seating") return "seating";
-  if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
-    return "attire";
-  }
   if (
     key === "starter-guests" ||
     key === "guests" ||
     key === "rsvp" ||
-    lower.includes("гост")
+    key === "seating" ||
+    lower.includes("гост") ||
+    lower.includes("розсад")
   ) {
     return "guests";
+  }
+  if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
+    return "attire";
   }
   if (
     [
@@ -182,8 +186,6 @@ function typeMeta(
   switch (type) {
     case "vendors":
       return { label: "Підрядники", tone: "lilac" as const };
-    case "seating":
-      return { label: "Розсадка", tone: "pink" as const };
     case "attire":
       return { label: "Вбрання", tone: "blue" as const };
     case "invites":
@@ -434,7 +436,6 @@ function ChecklistInner() {
       vendors: 0,
       attire: 0,
       guests: 0,
-      seating: 0,
       budget: 0,
       invites: 0,
       other: 0,
@@ -618,8 +619,6 @@ function ChecklistInner() {
         return "attire";
       case "guests":
         return "guests";
-      case "seating":
-        return "seating";
       case "budget":
         return "budget";
       case "invites":
@@ -993,14 +992,16 @@ function ChecklistInner() {
                   <option value="alpha">За алфавітом</option>
                 </select>
               </label>
-              <button
+              <Button
                 type="button"
+                tone="black"
+                size="s"
                 className="cabinet-tasks-add-btn"
                 onClick={openCreate}
               >
                 <span aria-hidden>+</span>
                 Додати завдання
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -1033,14 +1034,17 @@ function ChecklistInner() {
                 </p>
               </div>
               <div className="cabinet-task-invite-actions">
-                <button
+                <Button
                   type="button"
+                  tone="black"
+                  size="s"
                   className="cabinet-task-invite-btn"
-                  disabled={inviteBusy}
+                  loading={inviteBusy}
+                  loadingText="…"
                   onClick={() => void onInvitePartner()}
                 >
-                  {inviteBusy ? "…" : "Запросити"}
-                </button>
+                  Запросити
+                </Button>
                 <button
                   type="button"
                   className="cabinet-task-invite-dismiss"
@@ -1131,34 +1135,11 @@ function ChecklistInner() {
                           ) : null}
                         </div>
                         <div className="cabinet-task-actions">
-                          {task.who === "both" ? (
-                            <span
-                              className="cabinet-guest-menu-duo"
-                              title="Обоє"
-                              aria-hidden
-                            >
-                              <span className="cabinet-task-who is-partner">p</span>
-                              <span className="cabinet-task-who is-owner">o</span>
-                            </span>
-                          ) : task.who === "none" || task.who === "other" ? (
-                            <span
-                              className="cabinet-task-who is-none"
-                              title={
-                                task.who === "none" ? "Ніхто" : "Хтось інший"
-                              }
-                            >
-                              {task.who === "none" ? "—" : "?"}
-                            </span>
-                          ) : (
-                            <span
-                              className={`cabinet-task-who is-${task.who}`}
-                              title={
-                                task.who === "owner" ? ownerShort : partnerShort
-                              }
-                            >
-                              {task.who === "owner" ? "o" : "p"}
-                            </span>
-                          )}
+                          <TaskResponsibleAvatar
+                            who={task.who}
+                            ownerName={ownerShort}
+                            partnerName={partnerShort}
+                          />
                           <div className="cabinet-guest-menu-wrap">
                             <button
                               type="button"
@@ -1235,7 +1216,10 @@ function ChecklistInner() {
                               }`}
                               onClick={() => void onSetAssignee(task, "owner")}
                             >
-                              <span className="cabinet-task-who is-owner">o</span>
+                              <ResponsibleAvatar
+                                name={ownerShort}
+                                tone="owner"
+                              />
                               {ownerShort}
                             </button>
                             <button
@@ -1248,9 +1232,10 @@ function ChecklistInner() {
                                 void onSetAssignee(task, "partner")
                               }
                             >
-                              <span className="cabinet-task-who is-partner">
-                                p
-                              </span>
+                              <ResponsibleAvatar
+                                name={partnerShort}
+                                tone="partner"
+                              />
                               {partnerShort}
                             </button>
                             <button
@@ -1261,17 +1246,11 @@ function ChecklistInner() {
                               }`}
                               onClick={() => void onSetAssignee(task, "both")}
                             >
-                              <span
-                                className="cabinet-guest-menu-duo"
+                              <ResponsibleAvatarDuo
+                                ownerName={ownerShort}
+                                partnerName={partnerShort}
                                 aria-hidden
-                              >
-                                <span className="cabinet-task-who is-partner">
-                                  p
-                                </span>
-                                <span className="cabinet-task-who is-owner">
-                                  o
-                                </span>
-                              </span>
+                              />
                               Обоє
                             </button>
                             <button
@@ -1549,20 +1528,26 @@ function ChecklistInner() {
                 </label>
               ) : null}
               <div className="cabinet-drawer-actions">
-                <button
+                <Button
                   type="button"
+                  tone="ghost"
+                  size="m"
                   className="cabinet-drawer-cancel"
                   onClick={closeDrawer}
                 >
                   Скасувати
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  tone="black"
+                  size="m"
                   className="cabinet-drawer-save"
                   disabled={adding || !newTitle.trim()}
+                  loading={adding}
+                  loadingText="…"
                 >
-                  {adding ? "…" : "Зберегти"}
-                </button>
+                  Зберегти
+                </Button>
               </div>
             </form>
           </aside>
@@ -1598,22 +1583,27 @@ function ChecklistInner() {
               </button>
             </div>
             <div className="cabinet-modal-actions">
-              <button
+              <Button
                 type="button"
+                tone="ghost"
+                size="m"
                 className="cabinet-drawer-cancel"
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
               >
                 Скасувати
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                tone="ink"
+                size="m"
                 className="cabinet-confirm-delete"
-                disabled={deleting}
+                loading={deleting}
+                loadingText="…"
                 onClick={() => void confirmDelete()}
               >
-                {deleting ? "…" : "Так, видалити"}
-              </button>
+                Так, видалити
+              </Button>
             </div>
           </div>
         </div>

@@ -6,13 +6,12 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import {
   CabinetHeader,
   CoupleCabinetFrame,
-  cabBtn,
-  cabBtnGhost,
   cabCard,
 } from "@/components/couple-cabinet-ui";
 import { InvitationCard } from "@/components/invitation-card";
 import { RequireAuth } from "@/components/require-auth";
-import { PageLoader, LoadingButtonLabel } from "@/components/ui-loader";
+import { Button } from "@/components/ui/button";
+import { PageLoader } from "@/components/ui-loader";
 import { uploadFile } from "@/lib/client-api";
 import { INVITATION_THEMES } from "@/lib/invitation-themes";
 import {
@@ -190,20 +189,21 @@ function InvitationsEditorInner() {
           description="Обери стиль і текст — гості побачать листівку за персональним лінком. Роздача — у розділі Гості."
         />
         <div className="flex flex-wrap gap-2">
-          <Link href="/guests" className={cabBtnGhost}>
+          <Button href="/guests" tone="outline" size="s">
             До гостей
-          </Link>
-          <button type="button" onClick={printInvitation} className={cabBtnGhost}>
+          </Button>
+          <Button type="button" tone="outline" size="s" onClick={printInvitation}>
             Друк / PDF
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            disabled={saving}
+            tone="black"
+            size="s"
+            loading={saving}
             onClick={() => void onSave()}
-            className={cabBtn}
           >
-            <LoadingButtonLabel loading={saving}>Зберегти</LoadingButtonLabel>
-          </button>
+            Зберегти
+          </Button>
         </div>
       </div>
 

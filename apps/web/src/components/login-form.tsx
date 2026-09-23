@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoadingButtonLabel } from "@/components/ui-loader";
+import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/brand-logo";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { getErrorMessage, toast } from "@/lib/toast";
@@ -36,9 +37,7 @@ export function LoginForm() {
     <div className="login-page">
       <section className="login-left">
         <div className="login-col">
-          <Link href="/" className="login-logo" aria-label="fata.studio">
-            fata.studi<span className="fata-ring">o</span>
-          </Link>
+          <BrandLogo className="login-logo" />
 
           <h1 className="login-title">Вітаємо з поверненням</h1>
           <p className="login-subtitle">
@@ -95,22 +94,29 @@ export function LoginForm() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="login-btn login-submit">
-              <LoadingButtonLabel loading={loading} loadingText="Входимо…">
-                Увійти
-              </LoadingButtonLabel>
-            </button>
+            <Button
+              type="submit"
+              tone="dark"
+              fullWidth
+              loading={loading}
+              loadingText="Входимо…"
+              className="mt-8"
+            >
+              Увійти
+            </Button>
 
             <div className="login-or">або</div>
 
-            <button
+            <Button
               type="button"
-              className="login-btn login-google"
+              tone="outline"
+              fullWidth
+              className="mt-5"
               onClick={() => toast.info("Вхід через Google скоро зʼявиться")}
             >
               <GoogleIcon />
               Google
-            </button>
+            </Button>
           </form>
 
           <p className="login-foot">
@@ -132,7 +138,7 @@ export function LoginForm() {
         </h2>
         <p className="login-lead">
           Сучасні інструменти для планування без стресу. Чеклісти, бюджети,
-          гості та розсадка — усе в одному місці.
+          гості та запрошення — усе в одному місці.
         </p>
         <div className="login-photo">
           <Image

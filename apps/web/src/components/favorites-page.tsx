@@ -17,9 +17,9 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import {
   CabinetHeader,
   CoupleCabinetFrame,
-  cabBtn,
 } from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import { vendorHref } from "@/lib/vendor-href";
 
 const STAGES: Array<{ value: VendorPipelineStage; label: string }> = [
@@ -110,9 +110,9 @@ function FavoritesInner() {
           title="Збережене"
           description="Зберегти → зв’язатися → зустрітися → порівняти → обрати."
         />
-        <Link href="/my-vendors" className={cabBtn}>
+        <Button href="/my-vendors" tone="black" size="s">
           Мої підрядники
-        </Link>
+        </Button>
       </div>
 
       {error ? (

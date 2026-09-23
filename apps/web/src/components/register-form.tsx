@@ -4,7 +4,8 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CityAutocomplete } from "@/components/city-autocomplete";
-import { LoadingButtonLabel } from "@/components/ui-loader";
+import { BrandLogo } from "@/components/brand-logo";
+import { Button } from "@/components/ui/button";
 import { checkEmailAvailable } from "@/lib/auth-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { upsertWedding } from "@/lib/dashboard-api";
@@ -131,9 +132,6 @@ const labelClass =
 
 const inputClass =
   "h-[46px] w-full rounded-[40px] border border-[#EBE5D4] bg-[#FFFDF7] px-4 text-[15px] text-[#1B1B19] outline-none transition placeholder:text-[#1a1a1a]/45 focus:border-[#1a1a1a] disabled:opacity-60";
-
-const nextBtnClass =
-  "flex h-[56px] w-[119px] items-center justify-center rounded-[40px] bg-[#61040f] px-8 py-[14px] text-[15px] italic text-white hover:bg-[#4a030c] disabled:opacity-60 md:w-[203px]";
 
 const backLinkClass =
   "font-[family-name:var(--font-sans)] text-[14px] font-semibold leading-none text-[#7F7E7C] underline";
@@ -365,34 +363,30 @@ export function RegisterForm() {
 
   const stepper = (
     <ol className="flex items-center gap-4 md:gap-6">
-      {STEPS.map((item, index) => {
+      {STEPS.map((item) => {
         const active = item.n === visualStep;
         const done = item.n < visualStep;
         return (
-          <li key={item.n} className="flex items-center gap-4 md:gap-6">
-            <span className="flex items-center gap-1.5 md:gap-2">
-              <span
-                className={`flex size-5 items-center justify-center rounded-full font-[family-name:var(--font-sans)] text-[11px] font-semibold leading-none md:size-6 md:rounded-[12px] md:border md:text-[12px] md:font-bold ${
-                  active || done
-                    ? "bg-black text-white md:border-black md:bg-transparent md:text-black"
-                    : "border border-[#1a1a1a]/20 text-[#1a1a1a]/35 md:border-black/25 md:text-black/35"
-                }`}
-              >
-                {done ? <CheckIcon /> : item.n}
-              </span>
-              <span
-                className={`font-[family-name:var(--font-sans)] text-[12px] font-semibold leading-none md:text-[14px] ${
-                  active ? "text-black" : "text-black/35"
-                }`}
-              >
-                {item.label}
-              </span>
+          <li key={item.n} className="flex items-center gap-2.5">
+            <span
+              className={`flex size-[23px] shrink-0 items-center justify-center rounded-full font-[family-name:var(--font-sans)] text-[12px] font-semibold leading-none ${
+                done
+                  ? "bg-[#61040F] text-[#F0FEBB]"
+                  : active
+                    ? "border border-[#61040F] bg-[#FFFDF7] text-[#61040F]"
+                    : "border border-[#CFCFCF] text-[#CFCFCF]"
+              }`}
+              aria-current={active ? "step" : undefined}
+            >
+              {done ? <CheckIcon /> : item.n}
             </span>
-            {index < STEPS.length - 1 ? (
-              <span className="hidden text-[11px] text-black/25 md:inline" aria-hidden>
-                ›
-              </span>
-            ) : null}
+            <span
+              className={`font-[family-name:var(--font-sans)] text-[12px] font-semibold leading-none md:text-[14px] ${
+                done || active ? "text-[#1B1B19]" : "text-[#CFCFCF]"
+              }`}
+            >
+              {item.label}
+            </span>
           </li>
         );
       })}
@@ -405,12 +399,8 @@ export function RegisterForm() {
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-[#FFFDF7] text-[#1A1A1A]">
-      <header className="flex flex-col items-center gap-4 px-5 pt-5 pb-2 md:flex-row md:justify-between md:border-b md:border-[#1a1a1a]/8 md:px-10 md:py-6">
-        <Link href="/" className="inline-flex items-center" aria-label="fata.studio">
-          <span className="font-[family-name:var(--font-mak)] text-[26px] leading-none tracking-tight md:text-[28px]">
-            fata.studio
-          </span>
-        </Link>
+      <header className="flex flex-col items-center gap-4 px-5 pt-5 pb-2 md:flex-row md:justify-between md:border-b md:border-[#EBE5D4] md:px-10 md:py-6">
+        <BrandLogo />
         {stepper}
       </header>
 
@@ -537,24 +527,26 @@ export function RegisterForm() {
                 </div>
               </div>
               <div className="mt-10 flex items-center justify-center gap-2.5 md:mt-12">
-                <button
+                <Button
                   type="button"
+                  tone="ghost"
                   onClick={() => {
                     setError(null);
                     persistDraft(1);
                     setScreen(1);
                   }}
-                  className="flex h-[56px] w-full items-center justify-center rounded-[40px] border border-black bg-transparent px-8 py-[14px] font-[family-name:var(--font-akzidenz)] text-[16px] font-medium italic leading-none text-[#1A1A1A] md:w-[295px]"
+                  className="w-full md:w-[295px]"
                 >
                   Назад
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  tone="dark"
                   onClick={() => void goNext()}
-                  className="flex h-[56px] w-full items-center justify-center rounded-[40px] bg-[#61040f] px-8 py-[14px] font-[family-name:var(--font-akzidenz)] text-[16px] font-medium italic leading-none text-white hover:bg-[#4a030c] md:w-[295px]"
+                  className="w-full md:w-[295px]"
                 >
                   Далі
-                </button>
+                </Button>
               </div>
             </>
           ) : null}
@@ -568,17 +560,20 @@ export function RegisterForm() {
                 Неважливо, чи ви лише шукаєте ідеї, чи вже рахуєте останні
                 деталі — допоможемо зібрати все потрібне.
               </p>
-              <button
+              <Button
                 type="button"
+                size="m"
+                tone="outline"
+                fullWidth
+                className="mt-8 md:mt-10"
                 onClick={() => {
                   persistDraft("2.1");
                   toast.info("Вхід через Google скоро зʼявиться");
                 }}
-                className="mt-8 flex h-[46px] w-full items-center justify-center gap-3 rounded-[40px] border border-[#EBE5D4] bg-white px-4 font-[family-name:var(--font-poppins)] text-[16px] font-medium leading-6 text-[#7F8791] md:mt-10"
               >
                 <GoogleIcon />
                 Продовжити з Google
-              </button>
+              </Button>
               <div className="my-6 flex items-center gap-3 text-[13px] text-[#1a1a1a]/40">
                 <span className="h-px flex-1 bg-[#1a1a1a]/12" />
                 або
@@ -623,15 +618,16 @@ export function RegisterForm() {
                   </span>
                 </label>
               </div>
-              <button
+              <Button
                 type="submit"
-                disabled={loading || checkingEmail}
-                className="mt-8 flex h-[56px] w-full items-center justify-center rounded-[40px] bg-[#61040f] px-8 py-[14px] font-[family-name:var(--font-akzidenz)] text-[16px] font-medium italic leading-none text-white hover:bg-[#4a030c] disabled:opacity-60 md:mt-10"
+                tone="dark"
+                fullWidth
+                loading={loading || checkingEmail}
+                loadingText="Зберігаємо…"
+                className="mt-8 md:mt-10"
               >
-                <LoadingButtonLabel loading={loading || checkingEmail} loadingText="Зберігаємо…">
-                  Продовжити
-                </LoadingButtonLabel>
-              </button>
+                Продовжити
+              </Button>
             </div>
           ) : null}
 
@@ -714,26 +710,27 @@ export function RegisterForm() {
               </div>
 
               <div className="mt-10 flex items-center justify-center gap-2.5">
-                <button
+                <Button
                   type="button"
+                  tone="ghost"
                   onClick={() => {
                     setError(null);
                     persistDraft("2.1", true);
                     setScreen("2.1");
                   }}
-                  className="flex h-[56px] w-full items-center justify-center rounded-[40px] border border-black bg-transparent px-8 py-[14px] font-[family-name:var(--font-akzidenz)] text-[16px] font-medium italic leading-none text-[#1A1A1A] md:w-[295px]"
+                  className="w-full md:w-[295px]"
                 >
                   Назад
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="flex h-[56px] w-full items-center justify-center rounded-[40px] bg-[#61040f] px-8 py-[14px] font-[family-name:var(--font-akzidenz)] text-[16px] font-medium italic leading-none text-white hover:bg-[#4a030c] disabled:opacity-60 md:w-[295px]"
+                  tone="dark"
+                  loading={loading}
+                  loadingText="Зберігаємо…"
+                  className="w-full md:w-[295px]"
                 >
-                  <LoadingButtonLabel loading={loading} loadingText="Зберігаємо…">
-                    Далі
-                  </LoadingButtonLabel>
-                </button>
+                  Далі
+                </Button>
               </div>
             </div>
           ) : null}
@@ -752,13 +749,15 @@ export function RegisterForm() {
                 Ваш профіль створено. Тепер можна починати планувати весілля
                 своєї мрії без стресу й турбот.
               </p>
-              <button
+              <Button
                 type="button"
+                tone="dark"
+                size="xl"
                 onClick={finishOnboarding}
-                className="mt-8 flex h-[56px] w-[203px] items-center justify-center rounded-[40px] border border-[#61040f] bg-[#61040f] px-8 py-[14px] font-[family-name:var(--font-akzidenz)] text-[16px] font-medium italic leading-none text-white hover:bg-[#4a030c]"
+                className="mt-8"
               >
                 Розпочати
-              </button>
+              </Button>
             </div>
           ) : null}
 
@@ -781,13 +780,14 @@ export function RegisterForm() {
             >
               Пропустити
             </button>
-            <button
+            <Button
               type="button"
+              tone="dark"
               onClick={() => void goNext()}
-              className={nextBtnClass}
+              className="w-[119px] md:w-[203px]"
             >
               Далі
-            </button>
+            </Button>
           </div>
         ) : null}
       </form>
@@ -812,11 +812,11 @@ function Field({
 
 function CheckIcon() {
   return (
-    <svg viewBox="0 0 12 12" className="size-3" fill="none" aria-hidden>
+    <svg viewBox="0 0 23 23" className="size-[23px]" fill="none" aria-hidden>
       <path
-        d="M2 6.2 4.7 9 10 3.5"
+        d="M16.17 8 9.75 14.416 6.83 11.5"
         stroke="currentColor"
-        strokeWidth="1.7"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

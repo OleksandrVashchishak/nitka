@@ -39,12 +39,16 @@ body:has(.login-page) main {
 
 .login-logo {
   align-self: flex-start;
-  font-family: var(--font-mak), serif;
-  font-size: 26px;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: #1b1b19;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
   text-decoration: none;
+}
+
+.login-logo img {
+  display: block;
+  width: 154px;
+  height: 32px;
 }
 
 .login-title {
@@ -92,8 +96,7 @@ body:has(.login-page) main {
   color: #1b1b19;
 }
 
-.login-input,
-.login-btn {
+.login-input {
   width: 100%;
 }
 
@@ -192,39 +195,7 @@ body:has(.login-page) main {
   color: #1b1b19;
 }
 
-.login-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 56px;
-  padding: 14px 32px;
-  border-radius: 40px;
-  font-size: 16px;
-  line-height: 1;
-  letter-spacing: 0;
-  text-align: center;
-  cursor: pointer;
-}
-
-.login-submit {
-  margin-top: 32px;
-  border: 0;
-  background: #61040f;
-  font-family: var(--font-akzidenz), sans-serif;
-  font-weight: 500;
-  font-style: italic;
-  color: #fff;
-}
-
-.login-submit:hover {
-  background: #4a030c;
-}
-
-.login-submit:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
+/* CTA buttons → components/ui/button (.fata-button) */
 
 .login-or {
   display: flex;
@@ -247,19 +218,6 @@ body:has(.login-page) main {
   width: 32px;
   height: 1px;
   background: #e4e4e4;
-}
-
-.login-google {
-  margin-top: 20px;
-  border: 1px solid #ebe5d4;
-  background: #fff;
-  font-family: var(--font-sans), sans-serif;
-  font-weight: 500;
-  color: #1b1b19;
-}
-
-.login-google:hover {
-  border-color: rgba(26, 26, 26, 0.25);
 }
 
 .login-foot {
@@ -405,10 +363,6 @@ body:has(.login-page) main {
     min-height: calc(100dvh - 76px);
   }
 
-  .login-logo {
-    font-size: 27px;
-  }
-
   .login-title {
     margin-top: 56px;
     font-size: 30px;
@@ -433,10 +387,6 @@ body:has(.login-page) main {
   .login-col {
     max-width: 455px;
     min-height: calc(100dvh - 88px);
-  }
-
-  .login-logo {
-    font-size: 28px;
   }
 
   .login-title {

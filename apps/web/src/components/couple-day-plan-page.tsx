@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { DashboardNav } from "@/components/dashboard-nav";
@@ -8,12 +7,12 @@ import {
   CabinetEmpty,
   CabinetHeader,
   CoupleCabinetFrame,
-  cabBtn,
   cabCard,
   cabLead,
   cabTitle,
 } from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import { getMyWedding, getDayPlan, upsertDayPlan, upsertWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
 
@@ -362,9 +361,9 @@ function DayPlanInner() {
         <CabinetHeader title="План дня" description="Спочатку збережи дату весілля в огляді — тоді відкриється таймлайн дня." />
         <CabinetEmpty
           action={
-            <Link href="/dashboard" className={cabBtn}>
+            <Button href="/dashboard" tone="black" size="s">
               До огляду
-            </Link>
+            </Button>
           }
         >
           Без дати таймлайн дня ще не відкривається.

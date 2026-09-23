@@ -6,6 +6,7 @@ import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import {
   createExternalVendor,
   getMyWedding,
@@ -339,13 +340,15 @@ function MyVendorsInner() {
             підрядникам одночасно звідси.
           </p>
           <div className="cabinet-guests-empty-actions">
-            <button
+            <Button
               type="button"
+              tone="ink"
+              size="m"
               className="cabinet-empty-cta"
               onClick={openPlanModal}
             >
               Додати підрядників
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -365,13 +368,15 @@ function MyVendorsInner() {
                 <p className="cabinet-vendors-stat-label">Не заброньовано</p>
               </article>
             </div>
-            <button
+            <Button
               type="button"
+              tone="ink"
+              size="m"
               className="cabinet-vendors-primary-btn cabinet-vendors-toolbar-primary"
               onClick={() => openAdd()}
             >
               + Додати підрядника
-            </button>
+            </Button>
           </div>
 
           <div className="cabinet-vendors-list">
@@ -380,13 +385,15 @@ function MyVendorsInner() {
                 return (
                   <div key={cat.slug} className="cabinet-vendors-row is-empty">
                     <h3>{cat.name}</h3>
-                    <button
+                    <Button
                       type="button"
+                      tone="ink"
+                      size="m"
                       className="cabinet-vendors-add-mini"
                       onClick={() => openAdd(cat.slug)}
                     >
                       + Додати
-                    </button>
+                    </Button>
                   </div>
                 );
               }
@@ -472,13 +479,15 @@ function MyVendorsInner() {
           </button>
 
           <div className="cabinet-vendors-mobile-bar">
-            <button
+            <Button
               type="button"
+              tone="ink"
+              size="m"
               className="cabinet-vendors-primary-btn"
               onClick={() => openAdd()}
             >
               + Додати підрядника
-            </button>
+            </Button>
           </div>
         </>
       )}
@@ -531,20 +540,24 @@ function MyVendorsInner() {
               )}
             </ul>
             <div className="cabinet-modal-actions cabinet-vendors-modal-actions">
-              <button
+              <Button
                 type="button"
+                tone="ghost"
+                size="m"
                 className="cabinet-drawer-cancel"
                 onClick={() => setPlanModalOpen(false)}
               >
                 Скасувати
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                tone="ink"
+                size="m"
                 className="cabinet-drawer-save"
                 onClick={savePlan}
               >
                 Зберегти
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -757,16 +770,25 @@ function MyVendorsInner() {
             </div>
 
             <div className="cabinet-modal-actions cabinet-vendors-modal-actions">
-              <button
+              <Button
                 type="button"
+                tone="ghost"
+                size="m"
                 className="cabinet-drawer-cancel"
                 onClick={() => setFormModalOpen(false)}
               >
                 Скасувати
-              </button>
-              <button type="submit" className="cabinet-drawer-save" disabled={saving}>
-                {saving ? "Зберігаємо…" : "Зберегти"}
-              </button>
+              </Button>
+              <Button
+                type="submit"
+                tone="ink"
+                size="m"
+                className="cabinet-drawer-save"
+                loading={saving}
+                loadingText="Зберігаємо…"
+              >
+                Зберегти
+              </Button>
             </div>
           </form>
         </div>

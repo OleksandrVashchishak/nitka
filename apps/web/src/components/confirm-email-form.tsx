@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AuthLogo, AuthSplitShell } from "@/components/auth-split-shell";
-import { LoadingButtonLabel } from "@/components/ui-loader";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
 
 const RESEND_COOLDOWN_MS = 30_000;
@@ -52,17 +52,18 @@ export function ConfirmEmailForm() {
       </p>
 
       <div className="login-form">
-        <button
+        <Button
           type="button"
-          disabled={loading}
-          className="login-btn login-submit"
+          tone="dark"
+          fullWidth
+          loading={loading}
+          loadingText="Надсилаємо…"
+          className="mt-8"
           onClick={() => void resend()}
         >
-          <LoadingButtonLabel loading={loading} loadingText="Надсилаємо…">
-            <ResendIcon />
-            Надіслати лист повторно
-          </LoadingButtonLabel>
-        </button>
+          <ResendIcon />
+          Надіслати лист повторно
+        </Button>
 
         <Link href={changeHref} className="login-back">
           Змінити електронну пошту

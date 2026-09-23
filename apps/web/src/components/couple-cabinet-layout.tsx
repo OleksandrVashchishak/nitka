@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { BrandLogo } from "@/components/brand-logo";
 import { CabinetBottomNav } from "@/components/cabinet-bottom-nav";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
+import { Button } from "@/components/ui/button";
 import { createPartnerInvite, getMyWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
 import "../app/couple-cabinet.css";
@@ -50,9 +52,11 @@ function CoupleSidebar() {
 
   return (
     <aside className="cabinet-sidebar fixed inset-y-0 left-0 z-50 hidden flex-col lg:flex">
-      <Link href="/dashboard" className="cabinet-sidebar-logo">
-        fata.studi<span className="cabinet-logo-dot">o</span>
-      </Link>
+      <BrandLogo
+        href="/dashboard"
+        variant="light"
+        className="cabinet-sidebar-logo"
+      />
 
       <nav className="cabinet-nav flex-1 overflow-y-auto">
         {NAV.map((link) => (
@@ -92,9 +96,9 @@ function SidebarAppCard() {
           </svg>
         </div>
       </div>
-      <Link href="/" className="cabinet-app-btn">
+      <Button href="/" tone="black" size="s" fullWidth className="cabinet-app-btn">
         Скачати застосунок
-      </Link>
+      </Button>
     </div>
   );
 }
@@ -135,14 +139,18 @@ function SidebarInviteCard() {
         <h3>Запросіть {partnerName}</h3>
         <p>Додайте партнера до кабінету — разом ведіть задачі, гостей і бюджет.</p>
       </div>
-      <button
+      <Button
         type="button"
+        tone="black"
+        size="s"
+        fullWidth
         className="cabinet-app-btn"
-        disabled={busy}
+        loading={busy}
+        loadingText="…"
         onClick={() => void onInvite()}
       >
-        {busy ? "…" : "Запросити"}
-      </button>
+        Запросити
+      </Button>
     </div>
   );
 }

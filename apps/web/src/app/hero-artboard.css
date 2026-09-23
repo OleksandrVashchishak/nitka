@@ -30,7 +30,7 @@
   box-sizing: border-box;
 }
 
-.fata-site-header a {
+.fata-site-header a:not(.fata-button) {
   color: inherit;
   text-decoration: none;
 }
@@ -137,50 +137,7 @@ body.has-fata-header-home .fata-hero-mobile {
   margin-left: auto;
 }
 
-.fata-btn {
-  height: 56px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  border-radius: 40px;
-  font-family: var(--font-akzidenz), sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1;
-}
-
-.fata-site-header a.fata-btn-login,
-.fata-hero-board a.fata-btn-login {
-  border: 1px solid #f0febb;
-  background: #61040f;
-  color: #f0febb;
-  transition: all .4s;
-}
-
-.fata-site-header a.fata-btn-login:hover,
-.fata-hero-board a.fata-btn-login:hover {
-  background: #4A0310;
-  border-color: #4A0310;
-}
-
-.fata-site-header a.fata-btn-start,
-.fata-hero-board a.fata-btn-start {
-  background: #f0febb;
-  color: #61040f;
-  transition: all .4s;
-}
-
-.fata-site-header a.fata-btn-start:hover,
-.fata-hero-board a.fata-btn-start:hover {
-  background: #E5F5A3;
-}
-
-.fata-site-header a.fata-btn-start:focus,
-.fata-hero-board a.fata-btn-start:focus {
-  background: #D9EB8A;
-}
+/* Auth CTAs → components/ui/button (fata-button). Layout-only hooks below. */
 
 .fata-m-burger {
   position: relative;
@@ -346,29 +303,7 @@ body.has-fata-header-home .fata-hero-mobile {
   margin-top: 26px;
 }
 
-.fata-hero-board a.fata-cta {
-  height: 56px;
-  padding: 14px 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 40px;
-  background: #f0febb;
-  color: #61040f;
-  font-family: var(--font-akzidenz), sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1;
-  transition: all .4s;
-}
-.fata-hero-board a.fata-cta:hover {
-  background: #E5F5A3;
-}
-
-.fata-hero-board a.fata-cta:focus {
-  background: #D9EB8A;
-}
+/* .fata-cta visual styles → .fata-button; class kept for GSAP */
 
 .fata-hero-mobile {
   display: none;
@@ -603,22 +538,8 @@ body.has-fata-header-home .fata-hero-mobile {
   }
 
   .fata-m-cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
-    min-height: 56px;
     margin-top: 24px;
-    padding: 14px 24px;
-    border-radius: 40px;
-    background: #f0febb;
-    color: #61040f;
-    font-family: var(--font-akzidenz), sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-style: italic;
-    line-height: 1;
-    text-decoration: none;
   }
 }
 

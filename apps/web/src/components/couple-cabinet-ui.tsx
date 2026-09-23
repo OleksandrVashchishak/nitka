@@ -5,12 +5,6 @@ export const cabTitle =
 export const cabLead = "mt-3 max-w-xl text-[15px] leading-6 text-[#5c574e]";
 export const cabCard =
   "rounded-[28px] bg-white shadow-sm ring-1 ring-black/5";
-export const cabBtn =
-  "inline-flex items-center justify-center rounded-full bg-[#1a1a1a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:opacity-60";
-export const cabBtnGhost =
-  "inline-flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-sm text-[#1a1a1a] shadow-sm ring-1 ring-black/5 transition hover:bg-[#f6f3ec] disabled:opacity-60";
-export const cabBtnSage =
-  "inline-flex items-center justify-center rounded-full bg-[#8a9a6b] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#7d8d60] disabled:opacity-60";
 export const cabInput =
   "w-full rounded-2xl border-0 bg-[#f6f3ec] px-4 py-2.5 text-sm text-[#1a1a1a] outline-none ring-1 ring-black/5 focus:ring-[#1a1a1a]/25";
 export const cabKicker =

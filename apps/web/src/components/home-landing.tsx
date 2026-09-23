@@ -15,6 +15,7 @@ import { getHomePath } from "@/lib/routes";
 import { MobileAppSection } from "@/components/landing/mobile-app-section";
 import { Prefooter } from "@/components/landing/prefooter/Prefooter";
 import { useHomeSmoothScroll } from "@/components/landing/smooth-scroll";
+import { Button } from "@/components/ui/button";
 import "@/app/hero-artboard.css";
 import "@/app/landing-rest.css";
 
@@ -49,10 +50,10 @@ const LIGHT_ROWS = [
   },
   {
     photo: "/landing/compare-1.jpg",
-    beforeTitle: "Перемалюй схеми столів",
-    beforeText: "На серветці за день до весілля",
-    afterTitle: "Конструктор розсадки",
-    afterText: "прив’язаний до списку гостей та їх “Буду-не буду”",
+    beforeTitle: "«Ти йдеш?» у 40 чатах",
+    beforeText: "Скріни відповідей і таблиця в Excel, яка вже застаріла",
+    afterTitle: "Список гостей з RSVP",
+    afterText: "Персональні лінки й статуси в одному місці",
   },
   {
     photo: "/landing/compare-2.jpg",
@@ -116,12 +117,12 @@ const FEATURES = [
     img: "/landing/feat-4.jpg",
     points: [
       {
-        title: "Конструктор розсадки",
-        text: "Розставляйте круглі та прямокутні столи, перетягуйте гостей мишкою та бачте, хто ще залишився без місця.",
+        title: "Готові макети для поліграфії",
+        text: "Посадкові карти, іменні картки та друковані запрошення — дизайни, які можна віддати в друк без окремого дизайнера.",
       },
       {
         title: "Друк за один клік",
-        text: "Генеруйте готові до друку PDF-файли з дизайнерською картою посадки, іменними картками для столів та друкованими запрошеннями. Занесіть файл у найближчу поліграфію — і все готово.",
+        text: "Генеруйте готові до друку PDF-файли. Занесіть файл у найближчу поліграфію — і все готово.",
       },
     ],
   },
@@ -132,13 +133,63 @@ const FOOT_PRODUCT = [
   { href: "/spysok-gostey", label: "Список гостей" },
   { href: "/vesilnyy-byudzhet", label: "Бюджет" },
   { href: "/zaprosinnya", label: "Запрошення" },
-  { href: "/rozsadka-gostey", label: "Розсадка" },
   { href: "/plan-dnya-vesillya", label: "План дня" },
 ] as const;
 
 function FeaturesStack() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    let raf = 0;
+    function update() {
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const styles = getComputedStyle(section);
+      const headerH =
+        parseFloat(styles.getPropertyValue("--fata-header-h")) || 96;
+      const stackH =
+        parseFloat(styles.getPropertyValue("--fata-feature-stack-h")) || 74;
+      // Wait until the white lid is mostly pushed off — earlier and dark shows
+      // under stuck titles (the original reason for the lid).
+      const stackBottom = headerH + FEATURES.length * stackH;
+      const next = rect.top < 0 && rect.bottom < stackBottom + 48;
+      setLeaving((prev) => (prev === next ? prev : next));
+    }
+
+    function onScroll() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("fata:scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    // Sticky exit can sit inside a fully-intersecting section — IO alone misses ticks.
+    const io = new IntersectionObserver(onScroll, {
+      threshold: [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1],
+    });
+    io.observe(section);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("fata:scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      io.disconnect();
+    };
+  }, []);
+
   return (
-    <section className="fata-features">
+    <section
+      ref={sectionRef}
+      className={["fata-features", leaving ? "is-leaving" : ""]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {FEATURES.map((feature, i) => (
         <article
           key={feature.n}
@@ -176,7 +227,7 @@ function FeaturesStack() {
           </div>
         </article>
       ))}
-      {/* White lid under title stack — stays above prefooter during handoff */}
+      {/* White lid under title stack — masks dark prefooter while titles are stuck */}
       <div
         className="fata-features-end"
         style={{
@@ -436,12 +487,14 @@ function HeroCta({ className }: { className: string }) {
   const loggedIn = Boolean(hydrated && user);
 
   return (
-    <Link
+    <Button
       href={loggedIn && user ? getHomePath(user.role) : "/register"}
+      tone="light"
+      size="l"
       className={className}
     >
       {loggedIn ? "Кабінет" : "Розпочати"}
-    </Link>
+    </Button>
   );
 }
 
@@ -602,13 +655,11 @@ function HeroArtboard() {
                 <span className="fata-title-sans">починається тут</span>
               </h1>
               <p className="fata-desc">
-                Плануйте бюджет, запрошуйте гостей, малюйте розсадку, ведіть списки
-                справ, контролюйте таймлайни — усе вдвох, в одному місці і без
-                зайвого стресу.
+                Плануйте бюджет, запрошуйте гостей, ведіть списки справ,
+                контролюйте таймлайни — усе вдвох, в одному місці і без зайвого
+                стресу.
               </p>
-              <Link href="/register" className="fata-cta">
-                Розпочати
-              </Link>
+              <HeroCta className="fata-cta" />
             </div>
             <div ref={photoRef} className="fata-photo">
               <div ref={photoMediaRef} className="fata-photo-media">
@@ -638,9 +689,8 @@ function HeroArtboard() {
             <span className="fata-m-sans">починається тут</span>
           </h1>
           <p className="fata-m-desc">
-            Плануйте бюджет, запрошуйте гостей, малюйте розсадку, ведіть списки
-            справ, контролюйте таймлайни — усе вдвох, в одному місці і без
-            зайвого стресу.
+            Плануйте бюджет, запрошуйте гостей, ведіть списки справ, контролюйте
+            таймлайни — усе вдвох, в одному місці і без зайвого стресу.
           </p>
           <div className="fata-m-photo">
             <Image

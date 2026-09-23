@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLogo, AuthSplitShell } from "@/components/auth-split-shell";
-import { LoadingButtonLabel } from "@/components/ui-loader";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
 
 function ForgotPasswordFormInner() {
@@ -64,11 +64,16 @@ function ForgotPasswordFormInner() {
           </label>
         </div>
 
-        <button type="submit" disabled={loading} className="login-btn login-submit">
-          <LoadingButtonLabel loading={loading} loadingText="Надсилаємо…">
-            Надіслати інструкції
-          </LoadingButtonLabel>
-        </button>
+        <Button
+          type="submit"
+          tone="dark"
+          fullWidth
+          loading={loading}
+          loadingText="Надсилаємо…"
+          className="mt-8"
+        >
+          Надіслати інструкції
+        </Button>
 
         <Link href="/login" className="login-back">
           Повернутися до входу

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./button.css";
 import "./hero-artboard.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { SiteHeader } from "@/components/site-header";
@@ -11,6 +12,7 @@ import {
   akzidenzExt,
   cormorant,
   mak,
+  manrope,
   montserrat,
   poppins,
   scriptCyr,
@@ -56,7 +58,7 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body
-        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${montserrat.variable} ${poppins.variable} antialiased`}
+        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${manrope.variable} ${montserrat.variable} ${poppins.variable} antialiased`}
       >
         <AuthProvider>
           <SiteHeader />

@@ -11,7 +11,12 @@ import {
   IconQuickAdd,
 } from "@/components/cabinet-task-icons";
 import { IconMore } from "@/components/icon-more";
+import {
+  ResponsibleAvatar,
+  ResponsibleAvatarDuo,
+} from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import {
   createBudgetItem,
   deleteBudgetItem,
@@ -195,23 +200,61 @@ function formatShortDate(iso: string) {
   return `${d}.${m}`;
 }
 
-function payerMark(payer: Exclude<PayerFilter, "all">) {
-  switch (payer) {
-    case "couple":
-      return "C";
-    case "owner":
-      return "o";
-    case "partner":
-      return "p";
-    case "parents_owner":
-      return "B";
-    case "parents_partner":
-      return "R";
-    case "other":
-      return "?";
-    default:
-      return "—";
+function BudgetPayerAvatar({
+  payer,
+  ownerName,
+  partnerName,
+  title,
+}: {
+  payer: Exclude<PayerFilter, "all">;
+  ownerName: string;
+  partnerName: string;
+  title: string;
+}) {
+  if (payer === "couple") {
+    return (
+      <ResponsibleAvatarDuo
+        ownerName={ownerName}
+        partnerName={partnerName}
+        title={title}
+        aria-label={title}
+      />
+    );
   }
+  if (payer === "owner") {
+    return (
+      <ResponsibleAvatar name={ownerName} tone="owner" title={title} />
+    );
+  }
+  if (payer === "partner") {
+    return (
+      <ResponsibleAvatar name={partnerName} tone="partner" title={title} />
+    );
+  }
+  if (payer === "parents_owner") {
+    return (
+      <ResponsibleAvatar
+        name={ownerName}
+        tone="parents_owner"
+        title={title}
+      />
+    );
+  }
+  if (payer === "parents_partner") {
+    return (
+      <ResponsibleAvatar
+        name={partnerName}
+        tone="parents_partner"
+        title={title}
+      />
+    );
+  }
+  if (payer === "unknown") {
+    return (
+      <ResponsibleAvatar tone="unknown" letter="—" title={title} />
+    );
+  }
+  return <ResponsibleAvatar tone="other" letter="?" title={title} />;
 }
 
 function BudgetInner() {
@@ -708,13 +751,9 @@ function BudgetInner() {
             оплати.
           </p>
           <div className="cabinet-guests-empty-actions">
-            <button
-              type="button"
-              className="cabinet-empty-cta"
-              onClick={openCreate}
-            >
+            <Button type="button" tone="ink" size="m" className="cabinet-empty-cta" onClick={openCreate}>
               Внести витрати
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -848,13 +887,15 @@ function BudgetInner() {
                         <option value="alpha">За алфавітом</option>
                       </select>
                     </label>
-                    <button
+                    <Button
                       type="button"
+                      tone="ink"
+                      size="s"
                       className="cabinet-budget-add-btn"
                       onClick={openCreate}
                     >
                       Внести витрату
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -907,27 +948,12 @@ function BudgetInner() {
                               <span className="cabinet-budget-date">
                                 {formatShortDate(item.createdAt)}
                               </span>
-                              {item.payer === "couple" ? (
-                                <span
-                                  className="cabinet-guest-menu-duo cabinet-budget-payer-wrap"
-                                  title={payerLabels.couple}
-                                  aria-label={payerLabels.couple}
-                                >
-                                  <span className="cabinet-task-who is-partner">
-                                    p
-                                  </span>
-                                  <span className="cabinet-task-who is-owner">
-                                    o
-                                  </span>
-                                </span>
-                              ) : (
-                                <span
-                                  className={`cabinet-task-who cabinet-budget-payer is-${item.payer}`}
-                                  title={payerLabels[item.payer]}
-                                >
-                                  {payerMark(item.payer)}
-                                </span>
-                              )}
+                              <BudgetPayerAvatar
+                                payer={item.payer}
+                                ownerName={ownerName}
+                                partnerName={partnerName}
+                                title={payerLabels[item.payer]}
+                              />
                             </span>
                             <div className="cabinet-guest-menu-wrap">
                               <button
@@ -1021,9 +1047,10 @@ function BudgetInner() {
                                       void onSetPayer(item, "owner")
                                     }
                                   >
-                                    <span className="cabinet-task-who is-owner">
-                                      o
-                                    </span>
+                                    <ResponsibleAvatar
+                                      name={ownerName}
+                                      tone="owner"
+                                    />
                                     {ownerName}
                                   </button>
                                   <button
@@ -1039,9 +1066,10 @@ function BudgetInner() {
                                       void onSetPayer(item, "partner")
                                     }
                                   >
-                                    <span className="cabinet-task-who is-partner">
-                                      p
-                                    </span>
+                                    <ResponsibleAvatar
+                                      name={partnerName}
+                                      tone="partner"
+                                    />
                                     {partnerName}
                                   </button>
                                   <button
@@ -1055,17 +1083,11 @@ function BudgetInner() {
                                       void onSetPayer(item, "couple")
                                     }
                                   >
-                                    <span
-                                      className="cabinet-guest-menu-duo"
+                                    <ResponsibleAvatarDuo
+                                      ownerName={ownerName}
+                                      partnerName={partnerName}
                                       aria-hidden
-                                    >
-                                      <span className="cabinet-task-who is-partner">
-                                        p
-                                      </span>
-                                      <span className="cabinet-task-who is-owner">
-                                        o
-                                      </span>
-                                    </span>
+                                    />
                                     Обоє
                                   </button>
                                   <button
@@ -1368,8 +1390,10 @@ function BudgetInner() {
               </label>
 
               <div className="cabinet-drawer-actions">
-                <button
+                <Button
                   type="button"
+                  tone="ghost"
+                  size="m"
                   className="cabinet-drawer-cancel"
                   onClick={() => {
                     setDrawerOpen(false);
@@ -1377,14 +1401,18 @@ function BudgetInner() {
                   }}
                 >
                   Скасувати
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  tone="ink"
+                  size="m"
                   className="cabinet-budget-save"
                   disabled={busy}
+                  loading={busy}
+                  loadingText="…"
                 >
-                  {busy ? "…" : "Зберегти"}
-                </button>
+                  Зберегти
+                </Button>
               </div>
             </form>
           </aside>
@@ -1420,22 +1448,27 @@ function BudgetInner() {
               </button>
             </div>
             <div className="cabinet-modal-actions">
-              <button
+              <Button
                 type="button"
+                tone="ghost"
+                size="m"
                 className="cabinet-drawer-cancel"
                 onClick={() => setDeleteTarget(null)}
                 disabled={busy}
               >
                 Скасувати
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                tone="ink"
+                size="m"
                 className="cabinet-confirm-delete"
-                disabled={busy}
+                loading={busy}
+                loadingText="…"
                 onClick={() => void confirmDelete()}
               >
-                {busy ? "…" : "Так, видалити"}
-              </button>
+                Так, видалити
+              </Button>
             </div>
           </div>
         </div>
