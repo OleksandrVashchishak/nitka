@@ -319,9 +319,7 @@ exports.Prisma.JsonNullValueFilter = {
 };
 exports.Role = exports.$Enums.Role = {
   GUEST: 'GUEST',
-  COUPLE: 'COUPLE',
-  VENDOR: 'VENDOR',
-  ADMIN: 'ADMIN'
+  COUPLE: 'COUPLE'
 };
 
 exports.VendorPipelineStage = exports.$Enums.VendorPipelineStage = {

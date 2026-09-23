@@ -389,7 +389,7 @@ function WebsiteEditorInner() {
 
 export function WebsiteEditor() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <WebsiteEditorInner />
     </RequireAuth>
   );

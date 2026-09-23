@@ -356,7 +356,7 @@ function WebsiteDashboardInner() {
 
 export function WebsiteDashboard() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <WebsiteDashboardInner />
     </RequireAuth>
   );

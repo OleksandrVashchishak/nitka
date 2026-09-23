@@ -14,7 +14,6 @@ const auth_module_1 = require("./auth/auth.module");
 const roles_guard_1 = require("./auth/roles.guard");
 const prisma_module_1 = require("./prisma/prisma.module");
 const weddings_module_1 = require("./weddings/weddings.module");
-const favorites_module_1 = require("./favorites/favorites.module");
 const guests_module_1 = require("./guests/guests.module");
 const budget_module_1 = require("./budget/budget.module");
 const notifications_module_1 = require("./notifications/notifications.module");
@@ -23,6 +22,7 @@ const content_module_1 = require("./content/content.module");
 const website_module_1 = require("./website/website.module");
 const invitations_module_1 = require("./invitations/invitations.module");
 const email_module_1 = require("./email/email.module");
+const vendors_module_1 = require("./vendors/vendors.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,7 +33,7 @@ exports.AppModule = AppModule = __decorate([
             email_module_1.EmailModule,
             auth_module_1.AuthModule,
             weddings_module_1.WeddingsModule,
-            favorites_module_1.FavoritesModule,
+            vendors_module_1.VendorsModule,
             guests_module_1.GuestsModule,
             budget_module_1.BudgetModule,
             notifications_module_1.NotificationsModule,

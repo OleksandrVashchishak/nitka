@@ -5,7 +5,6 @@ import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/roles.guard';
 import { PrismaModule } from './prisma/prisma.module';
 import { WeddingsModule } from './weddings/weddings.module';
-import { FavoritesModule } from './favorites/favorites.module';
 import { GuestsModule } from './guests/guests.module';
 import { BudgetModule } from './budget/budget.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -14,6 +13,7 @@ import { ContentModule } from './content/content.module';
 import { WebsiteModule } from './website/website.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { EmailModule } from './email/email.module';
+import { VendorsModule } from './vendors/vendors.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { EmailModule } from './email/email.module';
     EmailModule,
     AuthModule,
     WeddingsModule,
-    FavoritesModule,
+    VendorsModule,
     GuestsModule,
     BudgetModule,
     NotificationsModule,

@@ -806,7 +806,7 @@ function MyVendorsInner() {
 
 export function CoupleMyVendorsPage() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <MyVendorsInner />
     </RequireAuth>
   );

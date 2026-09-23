@@ -12,42 +12,42 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FavoritesController = void 0;
+exports.VendorsController = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const pipeline_dto_1 = require("./dto/pipeline.dto");
-const favorites_service_1 = require("./favorites.service");
-let FavoritesController = class FavoritesController {
-    constructor(favoritesService) {
-        this.favoritesService = favoritesService;
+const vendors_service_1 = require("./vendors.service");
+let VendorsController = class VendorsController {
+    constructor(vendorsService) {
+        this.vendorsService = vendorsService;
     }
     pipeline(user) {
-        return this.favoritesService.getPipeline(user.id);
+        return this.vendorsService.getPipeline(user.id);
     }
     upsertVendorPlan(user, dto) {
-        return this.favoritesService.upsertVendorPlan(user.id, dto);
+        return this.vendorsService.upsertVendorPlan(user.id, dto);
     }
     createExternal(user, dto) {
-        return this.favoritesService.createExternal(user.id, dto);
+        return this.vendorsService.createExternal(user.id, dto);
     }
     updateExternal(user, id, dto) {
-        return this.favoritesService.updateExternal(user.id, id, dto);
+        return this.vendorsService.updateExternal(user.id, id, dto);
     }
     removeExternal(user, id) {
-        return this.favoritesService.removeExternal(user.id, id);
+        return this.vendorsService.removeExternal(user.id, id);
     }
 };
-exports.FavoritesController = FavoritesController;
+exports.VendorsController = VendorsController;
 __decorate([
     (0, common_1.Get)('pipeline'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "pipeline", null);
+], VendorsController.prototype, "pipeline", null);
 __decorate([
     (0, common_1.Put)('vendor-plan'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -55,7 +55,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, pipeline_dto_1.UpsertVendorPlanDto]),
     __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "upsertVendorPlan", null);
+], VendorsController.prototype, "upsertVendorPlan", null);
 __decorate([
     (0, common_1.Post)('manual'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -63,7 +63,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, pipeline_dto_1.CreateExternalVendorDto]),
     __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "createExternal", null);
+], VendorsController.prototype, "createExternal", null);
 __decorate([
     (0, common_1.Patch)('manual/:id'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -72,7 +72,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String, pipeline_dto_1.UpdateExternalVendorDto]),
     __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "updateExternal", null);
+], VendorsController.prototype, "updateExternal", null);
 __decorate([
     (0, common_1.Delete)('manual/:id'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -80,11 +80,11 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "removeExternal", null);
-exports.FavoritesController = FavoritesController = __decorate([
-    (0, common_1.Controller)('favorites'),
+], VendorsController.prototype, "removeExternal", null);
+exports.VendorsController = VendorsController = __decorate([
+    (0, common_1.Controller)('vendors'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
-    __metadata("design:paramtypes", [favorites_service_1.FavoritesService])
-], FavoritesController);
-//# sourceMappingURL=favorites.controller.js.map
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    __metadata("design:paramtypes", [vendors_service_1.VendorsService])
+], VendorsController);
+//# sourceMappingURL=vendors.controller.js.map

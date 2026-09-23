@@ -333,7 +333,7 @@ export function deleteTask(taskId: string) {
 
 export function getVendorPipeline() {
 
-  return apiFetch<VendorPipeline>("/api/favorites/pipeline");
+  return apiFetch<VendorPipeline>("/api/vendors/pipeline");
 
 }
 
@@ -341,7 +341,7 @@ export function getVendorPipeline() {
 
 export function saveVendorPlan(categories: string[]) {
 
-  return apiFetch<{ plan: string[] }>("/api/favorites/vendor-plan", {
+  return apiFetch<{ plan: string[] }>("/api/vendors/vendor-plan", {
 
     method: "PUT",
 
@@ -373,7 +373,7 @@ export function createExternalVendor(input: {
 
 }) {
 
-  return apiFetch<ExternalVendor>("/api/favorites/manual", {
+  return apiFetch<ExternalVendor>("/api/vendors/manual", {
 
     method: "POST",
 
@@ -395,7 +395,7 @@ export function updateExternalVendor(
 
 ) {
 
-  return apiFetch<ExternalVendor>(`/api/favorites/manual/${id}`, {
+  return apiFetch<ExternalVendor>(`/api/vendors/manual/${id}`, {
 
     method: "PATCH",
 
@@ -409,7 +409,7 @@ export function updateExternalVendor(
 
 export function removeExternalVendor(id: string) {
 
-  return apiFetch<{ ok: boolean }>(`/api/favorites/manual/${id}`, {
+  return apiFetch<{ ok: boolean }>(`/api/vendors/manual/${id}`, {
 
     method: "DELETE",
 

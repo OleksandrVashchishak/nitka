@@ -1,4 +1,4 @@
-ï»¿import {
+import {
   Injectable,
   Logger,
   NotFoundException,
@@ -72,7 +72,7 @@ export class ContentService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit() {
-    // ÐÐµ Ð±Ð»Ð¾ÐºÑƒÑ”Ð¼Ð¾ listen/healthcheck Ð½Ð° Render â€” seed Ñƒ Ñ„Ð¾Ð½Ñ–
+    // Íå áëîêóºìî listen/healthcheck íà Render — seed ó ôîí³
     void this.seedTopicsAndPosts().catch((err) => {
       this.logger.error('Content seed failed', err instanceof Error ? err.stack : err);
     });
@@ -95,7 +95,7 @@ export class ContentService implements OnModuleInit {
     const topic = await this.prisma.contentTopic.findUnique({
       where: { slug },
     });
-    if (!topic) throw new NotFoundException('Ð ÑžÐ Ñ•Ð Ñ—Ð¡â€“Ð Ñ” Ð Ð…Ð Âµ Ð Â·Ð Ð…Ð Â°Ð â„–Ð Ò‘Ð ÂµÐ Ð…Ð Ñ•');
+    if (!topic) throw new NotFoundException('Ð¢Ð¾Ð¿Ñ–Ðº Ð½Ðµ Ð·Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾');
     return topic;
   }
 
@@ -159,7 +159,7 @@ export class ContentService implements OnModuleInit {
       where: { slug, status: ContentStatus.PUBLISHED },
       include: postInclude,
     });
-    if (!post) throw new NotFoundException('ÐœÐ°Ñ‚ÐµÑ€Ñ–Ð°Ð» Ð½Ðµ Ð·Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾');
+    if (!post) throw new NotFoundException('Ìàòåð³àë íå çíàéäåíî');
     return post;
   }
 
@@ -176,7 +176,7 @@ export class ContentService implements OnModuleInit {
           sortOrder: t.sortOrder,
         },
         update: {
-          // ÐŸÑ–Ð´Ñ‚ÑÐ³ÑƒÑ”Ð¼Ð¾ Ð²Ñ–Ð·ÑƒÐ°Ð» seed, Ñ‚ÐµÐºÑÑ‚ Ð»Ð¸ÑˆÐ°Ñ”Ð¼Ð¾ ÑÐºÑ‰Ð¾ Ð°Ð´Ð¼Ñ–Ð½ ÑƒÐ¶Ðµ Ð¿Ñ€Ð°Ð²Ð¸Ð² name
+          // Ï³äòÿãóºìî â³çóàë seed, òåêñò ëèøàºìî ÿêùî àäì³í óæå ïðàâèâ name
           icon: t.icon,
           coverUrl: t.coverUrl,
           sortOrder: t.sortOrder,
@@ -209,8 +209,8 @@ export class ContentService implements OnModuleInit {
     const topics = await this.prisma.contentTopic.findMany();
     const bySlug = Object.fromEntries(topics.map((t) => [t.slug, t]));
 
-    const admin = await this.prisma.user.findFirst({
-      where: { role: 'ADMIN' },
+    const author = await this.prisma.user.findFirst({
+      where: { email: 'admin@nitka.local' },
       select: { id: true },
     });
 
@@ -237,7 +237,7 @@ export class ContentService implements OnModuleInit {
             featured: seed.featured ?? false,
             city: seed.city ?? null,
             topicId: topic.id,
-            authorId: admin?.id ?? null,
+            authorId: author?.id ?? null,
             publishedAt: new Date(),
             seoTitle: seed.seoTitle || seed.title,
             seoDescription: seed.seoDescription || seed.excerpt,

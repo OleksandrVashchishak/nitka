@@ -40,7 +40,7 @@ export function ProductLandingCta({
     );
   }
 
-  if (user?.role === "COUPLE" || user?.role === "ADMIN") {
+  if (user?.role === "COUPLE") {
     return (
       <Link href={coupleHref} className={primary}>
         Відкрити в кабінеті →

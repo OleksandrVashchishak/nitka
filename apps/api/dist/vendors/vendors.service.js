@@ -9,12 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FavoritesService = void 0;
+exports.VendorsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const vendor_budget_sync_1 = require("../budget/vendor-budget-sync");
 const wedding_access_1 = require("../weddings/wedding-access");
-let FavoritesService = class FavoritesService {
+let VendorsService = class VendorsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
@@ -129,9 +129,9 @@ let FavoritesService = class FavoritesService {
             throw new common_1.ForbiddenException();
     }
 };
-exports.FavoritesService = FavoritesService;
-exports.FavoritesService = FavoritesService = __decorate([
+exports.VendorsService = VendorsService;
+exports.VendorsService = VendorsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
-], FavoritesService);
-//# sourceMappingURL=favorites.service.js.map
+], VendorsService);
+//# sourceMappingURL=vendors.service.js.map

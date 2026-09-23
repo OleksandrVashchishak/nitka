@@ -31,7 +31,7 @@ export class WeddingsController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   async getMine(
     @CurrentUser() user: AuthUser,
     @Res({ passthrough: true }) res: Response,
@@ -46,28 +46,28 @@ export class WeddingsController {
 
   @Put('me')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   upsert(@CurrentUser() user: AuthUser, @Body() dto: UpsertWeddingDto) {
     return this.weddingsService.upsert(user.id, dto);
   }
 
   @Get('me/insights')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   getInsights(@CurrentUser() user: AuthUser) {
     return this.weddingsService.getInsights(user.id);
   }
 
   @Post('me/partner-invite')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   createPartnerInvite(@CurrentUser() user: AuthUser) {
     return this.weddingsService.createPartnerInvite(user.id);
   }
 
   @Post('partner-invite/:token/accept')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   acceptPartnerInvite(
     @CurrentUser() user: AuthUser,
     @Param('token') token: string,
@@ -77,14 +77,14 @@ export class WeddingsController {
 
   @Post('tasks')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   createTask(@CurrentUser() user: AuthUser, @Body() dto: CreateTaskDto) {
     return this.weddingsService.createTask(user.id, dto);
   }
 
   @Patch('tasks/:taskId')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   updateTask(
     @CurrentUser() user: AuthUser,
     @Param('taskId') taskId: string,
@@ -95,7 +95,7 @@ export class WeddingsController {
 
   @Delete('tasks/:taskId')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   deleteTask(
     @CurrentUser() user: AuthUser,
     @Param('taskId') taskId: string,

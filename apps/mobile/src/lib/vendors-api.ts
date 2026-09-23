@@ -6,7 +6,7 @@ import type {
 } from "@/lib/types";
 
 export function getVendorPipeline() {
-  return apiFetch<VendorPipeline>("/api/favorites/pipeline");
+  return apiFetch<VendorPipeline>("/api/vendors/pipeline");
 }
 
 export function createExternalVendor(input: {
@@ -19,7 +19,7 @@ export function createExternalVendor(input: {
   notes?: string;
   stage?: VendorPipelineStage;
 }) {
-  return apiFetch<ExternalVendor>("/api/favorites/manual", {
+  return apiFetch<ExternalVendor>("/api/vendors/manual", {
     method: "POST",
     body: JSON.stringify(input),
   });
@@ -38,14 +38,14 @@ export function updateExternalVendor(
     stage: VendorPipelineStage;
   }>,
 ) {
-  return apiFetch<ExternalVendor>(`/api/favorites/manual/${id}`, {
+  return apiFetch<ExternalVendor>(`/api/vendors/manual/${id}`, {
     method: "PATCH",
     body: JSON.stringify(input),
   });
 }
 
 export function removeExternalVendor(id: string) {
-  return apiFetch<{ ok: boolean }>(`/api/favorites/manual/${id}`, {
+  return apiFetch<{ ok: boolean }>(`/api/vendors/manual/${id}`, {
     method: "DELETE",
   });
 }

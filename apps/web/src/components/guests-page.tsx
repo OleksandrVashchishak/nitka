@@ -160,6 +160,7 @@ function GuestsInner() {
   const [inviteStatus, setInviteStatus] = useState<"not_invited" | "invited">(
     "not_invited",
   );
+  const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus>("PENDING");
   const [isChildGuest, setIsChildGuest] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -367,6 +368,7 @@ function GuestsInner() {
     setMethod("phone");
     setPhone("");
     setInviteStatus("not_invited");
+    setRsvpStatus("PENDING");
     setIsChildGuest(false);
   }
 
@@ -384,6 +386,7 @@ function GuestsInner() {
     setMethod(parseInviteMethod(guest.notes));
     setPhone(guest.phone ?? "");
     setInviteStatus(isInvited(guest) ? "invited" : "not_invited");
+    setRsvpStatus(guest.rsvpStatus);
     setIsChildGuest(isChild(guest));
     setMenuOpenId(null);
     setDrawerOpen(true);
@@ -405,6 +408,7 @@ function GuestsInner() {
         phone: phone.trim() || undefined,
         plusOne,
         plusOneName: plusOne ? plusOneName.trim() || undefined : undefined,
+        rsvpStatus,
         notes: buildNotes({
           child: isChildGuest,
           invited,
@@ -435,7 +439,11 @@ function GuestsInner() {
                 stats: {
                   ...prev.stats,
                   total: prev.stats.total + 1,
-                  pending: prev.stats.pending + 1,
+                  yes: prev.stats.yes + (rsvpStatus === "YES" ? 1 : 0),
+                  no: prev.stats.no + (rsvpStatus === "NO" ? 1 : 0),
+                  maybe: prev.stats.maybe + (rsvpStatus === "MAYBE" ? 1 : 0),
+                  pending:
+                    prev.stats.pending + (rsvpStatus === "PENDING" ? 1 : 0),
                   headcount: prev.stats.headcount + 1 + (plusOne ? 1 : 0),
                 },
               }
@@ -1165,7 +1173,13 @@ function GuestsInner() {
                       className={`cabinet-guests-method${
                         method === item.id ? " is-active" : ""
                       }`}
-                      onClick={() => setMethod(item.id)}
+                      onClick={() => {
+                        setMethod(item.id);
+                        if (item.id === "meet") {
+                          setInviteStatus("invited");
+                          setRsvpStatus("YES");
+                        }
+                      }}
                     >
                       {item.label}
                     </button>
@@ -1178,7 +1192,7 @@ function GuestsInner() {
                   placeholder="+380"
                 />
                 <Select
-                  label="Статус"
+                  label="Статус запрошення"
                   value={inviteStatus}
                   onChange={(e) =>
                     setInviteStatus(e.target.value as "not_invited" | "invited")
@@ -1186,6 +1200,18 @@ function GuestsInner() {
                 >
                   <option value="not_invited">Не запрошено</option>
                   <option value="invited">Запрошено</option>
+                </Select>
+                <Select
+                  label="Результат"
+                  value={rsvpStatus}
+                  onChange={(e) =>
+                    setRsvpStatus(e.target.value as RsvpStatus)
+                  }
+                >
+                  <option value="PENDING">Ще не відповіли</option>
+                  <option value="YES">Прийде</option>
+                  <option value="NO">Відмова</option>
+                  <option value="MAYBE">Можливо прийде</option>
                 </Select>
               </div>
 

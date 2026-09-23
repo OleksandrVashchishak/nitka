@@ -84,7 +84,7 @@ __decorate([
 exports.BudgetController = BudgetController = __decorate([
     (0, common_1.Controller)('budget'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __metadata("design:paramtypes", [budget_service_1.BudgetService])
 ], BudgetController);
 //# sourceMappingURL=budget.controller.js.map

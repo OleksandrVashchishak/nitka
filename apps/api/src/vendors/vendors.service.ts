@@ -19,7 +19,7 @@ import {
 } from './dto/pipeline.dto';
 
 @Injectable()
-export class FavoritesService {
+export class VendorsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getPipeline(userId: string) {

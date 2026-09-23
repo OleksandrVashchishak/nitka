@@ -1,6 +1,6 @@
 import { getApiUrl } from "@/lib/api-url";
 
-export type Role = "COUPLE" | "VENDOR" | "ADMIN" | "GUEST";
+export type Role = "COUPLE" | "GUEST";
 
 export type AuthUser = {
   id: string;

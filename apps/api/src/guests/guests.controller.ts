@@ -25,28 +25,28 @@ export class GuestsController {
 
   @Get('guests')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   listMine(@CurrentUser() user: AuthUser) {
     return this.guestsService.listMine(user.id);
   }
 
   @Post('guests')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   create(@CurrentUser() user: AuthUser, @Body() dto: CreateGuestDto) {
     return this.guestsService.create(user.id, dto);
   }
 
   @Post('guests/import')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   importMany(@CurrentUser() user: AuthUser, @Body() dto: ImportGuestsDto) {
     return this.guestsService.importMany(user.id, dto);
   }
 
   @Patch('guests/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   update(
     @CurrentUser() user: AuthUser,
     @Param('id') id: string,
@@ -57,7 +57,7 @@ export class GuestsController {
 
   @Delete('guests/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.guestsService.remove(user.id, id);
   }

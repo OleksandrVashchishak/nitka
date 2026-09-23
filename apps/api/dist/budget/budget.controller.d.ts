@@ -38,8 +38,8 @@ export declare class BudgetController {
             id: string;
             createdAt: Date;
             weddingId: string;
-            title: string;
             notes: string | null;
+            title: string;
             category: string;
             estimated: number;
             actual: number;
@@ -81,8 +81,8 @@ export declare class BudgetController {
             id: string;
             createdAt: Date;
             weddingId: string;
-            title: string;
             notes: string | null;
+            title: string;
             category: string;
             estimated: number;
             actual: number;
@@ -124,8 +124,8 @@ export declare class BudgetController {
             id: string;
             createdAt: Date;
             weddingId: string;
-            title: string;
             notes: string | null;
+            title: string;
             category: string;
             estimated: number;
             actual: number;
@@ -167,8 +167,8 @@ export declare class BudgetController {
             id: string;
             createdAt: Date;
             weddingId: string;
-            title: string;
             notes: string | null;
+            title: string;
             category: string;
             estimated: number;
             actual: number;
@@ -210,8 +210,8 @@ export declare class BudgetController {
             id: string;
             createdAt: Date;
             weddingId: string;
-            title: string;
             notes: string | null;
+            title: string;
             category: string;
             estimated: number;
             actual: number;

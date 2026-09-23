@@ -31,7 +31,7 @@ export class UploadsController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),

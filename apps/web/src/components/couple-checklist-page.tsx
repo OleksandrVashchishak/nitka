@@ -1637,7 +1637,7 @@ function FilterGroup({
 
 export function CoupleChecklistPage() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <Suspense fallback={<PageLoader label="Завантажуємо задачі…" />}>
         <ChecklistInner />
       </Suspense>

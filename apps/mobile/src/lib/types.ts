@@ -1,4 +1,4 @@
-export type Role = "COUPLE" | "VENDOR" | "ADMIN" | "GUEST";
+export type Role = "COUPLE" | "GUEST";
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 

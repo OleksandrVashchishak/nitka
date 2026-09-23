@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { PageLoader } from "@/components/ui-loader";
 import { useEffect, useState } from "react";
@@ -117,7 +117,7 @@ function CoupleDashboardInner() {
 
 export function CoupleDashboard() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <CoupleDashboardInner />
     </RequireAuth>
   );

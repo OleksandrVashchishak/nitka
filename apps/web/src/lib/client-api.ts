@@ -102,7 +102,7 @@ export async function apiFetch<T>(
         accessToken: null,
         refreshToken: null,
       });
-      // Background probes (favorites, notifications) — не валимо сторінку
+      // Background probes (vendors, notifications) — не валимо сторінку
       if (silent) {
         return null as T;
       }

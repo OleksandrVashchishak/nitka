@@ -34,7 +34,7 @@ let InvitationsController = class InvitationsController {
 exports.InvitationsController = InvitationsController;
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     (0, common_1.Get)('me'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
@@ -43,7 +43,7 @@ __decorate([
 ], InvitationsController.prototype, "getMine", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     (0, common_1.Put)('me'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),

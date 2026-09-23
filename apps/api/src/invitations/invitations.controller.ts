@@ -11,14 +11,14 @@ export class InvitationsController {
   constructor(private readonly invitationsService: InvitationsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   @Get('me')
   getMine(@CurrentUser() user: AuthUser) {
     return this.invitationsService.getMine(user.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   @Put('me')
   upsertMine(
     @CurrentUser() user: AuthUser,

@@ -6,19 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FavoritesModule = void 0;
+exports.VendorsModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_module_1 = require("../auth/auth.module");
-const favorites_controller_1 = require("./favorites.controller");
-const favorites_service_1 = require("./favorites.service");
-let FavoritesModule = class FavoritesModule {
+const vendors_controller_1 = require("./vendors.controller");
+const vendors_service_1 = require("./vendors.service");
+let VendorsModule = class VendorsModule {
 };
-exports.FavoritesModule = FavoritesModule;
-exports.FavoritesModule = FavoritesModule = __decorate([
+exports.VendorsModule = VendorsModule;
+exports.VendorsModule = VendorsModule = __decorate([
     (0, common_1.Module)({
         imports: [auth_module_1.AuthModule],
-        controllers: [favorites_controller_1.FavoritesController],
-        providers: [favorites_service_1.FavoritesService],
+        controllers: [vendors_controller_1.VendorsController],
+        providers: [vendors_service_1.VendorsService],
     })
-], FavoritesModule);
-//# sourceMappingURL=favorites.module.js.map
+], VendorsModule);
+//# sourceMappingURL=vendors.module.js.map

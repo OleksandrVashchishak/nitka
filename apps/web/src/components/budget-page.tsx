@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -1514,7 +1514,7 @@ function BudgetEmptyArt() {
 
 export function BudgetPage() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <BudgetInner />
     </RequireAuth>
   );

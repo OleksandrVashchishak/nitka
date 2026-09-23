@@ -12,8 +12,6 @@ datasource db {
 enum Role {
   GUEST
   COUPLE
-  VENDOR
-  ADMIN
 }
 
 enum RsvpStatus {

@@ -85,9 +85,7 @@ export type ContentPost = $Result.DefaultSelection<Prisma.$ContentPostPayload>
 export namespace $Enums {
   export const Role: {
   GUEST: 'GUEST',
-  COUPLE: 'COUPLE',
-  VENDOR: 'VENDOR',
-  ADMIN: 'ADMIN'
+  COUPLE: 'COUPLE'
 };
 
 export type Role = (typeof Role)[keyof typeof Role]

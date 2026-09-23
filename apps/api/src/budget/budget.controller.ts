@@ -22,7 +22,7 @@ import {
 
 @Controller('budget')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.COUPLE, Role.ADMIN)
+@Roles(Role.COUPLE)
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
 

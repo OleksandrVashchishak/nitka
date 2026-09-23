@@ -123,9 +123,6 @@ export class AuthService {
     if (!role || role === Role.GUEST || role === Role.COUPLE) {
       return Role.COUPLE;
     }
-    if (role === Role.ADMIN || role === Role.VENDOR) {
-      throw new BadRequestException('Не можна зареєструватись з цією роллю');
-    }
     throw new BadRequestException('Невірна роль');
   }
 

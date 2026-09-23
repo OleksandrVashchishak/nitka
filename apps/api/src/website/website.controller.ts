@@ -11,14 +11,14 @@ export class WebsiteController {
   constructor(private readonly websiteService: WebsiteService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   @Get('me')
   getMine(@CurrentUser() user: AuthUser) {
     return this.websiteService.getMine(user.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.ADMIN)
+  @Roles(Role.COUPLE)
   @Put('me')
   upsertMine(
     @CurrentUser() user: AuthUser,

@@ -18,17 +18,17 @@ import {
   UpdateExternalVendorDto,
   UpsertVendorPlanDto,
 } from './dto/pipeline.dto';
-import { FavoritesService } from './favorites.service';
+import { VendorsService } from './vendors.service';
 
-@Controller('favorites')
+@Controller('vendors')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.COUPLE, Role.ADMIN)
-export class FavoritesController {
-  constructor(private readonly favoritesService: FavoritesService) {}
+@Roles(Role.COUPLE)
+export class VendorsController {
+  constructor(private readonly vendorsService: VendorsService) {}
 
   @Get('pipeline')
   pipeline(@CurrentUser() user: AuthUser) {
-    return this.favoritesService.getPipeline(user.id);
+    return this.vendorsService.getPipeline(user.id);
   }
 
   @Put('vendor-plan')
@@ -36,7 +36,7 @@ export class FavoritesController {
     @CurrentUser() user: AuthUser,
     @Body() dto: UpsertVendorPlanDto,
   ) {
-    return this.favoritesService.upsertVendorPlan(user.id, dto);
+    return this.vendorsService.upsertVendorPlan(user.id, dto);
   }
 
   @Post('manual')
@@ -44,7 +44,7 @@ export class FavoritesController {
     @CurrentUser() user: AuthUser,
     @Body() dto: CreateExternalVendorDto,
   ) {
-    return this.favoritesService.createExternal(user.id, dto);
+    return this.vendorsService.createExternal(user.id, dto);
   }
 
   @Patch('manual/:id')
@@ -53,11 +53,11 @@ export class FavoritesController {
     @Param('id') id: string,
     @Body() dto: UpdateExternalVendorDto,
   ) {
-    return this.favoritesService.updateExternal(user.id, id, dto);
+    return this.vendorsService.updateExternal(user.id, id, dto);
   }
 
   @Delete('manual/:id')
   removeExternal(@CurrentUser() user: AuthUser, @Param('id') id: string) {
-    return this.favoritesService.removeExternal(user.id, id);
+    return this.vendorsService.removeExternal(user.id, id);
   }
 }

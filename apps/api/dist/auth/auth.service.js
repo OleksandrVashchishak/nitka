@@ -142,9 +142,6 @@ let AuthService = class AuthService {
         if (!role || role === client_1.Role.GUEST || role === client_1.Role.COUPLE) {
             return client_1.Role.COUPLE;
         }
-        if (role === client_1.Role.ADMIN || role === client_1.Role.VENDOR) {
-            throw new common_1.BadRequestException('Не можна зареєструватись з цією роллю');
-        }
         throw new common_1.BadRequestException('Невірна роль');
     }
     get refreshSecret() {

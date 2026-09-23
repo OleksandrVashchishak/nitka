@@ -246,7 +246,7 @@ function SeatingInner() {
 
 export function CoupleSeatingPage() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <SeatingInner />
     </RequireAuth>
   );

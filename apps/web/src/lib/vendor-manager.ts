@@ -2,22 +2,20 @@
 export type VendorManagerCategory = {
   slug: string;
   name: string;
-  /** Якщо є в каталозі fata.studio — лінк «з сервісу» (пізніше) */
-  catalogSlug?: string;
 };
 
 export const VENDOR_MANAGER_CATEGORIES: VendorManagerCategory[] = [
-  { slug: "venue", name: "Весільна локація / ресторан", catalogSlug: "venue" },
+  { slug: "venue", name: "Весільна локація / ресторан" },
   { slug: "host", name: "Ведучий" },
-  { slug: "photo", name: "Фотограф", catalogSlug: "photo" },
+  { slug: "photo", name: "Фотограф" },
   { slug: "video", name: "Відеограф" },
-  { slug: "band", name: "Музиканти / живий гурт", catalogSlug: "music" },
-  { slug: "dj", name: "DJ", catalogSlug: "music" },
+  { slug: "band", name: "Музиканти / живий гурт" },
+  { slug: "dj", name: "DJ" },
   { slug: "planner", name: "Весільний організатор" },
-  { slug: "decor", name: "Декоратор", catalogSlug: "decor" },
-  { slug: "florist", name: "Флорист", catalogSlug: "decor" },
-  { slug: "hair", name: "Стиліст зачіски", catalogSlug: "beauty" },
-  { slug: "makeup", name: "Візажист", catalogSlug: "beauty" },
+  { slug: "decor", name: "Декоратор" },
+  { slug: "florist", name: "Флорист" },
+  { slug: "hair", name: "Стиліст зачіски" },
+  { slug: "makeup", name: "Візажист" },
   { slug: "attire", name: "Весільний салон / ательє" },
   { slug: "catering", name: "Кейтеринг" },
   { slug: "ceremony-venue", name: "Локація для церемонії" },

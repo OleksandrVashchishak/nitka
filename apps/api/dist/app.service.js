@@ -18,7 +18,7 @@ let AppService = class AppService {
                 content: true,
                 guests: true,
                 budget: true,
-                vendorsHidden: true,
+                vendors: true,
             },
             timestamp: new Date().toISOString(),
         };

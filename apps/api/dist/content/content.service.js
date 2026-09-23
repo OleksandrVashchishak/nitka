@@ -87,7 +87,7 @@ let ContentService = ContentService_1 = class ContentService {
             where: { slug },
         });
         if (!topic)
-            throw new common_1.NotFoundException('РўРѕРїС–Рє РЅРµ Р·РЅР°Р№РґРµРЅРѕ');
+            throw new common_1.NotFoundException('Топік не знайдено');
         return topic;
     }
     async listPublished(params) {
@@ -139,7 +139,7 @@ let ContentService = ContentService_1 = class ContentService {
             include: postInclude,
         });
         if (!post)
-            throw new common_1.NotFoundException('Матеріал не знайдено');
+            throw new common_1.NotFoundException('������� �� ��������');
         return post;
     }
     async seedTopicsAndPosts() {
@@ -185,8 +185,8 @@ let ContentService = ContentService_1 = class ContentService {
         }
         const topics = await this.prisma.contentTopic.findMany();
         const bySlug = Object.fromEntries(topics.map((t) => [t.slug, t]));
-        const admin = await this.prisma.user.findFirst({
-            where: { role: 'ADMIN' },
+        const author = await this.prisma.user.findFirst({
+            where: { email: 'admin@nitka.local' },
             select: { id: true },
         });
         for (const seed of content_seed_data_1.CONTENT_POSTS_SEED) {
@@ -212,7 +212,7 @@ let ContentService = ContentService_1 = class ContentService {
                         featured: seed.featured ?? false,
                         city: seed.city ?? null,
                         topicId: topic.id,
-                        authorId: admin?.id ?? null,
+                        authorId: author?.id ?? null,
                         publishedAt: new Date(),
                         seoTitle: seed.seoTitle || seed.title,
                         seoDescription: seed.seoDescription || seed.excerpt,

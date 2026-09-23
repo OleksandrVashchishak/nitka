@@ -8,7 +8,7 @@ import {
   getVendorPipeline,
   removeExternalVendor,
   updateExternalVendor,
-} from "@/lib/favorites-api";
+} from "@/lib/vendors-api";
 import {
   MANUAL_VENDOR_CATEGORIES,
   manualCategoryLabel,

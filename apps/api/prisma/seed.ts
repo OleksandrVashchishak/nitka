@@ -193,11 +193,11 @@ async function cleanJunk() {
 async function ensureAdmin(passwordHash: string) {
   await prisma.user.upsert({
     where: { email: 'admin@nitka.local' },
-    update: { name: 'Admin', role: 'ADMIN', password: passwordHash },
+    update: { name: 'Admin', role: 'COUPLE', password: passwordHash },
     create: {
       email: 'admin@nitka.local',
       name: 'Admin',
-      role: 'ADMIN',
+      role: 'COUPLE',
       password: passwordHash,
     },
   });

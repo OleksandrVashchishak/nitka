@@ -397,7 +397,7 @@ function InvitationsEditorInner() {
 
 export function InvitationsEditorPage() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <CoupleCabinetFrame>
         <InvitationsEditorInner />
       </CoupleCabinetFrame>

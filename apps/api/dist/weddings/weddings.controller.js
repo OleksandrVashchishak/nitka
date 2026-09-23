@@ -70,7 +70,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
@@ -80,7 +80,7 @@ __decorate([
 __decorate([
     (0, common_1.Put)('me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -90,7 +90,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('me/insights'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -99,7 +99,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('me/partner-invite'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -108,7 +108,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('partner-invite/:token/accept'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('token')),
     __metadata("design:type", Function),
@@ -118,7 +118,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('tasks'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -128,7 +128,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('tasks/:taskId'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('taskId')),
     __param(2, (0, common_1.Body)()),
@@ -139,7 +139,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('tasks/:taskId'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('taskId')),
     __metadata("design:type", Function),

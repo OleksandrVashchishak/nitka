@@ -215,6 +215,25 @@ END $$`,
   DROP TYPE IF EXISTS "RequestStatus";
 EXCEPTION WHEN dependent_objects_still_exist THEN null;
 END $$`,
+
+  // --- Shrink Role enum: ADMIN/VENDOR → COUPLE, then drop dead values ---
+  `UPDATE users SET role = 'COUPLE' WHERE role::text IN ('ADMIN', 'VENDOR')`,
+  `DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_enum e ON t.oid = e.enumtypid
+    WHERE t.typname = 'Role' AND e.enumlabel IN ('ADMIN', 'VENDOR')
+  ) THEN
+    ALTER TYPE "Role" RENAME TO "Role_old";
+    CREATE TYPE "Role" AS ENUM ('GUEST', 'COUPLE');
+    ALTER TABLE users ALTER COLUMN role DROP DEFAULT;
+    ALTER TABLE users
+      ALTER COLUMN role TYPE "Role"
+      USING role::text::"Role";
+    ALTER TABLE users ALTER COLUMN role SET DEFAULT 'COUPLE'::"Role";
+    DROP TYPE "Role_old";
+  END IF;
+END $$`,
 ];
 
 async function main() {

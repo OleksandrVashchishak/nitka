@@ -11,22 +11,22 @@ export declare class ContentService implements OnModuleInit {
             posts: number;
         };
     } & {
-        name: string;
         id: string;
-        sortOrder: number;
-        icon: string;
+        name: string;
         slug: string;
         description: string;
+        icon: string;
         coverUrl: string | null;
+        sortOrder: number;
     })[]>;
     getTopicBySlug(slug: string): Promise<{
-        name: string;
         id: string;
-        sortOrder: number;
-        icon: string;
+        name: string;
         slug: string;
         description: string;
+        icon: string;
         coverUrl: string | null;
+        sortOrder: number;
     }>;
     listPublished(params: {
         topic?: string;
@@ -39,37 +39,37 @@ export declare class ContentService implements OnModuleInit {
     }): Promise<{
         items: ({
             topic: {
-                name: string;
                 id: string;
-                sortOrder: number;
-                icon: string;
+                name: string;
                 slug: string;
                 description: string;
+                icon: string;
                 coverUrl: string | null;
+                sortOrder: number;
             };
             author: {
-                name: string;
                 id: string;
+                name: string;
             } | null;
         } & {
             id: string;
-            city: string | null;
-            createdAt: Date;
-            title: string;
-            status: import(".prisma/client").$Enums.ContentStatus;
-            updatedAt: Date;
             slug: string;
             coverUrl: string | null;
-            kind: import(".prisma/client").$Enums.ContentKind;
-            featured: boolean;
+            status: import(".prisma/client").$Enums.ContentStatus;
+            title: string;
             excerpt: string;
+            kind: import(".prisma/client").$Enums.ContentKind;
             body: Prisma.JsonValue;
             seoTitle: string;
             seoDescription: string;
             ogImageUrl: string | null;
+            city: string | null;
+            featured: boolean;
             topicId: string;
             authorId: string | null;
             publishedAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         total: number;
         page: number;
@@ -78,37 +78,37 @@ export declare class ContentService implements OnModuleInit {
     listPublishedCities(): Promise<string[]>;
     getPublishedBySlug(slug: string): Promise<{
         topic: {
-            name: string;
             id: string;
-            sortOrder: number;
-            icon: string;
+            name: string;
             slug: string;
             description: string;
+            icon: string;
             coverUrl: string | null;
+            sortOrder: number;
         };
         author: {
-            name: string;
             id: string;
+            name: string;
         } | null;
     } & {
         id: string;
-        city: string | null;
-        createdAt: Date;
-        title: string;
-        status: import(".prisma/client").$Enums.ContentStatus;
-        updatedAt: Date;
         slug: string;
         coverUrl: string | null;
-        kind: import(".prisma/client").$Enums.ContentKind;
-        featured: boolean;
+        status: import(".prisma/client").$Enums.ContentStatus;
+        title: string;
         excerpt: string;
+        kind: import(".prisma/client").$Enums.ContentKind;
         body: Prisma.JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
+        city: string | null;
+        featured: boolean;
         topicId: string;
         authorId: string | null;
         publishedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     private seedTopicsAndPosts;
 }

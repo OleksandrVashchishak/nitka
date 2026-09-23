@@ -45,7 +45,7 @@ exports.NotificationsController = NotificationsController;
 __decorate([
     (0, common_1.Post)('push-token'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -55,7 +55,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('push-token'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -72,7 +72,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('summary'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_guard_1.Roles)(client_1.Role.COUPLE, client_1.Role.ADMIN),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
