@@ -1340,7 +1340,7 @@ function StatusIcon({ tone }: { tone: "yes" | "no" | "maybe" | "pending" }) {
 
 export function GuestsPage() {
   return (
-    <RequireAuth roles={["COUPLE", "ADMIN"]}>
+    <RequireAuth roles={["COUPLE"]}>
       <GuestsInner />
     </RequireAuth>
   );
