@@ -7,6 +7,9 @@ import {
 } from "@/lib/content-api";
 import { getSiteUrl } from "@/lib/site";
 
+/** Don't block Render builds on a sleeping free-tier API. */
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
   const now = new Date();

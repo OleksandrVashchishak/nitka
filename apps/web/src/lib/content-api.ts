@@ -5,9 +5,13 @@ const API_URL =
 
 const isDev = process.env.NODE_ENV !== "production";
 
+/** Short timeout so SSG/build doesn't hang when the API is asleep (Render free). */
+const FETCH_TIMEOUT_MS = 8_000;
+
 function fetchCache(revalidate: number): RequestInit {
-  if (isDev) return { cache: "no-store" };
-  return { next: { revalidate } };
+  const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
+  if (isDev) return { cache: "no-store", signal };
+  return { next: { revalidate }, signal };
 }
 
 export type ContentKind = "ARTICLE" | "GUIDE" | "LANDING";
@@ -64,23 +68,31 @@ export type ContentListResponse = {
 };
 
 export async function getContentTopics(): Promise<ContentTopic[]> {
-  const res = await fetch(
-    `${API_URL}/api/content/topics`,
-    fetchCache(60),
-  );
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(
+      `${API_URL}/api/content/topics`,
+      fetchCache(60),
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
 }
 
 export async function getContentTopic(
   slug: string,
 ): Promise<ContentTopic | null> {
-  const res = await fetch(
-    `${API_URL}/api/content/topics/${encodeURIComponent(slug)}`,
-    fetchCache(60),
-  );
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await fetch(
+      `${API_URL}/api/content/topics/${encodeURIComponent(slug)}`,
+      fetchCache(60),
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
 }
 
 export async function getContentPosts(params?: {
@@ -101,31 +113,43 @@ export async function getContentPosts(params?: {
   if (params?.page) query.set("page", String(params.page));
   if (params?.limit) query.set("limit", String(params.limit));
   const qs = query.toString();
-  const res = await fetch(
-    `${API_URL}/api/content${qs ? `?${qs}` : ""}`,
-    fetchCache(30),
-  );
-  if (!res.ok) {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/content${qs ? `?${qs}` : ""}`,
+      fetchCache(30),
+    );
+    if (!res.ok) {
+      return { items: [], total: 0, page: 1, limit: 12 };
+    }
+    return res.json();
+  } catch {
     return { items: [], total: 0, page: 1, limit: 12 };
   }
-  return res.json();
 }
 
 export async function getContentPost(
   slug: string,
 ): Promise<ContentPost | null> {
-  const res = await fetch(
-    `${API_URL}/api/content/${encodeURIComponent(slug)}`,
-    fetchCache(30),
-  );
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await fetch(
+      `${API_URL}/api/content/${encodeURIComponent(slug)}`,
+      fetchCache(30),
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
 }
 
 export async function getContentCities(): Promise<string[]> {
-  const res = await fetch(`${API_URL}/api/content/cities`, fetchCache(60));
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(`${API_URL}/api/content/cities`, fetchCache(60));
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
 }
 
 export function contentHref(post: { slug: string }) {
