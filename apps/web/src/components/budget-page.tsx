@@ -202,6 +202,18 @@ function itemAmount(item: BudgetItem) {
   return item.estimated || item.actual;
 }
 
+/** Already paid (full payment or partial deposit on vendor-linked rows). */
+function itemPaidAmount(item: BudgetItem) {
+  if (item.paid) return item.actual || item.estimated;
+  return item.actual || 0;
+}
+
+/** Still owed — estimated minus any partial payment already in actual. */
+function itemRemainingAmount(item: BudgetItem) {
+  if (item.paid) return 0;
+  return Math.max(0, (item.estimated || 0) - (item.actual || 0));
+}
+
 function formatMoney(value: number, currency: Currency) {
   const amount = currency === "USD" ? value / USD_RATE : value;
   const formatted = new Intl.NumberFormat("uk-UA", {
@@ -445,20 +457,19 @@ function BudgetInner() {
 
   const totals = useMemo(() => {
     const current = rows.reduce((sum, row) => sum + row.amount, 0);
-    const spent = rows
-      .filter((row) => row.paid)
-      .reduce((sum, row) => sum + (row.actual || row.estimated), 0);
-    const plannedLeft = rows
-      .filter((row) => !row.paid)
-      .reduce((sum, row) => sum + row.estimated, 0);
+    const spent = rows.reduce((sum, row) => sum + itemPaidAmount(row), 0);
+    const plannedLeft = rows.reduce(
+      (sum, row) => sum + itemRemainingAmount(row),
+      0,
+    );
     return { current, spent, plannedLeft };
   }, [rows]);
 
   const counts = useMemo(() => {
     const statusCounts = {
       all: rows.reduce((s, r) => s + r.amount, 0),
-      paid: rows.filter((r) => r.paid).reduce((s, r) => s + r.amount, 0),
-      unpaid: rows.filter((r) => !r.paid).reduce((s, r) => s + r.amount, 0),
+      paid: rows.reduce((s, r) => s + itemPaidAmount(r), 0),
+      unpaid: rows.reduce((s, r) => s + itemRemainingAmount(r), 0),
     };
     const categories = Object.fromEntries(
       UI_CATEGORIES.map((c) => [

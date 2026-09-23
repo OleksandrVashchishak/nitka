@@ -22,6 +22,7 @@ import {
   getMyWedding,
   getVendorPipeline,
   removeExternalVendor,
+  saveVendorPlan,
   updateExternalVendor,
   type ExternalVendor,
   type VendorPipelineStage,
@@ -36,11 +37,10 @@ import {
   VENDOR_CONTACT_METHODS,
   VENDOR_CURRENCIES,
   VENDOR_MANAGER_CATEGORIES,
+  clearLegacyVendorPlan,
   formatVendorMoney,
-  loadVendorPlan,
   parseVendorMeta,
   resolveVendorCategoryEntry,
-  saveVendorPlan,
   serializeVendorMeta,
   vendorManagerCategoryLabel,
   type VendorContactMethod,
@@ -136,6 +136,8 @@ function MyVendorsInner() {
     try {
       const data = await getVendorPipeline();
       setManual(data.manual);
+      setPlan(Array.isArray(data.plan) ? data.plan : []);
+      clearLegacyVendorPlan();
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Помилка");
@@ -145,7 +147,6 @@ function MyVendorsInner() {
   }
 
   useEffect(() => {
-    setPlan(loadVendorPlan());
     void load();
     void getNotificationsSummary()
       .then(setSummary)
@@ -216,11 +217,19 @@ function MyVendorsInner() {
     );
   }
 
-  function savePlan() {
-    saveVendorPlan(planDraft);
-    setPlan(planDraft);
-    setPlanModalOpen(false);
-    toast.success("Список підрядників збережено");
+  async function savePlan() {
+    setSaving(true);
+    try {
+      const saved = await saveVendorPlan(planDraft);
+      setPlan(saved.plan);
+      clearLegacyVendorPlan();
+      setPlanModalOpen(false);
+      toast.success("Список підрядників збережено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не вдалось зберегти");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function openAdd(category = "") {
@@ -299,8 +308,9 @@ function MyVendorsInner() {
         await createExternalVendor(payload);
         if (!plan.includes(form.category)) {
           const next = [...plan, form.category];
-          saveVendorPlan(next);
-          setPlan(next);
+          const saved = await saveVendorPlan(next);
+          setPlan(saved.plan);
+          clearLegacyVendorPlan();
         }
       }
       setFormModalOpen(false);
@@ -570,7 +580,8 @@ function MyVendorsInner() {
                 tone="ink"
                 size="m"
                 className="cabinet-drawer-save"
-                onClick={savePlan}
+                disabled={saving}
+                onClick={() => void savePlan()}
               >
                 Зберегти
               </Button>

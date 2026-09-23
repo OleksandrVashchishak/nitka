@@ -9,8 +9,13 @@ import {
   syncBudgetItemForExternalVendor,
 } from '../budget/vendor-budget-sync';
 import {
+  resolveWeddingForUser,
+  requireWeddingForUser,
+} from '../weddings/wedding-access';
+import {
   CreateExternalVendorDto,
   UpdateExternalVendorDto,
+  UpsertVendorPlanDto,
 } from './dto/pipeline.dto';
 
 @Injectable()
@@ -23,7 +28,49 @@ export class FavoritesService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    return { manual };
+    let plan: string[] = [];
+    const access = await resolveWeddingForUser(this.prisma, userId);
+    if (access) {
+      try {
+        const rows = await this.prisma.$queryRaw<
+          Array<{ vendor_plan: unknown }>
+        >`
+          SELECT vendor_plan FROM weddings WHERE id = ${access.wedding.id} LIMIT 1
+        `;
+        plan = this.normalizeVendorPlan(rows[0]?.vendor_plan);
+      } catch {
+        /* column may be missing until ensure-schema */
+      }
+    }
+
+    return { manual, plan };
+  }
+
+  async upsertVendorPlan(userId: string, dto: UpsertVendorPlanDto) {
+    const { wedding } = await requireWeddingForUser(this.prisma, userId);
+    const plan = this.normalizeVendorPlan(dto.categories);
+
+    await this.prisma.$executeRaw`
+      UPDATE weddings
+      SET vendor_plan = ${JSON.stringify(plan)}::jsonb
+      WHERE id = ${wedding.id}
+    `;
+
+    return { plan };
+  }
+
+  private normalizeVendorPlan(raw: unknown): string[] {
+    if (!Array.isArray(raw)) return [];
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const item of raw) {
+      if (typeof item !== 'string') continue;
+      const slug = item.trim();
+      if (!slug || seen.has(slug)) continue;
+      seen.add(slug);
+      out.push(slug);
+    }
+    return out;
   }
 
   async createExternal(userId: string, dto: CreateExternalVendorDto) {

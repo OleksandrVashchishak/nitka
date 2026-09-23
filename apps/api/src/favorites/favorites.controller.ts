@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -15,6 +16,7 @@ import { Roles, RolesGuard } from '../auth/roles.guard';
 import {
   CreateExternalVendorDto,
   UpdateExternalVendorDto,
+  UpsertVendorPlanDto,
 } from './dto/pipeline.dto';
 import { FavoritesService } from './favorites.service';
 
@@ -27,6 +29,14 @@ export class FavoritesController {
   @Get('pipeline')
   pipeline(@CurrentUser() user: AuthUser) {
     return this.favoritesService.getPipeline(user.id);
+  }
+
+  @Put('vendor-plan')
+  upsertVendorPlan(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpsertVendorPlanDto,
+  ) {
+    return this.favoritesService.upsertVendorPlan(user.id, dto);
   }
 
   @Post('manual')

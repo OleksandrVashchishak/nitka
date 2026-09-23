@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./button.css";
 import "./checkbox.css";
+import "./radio.css";
 import "./text-input.css";
 import "./select.css";
 import "./hero-artboard.css";

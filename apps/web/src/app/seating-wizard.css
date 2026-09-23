@@ -203,58 +203,6 @@
   gap: 12px;
 }
 
-.seat-wiz-radio {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  min-height: 52px;
-  padding: 16px;
-  border: 1px solid var(--seat-wiz-border);
-  border-radius: 40px;
-  background: #fff;
-  font-family: var(--font-sans), "Montserrat", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 100%;
-  color: var(--seat-wiz-ink);
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.seat-wiz-radio.is-selected {
-  background: var(--seat-wiz-lime);
-  border-color: var(--seat-wiz-border);
-}
-
-.seat-wiz-radio-mark {
-  position: relative;
-  flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid var(--seat-wiz-border);
-  border-radius: 999px;
-  background: #fff;
-}
-
-.seat-wiz-radio.is-selected .seat-wiz-radio-mark {
-  border-color: var(--seat-wiz-wine);
-  background: var(--seat-wiz-wine);
-}
-
-.seat-wiz-radio.is-selected .seat-wiz-radio-mark::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--seat-wiz-lime);
-  transform: translate(-50%, -50%);
-}
-
 .seat-wiz-formats {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

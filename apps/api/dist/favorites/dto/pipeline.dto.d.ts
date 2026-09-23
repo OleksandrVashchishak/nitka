@@ -1,4 +1,7 @@
 import { VendorPipelineStage } from '@prisma/client';
+export declare class UpsertVendorPlanDto {
+    categories: string[];
+}
 export declare class UpdatePipelineDto {
     stage?: VendorPipelineStage;
     quotedPrice?: number | null;

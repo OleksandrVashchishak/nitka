@@ -1,13 +1,25 @@
 import { Type } from 'class-transformer';
 import { VendorPipelineStage } from '@prisma/client';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEnum,
   IsInt,
   IsOptional,
   IsString,
+  MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
+
+export class UpsertVendorPlanDto {
+  @IsArray()
+  @ArrayMaxSize(40)
+  @IsString({ each: true })
+  @MinLength(1, { each: true })
+  @MaxLength(64, { each: true })
+  categories!: string[];
+}
 
 export class UpdatePipelineDto {
   @IsOptional()

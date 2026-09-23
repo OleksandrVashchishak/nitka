@@ -133,21 +133,14 @@ export function formatVendorMoney(
   return currency === "UAH" ? `${formatted} ${symbol}` : `${symbol}${formatted}`;
 }
 
+/** Legacy browser key — cleared after plan moved to wedding.vendor_plan. */
 export const VENDOR_PLAN_KEY = "fata-vendor-plan-v1";
 
-export function loadVendorPlan(): string[] {
-  if (typeof window === "undefined") return [];
+export function clearLegacyVendorPlan() {
+  if (typeof window === "undefined") return;
   try {
-    const raw = localStorage.getItem(VENDOR_PLAN_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is string => typeof item === "string");
+    localStorage.removeItem(VENDOR_PLAN_KEY);
   } catch {
-    return [];
+    /* ignore */
   }
-}
-
-export function saveVendorPlan(slugs: string[]) {
-  localStorage.setItem(VENDOR_PLAN_KEY, JSON.stringify(slugs));
 }

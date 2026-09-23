@@ -7,6 +7,7 @@ import { CityAutocomplete } from "@/components/city-autocomplete";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioOption } from "@/components/ui/radio";
 import {
   TextInput,
   textInputControlClassName,
@@ -429,36 +430,16 @@ export function RegisterForm() {
               <p className="mt-8 text-left font-[family-name:var(--font-sans)] text-[13px] font-semibold uppercase leading-none tracking-[0.1em] text-[#1A1A1A] md:mt-10">
                 В якому ви статусі?
               </p>
-              <div className="mt-3 space-y-3">
-                {PLANNING_OPTIONS.map((option) => {
-                  const selected = planningStage === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setPlanningStage(option.value)}
-                      className={`flex min-h-[46px] w-full items-center gap-3 rounded-[40px] border px-4 py-3 text-left font-[family-name:var(--font-sans)] text-[15px] font-medium leading-none text-[#1B1B19] transition ${
-                        selected
-                          ? "border-[#EBE5D4] bg-[#F0FEBB]"
-                          : "border-[#EBE5D4] bg-white"
-                      }`}
-                    >
-                      <span
-                        className={`flex size-[18px] shrink-0 items-center justify-center rounded-full ${
-                          selected
-                            ? "bg-[#61040f]"
-                            : "border border-[#EBE5D4] bg-white"
-                        }`}
-                        aria-hidden
-                      >
-                        {selected ? (
-                          <span className="size-1.5 rounded-full bg-white" />
-                        ) : null}
-                      </span>
-                      <span className="min-w-0">{option.label}</span>
-                    </button>
-                  );
-                })}
+              <div className="mt-3 space-y-3" role="radiogroup">
+                {PLANNING_OPTIONS.map((option) => (
+                  <RadioOption
+                    key={option.value}
+                    selected={planningStage === option.value}
+                    onSelect={() => setPlanningStage(option.value)}
+                  >
+                    {option.label}
+                  </RadioOption>
+                ))}
               </div>
             </>
           ) : null}

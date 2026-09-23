@@ -169,7 +169,8 @@ exports.Prisma.WeddingScalarFieldEnum = {
   planningStage: 'planningStage',
   cityUndecided: 'cityUndecided',
   guestsUndecided: 'guestsUndecided',
-  dayPlan: 'dayPlan'
+  dayPlan: 'dayPlan',
+  vendorPlan: 'vendorPlan'
 };
 
 exports.Prisma.WeddingWebsiteScalarFieldEnum = {

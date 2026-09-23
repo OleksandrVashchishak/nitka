@@ -117,9 +117,10 @@ export default function BudgetScreen() {
         const items = old.items.map((i) =>
           i.id === id ? { ...i, paid } : i,
         );
-        const paidSum = items
-          .filter((i) => i.paid)
-          .reduce((sum, i) => sum + (i.actual || i.estimated || 0), 0);
+        const paidSum = items.reduce((sum, i) => {
+          if (i.paid) return sum + (i.actual || i.estimated || 0);
+          return sum + (i.actual || 0);
+        }, 0);
         return {
           ...old,
           items,

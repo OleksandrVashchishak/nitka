@@ -97,6 +97,7 @@ export type ExternalVendor = {
 
 export type VendorPipeline = {
   manual: ExternalVendor[];
+  plan: string[];
 };
 
 export type DashboardInsights = {
@@ -333,6 +334,20 @@ export function deleteTask(taskId: string) {
 export function getVendorPipeline() {
 
   return apiFetch<VendorPipeline>("/api/favorites/pipeline");
+
+}
+
+
+
+export function saveVendorPlan(categories: string[]) {
+
+  return apiFetch<{ plan: string[] }>("/api/favorites/vendor-plan", {
+
+    method: "PUT",
+
+    body: JSON.stringify({ categories }),
+
+  });
 
 }
 

@@ -43,7 +43,11 @@ let BudgetService = class BudgetService {
     buildSummary(totalBudget, items) {
         const estimated = items.reduce((sum, i) => sum + i.estimated, 0);
         const actual = items.reduce((sum, i) => sum + i.actual, 0);
-        const paid = items.reduce((sum, i) => sum + (i.paid ? i.actual : 0), 0);
+        const paid = items.reduce((sum, i) => {
+            if (i.paid)
+                return sum + (i.actual || i.estimated);
+            return sum + (i.actual || 0);
+        }, 0);
         const remaining = totalBudget - actual;
         return {
             totalBudget,

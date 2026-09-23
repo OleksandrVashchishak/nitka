@@ -101,7 +101,11 @@ let WeddingsService = class WeddingsService {
         });
         const actual = wedding.budgetItems.reduce((sum, item) => sum + item.actual, 0);
         const estimated = wedding.budgetItems.reduce((sum, item) => sum + item.estimated, 0);
-        const paid = wedding.budgetItems.reduce((sum, item) => sum + (item.paid ? item.actual : 0), 0);
+        const paid = wedding.budgetItems.reduce((sum, item) => {
+            if (item.paid)
+                return sum + (item.actual || item.estimated);
+            return sum + (item.actual || 0);
+        }, 0);
         const stages = ['SAVED', 'CONTACTED', 'MET', 'COMPARED', 'CHOSEN'];
         const pipelineCounts = Object.fromEntries(stages.map((stage) => [stage, 0]));
         for (const row of manualStages) {

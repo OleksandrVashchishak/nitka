@@ -1,0 +1,115 @@
+/* Shared radio mark + pill option — selected from Frame (3).svg */
+
+.fata-radio {
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 1.5px solid #ebe5d4;
+  border-radius: 999px;
+  background: #fff;
+  flex-shrink: 0;
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    transform 0.2s ease;
+}
+
+.fata-radio.is-checked {
+  border-color: #61040f;
+  background: #61040f;
+}
+
+.fata-radio__dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #f0febb;
+  opacity: 0;
+  transform: scale(0.35);
+  transition:
+    opacity 0.18s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-radio.is-checked .fata-radio__dot {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 0.04s;
+}
+
+.fata-radio-option {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid #ebe5d4;
+  border-radius: 40px;
+  background: #fff;
+  color: #1b1b19;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    transform 0.18s ease;
+}
+
+.fata-radio-option.is-selected {
+  background: #f0febb;
+  border-color: #ebe5d4;
+}
+
+.fata-radio-option:hover:not(:disabled):not(.is-selected) {
+  background: #fffdf7;
+}
+
+.fata-radio-option:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.fata-radio-option:active:not(:disabled) .fata-radio {
+  transform: scale(0.9);
+}
+
+.fata-radio-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.fata-radio-option__label {
+  min-width: 0;
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fata-radio,
+  .fata-radio__dot,
+  .fata-radio-option {
+    transition: none;
+  }
+
+  .fata-radio.is-checked .fata-radio__dot {
+    transition-delay: 0s;
+  }
+
+  .fata-radio-option:active:not(:disabled),
+  .fata-radio-option:active:not(:disabled) .fata-radio {
+    transform: none;
+  }
+}

@@ -13,6 +13,7 @@ exports.FavoritesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const vendor_budget_sync_1 = require("../budget/vendor-budget-sync");
+const wedding_access_1 = require("../weddings/wedding-access");
 let FavoritesService = class FavoritesService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -22,7 +23,45 @@ let FavoritesService = class FavoritesService {
             where: { userId },
             orderBy: { updatedAt: 'desc' },
         });
-        return { manual };
+        let plan = [];
+        const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, userId);
+        if (access) {
+            try {
+                const rows = await this.prisma.$queryRaw `
+          SELECT vendor_plan FROM weddings WHERE id = ${access.wedding.id} LIMIT 1
+        `;
+                plan = this.normalizeVendorPlan(rows[0]?.vendor_plan);
+            }
+            catch {
+            }
+        }
+        return { manual, plan };
+    }
+    async upsertVendorPlan(userId, dto) {
+        const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId);
+        const plan = this.normalizeVendorPlan(dto.categories);
+        await this.prisma.$executeRaw `
+      UPDATE weddings
+      SET vendor_plan = ${JSON.stringify(plan)}::jsonb
+      WHERE id = ${wedding.id}
+    `;
+        return { plan };
+    }
+    normalizeVendorPlan(raw) {
+        if (!Array.isArray(raw))
+            return [];
+        const seen = new Set();
+        const out = [];
+        for (const item of raw) {
+            if (typeof item !== 'string')
+                continue;
+            const slug = item.trim();
+            if (!slug || seen.has(slug))
+                continue;
+            seen.add(slug);
+            out.push(slug);
+        }
+        return out;
     }
     async createExternal(userId, dto) {
         const wedding = await this.prisma.wedding.findUnique({

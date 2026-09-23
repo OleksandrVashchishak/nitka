@@ -122,10 +122,10 @@ export class WeddingsService {
       (sum, item) => sum + item.estimated,
       0,
     );
-    const paid = wedding.budgetItems.reduce(
-      (sum, item) => sum + (item.paid ? item.actual : 0),
-      0,
-    );
+    const paid = wedding.budgetItems.reduce((sum, item) => {
+      if (item.paid) return sum + (item.actual || item.estimated);
+      return sum + (item.actual || 0);
+    }, 0);
 
     const stages = ['SAVED', 'CONTACTED', 'MET', 'COMPARED', 'CHOSEN'];
     const pipelineCounts = Object.fromEntries(

@@ -87,6 +87,7 @@ END $$`,
   `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS city_undecided BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS guests_undecided BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS day_plan JSONB`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS vendor_plan JSONB`,
 
   `CREATE TABLE IF NOT EXISTS wedding_members (
   id TEXT PRIMARY KEY,

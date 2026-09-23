@@ -8,6 +8,7 @@ import {
 } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { IconMore } from "@/components/icon-more";
+import { RadioOption } from "@/components/ui/radio";
 import { TextInput } from "@/components/ui/text-input";
 import type { Guest } from "@/lib/guests-api";
 import "@/app/seating-wizard.css";
@@ -451,16 +452,18 @@ function StepTables({
           Чи буде президіум (головний стіл для наречених)?
         </p>
         <div className="seat-wiz-radios" role="radiogroup">
-          <RadioPill
+          <RadioOption
             selected={hasPresidium}
             onSelect={() => setHasPresidium(true)}
-            label="Так, буде президіум"
-          />
-          <RadioPill
+          >
+            Так, буде президіум
+          </RadioOption>
+          <RadioOption
             selected={!hasPresidium}
             onSelect={() => setHasPresidium(false)}
-            label="Ні, без окремого президіуму"
-          />
+          >
+            Ні, без окремого президіуму
+          </RadioOption>
         </div>
         {hasPresidium ? (
           <TextInput
@@ -563,16 +566,18 @@ function StepTables({
       <section className="seat-wiz-card">
         <p className="seat-wiz-question">Чи буде окремий дитячий стіл?</p>
         <div className="seat-wiz-radios" role="radiogroup">
-          <RadioPill
+          <RadioOption
             selected={hasKidsTable}
             onSelect={() => setHasKidsTable(true)}
-            label="Так, потрібен дитячий стіл"
-          />
-          <RadioPill
+          >
+            Так, потрібен дитячий стіл
+          </RadioOption>
+          <RadioOption
             selected={!hasKidsTable}
             onSelect={() => setHasKidsTable(false)}
-            label="Ні, діти сидітимуть з батьками"
-          />
+          >
+            Ні, діти сидітимуть з батьками
+          </RadioOption>
         </div>
       </section>
     </div>
@@ -851,28 +856,6 @@ function hashStr(s: string) {
   return h;
 }
 
-function RadioPill({
-  selected,
-  onSelect,
-  label,
-}: {
-  selected: boolean;
-  onSelect: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      className={`seat-wiz-radio${selected ? " is-selected" : ""}`}
-      onClick={onSelect}
-    >
-      <span className="seat-wiz-radio-mark" aria-hidden />
-      <span>{label}</span>
-    </button>
-  );
-}
 
 function BackIcon() {
   return (

@@ -53,11 +53,11 @@ export declare class ContentService implements OnModuleInit {
             } | null;
         } & {
             id: string;
-            createdAt: Date;
             city: string | null;
-            updatedAt: Date;
+            createdAt: Date;
             title: string;
             status: import(".prisma/client").$Enums.ContentStatus;
+            updatedAt: Date;
             slug: string;
             coverUrl: string | null;
             kind: import(".prisma/client").$Enums.ContentKind;
@@ -92,11 +92,11 @@ export declare class ContentService implements OnModuleInit {
         } | null;
     } & {
         id: string;
-        createdAt: Date;
         city: string | null;
-        updatedAt: Date;
+        createdAt: Date;
         title: string;
         status: import(".prisma/client").$Enums.ContentStatus;
+        updatedAt: Date;
         slug: string;
         coverUrl: string | null;
         kind: import(".prisma/client").$Enums.ContentKind;

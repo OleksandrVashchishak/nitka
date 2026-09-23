@@ -9,10 +9,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateExternalVendorDto = exports.CreateExternalVendorDto = exports.UpdatePipelineDto = void 0;
+exports.UpdateExternalVendorDto = exports.CreateExternalVendorDto = exports.UpdatePipelineDto = exports.UpsertVendorPlanDto = void 0;
 const class_transformer_1 = require("class-transformer");
 const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
+class UpsertVendorPlanDto {
+}
+exports.UpsertVendorPlanDto = UpsertVendorPlanDto;
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMaxSize)(40),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.MinLength)(1, { each: true }),
+    (0, class_validator_1.MaxLength)(64, { each: true }),
+    __metadata("design:type", Array)
+], UpsertVendorPlanDto.prototype, "categories", void 0);
 class UpdatePipelineDto {
 }
 exports.UpdatePipelineDto = UpdatePipelineDto;

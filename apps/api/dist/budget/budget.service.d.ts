@@ -41,8 +41,8 @@ export declare class BudgetService {
             id: string;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
+            notes: string | null;
             category: string;
             estimated: number;
             actual: number;
@@ -84,8 +84,8 @@ export declare class BudgetService {
             id: string;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
+            notes: string | null;
             category: string;
             estimated: number;
             actual: number;
@@ -127,8 +127,8 @@ export declare class BudgetService {
             id: string;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
+            notes: string | null;
             category: string;
             estimated: number;
             actual: number;
@@ -170,8 +170,8 @@ export declare class BudgetService {
             id: string;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
+            notes: string | null;
             category: string;
             estimated: number;
             actual: number;
@@ -213,8 +213,8 @@ export declare class BudgetService {
             id: string;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
+            notes: string | null;
             category: string;
             estimated: number;
             actual: number;
