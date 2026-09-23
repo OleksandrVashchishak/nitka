@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PublicRsvpDto = exports.UpdateGuestDto = exports.ImportGuestsDto = exports.ImportGuestRowDto = exports.CreateGuestDto = void 0;
+exports.UpdateGuestDto = exports.ImportGuestsDto = exports.ImportGuestRowDto = exports.CreateGuestDto = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
@@ -63,11 +63,6 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateGuestDto.prototype, "allergies", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateGuestDto.prototype, "tableLabel", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
@@ -172,48 +167,5 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", Object)
-], UpdateGuestDto.prototype, "tableLabel", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", Object)
 ], UpdateGuestDto.prototype, "notes", void 0);
-class PublicRsvpDto {
-}
-exports.PublicRsvpDto = PublicRsvpDto;
-__decorate([
-    (0, class_validator_1.IsEnum)(client_1.RsvpStatus),
-    __metadata("design:type", String)
-], PublicRsvpDto.prototype, "rsvpStatus", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Type)(() => Boolean),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], PublicRsvpDto.prototype, "plusOneAttending", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], PublicRsvpDto.prototype, "plusOneName", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], PublicRsvpDto.prototype, "allergies", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEmail)(),
-    __metadata("design:type", String)
-], PublicRsvpDto.prototype, "email", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], PublicRsvpDto.prototype, "phone", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], PublicRsvpDto.prototype, "notes", void 0);
 //# sourceMappingURL=guest.dto.js.map

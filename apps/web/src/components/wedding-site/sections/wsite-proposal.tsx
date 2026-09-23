@@ -3,32 +3,62 @@
 type Props = {
   title: string;
   body: string;
-  imageUrl?: string;
+  imageLeft?: string;
+  imageRight?: string;
+  eyebrow?: string;
 };
 
-export function WsiteProposal({ title, body, imageUrl }: Props) {
+export function WsiteProposal({
+  title,
+  body,
+  imageLeft,
+  imageRight,
+  eyebrow = "Наша мить",
+}: Props) {
   const paragraphs = body.split(/\n+/).filter(Boolean);
-  if (!paragraphs.length && !imageUrl) return null;
+  const primaryImage = imageLeft || imageRight;
+  const secondaryImage =
+    imageLeft && imageRight && imageRight !== imageLeft
+      ? imageRight
+      : undefined;
+
+  if (!paragraphs.length && !primaryImage) return null;
 
   return (
-    <section className="wsite-section wsite-section--dark wsite-proposal">
-      <div className="wsite-section__inner">
-        <div className="wsite-proposal__grid">
-          <div className="wsite-proposal__photo">
-            {imageUrl ? (
-              <img src={imageUrl} alt="" className="wsite-proposal__img" />
-            ) : null}
+    <section className="wsite-proposal">
+      <div className="wsite-proposal__inner">
+        {primaryImage ? (
+          <div className="wsite-proposal__photo wsite-proposal__photo--left">
+            <img src={primaryImage} alt="" className="wsite-proposal__img" />
           </div>
-          <div className="wsite-proposal__copy">
-            <p className="wsite-section__eyebrow">Історія</p>
-            <h2 className="wsite-section__title wsite-proposal__title">{title}</h2>
+        ) : null}
+
+        <div className="wsite-proposal__heading">
+          {eyebrow ? (
+            <p className="wsite-proposal__eyebrow">{eyebrow}</p>
+          ) : null}
+          {title ? (
+            <h2 className="wsite-proposal__title">{title}</h2>
+          ) : null}
+        </div>
+
+        {paragraphs.length ? (
+          <div className="wsite-proposal__text">
             {paragraphs.map((paragraph) => (
-              <p key={paragraph.slice(0, 24)} className="wsite-section__text wsite-proposal__text">
-                {paragraph}
-              </p>
+              <p key={paragraph.slice(0, 32)}>{paragraph}</p>
             ))}
           </div>
-        </div>
+        ) : null}
+
+        {secondaryImage ? (
+          <div className="wsite-proposal__photo wsite-proposal__photo--right">
+            <img
+              src={secondaryImage}
+              alt=""
+              className="wsite-proposal__img"
+            />
+          </div>
+        ) : null}
       </div>
     </section>
   );

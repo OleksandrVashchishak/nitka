@@ -9,6 +9,7 @@ import { WsiteRsvp } from "@/components/wedding-site/sections/wsite-rsvp";
 import { WsiteSchedule } from "@/components/wedding-site/sections/wsite-schedule";
 import { WsiteStory } from "@/components/wedding-site/sections/wsite-story";
 import {
+  coupleInitials,
   parseWeddingDate,
   safeHref,
   splitCoupleNames,
@@ -47,17 +48,13 @@ export function WeddingSite({
   const [bride, groom] = splitCoupleNames(content.headline);
   const heroImage =
     content.heroImageUrl || content.coupleImageUrl || FALLBACK_IMG;
-  const meta = [content.dateLabel, content.cityLabel].filter(Boolean).join(" — ");
+  const initials = coupleInitials(bride, groom);
   const targetDate = parseWeddingDate(weddingDate, content.dateLabel);
   const mini = compact || cardPreview;
 
   const gallery = content.galleryImages ?? [];
   const storyMain =
     content.storyImageUrl || content.coupleImageUrl || gallery[0] || FALLBACK_IMG;
-  const storySide = [
-    gallery[0] || "/landing/hero-photo.jpg",
-    gallery[1] || "/landing/compare-1.jpg",
-  ];
 
   const detailItems = [
     sections.dressCode && content.dressCodeBody.trim()
@@ -99,7 +96,6 @@ export function WeddingSite({
       <div className={`wsite ${theme} wsite--compact`}>
         <WsiteHero
           names={content.headline || `${bride} & ${groom}`}
-          meta={meta}
           imageUrl={heroImage}
           compact
         />
@@ -111,7 +107,8 @@ export function WeddingSite({
     <div className={`wsite ${theme}`}>
       <WsiteHero
         names={content.headline || `${bride} & ${groom}`}
-        meta={meta}
+        initials={initials}
+        date={content.dateLabel}
         imageUrl={heroImage}
       />
 
@@ -123,6 +120,7 @@ export function WeddingSite({
         <WsiteSchedule
           title={content.scheduleTitle || "День нашого весілля"}
           items={content.scheduleItems}
+          imageUrl={content.coupleImageUrl || storyMain}
         />
       ) : null}
 
@@ -130,8 +128,7 @@ export function WeddingSite({
         <WsiteStory
           title={content.storyTitle || "Наша історія"}
           body={content.storyBody}
-          mainImage={storyMain}
-          sideImages={storySide}
+          imageUrl={storyMain}
         />
       ) : null}
 
@@ -146,7 +143,7 @@ export function WeddingSite({
             {
               name: groom,
               bio: content.groomBio,
-              imageUrl: gallery[0] || "/landing/feat-1.jpg",
+              imageUrl: gallery[0] || gallery[1] || "/landing/feat-1.jpg",
             },
           ]}
         />
@@ -156,7 +153,8 @@ export function WeddingSite({
         <WsiteProposal
           title="Як відбулася пропозиція"
           body={content.proposalBody}
-          imageUrl={proposalImage}
+          imageLeft={proposalImage}
+          imageRight={gallery[2] || gallery[0] || storyMain}
         />
       ) : null}
 
@@ -174,11 +172,8 @@ export function WeddingSite({
 
       <WsiteClosing
         title="Дуже чекаємо вас на нашому святі"
-        text={
-          content.footerNote ||
-          `До зустрічі${content.cityLabel ? ` в ${content.cityLabel}` : ""}, з любовʼю, ${bride} та ${groom}`
-        }
-        year={targetDate ? String(targetDate.getFullYear()) : undefined}
+        names={`${bride} & ${groom}`}
+        imageUrl={gallery[1] || content.coupleImageUrl || storyMain}
       />
     </div>
   );

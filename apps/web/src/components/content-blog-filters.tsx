@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ContentTopic } from "@/lib/content-api";
 import { contentTopicHref } from "@/lib/content-api";
+import { Select } from "@/components/ui/select";
 
 function SearchIcon() {
   return (
@@ -68,40 +69,40 @@ export function ContentBlogFilters({
       </form>
 
       <div className="blog-picks">
-        <label className="blog-pick-wrap">
-          <span className="sr-only">Категорія</span>
-          <select
-            className="blog-pick"
-            value={activeSlug || ""}
-            onChange={(event) => {
-              pushFilters({ topic: event.target.value || undefined });
-            }}
-          >
-            <option value="">Всі категорії</option>
-            {topics.map((topic) => (
-              <option key={topic.slug} value={topic.slug}>
-                {topic.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="blog-pick-wrap">
-          <span className="sr-only">Місто</span>
-          <select
-            className="blog-pick"
-            value={city || ""}
-            onChange={(event) => {
-              pushFilters({ city: event.target.value || undefined });
-            }}
-          >
-            <option value="">Всі міста</option>
-            {cities.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          className="blog-pick-wrap"
+          size="s"
+          shape="pill"
+          aria-label="Категорія"
+          value={activeSlug || ""}
+          onChange={(event) => {
+            pushFilters({ topic: event.target.value || undefined });
+          }}
+        >
+          <option value="">Всі категорії</option>
+          {topics.map((topic) => (
+            <option key={topic.slug} value={topic.slug}>
+              {topic.name}
+            </option>
+          ))}
+        </Select>
+        <Select
+          className="blog-pick-wrap"
+          size="s"
+          shape="pill"
+          aria-label="Місто"
+          value={city || ""}
+          onChange={(event) => {
+            pushFilters({ city: event.target.value || undefined });
+          }}
+        >
+          <option value="">Всі міста</option>
+          {cities.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <div className="blog-toolbar">
@@ -124,23 +125,23 @@ export function ContentBlogFilters({
         </nav>
 
         {cities.length ? (
-          <label>
-            <span className="sr-only">Місто</span>
-            <select
-              value={city || ""}
-              className="blog-city"
-              onChange={(event) => {
-                pushFilters({ city: event.target.value || undefined });
-              }}
-            >
-              <option value="">Всі міста</option>
-              {cities.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            className="blog-city"
+            size="s"
+            shape="pill"
+            aria-label="Місто"
+            value={city || ""}
+            onChange={(event) => {
+              pushFilters({ city: event.target.value || undefined });
+            }}
+          >
+            <option value="">Всі міста</option>
+            {cities.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </Select>
         ) : null}
       </div>
     </div>

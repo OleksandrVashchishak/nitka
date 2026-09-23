@@ -39,15 +39,15 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            createdAt: Date;
             weddingId: string;
-            category: string;
+            notes: string | null;
             title: string;
+            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
             externalVendorId: string | null;
-            createdAt: Date;
         }[];
     }>;
     updatePlan(userId: string, budget: number): Promise<{
@@ -82,15 +82,15 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            createdAt: Date;
             weddingId: string;
-            category: string;
+            notes: string | null;
             title: string;
+            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
             externalVendorId: string | null;
-            createdAt: Date;
         }[];
     }>;
     createItem(userId: string, dto: CreateBudgetItemDto): Promise<{
@@ -125,15 +125,15 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            createdAt: Date;
             weddingId: string;
-            category: string;
+            notes: string | null;
             title: string;
+            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
             externalVendorId: string | null;
-            createdAt: Date;
         }[];
     }>;
     updateItem(userId: string, itemId: string, dto: UpdateBudgetItemDto): Promise<{
@@ -168,15 +168,15 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            createdAt: Date;
             weddingId: string;
-            category: string;
+            notes: string | null;
             title: string;
+            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
             externalVendorId: string | null;
-            createdAt: Date;
         }[];
     }>;
     removeItem(userId: string, itemId: string): Promise<{
@@ -211,15 +211,15 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            createdAt: Date;
             weddingId: string;
-            category: string;
+            notes: string | null;
             title: string;
+            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
-            notes: string | null;
             externalVendorId: string | null;
-            createdAt: Date;
         }[];
     }>;
 }

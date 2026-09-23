@@ -1,6 +1,7 @@
 "use client";
 
 import { PageLoader } from "@/components/ui-loader";
+import { TextInput } from "@/components/ui/text-input";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -167,31 +168,37 @@ export function PartnerInvitePage() {
           </div>
 
           {mode === "register" ? (
-            <input
+            <TextInput
+              size="l"
+              shape="pill"
+              label="Імʼя"
               required
               minLength={2}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Твоє імʼя"
-              className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
             />
           ) : null}
-          <input
+          <TextInput
+            size="l"
+            shape="pill"
+            label="Email"
             required
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
           />
-          <input
+          <TextInput
+            size="l"
+            shape="pill"
+            label="Пароль"
             required
             type="password"
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Пароль"
-            className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-sage"
           />
           <button
             type="submit"

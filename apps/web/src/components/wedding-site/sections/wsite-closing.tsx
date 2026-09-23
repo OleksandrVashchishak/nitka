@@ -1,35 +1,61 @@
+/* eslint-disable @next/next/no-img-element */
+
 type Props = {
   title: string;
-  text: string;
-  year?: string;
+  names: string;
+  imageUrl?: string;
 };
 
-export function WsiteClosing({ title, text, year }: Props) {
+function HeartIcon() {
   return (
-    <section className="wsite-section wsite-section--soft wsite-closing">
-      <div className="wsite-section__inner">
-        <svg
-          className="wsite-closing__ornament"
-          viewBox="0 0 48 48"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M24 40c0-10 8-16 8-24 0-5-3-8-8-8s-8 3-8 8c0 8 8 14 8 24Z"
-            stroke="currentColor"
-            strokeWidth="1.4"
-          />
-          <path
-            d="M16 22c-4 1-7 5-7 9M32 22c4 1 7 5 7 9"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-          />
-        </svg>
-        <h2 className="wsite-section__title wsite-closing__title">{title}</h2>
-        {text ? <p className="wsite-section__text wsite-closing__text">{text}</p> : null}
+    <svg
+      className="wsite-closing__heart-icon"
+      width="28"
+      height="26"
+      viewBox="0 0 28 26"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M14 23.5C14 23.5 2.5 16.2 2.5 9.2 2.5 5.4 5.4 2.5 9 2.5c2.1 0 3.9 1 5 2.5 1.1-1.5 2.9-2.5 5-2.5 3.6 0 6.5 2.9 6.5 6.7 0 7-11.5 14.3-11.5 14.3Z"
+        fill="currentColor"
+        transform="rotate(-12 14 13)"
+      />
+    </svg>
+  );
+}
+
+export function WsiteClosing({ title, names, imageUrl }: Props) {
+  return (
+    <section className="wsite-closing">
+      <div className="wsite-closing__inner">
+        {imageUrl ? (
+          <div className="wsite-closing__photo">
+            <img src={imageUrl} alt="" className="wsite-closing__img" />
+          </div>
+        ) : null}
+
+        <h2 className="wsite-closing__title">{title}</h2>
+
+        <div className="wsite-closing__heart" aria-hidden>
+          <HeartIcon />
+        </div>
+
+        <p className="wsite-closing__names">{names}</p>
       </div>
-      <div className="wsite-closing__bar">{year || new Date().getFullYear()}</div>
+
+      <div className="wsite-closing__bar">
+        <span>Зроблено з любовʼю у </span>
+        <a
+          className="wsite-closing__brand"
+          href="https://fata.studio"
+          target="_blank"
+          rel="noreferrer"
+        >
+          fata.studio
+          <span className="wsite-closing__dot" aria-hidden />
+        </a>
+      </div>
     </section>
   );
 }

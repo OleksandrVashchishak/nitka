@@ -17,21 +17,15 @@ function shouldHideHeader(pathname: string) {
     pathname.startsWith("/email-confirmed") ||
     pathname.startsWith("/verify-email") ||
     pathname.startsWith("/w/") ||
-    pathname.startsWith("/rsvp/") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/checklist") ||
     pathname.startsWith("/day-plan") ||
     pathname.startsWith("/budget") ||
     pathname.startsWith("/guests") ||
     pathname.startsWith("/seating") ||
-    pathname.startsWith("/invitations") ||
     pathname.startsWith("/website") ||
     pathname.startsWith("/my-vendors") ||
-    pathname.startsWith("/favorites") ||
-    pathname.startsWith("/requests") ||
-    pathname.startsWith("/settings") ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/vendor")
+    pathname.startsWith("/settings")
   );
 }
 

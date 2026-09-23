@@ -6,13 +6,13 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
+import { Button } from "@/components/ui/button";
 import "@/app/fata-mobile-menu.css";
 
 export const FATA_NAV = [
   { href: "/vesilnyy-plan", label: "Чеклісти" },
-  { href: "/rozsadka-gostey", label: "Конструктор розсадки" },
   { href: "/vesilnyy-byudzhet", label: "Бюджет" },
-  { href: "/zaprosinnya", label: "Сайт-запрошення" },
+  { href: "/vesilnyy-sayt", label: "Весільний сайт" },
   { href: "/spysok-gostey", label: "Список гостей" },
   { href: "/content", label: "Ідеї" },
 ] as const;
@@ -89,32 +89,36 @@ export function FataMobileMenu({
         <div className="fata-drawer-cta">
           {loggedIn ? (
             <>
-              <button
+              <Button
                 type="button"
-                className="fata-drawer-login"
+                tone="ghost"
+                size="l"
+                fullWidth
                 onClick={() => {
                   onClose();
                   void logout();
                 }}
               >
                 Вийти
-              </button>
-              <Link
+              </Button>
+              <Button
                 href={getHomePath(user?.role)}
-                className="fata-drawer-start"
+                tone="light"
+                size="l"
+                fullWidth
                 onClick={onClose}
               >
                 Кабінет
-              </Link>
+              </Button>
             </>
           ) : (
             <>
-              <Link href="/login" className="fata-drawer-login" onClick={onClose}>
+              <Button href="/login" tone="ghost" size="l" fullWidth onClick={onClose}>
                 Увійти
-              </Link>
-              <Link href="/register" className="fata-drawer-start" onClick={onClose}>
+              </Button>
+              <Button href="/register" tone="light" size="l" fullWidth onClick={onClose}>
                 Розпочати
-              </Link>
+              </Button>
             </>
           )}
         </div>

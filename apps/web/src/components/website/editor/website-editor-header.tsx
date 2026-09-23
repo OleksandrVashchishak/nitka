@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { IconBack } from "@/components/website/editor/website-editor-icons";
 
 type AutosaveState = "saved" | "saving" | "error";
@@ -28,9 +29,12 @@ export function WebsiteEditorHeader({
         <Link href="/website" className="we-header__back" aria-label="Назад">
           <IconBack />
         </Link>
-        <Link href="/dashboard" className="we-header__brand">
-          fata.studi<span className="we-header__brand-dot">o</span>
-        </Link>
+        <BrandLogo
+          href="/dashboard"
+          className="we-header__brand"
+          width={115}
+          height={24}
+        />
       </div>
       <div className="we-header__right">
         <span className="we-header__autosave">

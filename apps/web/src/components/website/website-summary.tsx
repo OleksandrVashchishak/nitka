@@ -51,7 +51,7 @@ export function WebsiteSummary({
               src={coverUrl}
               alt=""
               width={361}
-              height={316}
+              height={177}
               className="ws-summary__cover-img"
               unoptimized={coverUrl.startsWith("http")}
             />
@@ -91,7 +91,7 @@ export function WebsiteSummary({
               src={coverUrl}
               alt=""
               width={361}
-              height={316}
+              height={177}
               className="ws-summary__cover-img"
               unoptimized={coverUrl.startsWith("http")}
             />

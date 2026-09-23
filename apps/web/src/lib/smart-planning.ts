@@ -26,7 +26,6 @@ export type SmartDoneId =
   | "guest_list"
   | "invitations_sent"
   | "rsvp"
-  | "seating"
   | "dress"
   | "suit"
   | "makeup"
@@ -116,7 +115,6 @@ export const SMART_DONE_GROUPS: SmartDoneGroup[] = [
       { id: "guest_list", label: "Склали список гостей" },
       { id: "invitations_sent", label: "Розіслали запрошення" },
       { id: "rsvp", label: "Збираємо RSVP відповіді" },
-      { id: "seating", label: "Склали розсадку" },
     ],
   },
   {
@@ -329,13 +327,6 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     categorySlug: "guests",
     categoryId: "guests",
     requires: ["welcome"],
-  },
-  {
-    id: "guests-seating",
-    title: "Замовити розсадку гостей",
-    categorySlug: "seating",
-    categoryId: "guests",
-    excludeIfDone: ["seating"],
   },
   {
     id: "guests-kids",

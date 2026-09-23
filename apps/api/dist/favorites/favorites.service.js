@@ -13,88 +13,16 @@ exports.FavoritesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const vendor_budget_sync_1 = require("../budget/vendor-budget-sync");
-const favoriteInclude = {
-    vendor: {
-        include: {
-            category: true,
-            photos: { orderBy: { order: 'asc' }, take: 1 },
-        },
-    },
-};
 let FavoritesService = class FavoritesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(userId) {
-        return this.prisma.favorite.findMany({
+    async getPipeline(userId) {
+        const manual = await this.prisma.externalVendor.findMany({
             where: { userId },
-            include: favoriteInclude,
             orderBy: { updatedAt: 'desc' },
         });
-    }
-    async add(userId, vendorId) {
-        const vendor = await this.prisma.vendor.findFirst({
-            where: { id: vendorId, status: 'APPROVED' },
-        });
-        if (!vendor) {
-            throw new common_1.NotFoundException('Підрядника не знайдено');
-        }
-        try {
-            return await this.prisma.favorite.create({
-                data: { userId, vendorId },
-                include: favoriteInclude,
-            });
-        }
-        catch {
-            throw new common_1.ConflictException('Вже в обраному');
-        }
-    }
-    async remove(userId, vendorId) {
-        const favorite = await this.prisma.favorite.findUnique({
-            where: { userId_vendorId: { userId, vendorId } },
-        });
-        if (!favorite) {
-            throw new common_1.NotFoundException('Немає в обраному');
-        }
-        await this.prisma.favorite.delete({
-            where: { userId_vendorId: { userId, vendorId } },
-        });
-        return { ok: true };
-    }
-    async getPipeline(userId) {
-        const [catalog, manual] = await Promise.all([
-            this.prisma.favorite.findMany({
-                where: { userId },
-                include: favoriteInclude,
-                orderBy: { updatedAt: 'desc' },
-            }),
-            this.prisma.externalVendor.findMany({
-                where: { userId },
-                orderBy: { updatedAt: 'desc' },
-            }),
-        ]);
-        return { catalog, manual };
-    }
-    async updatePipeline(userId, vendorId, dto) {
-        const favorite = await this.prisma.favorite.findUnique({
-            where: { userId_vendorId: { userId, vendorId } },
-        });
-        if (!favorite) {
-            throw new common_1.NotFoundException('Спочатку збережи підрядника');
-        }
-        return this.prisma.favorite.update({
-            where: { id: favorite.id },
-            data: {
-                ...(dto.stage !== undefined ? { stage: dto.stage } : {}),
-                ...(dto.quotedPrice !== undefined
-                    ? { quotedPrice: dto.quotedPrice }
-                    : {}),
-                ...(dto.notes !== undefined
-                    ? { notes: dto.notes?.trim() || null }
-                    : {}),
-            },
-            include: favoriteInclude,
-        });
+        return { manual };
     }
     async createExternal(userId, dto) {
         const wedding = await this.prisma.wedding.findUnique({

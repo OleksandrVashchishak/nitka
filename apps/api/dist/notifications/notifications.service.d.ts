@@ -45,26 +45,15 @@ export declare class NotificationsService implements OnModuleInit, OnModuleDestr
         id: string;
         role: string;
     }): Promise<{
-        role: "VENDOR";
-        newRequests: number;
-        total: number;
-        newCount: number;
-        items: NotificationSummaryItem[];
-        feed: NotificationFeedItem[];
-        moreHref: string;
-    } | {
         role: string;
         pendingRsvp: number;
         newRsvp: number;
-        waitingRequests: number;
-        vendorReplied: number;
         total: number;
         newCount: number;
         items: NotificationSummaryItem[];
         feed: NotificationFeedItem[];
         moreHref: string;
     }>;
-    private getVendorSummary;
     private getCoupleSummary;
     private buildCoupleFeed;
     notifyUser(userId: string, payload: NotifyPayload): Promise<{

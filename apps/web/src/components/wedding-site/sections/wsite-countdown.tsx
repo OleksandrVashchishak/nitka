@@ -31,6 +31,24 @@ function diffParts(target: Date): Parts {
   };
 }
 
+function SparkIcon() {
+  return (
+    <svg
+      className="wsite-countdown__spark-icon"
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M9 0.5L10.2 7.8L17.5 9L10.2 10.2L9 17.5L7.8 10.2L0.5 9L7.8 7.8L9 0.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function WsiteCountdown({ target }: Props) {
   const [parts, setParts] = useState<Parts>(() => diffParts(target));
 
@@ -43,14 +61,17 @@ export function WsiteCountdown({ target }: Props) {
   const items: Array<[string, string]> = [
     [parts.days, "днів"],
     [parts.hours, "годин"],
-    [parts.minutes, "хвилин"],
+    [parts.minutes, "хвилини"],
     [parts.seconds, "секунд"],
   ];
 
   return (
-    <section className="wsite-section wsite-section--soft wsite-countdown">
-      <div className="wsite-section__inner">
-        <p className="wsite-section__eyebrow">До весілля</p>
+    <section className="wsite-countdown">
+      <div className="wsite-countdown__inner">
+        <div className="wsite-countdown__spark" aria-hidden>
+          <SparkIcon />
+        </div>
+        <h2 className="wsite-countdown__title">До нашого дня</h2>
         <div className="wsite-countdown__grid">
           {items.map(([value, label]) => (
             <div key={label} className="wsite-countdown__item">

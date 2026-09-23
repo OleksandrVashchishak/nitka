@@ -1,60 +1,133 @@
 .wsite-story {
-  &__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-    gap: 2.5rem 3.5rem;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: min(80vh, 720px);
+  background: var(--wsite-dark, #1e1b15);
+  color: #fffdf9;
+
+  &__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+    padding: 100px 80px;
+    text-align: left;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-family: var(--wsite-font-label);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: normal;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #fffdf9;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
   }
 
   &__title {
-    margin-bottom: 1.75rem;
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 5vw, 3.875rem); // 62px
+    line-height: normal;
+    letter-spacing: 0;
+    color: #fffdf9;
   }
 
-  &__copy {
-    margin-bottom: 1.75rem;
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 28rem;
 
-    .wsite-section__text + .wsite-section__text {
-      margin-top: 1rem;
+    p {
+      margin: 0;
+      font-family: var(--wsite-font-label);
+      font-weight: 300;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #fffdf9;
+    }
+
+    p + p {
+      margin-top: 1.5em;
     }
   }
 
-  &__main {
-    aspect-ratio: 3 / 4;
+  &__media {
+    position: relative;
+    min-height: 420px;
+    background: #2a2622;
     overflow: hidden;
-    background: #e8e4dc;
   }
 
-  &__main-img {
+  &__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  &__stack {
-    display: grid;
-    gap: 0.85rem;
-  }
-
-  &__shot {
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background: #e8e4dc;
-  }
-
-  &__shot-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
+  // Figma mobile 1109:8783 — copy px32 py64 gap24 / title36 Medium / body16 Regular lh1.6 / photo h412
   @media (max-width: 900px) {
-    &__grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
+    grid-template-columns: 1fr;
+    min-height: 0;
+
+    &__copy {
+      padding: 64px 32px;
+      gap: 24px;
+      text-align: left;
+      align-items: flex-start;
     }
 
-    &__main {
-      max-width: 28rem;
+    &__eyebrow {
+      font-size: 12px;
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
+
+    &__heading {
+      align-items: flex-start;
+      gap: 24px;
+      width: 100%;
+    }
+
+    &__title {
+      font-size: 36px;
+      font-weight: 500;
+      max-width: none;
+    }
+
+    &__text {
+      max-width: none;
+      width: 100%;
+
+      p {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.6;
+      }
+
+      p + p {
+        margin-top: 1em;
+      }
+    }
+
+    &__media {
+      position: relative;
+      min-height: 0;
+      height: 412px;
+      aspect-ratio: auto;
+      order: 1;
     }
   }
 }

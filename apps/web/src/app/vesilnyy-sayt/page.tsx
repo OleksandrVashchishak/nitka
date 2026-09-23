@@ -38,8 +38,8 @@ export default function VesilnyySaytPage() {
       registerHint="Після входу конструктор з’явиться в кабінеті пари."
       relatedHref="/blog/yak-orhanizuvaty-vesillya"
       relatedLabel="Як організувати весілля самостійно"
-      secondaryRelatedHref="/zaprosinnya"
-      secondaryRelatedLabel="Онлайн-запрошення"
+      secondaryRelatedHref="/spysok-gostey"
+      secondaryRelatedLabel="Список гостей"
       highlights={[
         "Одна лінка замість сотень однакових відповідей у чатах",
         "Програма дня, карта, дресс-код і FAQ — на мобільному екрані",

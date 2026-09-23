@@ -49,7 +49,7 @@ export class UploadsService {
       const result = await new Promise<UploadApiResponse>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
-            folder: process.env.CLOUDINARY_FOLDER || 'nitka/vendors',
+            folder: process.env.CLOUDINARY_FOLDER || 'fata/uploads',
             resource_type: 'image',
           },
           (

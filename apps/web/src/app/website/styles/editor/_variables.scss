@@ -2,16 +2,21 @@
   --we-orange: #ff4200;
   --we-orange-soft: rgba(255, 66, 0, 0.08);
   --we-ink: #1a1a1a;
+  --we-ink-strong: #18181b;
   --we-muted: #71717a;
+  --we-muted-soft: #7f7e7c;
   --we-nav-idle: #3f3f46;
   --we-line: #e4e4e7;
   --we-panel: #fafafa;
   --we-preview-bg: #f4f4f5;
   --we-white: #ffffff;
+  --we-burgundy: #61040F;
   --we-shadow: 0 2px 25px 0 #00000014;
   --we-font: var(--font-sans), "Montserrat", sans-serif;
   --we-font-btn: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  --we-font-badge: Inter, var(--font-sans), "Montserrat", sans-serif;
   --we-nav-w: 200px;
-  --we-catalog-w: 332px;
+  --we-catalog-w: 380px;
   --we-header-h: 64px;
+  --we-footer-h: 132px;
 }

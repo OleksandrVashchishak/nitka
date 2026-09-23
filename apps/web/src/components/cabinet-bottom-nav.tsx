@@ -20,9 +20,6 @@ const MORE_PREFIXES = [
   "/blog",
   "/settings",
   "/website",
-  "/favorites",
-  "/invitations",
-  "/requests",
 ];
 
 function isTabActive(pathname: string, href: string) {

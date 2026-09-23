@@ -10,6 +10,15 @@ export function splitCoupleNames(headline: string): [string, string] {
   return [headline.trim() || "Наречена", "Наречений"];
 }
 
+export function coupleInitials(bride: string, groom: string) {
+  const a = bride.trim().charAt(0);
+  const b = groom.trim().charAt(0);
+  if (!a && !b) return "";
+  if (!a) return b.toUpperCase();
+  if (!b) return a.toUpperCase();
+  return `${a.toUpperCase()} & ${b.toUpperCase()}`;
+}
+
 export function parseWeddingDate(
   weddingDate?: string | null,
   dateLabel?: string,
@@ -47,6 +56,5 @@ export function safeHref(url: string, fallback = "#") {
   if (value.startsWith("http") || value.startsWith("/") || value.startsWith("#")) {
     return value;
   }
-  if (/^[a-zA-Z0-9_-]+$/.test(value)) return `/rsvp/${value}`;
   return fallback;
 }

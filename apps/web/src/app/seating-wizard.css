@@ -1,0 +1,662 @@
+/* Seating wizard — shared across steps (see .cursor/rules/seating-wizard.mdc) */
+
+.seat-wiz-root {
+  --seat-wiz-bg: #f3f3f3;
+  --seat-wiz-lime: #f0febb;
+  --seat-wiz-lime-dot: #f0fcba;
+  --seat-wiz-wine: #61040f;
+  --seat-wiz-border: #ebe5d4;
+  --seat-wiz-muted: #8c8582;
+  --seat-wiz-ink: #1a1a1a;
+  --seat-wiz-card-radius: 12px;
+  --seat-wiz-content: 928px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  background: var(--seat-wiz-bg);
+  color: var(--seat-wiz-ink);
+  overflow: auto;
+}
+
+.seat-wiz-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 28px 8px;
+  background: var(--seat-wiz-bg);
+}
+
+.seat-wiz-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--seat-wiz-ink);
+  cursor: pointer;
+}
+
+.seat-wiz-back:hover {
+  background: rgb(0 0 0 / 0.05);
+}
+
+.seat-wiz-logo {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.seat-wiz-logo img {
+  display: block;
+  width: 130px;
+  height: 27px;
+}
+
+.seat-wiz-body {
+  width: min(var(--seat-wiz-content), calc(100% - 48px));
+  margin: 0 auto;
+  padding: 12px 0 120px;
+}
+
+.seat-wiz-body.is-narrow {
+  --seat-wiz-content: 612px;
+}
+
+.seat-wiz-stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 48px;
+  margin: 8px 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.seat-wiz-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 56px;
+}
+
+.seat-wiz-step-line {
+  position: absolute;
+  top: 12px;
+  right: calc(50% + 18px);
+  width: 48px;
+  height: 1px;
+  background: #d9d4ce;
+}
+
+.seat-wiz-step.is-active .seat-wiz-step-line,
+.seat-wiz-step.is-done .seat-wiz-step-line {
+  background: #252525;
+}
+
+.seat-wiz-step-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: #e8e4df;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 100%;
+  color: var(--seat-wiz-muted);
+}
+
+.seat-wiz-step.is-active .seat-wiz-step-dot {
+  background: var(--seat-wiz-lime-dot);
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-step.is-done .seat-wiz-step-dot {
+  background: #252525;
+  color: #fff;
+}
+
+.seat-wiz-step-label {
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 100%;
+  color: var(--seat-wiz-muted);
+}
+
+.seat-wiz-step.is-active .seat-wiz-step-label,
+.seat-wiz-step.is-done .seat-wiz-step-label {
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-title {
+  margin: 0 auto 28px;
+  max-width: 36rem;
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 100%;
+  text-align: center;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.seat-wiz-card {
+  padding: 24px;
+  border-radius: var(--seat-wiz-card-radius);
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+}
+
+.seat-wiz-question {
+  margin: 0 0 12px;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 100%;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.seat-wiz-field {
+  margin-top: 16px;
+}
+
+.seat-wiz-card-title {
+  margin: 0 0 16px;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 100%;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-radios {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seat-wiz-radio {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 52px;
+  padding: 16px;
+  border: 1px solid var(--seat-wiz-border);
+  border-radius: 40px;
+  background: #fff;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 100%;
+  color: var(--seat-wiz-ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.seat-wiz-radio.is-selected {
+  background: var(--seat-wiz-lime);
+  border-color: var(--seat-wiz-border);
+}
+
+.seat-wiz-radio-mark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--seat-wiz-border);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.seat-wiz-radio.is-selected .seat-wiz-radio-mark {
+  border-color: var(--seat-wiz-wine);
+  background: var(--seat-wiz-wine);
+}
+
+.seat-wiz-radio.is-selected .seat-wiz-radio-mark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--seat-wiz-lime);
+  transform: translate(-50%, -50%);
+}
+
+.seat-wiz-formats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.seat-wiz-format {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 121px;
+  padding: 12px;
+  border: 1.5px solid var(--seat-wiz-border);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.seat-wiz-format.is-selected {
+  background: var(--seat-wiz-lime);
+  border-color: var(--seat-wiz-wine);
+}
+
+.seat-wiz-format-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+  color: #6b6560;
+}
+
+.seat-wiz-format.is-selected .seat-wiz-format-icon {
+  color: var(--seat-wiz-wine);
+}
+
+.seat-wiz-format-label {
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 120%;
+  text-align: center;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding: 16px 28px 24px;
+  background: linear-gradient(180deg, transparent, var(--seat-wiz-bg) 28%);
+}
+
+.seat-wiz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 144px;
+  height: 44px;
+  padding: 14px 32px;
+  border-radius: 40px;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 100%;
+  cursor: pointer;
+}
+
+.seat-wiz-btn--ghost {
+  border: 1px solid var(--seat-wiz-ink);
+  background: transparent;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-btn--ghost:hover {
+  background: rgb(0 0 0 / 0.04);
+}
+
+.seat-wiz-btn--primary {
+  border: 1px solid var(--seat-wiz-ink);
+  background: var(--seat-wiz-ink);
+  color: #fff;
+}
+
+.seat-wiz-btn--primary:hover {
+  background: #000;
+}
+
+.seat-wiz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.seat-wiz-btn--wide {
+  min-width: 220px;
+  white-space: nowrap;
+}
+
+.seat-wiz-card-lead {
+  margin: -4px 0 20px;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
+  color: var(--seat-wiz-muted);
+}
+
+.seat-wiz-card-lead svg {
+  display: inline-block;
+  vertical-align: -2px;
+  margin: 0 2px;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seat-wiz-group-field {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.seat-wiz-group-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.seat-wiz-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #8c8582;
+  cursor: pointer;
+}
+
+.seat-wiz-icon-btn:hover {
+  background: #f3f3f3;
+}
+
+.seat-wiz-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.seat-wiz-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  margin-top: 16px;
+  padding: 0 20px 0 16px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--seat-wiz-lime);
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--seat-wiz-ink);
+  cursor: pointer;
+}
+
+.seat-wiz-add-btn:hover {
+  filter: brightness(0.97);
+}
+
+.seat-wiz-guest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.seat-wiz-guest-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #ebebeb;
+  border-radius: 5px;
+  background: #f7f7f7;
+  margin-bottom: 4px;
+}
+
+.seat-wiz-guest-row.is-linked {
+  position: relative;
+}
+
+.seat-wiz-guest-row.is-cluster-start {
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 0;
+  border-bottom-color: transparent;
+}
+
+.seat-wiz-guest-row.is-cluster-mid {
+  border-radius: 0 0 5px 5px;
+  margin-top: 0;
+  padding-left: 28px;
+}
+
+.seat-wiz-guest-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 100%;
+  color: var(--seat-wiz-ink);
+}
+
+.seat-wiz-link-ico {
+  display: inline-flex;
+  color: #8c8582;
+}
+
+.seat-wiz-guest-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.seat-wiz-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #4caf7a;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+}
+
+.seat-wiz-badge--presidium {
+  background: var(--seat-wiz-wine);
+  cursor: default;
+}
+
+.seat-wiz-badge--kids {
+  background: #b7a4e8;
+  text-transform: none;
+  cursor: default;
+}
+
+.seat-wiz-assign {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 28px 0 12px;
+  border: 1px solid var(--seat-wiz-border);
+  border-radius: 999px;
+  background: #fff;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--seat-wiz-muted);
+}
+
+.seat-wiz-assign select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.seat-wiz-assign svg {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+}
+
+.seat-wiz-side-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #8b7cc8;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.seat-wiz-more-wrap {
+  position: relative;
+}
+
+.seat-wiz-more-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 5;
+  min-width: 160px;
+  padding: 6px;
+  border: 1px solid var(--seat-wiz-border);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.seat-wiz-more-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--seat-wiz-ink);
+  cursor: pointer;
+}
+
+.seat-wiz-more-menu button:hover {
+  background: #f7f7f7;
+}
+
+.seat-wiz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .seat-wiz-formats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .seat-wiz-header,
+  .seat-wiz-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .seat-wiz-body {
+    width: calc(100% - 32px);
+  }
+
+  .seat-wiz-stepper {
+    gap: 20px;
+  }
+
+  .seat-wiz-formats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .seat-wiz-card {
+    padding: 16px;
+  }
+
+  .seat-wiz-btn {
+    min-width: 0;
+    flex: 1;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

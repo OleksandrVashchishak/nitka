@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { InvitationCard } from "@/components/invitation-card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   submitPublicRsvp,
   type PublicInvite,
@@ -165,10 +166,10 @@ export function PublicRsvpForm({ invite }: Props) {
                   style={{ borderColor: theme.colors.line }}
                 >
                   <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={plusOneAttending}
-                      onChange={(e) => setPlusOneAttending(e.target.checked)}
+                      onCheckedChange={setPlusOneAttending}
+                      aria-label="Зі мною буде +1"
                     />
                     Зі мною буде +1
                   </label>

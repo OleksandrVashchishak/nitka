@@ -1,3 +1,5 @@
+import { BrandLogo } from "@/components/brand-logo";
+
 type LoaderProps = {
   label?: string;
   className?: string;
@@ -27,10 +29,8 @@ export function PageLoader({
         <div className="absolute -inset-6 animate-loader-ring rounded-full border border-lime/60" />
         <Spinner className="size-12" />
       </div>
-      <div className="text-center">
-        <p className="font-[family-name:var(--font-display)] text-2xl text-ink">
-          fata.studio
-        </p>
+      <div className="flex flex-col items-center text-center">
+        <BrandLogo className="pointer-events-none" />
         <p className="mt-2 text-sm text-ink-soft">{label}</p>
       </div>
       <div className="flex gap-1.5">

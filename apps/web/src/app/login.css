@@ -86,64 +86,6 @@ body:has(.login-page) main {
   flex-direction: column;
 }
 
-.login-label {
-  margin-bottom: 8px;
-  font-family: var(--font-sans), sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 1;
-  letter-spacing: 0;
-  color: #1b1b19;
-}
-
-.login-input {
-  width: 100%;
-}
-
-.login-input {
-  height: 46px;
-  padding: 0 16px;
-  border: 1px solid #ebe5d4;
-  border-radius: 40px;
-  background: #fff;
-  font-family: var(--font-sans), sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 1;
-  letter-spacing: 0;
-  color: #1b1b19;
-  outline: none;
-  appearance: none;
-}
-
-.login-input::placeholder {
-  color: #7f7e7c;
-}
-
-.login-input:focus-visible {
-  border-color: #1b1b19;
-}
-
-.login-input-wrap {
-  position: relative;
-}
-
-.login-input.has-eye {
-  padding-right: 44px;
-}
-
-.login-eye {
-  position: absolute;
-  top: 50%;
-  right: 16px;
-  display: flex;
-  transform: translateY(-50%);
-  border: 0;
-  background: none;
-  color: #7f7e7c;
-  cursor: pointer;
-}
-
 .login-forgot {
   align-self: flex-end;
   margin-top: 16px;
@@ -184,15 +126,6 @@ body:has(.login-page) main {
 
 .login-back:hover {
   opacity: 0.75;
-}
-
-.login-back-btn {
-  text-decoration: none;
-}
-
-.login-email-mark {
-  font-weight: 600;
-  color: #1b1b19;
 }
 
 /* CTA buttons → components/ui/button (.fata-button) */

@@ -141,111 +141,6 @@ exports.Prisma.PushDeviceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.CategoryScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  slug: 'slug',
-  description: 'description',
-  sortOrder: 'sortOrder'
-};
-
-exports.Prisma.VendorScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  name: 'name',
-  slug: 'slug',
-  tagline: 'tagline',
-  description: 'description',
-  categoryId: 'categoryId',
-  city: 'city',
-  priceFrom: 'priceFrom',
-  priceTo: 'priceTo',
-  rating: 'rating',
-  status: 'status',
-  featured: 'featured',
-  phone: 'phone',
-  website: 'website',
-  instagram: 'instagram',
-  address: 'address',
-  yearsInBusiness: 'yearsInBusiness',
-  teamSize: 'teamSize',
-  responseTime: 'responseTime',
-  bookingLeadTime: 'bookingLeadTime',
-  availabilityNote: 'availabilityNote',
-  videoUrl: 'videoUrl',
-  dealTitle: 'dealTitle',
-  dealDescription: 'dealDescription',
-  styles: 'styles',
-  services: 'services',
-  serviceAreas: 'serviceAreas',
-  languages: 'languages',
-  moderationNote: 'moderationNote',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.VendorPhotoScalarFieldEnum = {
-  id: 'id',
-  vendorId: 'vendorId',
-  url: 'url',
-  order: 'order'
-};
-
-exports.Prisma.VendorPackageScalarFieldEnum = {
-  id: 'id',
-  vendorId: 'vendorId',
-  title: 'title',
-  price: 'price',
-  description: 'description',
-  includes: 'includes',
-  duration: 'duration',
-  isPopular: 'isPopular',
-  order: 'order'
-};
-
-exports.Prisma.VendorTeamMemberScalarFieldEnum = {
-  id: 'id',
-  vendorId: 'vendorId',
-  name: 'name',
-  role: 'role',
-  bio: 'bio',
-  photoUrl: 'photoUrl',
-  order: 'order'
-};
-
-exports.Prisma.VendorFaqScalarFieldEnum = {
-  id: 'id',
-  vendorId: 'vendorId',
-  question: 'question',
-  answer: 'answer',
-  order: 'order'
-};
-
-exports.Prisma.VendorViewScalarFieldEnum = {
-  id: 'id',
-  vendorId: 'vendorId',
-  viewerKey: 'viewerKey',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.ReviewScalarFieldEnum = {
-  id: 'id',
-  vendorId: 'vendorId',
-  userId: 'userId',
-  rating: 'rating',
-  text: 'text',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.FavoriteScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  vendorId: 'vendorId',
-  stage: 'stage',
-  quotedPrice: 'quotedPrice',
-  notes: 'notes',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.ExternalVendorScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -259,30 +154,6 @@ exports.Prisma.ExternalVendorScalarFieldEnum = {
   stage: 'stage',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
-};
-
-exports.Prisma.RequestScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  vendorId: 'vendorId',
-  eventDate: 'eventDate',
-  city: 'city',
-  guests: 'guests',
-  budget: 'budget',
-  message: 'message',
-  status: 'status',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.RequestMessageScalarFieldEnum = {
-  id: 'id',
-  requestId: 'requestId',
-  authorId: 'authorId',
-  authorRole: 'authorRole',
-  body: 'body',
-  phone: 'phone',
-  createdAt: 'createdAt'
 };
 
 exports.Prisma.WeddingScalarFieldEnum = {
@@ -307,6 +178,7 @@ exports.Prisma.WeddingWebsiteScalarFieldEnum = {
   slug: 'slug',
   templateId: 'templateId',
   published: 'published',
+  publishedAt: 'publishedAt',
   content: 'content',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -407,7 +279,6 @@ exports.Prisma.ContentPostScalarFieldEnum = {
   seoDescription: 'seoDescription',
   ogImageUrl: 'ogImageUrl',
   city: 'city',
-  vendorCategorySlug: 'vendorCategorySlug',
   featured: 'featured',
   topicId: 'topicId',
   authorId: 'authorId',
@@ -452,26 +323,12 @@ exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN'
 };
 
-exports.VendorStatus = exports.$Enums.VendorStatus = {
-  PENDING: 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-  BLOCKED: 'BLOCKED'
-};
-
 exports.VendorPipelineStage = exports.$Enums.VendorPipelineStage = {
   SAVED: 'SAVED',
   CONTACTED: 'CONTACTED',
   MET: 'MET',
   COMPARED: 'COMPARED',
   CHOSEN: 'CHOSEN'
-};
-
-exports.RequestStatus = exports.$Enums.RequestStatus = {
-  NEW: 'NEW',
-  CONTACTED: 'CONTACTED',
-  DONE: 'DONE',
-  CLOSED: 'CLOSED'
 };
 
 exports.WeddingMemberRole = exports.$Enums.WeddingMemberRole = {
@@ -514,18 +371,7 @@ exports.ContentStatus = exports.$Enums.ContentStatus = {
 exports.Prisma.ModelName = {
   User: 'User',
   PushDevice: 'PushDevice',
-  Category: 'Category',
-  Vendor: 'Vendor',
-  VendorPhoto: 'VendorPhoto',
-  VendorPackage: 'VendorPackage',
-  VendorTeamMember: 'VendorTeamMember',
-  VendorFaq: 'VendorFaq',
-  VendorView: 'VendorView',
-  Review: 'Review',
-  Favorite: 'Favorite',
   ExternalVendor: 'ExternalVendor',
-  Request: 'Request',
-  RequestMessage: 'RequestMessage',
   Wedding: 'Wedding',
   WeddingWebsite: 'WeddingWebsite',
   WeddingInvitation: 'WeddingInvitation',

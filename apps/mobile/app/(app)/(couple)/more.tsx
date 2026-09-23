@@ -72,22 +72,10 @@ export default function MoreScreen() {
             onPress={() => router.push(href("/(app)/(couple)/day-plan"))}
           />
           <ListRow
-            icon="🪑"
-            title="Розсадка"
-            subtitle="Столи та місця"
-            onPress={() => router.push(href("/(app)/(couple)/seating"))}
-          />
-          <ListRow
             icon="🌐"
             title="Весільний сайт"
             subtitle="Лінк і публікація"
             onPress={() => router.push(href("/(app)/(couple)/website"))}
-          />
-          <ListRow
-            icon="✉️"
-            title="Запрошення"
-            subtitle="Тема, текст, обкладинка"
-            onPress={() => router.push(href("/(app)/(couple)/invitations"))}
           />
           <ListRow
             icon="💍"

@@ -73,74 +73,9 @@ body {
   font-family: var(--font-script), var(--font-script-cyr), serif;
 }
 
-.font-mak {
-  font-family: var(--font-mak), serif;
-}
-
 .onboarding-step {
   width: 100%;
   max-width: 620px;
-}
-
-.btn-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: var(--cta);
-  color: #61040f;
-  font-size: 0.875rem;
-  font-weight: 600;
-  font-style: italic;
-  padding: 0.9rem 1.7rem;
-  letter-spacing: 0.01em;
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.btn-cta:hover {
-  background: color-mix(in oklab, var(--cta) 82%, white);
-}
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.9rem 1.5rem;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.btn-ghost:hover {
-  background: #fff;
-  color: var(--ink);
-}
-
-.text-outline {
-  color: transparent;
-  -webkit-text-stroke: 1.4px #fff;
-  paint-order: stroke fill;
-}
-
-.fata-ring {
-  position: relative;
-  display: inline-block;
-}
-
-.fata-ring::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 52%;
-  width: 1.05em;
-  height: 1.05em;
-  transform: translate(-50%, -55%);
-  border: 1.5px solid var(--blaze);
-  border-radius: 50%;
-  pointer-events: none;
 }
 
 ::selection {
@@ -278,139 +213,14 @@ body {
   animation: loader-dot 1.1s ease-in-out infinite;
 }
 
-@keyframes weddingFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.wedding-reveal {
-  animation: weddingFadeUp 0.75s ease both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wedding-reveal,
-  .wedding-parallax {
-    animation: none !important;
-    transform: none !important;
-  }
-}
-
-/* Invitation print (editor → Save as PDF / printer) */
-@media print {
-  body.printing-invitation {
-    background: #fff !important;
-  }
-
-  body.printing-invitation header,
-  body.printing-invitation footer,
-  body.printing-invitation .no-print,
-  body.printing-invitation [data-toast-viewport] {
-    display: none !important;
-  }
-
-  body.printing-invitation .invitations-editor-layout {
-    display: block !important;
-    margin: 0 !important;
-  }
-
-  body.printing-invitation .print-invitation-sheet {
-    position: static !important;
-    overflow: visible !important;
-    border: none !important;
-    box-shadow: none !important;
-    max-width: none !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  body.printing-invitation .print-invitation-sheet article {
-    max-width: 140mm !important;
-    margin: 0 auto !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  body.printing-invitation a[href]::after {
-    content: none !important;
-  }
-}
-
-/* Seating chart print — схема залу + список імен */
-@media print {
-  body.printing-seating {
-    background: #fff !important;
-  }
-
-  body.printing-seating header,
-  body.printing-seating footer,
-  body.printing-seating .no-print,
-  body.printing-seating [data-toast-viewport] {
-    display: none !important;
-  }
-
-  body.printing-seating .seating-workspace {
-    display: block !important;
-    margin: 0 !important;
-  }
-
-  body.printing-seating .seating-canvas-panel {
-    border: none !important;
-    border-radius: 0 !important;
-    overflow: visible !important;
-    background: #fff !important;
-  }
-
-  body.printing-seating .seating-canvas-scroll {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  body.printing-seating .seating-canvas-scale {
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    opacity: 1 !important;
-  }
-
-  body.printing-seating .seating-canvas {
-    transform: none !important;
-    box-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  body.printing-seating .seat-name-label p {
-    font-size: 11px !important;
-    font-weight: 700 !important;
-  }
-
-  body.printing-seating .seating-print-roster {
-    display: block !important;
-    break-before: page;
-    margin-top: 12mm !important;
-  }
-}
-
-.cabinet-ui .cab-pill {
-  border-radius: 999px;
-}
-
-.cabinet-ui input[type="text"],
-.cabinet-ui input[type="number"],
-.cabinet-ui input[type="email"],
-.cabinet-ui input[type="url"],
-.cabinet-ui input[type="date"],
-.cabinet-ui input[type="time"],
+.cabinet-ui input[type="text"]:not(.fata-text-input__control),
+.cabinet-ui input[type="number"]:not(.fata-text-input__control),
+.cabinet-ui input[type="email"]:not(.fata-text-input__control),
+.cabinet-ui input[type="url"]:not(.fata-text-input__control),
+.cabinet-ui input[type="date"]:not(.fata-text-input__control),
+.cabinet-ui input[type="time"]:not(.fata-text-input__control),
 .cabinet-ui textarea,
-.cabinet-ui select {
+.cabinet-ui select:not(.fata-select__control) {
   border-radius: 16px;
 }
 

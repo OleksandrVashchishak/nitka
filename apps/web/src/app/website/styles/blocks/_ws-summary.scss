@@ -17,12 +17,12 @@
   }
 
   &__stack &__cover {
-    aspect-ratio: 361 / 316;
+    aspect-ratio: 361 / 177;
   }
 
   &__stack &__card {
     min-height: 151px;
-    background: var(--ws-card-soft);
+    background: var(--ws-card);
   }
 
   &__cover {
@@ -61,6 +61,7 @@
 
   &__names {
     margin: 0;
+    min-width: 0;
     font-family: var(--ws-font);
     font-weight: 600;
     font-size: 22px;
@@ -116,10 +117,21 @@
 
   &__actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 16px 20px;
+    gap: 20px;
     margin-top: 4px;
+
+    .ws-btn {
+      flex-shrink: 0;
+      min-width: 0;
+      width: auto;
+    }
+
+    .ws-summary__link {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
   }
 
   &__footer {
@@ -172,6 +184,30 @@
     &--solo {
       max-width: 361px;
       width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    &--solo {
+      max-width: none;
+    }
+
+    &__stack &__card {
+      min-height: 0;
+    }
+
+    &__head {
+      flex-wrap: wrap;
+      row-gap: 8px;
+    }
+
+    &__names {
+      font-size: clamp(18px, 5.5vw, 22px);
+    }
+
+    &__buttons .ws-btn--block {
+      gap: 12px;
+      white-space: normal;
     }
   }
 }

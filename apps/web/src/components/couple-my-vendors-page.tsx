@@ -4,9 +4,19 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import {
+  CabinetContextMenu,
+  CabinetContextMenuItem,
+} from "@/components/cabinet-context-menu";
+import { IconEdit } from "@/components/icon-edit";
+import { IconMore } from "@/components/icon-more";
+import { IconTrash } from "@/components/icon-trash";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
+import { TextInput } from "@/components/ui/text-input";
 import {
   createExternalVendor,
   getMyWedding,
@@ -441,7 +451,7 @@ function MyVendorsInner() {
                     >
                       {bookedVendor ? "Заброньовано" : "Не заброньовано"}
                     </span>
-                    <div className="cabinet-vendors-menu-wrap">
+                    <div className="cabinet-ctx-menu-wrap cabinet-vendors-menu-wrap">
                       <button
                         type="button"
                         className="cabinet-vendors-menu-btn"
@@ -451,17 +461,24 @@ function MyVendorsInner() {
                           setMenuOpenId((id) => (id === vendor.id ? null : vendor.id));
                         }}
                       >
-                        ···
+                        <IconMore />
                       </button>
                       {menuOpenId === vendor.id ? (
-                        <div className="cabinet-vendors-menu" role="menu">
-                          <button type="button" onClick={() => openEdit(vendor)}>
+                        <CabinetContextMenu>
+                          <CabinetContextMenuItem
+                            icon={<IconEdit />}
+                            onClick={() => openEdit(vendor)}
+                          >
                             Редагувати
-                          </button>
-                          <button type="button" onClick={() => void onDelete(vendor.id)}>
+                          </CabinetContextMenuItem>
+                          <CabinetContextMenuItem
+                            icon={<IconTrash />}
+                            danger
+                            onClick={() => void onDelete(vendor.id)}
+                          >
                             Видалити
-                          </button>
-                        </div>
+                          </CabinetContextMenuItem>
+                        </CabinetContextMenu>
                       ) : null}
                     </div>
                   </div>
@@ -526,12 +543,11 @@ function MyVendorsInner() {
                   return (
                     <li key={cat.slug}>
                       <label className="cabinet-vendors-plan-item">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={checked}
-                          onChange={() => togglePlanSlug(cat.slug)}
+                          onCheckedChange={() => togglePlanSlug(cat.slug)}
+                          aria-label={cat.name}
                         />
-                        <span className="cabinet-vendors-plan-check" aria-hidden />
                         <span>{cat.name}</span>
                       </label>
                     </li>
@@ -585,185 +601,165 @@ function MyVendorsInner() {
             </div>
 
             <div className="cabinet-vendors-form-body">
-              <label className="cabinet-drawer-field">
-                <span>Тип підрядника</span>
-                <select
-                  value={form.category}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, category: e.target.value }))
-                  }
-                  required
-                >
-                  <option value="">Обрати тип</option>
-                  {VENDOR_MANAGER_CATEGORIES.map((cat) => (
-                    <option key={cat.slug} value={cat.slug}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <Select
+                label="Тип підрядника"
+                value={form.category}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, category: e.target.value }))
+                }
+                required
+              >
+                <option value="">Обрати тип</option>
+                {VENDOR_MANAGER_CATEGORIES.map((cat) => (
+                  <option key={cat.slug} value={cat.slug}>
+                    {cat.name}
+                  </option>
+                ))}
+              </Select>
 
               {form.category === "other" ? (
-                <label className="cabinet-drawer-field">
-                  <span>Назва підрядника</span>
-                  <input
-                    value={form.customLabel}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, customLabel: e.target.value }))
-                    }
-                    placeholder="Наприклад: охоронець, водій автобуса"
-                    required
-                  />
-                </label>
-              ) : null}
-
-              <label className="cabinet-drawer-field">
-                <span>Імʼя підрядника</span>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Наприклад: Ліля Василенко"
+                <TextInput
+                  label="Назва підрядника"
+                  value={form.customLabel}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, customLabel: e.target.value }))
+                  }
+                  placeholder="Наприклад: охоронець, водій автобуса"
                   required
                 />
-              </label>
+              ) : null}
 
-              <label className="cabinet-drawer-field">
-                <span>Спосіб спілкування</span>
-                <select
-                  value={form.contactMethod}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      contactMethod: e.target.value as VendorContactMethod,
-                    }))
-                  }
-                >
-                  {VENDOR_CONTACT_METHODS.map((method) => (
-                    <option key={method.id} value={method.id}>
-                      {method.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <TextInput
+                label="Імʼя підрядника"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Наприклад: Ліля Василенко"
+                required
+              />
 
-              <label className="cabinet-drawer-field">
-                <span>
-                  {form.contactMethod === "instagram"
+              <Select
+                label="Спосіб спілкування"
+                value={form.contactMethod}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    contactMethod: e.target.value as VendorContactMethod,
+                  }))
+                }
+              >
+                {VENDOR_CONTACT_METHODS.map((method) => (
+                  <option key={method.id} value={method.id}>
+                    {method.label}
+                  </option>
+                ))}
+              </Select>
+
+              <TextInput
+                label={
+                  form.contactMethod === "instagram"
                     ? "Instagram підрядника"
                     : form.contactMethod === "email"
                       ? "Email підрядника"
                       : form.contactMethod === "telegram"
                         ? "Telegram підрядника"
-                        : "Номер телефону підрядника"}
-                </span>
-                <input
-                  value={
-                    form.contactMethod === "phone" ||
-                    form.contactMethod === "viber" ||
-                    form.contactMethod === "messenger" ||
-                    form.contactMethod === "meet" ||
-                    form.contactMethod === "other"
-                      ? form.phone
-                      : form.website
+                        : "Номер телефону підрядника"
+                }
+                value={
+                  form.contactMethod === "phone" ||
+                  form.contactMethod === "viber" ||
+                  form.contactMethod === "messenger" ||
+                  form.contactMethod === "meet" ||
+                  form.contactMethod === "other"
+                    ? form.phone
+                    : form.website
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    form.contactMethod === "instagram" ||
+                    form.contactMethod === "email" ||
+                    form.contactMethod === "telegram"
+                  ) {
+                    setForm((f) => ({ ...f, website: value }));
+                  } else {
+                    setForm((f) => ({ ...f, phone: value }));
                   }
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (
-                      form.contactMethod === "instagram" ||
-                      form.contactMethod === "email" ||
-                      form.contactMethod === "telegram"
-                    ) {
-                      setForm((f) => ({ ...f, website: value }));
-                    } else {
-                      setForm((f) => ({ ...f, phone: value }));
-                    }
-                  }}
-                  placeholder={
-                    form.contactMethod === "instagram"
-                      ? "@username"
-                      : form.contactMethod === "email"
-                        ? "name@example.com"
-                        : "+380"
-                  }
-                />
-              </label>
+                }}
+                placeholder={
+                  form.contactMethod === "instagram"
+                    ? "@username"
+                    : form.contactMethod === "email"
+                      ? "name@example.com"
+                      : "+380"
+                }
+              />
 
-              <label className="cabinet-drawer-field">
-                <span>Статус</span>
-                <select
-                  value={form.booked ? "booked" : "open"}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, booked: e.target.value === "booked" }))
-                  }
-                >
-                  <option value="open">Не заброньовано</option>
-                  <option value="booked">Заброньовано</option>
-                </select>
-              </label>
+              <Select
+                label="Статус"
+                value={form.booked ? "booked" : "open"}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, booked: e.target.value === "booked" }))
+                }
+              >
+                <option value="open">Не заброньовано</option>
+                <option value="booked">Заброньовано</option>
+              </Select>
 
               {form.booked ? (
                 <>
                   <div className="cabinet-vendors-money-row">
-                    <label className="cabinet-drawer-field">
-                      <span>Завдаток</span>
-                      <input
-                        inputMode="numeric"
-                        value={form.deposit}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, deposit: e.target.value }))
-                        }
-                        placeholder="0"
-                      />
-                    </label>
-                    <label className="cabinet-drawer-field">
-                      <span>Валюта</span>
-                      <select
-                        value={form.depositCurrency}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            depositCurrency: e.target.value as VendorCurrency,
-                          }))
-                        }
-                      >
-                        {VENDOR_CURRENCIES.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <TextInput
+                      label="Завдаток"
+                      inputMode="numeric"
+                      value={form.deposit}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, deposit: e.target.value }))
+                      }
+                      placeholder="0"
+                    />
+                    <Select
+                      label="Валюта"
+                      value={form.depositCurrency}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          depositCurrency: e.target.value as VendorCurrency,
+                        }))
+                      }
+                    >
+                      {VENDOR_CURRENCIES.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </Select>
                   </div>
                   <div className="cabinet-vendors-money-row">
-                    <label className="cabinet-drawer-field">
-                      <span>Треба доплатити</span>
-                      <input
-                        inputMode="numeric"
-                        value={form.balance}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, balance: e.target.value }))
-                        }
-                        placeholder="0"
-                      />
-                    </label>
-                    <label className="cabinet-drawer-field">
-                      <span>Валюта</span>
-                      <select
-                        value={form.balanceCurrency}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            balanceCurrency: e.target.value as VendorCurrency,
-                          }))
-                        }
-                      >
-                        {VENDOR_CURRENCIES.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <TextInput
+                      label="Треба доплатити"
+                      inputMode="numeric"
+                      value={form.balance}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, balance: e.target.value }))
+                      }
+                      placeholder="0"
+                    />
+                    <Select
+                      label="Валюта"
+                      value={form.balanceCurrency}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          balanceCurrency: e.target.value as VendorCurrency,
+                        }))
+                      }
+                    >
+                      {VENDOR_CURRENCIES.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </Select>
                   </div>
                 </>
               ) : null}

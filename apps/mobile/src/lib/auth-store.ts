@@ -22,7 +22,7 @@ type AuthState = {
     email: string;
     password: string;
     name: string;
-    role: "COUPLE" | "VENDOR";
+    role: "COUPLE";
   }) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;

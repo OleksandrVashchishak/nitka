@@ -1,67 +1,192 @@
 .wsite-schedule {
-  &__title {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
+  padding: 100px 80px;
+  background: var(--wsite-bg-sand, #ddd8c5);
+  color: var(--wsite-ink);
+  text-align: center;
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-    gap: 1.5rem;
-    max-width: 56rem;
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px;
+    width: 100%;
+    max-width: 72rem;
     margin-inline: auto;
   }
 
-  &__item {
-    text-align: center;
-    padding: 0 1rem;
-    border-right: 1px solid var(--wsite-line);
+  &__photo {
+    width: min(360px, 72vw);
+    aspect-ratio: 360 / 480;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+  }
 
-    &:last-child {
-      border-right: 0;
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+  }
+
+  &__titles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 5vw, 4rem); // 64px
+    line-height: normal;
+    letter-spacing: 0;
+    text-align: center;
+    color: var(--wsite-ink);
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-family: var(--wsite-font-label);
+    font-weight: 800;
+    font-size: 14px;
+    line-height: normal;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--wsite-ink-label, #72624e);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+    width: 100%;
+    max-width: 52rem;
+    margin: 0;
+    text-align: left;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 22rem;
+    width: 100%;
+    padding: 32px;
+    align-self: flex-start;
+
+    &--end {
+      align-self: flex-end;
     }
   }
 
-  &__mark {
-    display: block;
-    width: 8px;
-    height: 8px;
-    margin: 0 auto 1rem;
-    border: 1px solid var(--wsite-ink);
-    transform: rotate(45deg);
+  &__time {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem); // 40px
+    line-height: normal;
+    letter-spacing: 0;
+    color: var(--wsite-ink);
+  }
+
+  &__rule {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    background: color-mix(in srgb, var(--wsite-ink) 28%, transparent);
   }
 
   &__name {
     margin: 0;
     font-family: var(--wsite-font-display);
-    font-size: 1.5rem;
+    font-weight: 600;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem); // 40px
+    line-height: normal;
+    letter-spacing: 0;
+    color: var(--wsite-ink);
+  }
+
+  &__detail {
+    margin: 0;
+    font-family: var(--wsite-font-label);
     font-weight: 500;
-    line-height: 1.2;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0;
+    color: var(--wsite-ink);
+    opacity: 0.8;
   }
 
-  &__detail,
-  &__time {
-    margin: 0.65rem 0 0;
-    font-size: 0.9rem;
-    line-height: 1.45;
-    color: var(--wsite-ink-soft);
-  }
+  // Figma mobile 1109:8762 — gap40 / px24 py64 / oval240×320 / title36 Medium
+  @media (max-width: 900px) {
+    padding: 64px 24px;
 
-  @media (max-width: 768px) {
-    &__grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
+    &__inner {
+      gap: 40px;
     }
 
-    &__item {
-      border-right: 0;
-      border-bottom: 1px solid var(--wsite-line);
-      padding-bottom: 2rem;
+    &__intro {
+      gap: 40px;
+    }
 
-      &:last-child {
-        border-bottom: 0;
-        padding-bottom: 0;
-      }
+    &__photo {
+      width: 240px;
+      aspect-ratio: 240 / 320;
+    }
+
+    &__titles {
+      gap: 12px;
+    }
+
+    &__title {
+      font-size: 36px;
+      font-weight: 500;
+    }
+
+    &__eyebrow {
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    &__list {
+      gap: 24px;
+      text-align: left;
+    }
+
+    &__item,
+    &__item--end {
+      align-self: stretch;
+      align-items: flex-start;
+      max-width: none;
+      padding: 20px;
+      gap: 12px;
+    }
+
+    &__time {
+      font-size: 28px;
+    }
+
+    &__name {
+      font-size: 24px;
+    }
+
+    &__detail {
+      font-size: 16px;
+      line-height: 1.4;
+      max-width: none;
     }
   }
 }

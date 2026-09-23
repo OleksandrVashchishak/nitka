@@ -38,8 +38,6 @@ export default function PlanDnyaVesillyaPage() {
       registerHint="Після входу план дня відкриється в кабінеті пари."
       relatedHref="/vesilnyy-plan"
       relatedLabel="План підготовки до весілля"
-      secondaryRelatedHref="/rozsadka-gostey"
-      secondaryRelatedLabel="Розсадка гостей"
       highlights={[
         "Готовий шаблон таймінгу — не треба з нуля вигадувати слоти",
         "Додавайте, редагуйте й переставляйте події як зручно",
@@ -59,7 +57,7 @@ export default function PlanDnyaVesillyaPage() {
         },
         {
           title: "Поруч із командою",
-          text: "План дня живе в кабінеті поруч із підрядниками й розсадкою — один простір підготовки.",
+          text: "План дня живе в кабінеті поруч із підрядниками й гостями — один простір підготовки.",
         },
       ]}
       audience={[

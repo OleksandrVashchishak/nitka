@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 import { CityAutocomplete } from "@/components/city-autocomplete";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  TextInput,
+  textInputControlClassName,
+} from "@/components/ui/text-input";
 import { checkEmailAvailable } from "@/lib/auth-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { upsertWedding } from "@/lib/dashboard-api";
@@ -130,11 +135,13 @@ const subtitleClass =
 const labelClass =
   "mb-2 block font-[family-name:var(--font-sans)] text-[13px] font-semibold leading-none text-[#1A1A1A]";
 
-const inputClass =
-  "h-[46px] w-full rounded-[40px] border border-[#EBE5D4] bg-[#FFFDF7] px-4 text-[15px] text-[#1B1B19] outline-none transition placeholder:text-[#1a1a1a]/45 focus:border-[#1a1a1a] disabled:opacity-60";
-
 const backLinkClass =
   "font-[family-name:var(--font-sans)] text-[14px] font-semibold leading-none text-[#7F7E7C] underline";
+
+const authInputClass = textInputControlClassName({
+  size: "l",
+  shape: "pill",
+});
 
 export function RegisterForm() {
   const router = useRouter();
@@ -464,64 +471,44 @@ export function RegisterForm() {
                 основного.
               </p>
               <div className="mx-auto mt-8 grid w-full gap-y-5 md:mt-10">
-                <Field label="Імʼя">
-                  <input
-                    value={firstName}
-                    onChange={(event) => setFirstName(event.target.value)}
-                    className={inputClass}
-                    placeholder="Ваше імʼя"
-                    autoComplete="given-name"
-                    maxLength={40}
-                  />
-                </Field>
-                <Field label="Імʼя партнера / партнерки">
-                  <input
-                    value={partnerFirstName}
-                    onChange={(event) => setPartnerFirstName(event.target.value)}
-                    className={inputClass}
-                    placeholder="Імʼя партнера / партнерки"
-                    autoComplete="off"
-                    maxLength={40}
-                  />
-                </Field>
+                <TextInput
+                  size="l"
+                  shape="pill"
+                  label="Імʼя"
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
+                  placeholder="Ваше імʼя"
+                  autoComplete="given-name"
+                  maxLength={40}
+                />
+                <TextInput
+                  size="l"
+                  shape="pill"
+                  label="Імʼя партнера / партнерки"
+                  value={partnerFirstName}
+                  onChange={(event) => setPartnerFirstName(event.target.value)}
+                  placeholder="Імʼя партнера / партнерки"
+                  autoComplete="off"
+                  maxLength={40}
+                />
                 <div>
-                  <Field label="Дата весілля">
-                    <input
-                      type="date"
-                      value={date}
-                      disabled={dateUndecided}
-                      onChange={(event) => setDate(event.target.value)}
-                      className={`${inputClass} ${date ? "" : "text-[#1a1a1a]/45"}`}
-                      autoComplete="off"
-                    />
-                  </Field>
+                  <TextInput
+                    size="l"
+                    shape="pill"
+                    label="Дата весілля"
+                    type="date"
+                    value={date}
+                    disabled={dateUndecided}
+                    onChange={(event) => setDate(event.target.value)}
+                    inputClassName={date ? "" : "text-[#1a1a1a]/45"}
+                    autoComplete="off"
+                  />
                   <label className="mt-3 flex cursor-pointer items-center gap-2.5 font-[family-name:var(--font-sans)] text-[12px] font-normal leading-none text-[#1A1A1A]">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={dateUndecided}
-                      onChange={(event) => setDateUndecided(event.target.checked)}
-                      className="sr-only"
+                      onCheckedChange={setDateUndecided}
+                      aria-label="Ми ще вирішуємо"
                     />
-                    <span
-                      className={`flex size-[18px] shrink-0 items-center justify-center rounded-[4px] border transition ${
-                        dateUndecided
-                          ? "border-[#61040f] bg-[#61040f]"
-                          : "border-[#EBE5D4] bg-white"
-                      }`}
-                      aria-hidden
-                    >
-                      {dateUndecided ? (
-                        <svg viewBox="0 0 12 12" className="size-2.5" fill="none">
-                          <path
-                            d="M2 6.2 4.7 9 10 3.5"
-                            stroke="white"
-                            strokeWidth="1.7"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      ) : null}
-                    </span>
                     Ми ще вирішуємо
                   </label>
                 </div>
@@ -580,43 +567,41 @@ export function RegisterForm() {
                 <span className="h-px flex-1 bg-[#1a1a1a]/12" />
               </div>
               <div className="space-y-4">
-                <Field label="Електронна пошта">
-                  <input
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                      setEmailStatus("idle");
-                      setError(null);
-                    }}
-                    className={`${inputClass} ${
-                      emailStatus === "taken" || emailStatus === "invalid"
-                        ? "border-red-300"
-                        : emailStatus === "available"
-                          ? "border-[#8a9a6b]"
-                          : ""
-                    }`}
-                    placeholder="name@example.com"
-                  />
-                </Field>
-                <label className="block">
-                  <span className={labelClass}>Пароль</span>
-                  <input
-                    type="password"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    className={inputClass}
-                    placeholder="········"
-                  />
-                  <span className="mt-2 block text-[13px] text-[#1a1a1a]/45">
-                    8 або більше символів
-                  </span>
-                </label>
+                <TextInput
+                  size="l"
+                  shape="pill"
+                  label="Електронна пошта"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setEmailStatus("idle");
+                    setError(null);
+                  }}
+                  inputClassName={
+                    emailStatus === "taken" || emailStatus === "invalid"
+                      ? "border-red-300"
+                      : emailStatus === "available"
+                        ? "border-[#8a9a6b]"
+                        : ""
+                  }
+                  placeholder="name@example.com"
+                />
+                <TextInput
+                  size="l"
+                  shape="pill"
+                  label="Пароль"
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="········"
+                  hint="8 або більше символів"
+                />
               </div>
               <Button
                 type="submit"
@@ -652,7 +637,7 @@ export function RegisterForm() {
                       }}
                       disabled={cityUndecided}
                       placeholder="Введіть місто"
-                      className={`${inputClass} pl-11`}
+                      className={`${authInputClass} pl-11`}
                     />
                   </div>
                   <button
@@ -792,21 +777,6 @@ export function RegisterForm() {
         ) : null}
       </form>
     </div>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className={labelClass}>{label}</span>
-      {children}
-    </label>
   );
 }
 

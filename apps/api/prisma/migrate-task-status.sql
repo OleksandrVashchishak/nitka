@@ -118,7 +118,6 @@ CREATE TABLE IF NOT EXISTS content_posts (
   seo_description TEXT NOT NULL DEFAULT '',
   og_image_url TEXT,
   city TEXT,
-  vendor_category_slug TEXT,
   featured BOOLEAN NOT NULL DEFAULT false,
   topic_id TEXT NOT NULL,
   author_id TEXT,

@@ -24,7 +24,5 @@ export default function Index() {
   }
 
   if (!user) return <Redirect href="/login" />;
-  if (user.role === "VENDOR") return <Redirect href={href("/(app)/(vendor)")} />;
-  if (user.role === "ADMIN") return <Redirect href={href("/(app)/(admin)")} />;
   return <Redirect href={href("/(app)/(couple)")} />;
 }

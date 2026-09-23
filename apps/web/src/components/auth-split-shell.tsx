@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 import "@/app/login.css";
 
 export function AuthSplitShell({ children }: { children: ReactNode }) {
@@ -24,7 +24,7 @@ export function AuthSplitShell({ children }: { children: ReactNode }) {
         </h2>
         <p className="login-lead">
           Сучасні інструменти для планування без стресу. Чеклісти, бюджети,
-          гості та розсадка — усе в одному місці.
+          гості та запрошення — усе в одному місці.
         </p>
         <div className="login-photo">
           <Image
@@ -46,11 +46,7 @@ export function AuthSplitShell({ children }: { children: ReactNode }) {
 }
 
 export function AuthLogo() {
-  return (
-    <Link href="/" className="login-logo" aria-label="fata.studio">
-      fata.studi<span className="fata-ring">o</span>
-    </Link>
-  );
+  return <BrandLogo className="login-logo" />;
 }
 
 function CursorIcon() {

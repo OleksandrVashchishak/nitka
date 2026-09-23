@@ -37,17 +37,13 @@
 
   &__brand {
     display: inline-flex;
-    align-items: baseline;
-    font-family: var(--we-font);
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1;
-    color: var(--we-ink);
+    align-items: center;
+    line-height: 0;
     text-decoration: none;
   }
 
-  &__brand-dot {
-    color: var(--we-orange);
+  &__brand img {
+    display: block;
   }
 
   &__right {
@@ -111,6 +107,39 @@
     &:disabled {
       opacity: 0.55;
       cursor: not-allowed;
+    }
+  }
+
+  @media (max-width: 960px) {
+    position: relative;
+    justify-content: center;
+    height: 56px;
+    padding: 0 16px;
+    border-bottom: 0;
+
+    &__left {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      gap: 0;
+    }
+
+    &__back {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--we-panel);
+    }
+
+    &__brand {
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    &__right {
+      display: none;
     }
   }
 }

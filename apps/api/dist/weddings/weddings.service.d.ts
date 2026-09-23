@@ -17,11 +17,11 @@ export declare class WeddingsService {
             id: string;
             weddingId: string;
             title: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            sortOrder: number;
             categorySlug: string | null;
+            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -30,16 +30,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            createdAt: Date;
             userId: string;
             weddingId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;
@@ -70,16 +70,6 @@ export declare class WeddingsService {
             maybe: number;
             pending: number;
         };
-        market: {
-            average: number;
-            vendorsCount: number;
-            categories: {
-                category: string;
-                label: string;
-                average: number;
-                vendorsCount: number;
-            }[];
-        };
         budget: {
             total: number;
             perGuest: number;
@@ -92,67 +82,17 @@ export declare class WeddingsService {
             total: number;
             counts: Record<string, number>;
         };
-        recommendations: {
-            reason: string;
-            category: {
-                name: string;
-                id: string;
-                slug: string;
-                description: string;
-                sortOrder: number;
-            };
-            photos: {
-                id: string;
-                vendorId: string;
-                url: string;
-                order: number;
-            }[];
-            _count: {
-                reviews: number;
-            };
-            name: string;
-            id: string;
-            userId: string;
-            city: string;
-            createdAt: Date;
-            slug: string | null;
-            tagline: string;
-            description: string;
-            categoryId: string;
-            priceFrom: number;
-            priceTo: number | null;
-            rating: number;
-            status: import(".prisma/client").$Enums.VendorStatus;
-            featured: boolean;
-            phone: string | null;
-            website: string | null;
-            instagram: string | null;
-            address: string | null;
-            yearsInBusiness: number | null;
-            teamSize: number | null;
-            responseTime: string | null;
-            bookingLeadTime: string | null;
-            availabilityNote: string;
-            videoUrl: string | null;
-            dealTitle: string | null;
-            dealDescription: string | null;
-            styles: string[];
-            services: string[];
-            serviceAreas: string[];
-            languages: string[];
-            moderationNote: string | null;
-        }[];
     } | null>;
     upsert(userId: string, dto: UpsertWeddingDto): Promise<{
         tasks: ({
             id: string;
             weddingId: string;
             title: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            sortOrder: number;
             categorySlug: string | null;
+            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -161,16 +101,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            createdAt: Date;
             userId: string;
             weddingId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;
@@ -203,11 +143,11 @@ export declare class WeddingsService {
             id: string;
             weddingId: string;
             title: string;
-            status: import(".prisma/client").$Enums.TaskStatus;
-            sortOrder: number;
             categorySlug: string | null;
+            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -216,16 +156,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            createdAt: Date;
             userId: string;
             weddingId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;

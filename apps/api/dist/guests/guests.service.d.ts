@@ -1,12 +1,10 @@
-import { InvitationsService } from '../invitations/invitations.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateGuestDto, ImportGuestsDto, PublicRsvpDto, UpdateGuestDto } from './dto/guest.dto';
+import { CreateGuestDto, ImportGuestsDto, UpdateGuestDto } from './dto/guest.dto';
 export declare class GuestsService {
     private readonly prisma;
     private readonly notifications;
-    private readonly invitations;
-    constructor(prisma: PrismaService, notifications: NotificationsService, invitations: InvitationsService);
+    constructor(prisma: PrismaService, notifications: NotificationsService);
     private getWeddingForUser;
     private buildStats;
     listMine(userId: string): Promise<{
@@ -25,111 +23,82 @@ export declare class GuestsService {
             headcount: number;
         };
         guests: {
+            email: string | null;
             name: string;
             id: string;
-            weddingId: string;
-            notes: string | null;
             createdAt: Date;
-            phone: string | null;
-            email: string | null;
+            weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
+            phone: string | null;
             side: import(".prisma/client").$Enums.GuestSide;
             plusOne: boolean;
             plusOneName: string | null;
             plusOneAttending: boolean | null;
             allergies: string | null;
             tableLabel: string | null;
+            notes: string | null;
             inviteToken: string;
             respondedAt: Date | null;
         }[];
     }>;
     create(userId: string, dto: CreateGuestDto): Promise<{
+        email: string | null;
         name: string;
         id: string;
-        weddingId: string;
-        notes: string | null;
         createdAt: Date;
-        phone: string | null;
-        email: string | null;
+        weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
+        phone: string | null;
         side: import(".prisma/client").$Enums.GuestSide;
         plusOne: boolean;
         plusOneName: string | null;
         plusOneAttending: boolean | null;
         allergies: string | null;
         tableLabel: string | null;
+        notes: string | null;
         inviteToken: string;
         respondedAt: Date | null;
     }>;
     importMany(userId: string, dto: ImportGuestsDto): Promise<{
         imported: number;
         guests: {
+            email: string | null;
             name: string;
             id: string;
-            weddingId: string;
-            notes: string | null;
             createdAt: Date;
-            phone: string | null;
-            email: string | null;
+            weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
+            phone: string | null;
             side: import(".prisma/client").$Enums.GuestSide;
             plusOne: boolean;
             plusOneName: string | null;
             plusOneAttending: boolean | null;
             allergies: string | null;
             tableLabel: string | null;
+            notes: string | null;
             inviteToken: string;
             respondedAt: Date | null;
         }[];
     }>;
     update(userId: string, guestId: string, dto: UpdateGuestDto): Promise<{
+        email: string | null;
         name: string;
         id: string;
-        weddingId: string;
-        notes: string | null;
         createdAt: Date;
-        phone: string | null;
-        email: string | null;
+        weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
+        phone: string | null;
         side: import(".prisma/client").$Enums.GuestSide;
         plusOne: boolean;
         plusOneName: string | null;
         plusOneAttending: boolean | null;
         allergies: string | null;
         tableLabel: string | null;
+        notes: string | null;
         inviteToken: string;
         respondedAt: Date | null;
     }>;
     remove(userId: string, guestId: string): Promise<{
         ok: boolean;
-    }>;
-    getPublicInvite(token: string): Promise<{
-        token: string;
-        name: string;
-        rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-        plusOne: boolean;
-        plusOneName: string | null;
-        plusOneAttending: boolean | null;
-        allergies: string | null;
-        notes: string | null;
-        wedding: {
-            date: Date;
-            city: string;
-            coupleName: string;
-            websiteUrl: string | null;
-        };
-        invitation: {
-            templateId: string;
-            content: import("../invitations/invitations.service").InvitationContent;
-        };
-    }>;
-    submitPublicRsvp(token: string, dto: PublicRsvpDto): Promise<{
-        name: string;
-        weddingId: string;
-        rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-        plusOne: boolean;
-        plusOneName: string | null;
-        plusOneAttending: boolean | null;
-        allergies: string | null;
     }>;
 }

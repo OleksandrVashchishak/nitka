@@ -351,19 +351,6 @@ export function ProductLanding({
             ))}
             <li>
               <Link
-                href="/vendors"
-                className="group block border-b border-line pb-4 transition hover:border-sage/40"
-              >
-                <span className="font-[family-name:var(--font-display)] text-xl text-ink transition group-hover:text-sage-deep">
-                  Каталог підрядників
-                </span>
-                <span className="mt-1 block text-sm text-ink-soft">
-                  Фото, локації, музика, декор →
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
                 href="/blog"
                 className="group block border-b border-line pb-4 transition hover:border-sage/40"
               >

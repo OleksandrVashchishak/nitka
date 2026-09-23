@@ -64,13 +64,6 @@ function daysWord(n: number) {
   return 'днів';
 }
 
-function formatUaDate(date: Date) {
-  return date.toLocaleDateString('uk-UA', {
-    day: 'numeric',
-    month: 'long',
-  });
-}
-
 function rsvpLabel(status: string) {
   if (status === 'YES') return 'підтвердив(ла) участь';
   if (status === 'NO') return 'відхилив(ла) запрошення';
@@ -134,103 +127,30 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getSummary(user: { id: string; role: string }) {
-    if (user.role === 'VENDOR') {
-      return this.getVendorSummary(user.id);
-    }
     return this.getCoupleSummary(user.id, user.role);
-  }
-
-  private async getVendorSummary(userId: string) {
-    const vendor = await this.prisma.vendor.findUnique({
-      where: { userId },
-    });
-    if (!vendor) {
-      return {
-        role: 'VENDOR' as const,
-        newRequests: 0,
-        total: 0,
-        newCount: 0,
-        items: [] as NotificationSummaryItem[],
-        feed: [] as NotificationFeedItem[],
-        moreHref: '/vendor/requests',
-      };
-    }
-
-    const newRequestsList = await this.prisma.request.findMany({
-      where: { vendorId: vendor.id, status: 'NEW' },
-      orderBy: { createdAt: 'desc' },
-      take: 8,
-      include: {
-        user: { select: { name: true } },
-      },
-    });
-
-    const newRequests = newRequestsList.length;
-    const items: NotificationSummaryItem[] = [
-      {
-        key: 'newRequests',
-        label: 'Нові заявки',
-        count: newRequests,
-        href: '/vendor/requests',
-      },
-    ].filter((i) => i.count > 0);
-
-    const feed: NotificationFeedItem[] = newRequestsList.map((req) => ({
-      id: `request-${req.id}`,
-      body: `Нова заявка від ${req.user.name || 'пари'} · ${req.city}, ${req.guests} гостей`,
-      href: '/vendor/requests',
-      createdAt: req.createdAt.toISOString(),
-      isNew: true,
-    }));
-
-    return {
-      role: 'VENDOR' as const,
-      newRequests,
-      total: newRequests,
-      newCount: feed.length,
-      items,
-      feed,
-      moreHref: '/vendor/requests',
-    };
   }
 
   private async getCoupleSummary(userId: string, role: string) {
     const access = await resolveWeddingForUser(this.prisma, userId);
     const wedding = access?.wedding ?? null;
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
 
-    const [pendingRsvp, newRsvp, waitingRequests, vendorReplied] =
-      await Promise.all([
-        wedding
-          ? this.prisma.guest.count({
-              where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
-            })
-          : Promise.resolve(0),
-        wedding
-          ? this.prisma.guest.count({
-              where: {
-                weddingId: wedding.id,
-                rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
-                respondedAt: { gte: weekAgo },
-              },
-            })
-          : Promise.resolve(0),
-        this.prisma.request.count({
-          where: { userId, status: 'NEW' },
-        }),
-        this.prisma.request.count({
-          where: {
-            userId,
-            messages: {
-              some: {
-                authorRole: 'VENDOR',
-                createdAt: { gte: twoWeeksAgo },
-              },
+    const [pendingRsvp, newRsvp] = await Promise.all([
+      wedding
+        ? this.prisma.guest.count({
+            where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
+          })
+        : Promise.resolve(0),
+      wedding
+        ? this.prisma.guest.count({
+            where: {
+              weddingId: wedding.id,
+              rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
+              respondedAt: { gte: weekAgo },
             },
-          },
-        }),
-      ]);
+          })
+        : Promise.resolve(0),
+    ]);
 
     const items: NotificationSummaryItem[] = [
       {
@@ -245,18 +165,6 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
         count: pendingRsvp,
         href: '/guests',
       },
-      {
-        key: 'waitingRequests',
-        label: 'Заявки в очікуванні',
-        count: waitingRequests,
-        href: '/requests',
-      },
-      {
-        key: 'vendorReplied',
-        label: 'Вендор відповів',
-        count: vendorReplied,
-        href: '/requests',
-      },
     ].filter((i) => i.count > 0);
 
     const feed = await this.buildCoupleFeed(userId, wedding, pendingRsvp);
@@ -266,18 +174,16 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
       role,
       pendingRsvp,
       newRsvp,
-      waitingRequests,
-      vendorReplied,
       total: items.reduce((sum, i) => sum + i.count, 0),
       newCount,
       items,
       feed,
-      moreHref: pendingRsvp || newRsvp ? '/guests' : '/requests',
+      moreHref: '/guests',
     };
   }
 
   private async buildCoupleFeed(
-    userId: string,
+    _userId: string,
     wedding: {
       id: string;
       date: Date;
@@ -386,68 +292,10 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
       }
     }
 
-    const vendorMessages = await this.prisma.requestMessage.findMany({
-      where: {
-        authorRole: 'VENDOR',
-        createdAt: { gte: twoWeeksAgo },
-        request: { userId },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        request: {
-          include: {
-            vendor: {
-              include: { category: { select: { name: true } } },
-            },
-          },
-        },
-      },
-    });
-
-    const seenRequests = new Set<string>();
-    for (const msg of vendorMessages) {
-      if (seenRequests.has(msg.requestId)) continue;
-      seenRequests.add(msg.requestId);
-      const vendor = msg.request.vendor;
-      const category = vendor.category?.name || 'Підрядник';
-      const eventLabel = formatUaDate(msg.request.eventDate);
-      const confirmed =
-        msg.request.status === 'CONTACTED' || msg.request.status === 'DONE';
-      feed.push({
-        id: `vendor-msg-${msg.id}`,
-        body: confirmed
-          ? `${category} ${vendor.name} підтвердив(ла) бронювання на ${eventLabel}`
-          : `${category} ${vendor.name} відповів(ла) на заявку`,
-        href: '/requests',
-        createdAt: msg.createdAt.toISOString(),
-        isNew: msg.createdAt >= weekAgo,
-      });
-    }
-
-    const waiting = await this.prisma.request.findMany({
-      where: { userId, status: 'NEW' },
-      orderBy: { createdAt: 'desc' },
-      take: 3,
-      include: {
-        vendor: { select: { name: true } },
-      },
-    });
-    for (const req of waiting) {
-      feed.push({
-        id: `waiting-${req.id}`,
-        body: `Заявка до ${req.vendor.name} очікує відповіді`,
-        href: '/requests',
-        createdAt: req.createdAt.toISOString(),
-        isNew: req.createdAt >= weekAgo,
-      });
-    }
-
     feed.sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-
     return feed.slice(0, 12);
   }
 

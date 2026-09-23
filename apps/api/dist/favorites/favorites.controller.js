@@ -24,9 +24,6 @@ let FavoritesController = class FavoritesController {
     constructor(favoritesService) {
         this.favoritesService = favoritesService;
     }
-    list(user) {
-        return this.favoritesService.list(user.id);
-    }
     pipeline(user) {
         return this.favoritesService.getPipeline(user.id);
     }
@@ -39,24 +36,8 @@ let FavoritesController = class FavoritesController {
     removeExternal(user, id) {
         return this.favoritesService.removeExternal(user.id, id);
     }
-    updatePipeline(user, vendorId, dto) {
-        return this.favoritesService.updatePipeline(user.id, vendorId, dto);
-    }
-    add(user, vendorId) {
-        return this.favoritesService.add(user.id, vendorId);
-    }
-    remove(user, vendorId) {
-        return this.favoritesService.remove(user.id, vendorId);
-    }
 };
 exports.FavoritesController = FavoritesController;
-__decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "list", null);
 __decorate([
     (0, common_1.Get)('pipeline'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -89,31 +70,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], FavoritesController.prototype, "removeExternal", null);
-__decorate([
-    (0, common_1.Patch)(':vendorId/pipeline'),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Param)('vendorId')),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, pipeline_dto_1.UpdatePipelineDto]),
-    __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "updatePipeline", null);
-__decorate([
-    (0, common_1.Post)(':vendorId'),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Param)('vendorId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "add", null);
-__decorate([
-    (0, common_1.Delete)(':vendorId'),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Param)('vendorId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", void 0)
-], FavoritesController.prototype, "remove", null);
 exports.FavoritesController = FavoritesController = __decorate([
     (0, common_1.Controller)('favorites'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

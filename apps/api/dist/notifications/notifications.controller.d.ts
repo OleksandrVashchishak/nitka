@@ -15,19 +15,9 @@ export declare class NotificationsController {
         sent: number;
     }>;
     summary(user: AuthUser): Promise<{
-        role: "VENDOR";
-        newRequests: number;
-        total: number;
-        newCount: number;
-        items: import("./notifications.service").NotificationSummaryItem[];
-        feed: import("./notifications.service").NotificationFeedItem[];
-        moreHref: string;
-    } | {
         role: string;
         pendingRsvp: number;
         newRsvp: number;
-        waitingRequests: number;
-        vendorReplied: number;
         total: number;
         newCount: number;
         items: import("./notifications.service").NotificationSummaryItem[];

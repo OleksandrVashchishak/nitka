@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+
 import { getSiteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
@@ -10,29 +11,19 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/admin",
-          "/admin/",
           "/dashboard",
           "/budget",
           "/guests",
-          "/invitations",
           "/website",
           "/settings",
-          "/vendors",
-          "/vesillya",
           "/my-vendors",
           "/moyi-pidryadnyky",
-          "/favorites",
-          "/requests",
-          "/vendor",
-          "/vendor/",
           "/login",
           "/forgot-password",
           "/confirm-email",
           "/email-confirmed",
           "/verify-email",
           "/register",
-          "/rsvp",
         ],
       },
     ],

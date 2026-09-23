@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { TextInput } from "@/components/ui/text-input";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
@@ -46,48 +47,47 @@ export function LoginForm() {
 
           <form onSubmit={onSubmit} className="login-form">
             <div className="login-fields">
-              <label className="login-field" htmlFor="email">
-                <span className="login-label">Електронна пошта</span>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="login-input"
-                  placeholder="name@example.com"
-                />
-              </label>
+              <TextInput
+                id="email"
+                name="email"
+                type="email"
+                size="l"
+                shape="pill"
+                label="Електронна пошта"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+              />
 
               <div className="login-field">
-                <label htmlFor="password" className="login-label">
-                  Пароль
-                </label>
-                <div className="login-input-wrap">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    minLength={6}
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="login-input has-eye"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    className="login-eye"
-                    onClick={() => setShowPassword((value) => !value)}
-                    aria-label={showPassword ? "Сховати пароль" : "Показати пароль"}
-                    aria-pressed={showPassword}
-                  >
-                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                  </button>
-                </div>
+                <TextInput
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  size="l"
+                  shape="pill"
+                  label="Пароль"
+                  required
+                  minLength={6}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  endAdornment={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((value) => !value)}
+                      aria-label={
+                        showPassword ? "Сховати пароль" : "Показати пароль"
+                      }
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                    </button>
+                  }
+                />
                 <Link href="/forgot-password" className="login-forgot">
                   Забули пароль?
                 </Link>

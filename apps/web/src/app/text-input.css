@@ -1,0 +1,164 @@
+/* Shared text field — label + input. Spec from Figma Text Input. */
+
+.fata-text-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fata-text-input__label {
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 17px;
+  letter-spacing: 0;
+  color: #1a1a1a;
+}
+
+.fata-text-input__label em {
+  font-style: normal;
+  color: #e11d48;
+}
+
+.fata-text-input__control-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.cabinet-ui input.fata-text-input__control,
+.fata-text-input__control {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #ebe5d4;
+  background: #fff;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #1a1a1a;
+  outline: none;
+}
+
+/* ——— sizes ——— */
+
+.cabinet-ui input.fata-text-input__control--xs,
+.fata-text-input__control--xs {
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+}
+
+.cabinet-ui input.fata-text-input__control--s,
+.fata-text-input__control--s {
+  height: 33px;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cabinet-ui input.fata-text-input__control--m,
+.fata-text-input__control--m {
+  height: 41px;
+  padding: 12px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.cabinet-ui input.fata-text-input__control--l,
+.fata-text-input__control--l {
+  height: 47px;
+  padding: 14px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.cabinet-ui input.fata-text-input__control--xl,
+.fata-text-input__control--xl {
+  height: 56px;
+  padding: 16px 20px;
+  border-radius: 5px;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+/* ——— shape ——— */
+
+.cabinet-ui input.fata-text-input__control--pill,
+.fata-text-input__control--pill {
+  border-radius: 40px;
+}
+
+.cabinet-ui input.fata-text-input__control::placeholder,
+.fata-text-input__control::placeholder {
+  color: #7f7e7c;
+  opacity: 1;
+}
+
+.cabinet-ui input.fata-text-input__control:focus,
+.fata-text-input__control:focus {
+  border-color: #1a1a1a;
+}
+
+.cabinet-ui input.fata-text-input__control:disabled,
+.fata-text-input__control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fata-text-input__control--with-end.fata-text-input__control--s {
+  padding-right: 36px;
+}
+
+.fata-text-input__control--with-end.fata-text-input__control--m,
+.fata-text-input__control--with-end.fata-text-input__control--l,
+.fata-text-input__control--with-end.fata-text-input__control--xl {
+  padding-right: 44px;
+}
+
+.fata-text-input__end {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #7f7e7c;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.fata-text-input__control--m ~ .fata-text-input__end,
+.fata-text-input__control--l ~ .fata-text-input__end,
+.fata-text-input__control--xl ~ .fata-text-input__end {
+  right: 16px;
+}
+
+.fata-text-input__end button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.fata-text-input__hint {
+  margin: 0;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: rgb(26 26 26 / 0.45);
+}

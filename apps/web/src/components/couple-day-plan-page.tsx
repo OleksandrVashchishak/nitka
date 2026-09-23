@@ -13,6 +13,7 @@ import {
 } from "@/components/couple-cabinet-ui";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { getMyWedding, getDayPlan, upsertDayPlan, upsertWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
 
@@ -542,18 +543,15 @@ function DayPlanInner() {
                         ))}
                       </div>
                       <label className="flex items-center gap-2 text-xs text-ink-soft">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={event.startMin == null && index > 0}
-                          onChange={(e) =>
+                          disabled={index === 0}
+                          onCheckedChange={(auto) =>
                             updateEvent(event.id, {
-                              startMin: e.target.checked
-                                ? null
-                                : event.computedStart,
+                              startMin: auto ? null : event.computedStart,
                             })
                           }
-                          disabled={index === 0}
-                          className="accent-[var(--sage)]"
+                          aria-label="Час автоматично після попередньої події"
                         />
                         Час автоматично після попередньої події
                       </label>

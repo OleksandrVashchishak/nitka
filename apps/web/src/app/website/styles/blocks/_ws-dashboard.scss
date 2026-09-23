@@ -90,5 +90,10 @@
     &__title {
       font-size: 24px;
     }
+
+    &__solo {
+      justify-content: stretch;
+      padding: 8px 0 32px;
+    }
   }
 }

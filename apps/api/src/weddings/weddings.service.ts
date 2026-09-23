@@ -108,114 +108,11 @@ export class WeddingsService {
     });
     if (!wedding) return null;
 
-    const [favorites, requests, vendors, favoriteStages, manualStages] =
-      await Promise.all([
-        this.prisma.favorite.findMany({
-          where: { userId },
-          select: { vendorId: true },
-        }),
-        this.prisma.request.findMany({
-          where: { userId },
-          select: { vendorId: true },
-        }),
-        this.prisma.vendor.findMany({
-          where: { status: 'APPROVED' },
-          include: {
-            category: true,
-            photos: { orderBy: { order: 'asc' }, take: 1 },
-            _count: { select: { reviews: true } },
-          },
-        }),
-        this.prisma.favorite.groupBy({
-          by: ['stage'],
-          where: { userId },
-          _count: { _all: true },
-        }),
-        this.prisma.externalVendor.groupBy({
-          by: ['stage'],
-          where: { userId },
-          _count: { _all: true },
-        }),
-      ]);
-
-    const cityVendors = vendors.filter(
-      (vendor) =>
-        vendor.city.trim().toLocaleLowerCase('uk-UA') ===
-        wedding.city.trim().toLocaleLowerCase('uk-UA'),
-    );
-    const priceGroups = new Map<
-      string,
-      { slug: string; name: string; prices: number[] }
-    >();
-    for (const vendor of cityVendors) {
-      const current = priceGroups.get(vendor.category.slug) ?? {
-        slug: vendor.category.slug,
-        name: vendor.category.name,
-        prices: [],
-      };
-      current.prices.push(
-        Math.round((vendor.priceFrom + (vendor.priceTo ?? vendor.priceFrom)) / 2),
-      );
-      priceGroups.set(vendor.category.slug, current);
-    }
-
-    const marketPrices = [...priceGroups.values()]
-      .map((group) => ({
-        category: group.slug,
-        label: group.name,
-        average: Math.round(
-          group.prices.reduce((sum, value) => sum + value, 0) /
-            group.prices.length,
-        ),
-        vendorsCount: group.prices.length,
-      }))
-      .sort((a, b) => b.vendorsCount - a.vendorsCount);
-    const cityPrices = marketPrices.flatMap((item) =>
-      Array.from({ length: item.vendorsCount }, () => item.average),
-    );
-    const cityAverage =
-      cityPrices.length > 0
-        ? Math.round(
-            cityPrices.reduce((sum, value) => sum + value, 0) /
-              cityPrices.length,
-          )
-        : 0;
-
-    const excluded = new Set([
-      ...favorites.map((item) => item.vendorId),
-      ...requests.map((item) => item.vendorId),
-    ]);
-    const incompleteCategories = wedding.tasks
-      .filter((task) => task.status !== TaskStatus.DONE && task.categorySlug)
-      .map((task) => task.categorySlug as string);
-    const categoryPriority = new Map(
-      incompleteCategories.map((slug, index) => [slug, index]),
-    );
-
-    const recommendations =
-      cityVendors.length === 0
-        ? []
-        : vendors
-            .filter((vendor) => !excluded.has(vendor.id))
-            .sort((a, b) => {
-              const aCity = a.city === wedding.city ? 1 : 0;
-              const bCity = b.city === wedding.city ? 1 : 0;
-              if (aCity !== bCity) return bCity - aCity;
-              const aPriority = categoryPriority.get(a.category.slug) ?? 999;
-              const bPriority = categoryPriority.get(b.category.slug) ?? 999;
-              if (aPriority !== bPriority) return aPriority - bPriority;
-              if (a.featured !== b.featured)
-                return Number(b.featured) - Number(a.featured);
-              return b.rating - a.rating;
-            })
-            .slice(0, 4)
-            .map((vendor) => ({
-              ...vendor,
-              reason:
-                vendor.city === wedding.city
-                  ? `${vendor.category.name} у вашому місті`
-                  : `Сильний варіант у категорії «${vendor.category.name}»`,
-            }));
+    const manualStages = await this.prisma.externalVendor.groupBy({
+      by: ['stage'],
+      where: { userId },
+      _count: { _all: true },
+    });
 
     const actual = wedding.budgetItems.reduce(
       (sum, item) => sum + item.actual,
@@ -234,7 +131,7 @@ export class WeddingsService {
     const pipelineCounts = Object.fromEntries(
       stages.map((stage) => [stage, 0]),
     ) as Record<string, number>;
-    for (const row of [...favoriteStages, ...manualStages]) {
+    for (const row of manualStages) {
       pipelineCounts[row.stage] += row._count._all;
     }
 
@@ -262,11 +159,6 @@ export class WeddingsService {
         ).length,
       },
       rsvp,
-      market: {
-        average: cityAverage,
-        vendorsCount: cityVendors.length,
-        categories: marketPrices,
-      },
       budget: {
         total: wedding.budget,
         perGuest:
@@ -285,7 +177,6 @@ export class WeddingsService {
         ),
         counts: pipelineCounts,
       },
-      recommendations,
     };
   }
 

@@ -35,7 +35,6 @@ export type PostSeed = {
     seoDescription?: string;
     featured?: boolean;
     city?: string;
-    vendorCategorySlug?: string;
     blocks: SeedBlock[];
 };
 export declare const CONTENT_TOPICS_SEED: TopicSeed[];

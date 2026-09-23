@@ -24,7 +24,7 @@ type AuthState = {
       email: string;
       password: string;
       name: string;
-      role: "COUPLE" | "VENDOR";
+      role: "COUPLE";
     },
     options?: { silent?: boolean },
   ) => Promise<void>;

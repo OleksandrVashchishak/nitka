@@ -137,59 +137,8 @@ const FOOT_PRODUCT = [
 ] as const;
 
 function FeaturesStack() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [leaving, setLeaving] = useState(false);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    let raf = 0;
-    function update() {
-      if (!section) return;
-      const rect = section.getBoundingClientRect();
-      const styles = getComputedStyle(section);
-      const headerH =
-        parseFloat(styles.getPropertyValue("--fata-header-h")) || 96;
-      const stackH =
-        parseFloat(styles.getPropertyValue("--fata-feature-stack-h")) || 74;
-      // Wait until the white lid is mostly pushed off — earlier and dark shows
-      // under stuck titles (the original reason for the lid).
-      const stackBottom = headerH + FEATURES.length * stackH;
-      const next = rect.top < 0 && rect.bottom < stackBottom + 48;
-      setLeaving((prev) => (prev === next ? prev : next));
-    }
-
-    function onScroll() {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    }
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("fata:scroll", onScroll);
-    window.addEventListener("resize", onScroll);
-    // Sticky exit can sit inside a fully-intersecting section — IO alone misses ticks.
-    const io = new IntersectionObserver(onScroll, {
-      threshold: [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1],
-    });
-    io.observe(section);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("fata:scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      io.disconnect();
-    };
-  }, []);
-
   return (
-    <section
-      ref={sectionRef}
-      className={["fata-features", leaving ? "is-leaving" : ""]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <section className="fata-features">
       {FEATURES.map((feature, i) => (
         <article
           key={feature.n}
@@ -227,15 +176,6 @@ function FeaturesStack() {
           </div>
         </article>
       ))}
-      {/* White lid under title stack — masks dark prefooter while titles are stuck */}
-      <div
-        className="fata-features-end"
-        style={{
-          top: `calc(var(--fata-header-h) + ${FEATURES.length} * var(--fata-feature-stack-h))`,
-        }}
-        aria-hidden
-      />
-      <div className="fata-features-runway" aria-hidden />
     </section>
   );
 }

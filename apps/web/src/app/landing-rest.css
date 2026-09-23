@@ -554,64 +554,6 @@ position: absolute;
   background: #fff;
 }
 
-/*
-  Sticky white lid flush under the 4 title peeks. Fills the viewport below the stack
-  so handoff is a solid white plane, not a dark prefooter edge cutting mid-title.
-*/
-.fata-features-end {
-  position: sticky;
-  z-index: 5;
-  height: calc(100vh - var(--fata-header-h) - 4 * var(--fata-feature-stack-h));
-  min-height: 240px;
-  background: #fff;
-  pointer-events: none;
-}
-
-/* Scroll room after the lid so the whole stack can slide up before section ends. */
-.fata-features-runway {
-  height: 100vh;
-  background: #fff;
-  pointer-events: none;
-}
-
-/*
-  Exit handoff: full-card sticky collapses and left opaque whites (section bg,
-  .fata-feature-main, .fata-features-end) masking the dark prefooter. Clear those
-  and drop z so prefooter can wipe up. Fill with prefooter ink so the gap under
-  the header matches instead of flashing page burgundy / white.
-*/
-.fata-features.is-leaving {
-  z-index: 1;
-  background: #1a1a1a;
-}
-
-.fata-features.is-leaving .fata-feature {
-  background: transparent;
-}
-
-.fata-features.is-leaving .fata-feature-head {
-  background: #1a1a1a;
-  border-top-color: transparent;
-  color: transparent;
-}
-
-.fata-features.is-leaving .fata-feature-head * {
-  color: transparent;
-}
-
-.fata-features.is-leaving .fata-feature-main,
-.fata-features.is-leaving .fata-features-end,
-.fata-features.is-leaving .fata-features-runway {
-  background: transparent;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.fata-features.is-leaving ~ .prefooter,
-.fata-features.is-leaving ~ .pin-spacer .prefooter {
-  z-index: 12;
-}
-
 .fata-feature-n {
   margin: 0;
   font-family: var(--font-script), serif;
@@ -1028,14 +970,6 @@ position: absolute;
 
   .fata-features {
     --fata-feature-stack-h: 88px;
-  }
-
-  .fata-features-end {
-    min-height: 200px;
-  }
-
-  .fata-features-runway {
-    height: 100vh;
   }
 
   .fata-feature-head {

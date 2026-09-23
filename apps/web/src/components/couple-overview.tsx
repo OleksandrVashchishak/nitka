@@ -2,55 +2,51 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getBudget } from "@/lib/budget-api";
 import {
   createPartnerInvite,
+  deleteTask,
   getDashboardInsights,
-  getDayPlan,
   getVendorPipeline,
   updateTask,
   type DashboardInsights,
+  type TaskAssignee,
   type VendorPipeline,
   type Wedding,
   type WeddingTask,
 } from "@/lib/dashboard-api";
+import {
+  CabinetContextMenu,
+  CabinetContextMenuDivider,
+  CabinetContextMenuItem,
+  CabinetContextMenuLabel,
+} from "@/components/cabinet-context-menu";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { BrandLogo } from "@/components/brand-logo";
+import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
-import { TaskResponsibleAvatar } from "@/components/responsible-avatar";
+import { IconTrash } from "@/components/icon-trash";
+import {
+  ResponsibleAvatar,
+  ResponsibleAvatarDuo,
+  TaskResponsibleAvatar,
+} from "@/components/responsible-avatar";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
-import { IconTaskCheck } from "@/components/cabinet-task-icons";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/lib/toast";
+import { useAnimatedProgress } from "@/lib/use-animated-progress";
 import { VENDOR_MANAGER_CATEGORIES } from "@/lib/vendor-manager";
-import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
 
 const VENDOR_TARGET = VENDOR_MANAGER_CATEGORIES.filter(
   (category) => category.slug !== "other",
 ).length;
-
-const STARTER_TASKS = [
-  {
-    id: "checklist",
-    title: "Побудувати список завдань",
-    href: "/checklist",
-  },
-  {
-    id: "guests",
-    title: "Додати гостей",
-    href: "/guests",
-  },
-  {
-    id: "budget",
-    title: "Внести витрати",
-    href: "/budget",
-  },
-] as const;
 
 function inviteDismissKey(weddingId: string) {
   return `fata-dashboard-invite-dismissed:${weddingId}`;
@@ -81,11 +77,8 @@ function formatTaskDate(iso: string) {
   return `${d}.${m}.${y}`;
 }
 
-function taskDue(task: WeddingTask, weddingDate: string) {
-  return (
-    task.dueDate?.slice(0, 10) ??
-    suggestedDueDateForPlanItem(weddingDate, task.categorySlug, task.sortOrder)
-  );
+function taskDue(task: WeddingTask, _weddingDate: string) {
+  return task.dueDate ? task.dueDate.slice(0, 10) : null;
 }
 
 function taskDateTone(due: string | null, isDone: boolean) {
@@ -101,11 +94,6 @@ function taskDateTone(due: string | null, isDone: boolean) {
 function countChosenVendorCategories(pipeline: VendorPipeline | null) {
   if (!pipeline) return 0;
   const categories = new Set<string>();
-  for (const item of pipeline.catalog) {
-    if (item.stage === "CHOSEN") {
-      categories.add(item.vendor.category.slug);
-    }
-  }
   for (const item of pipeline.manual) {
     if (item.stage === "CHOSEN") {
       categories.add(item.category);
@@ -156,6 +144,7 @@ export function CoupleOverview({
   partnerInitials,
   daysLeft,
   onTaskChange,
+  onTaskRemove,
 }: {
   wedding: Wedding;
   greetingName: string;
@@ -163,16 +152,20 @@ export function CoupleOverview({
   partnerInitials: string;
   daysLeft: number;
   onTaskChange: (task: WeddingTask) => void;
+  onTaskRemove: (taskId: string) => void;
 }) {
   const [insights, setInsights] = useState<DashboardInsights | null>(null);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [pipeline, setPipeline] = useState<VendorPipeline | null>(null);
   const [spend, setSpend] = useState<number | null>(null);
-  const [hasDayPlan, setHasDayPlan] = useState(false);
   const [statsReady, setStatsReady] = useState(false);
   const [inviteBusy, setInviteBusy] = useState(false);
   const [inviteDismissed, setInviteDismissed] = useState(false);
   const [smartPlanningStarted, setSmartPlanningStarted] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<WeddingTask | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -188,22 +181,42 @@ export function CoupleOverview({
   }, [wedding.id]);
 
   useEffect(() => {
+    if (!menuOpenId) return;
+    function onDocClick(event: MouseEvent) {
+      const target = event.target;
+      if (
+        !(target instanceof Element) ||
+        !target.closest(".cabinet-ctx-menu-wrap")
+      ) {
+        setMenuOpenId(null);
+      }
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpenId(null);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpenId]);
+
+  useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const [insightsData, summaryData, pipelineData, budgetData, dayPlanData] =
+        const [insightsData, summaryData, pipelineData, budgetData] =
           await Promise.all([
             getDashboardInsights(),
             getNotificationsSummary(),
             getVendorPipeline().catch(() => null),
             getBudget().catch(() => null),
-            getDayPlan(),
           ]);
         if (cancelled) return;
         setInsights(insightsData);
         setSummary(summaryData);
         setPipeline(pipelineData);
-        setHasDayPlan(Boolean(dayPlanData?.dayPlan?.events?.length));
         if (budgetData?.items?.length) {
           setSpend(
             budgetData.items.reduce(
@@ -239,6 +252,7 @@ export function CoupleOverview({
   const progress =
     insights?.plan.progress ??
     Math.round((done / Math.max(total, 1)) * 100);
+  const { displayPercent, barWidth } = useAnimatedProgress(progress);
 
   const tasks = useMemo(() => {
     return [...wedding.tasks]
@@ -287,6 +301,53 @@ export function CoupleOverview({
       onTaskChange(updated);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не оновлено задачу");
+    }
+  }
+
+  async function onSetAssignee(task: WeddingTask, assignee: TaskAssignee) {
+    setMenuOpenId(null);
+    const current =
+      task.assignee === "owner" ||
+      task.assignee === "partner" ||
+      task.assignee === "both" ||
+      task.assignee === "none" ||
+      task.assignee === "other"
+        ? task.assignee
+        : null;
+    if (current === assignee) return;
+    try {
+      const updated = await updateTask(task.id, { assignee });
+      onTaskChange(updated);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не оновлено");
+    }
+  }
+
+  function openEdit(task: WeddingTask) {
+    setMenuOpenId(null);
+    router.push(`/checklist?edit=${encodeURIComponent(task.id)}`);
+  }
+
+  function requestDelete(task: WeddingTask) {
+    setMenuOpenId(null);
+    if (!task.isCustom) {
+      toast.error("Шаблонну задачу видалити не можна");
+      return;
+    }
+    setDeleteTarget(task);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteTask(deleteTarget.id);
+      onTaskRemove(deleteTarget.id);
+      setDeleteTarget(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не видалено");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -413,7 +474,7 @@ export function CoupleOverview({
           <article className="cabinet-side-progress">
             <div className="cabinet-side-progress-head">
               <div className="cabinet-side-progress-title">
-                <p className="cabinet-side-progress-value">{progress}%</p>
+                <p className="cabinet-side-progress-value">{displayPercent}%</p>
                 <p className="cabinet-side-progress-label">готовність весілля</p>
               </div>
               <span className="cabinet-side-progress-ratio">
@@ -421,7 +482,7 @@ export function CoupleOverview({
               </span>
             </div>
             <div className="cabinet-side-progress-bar">
-              <span style={{ width: `${Math.min(100, progress)}%` }} />
+              <span style={{ width: `${barWidth}%` }} />
             </div>
             <div className="cabinet-side-progress-meta">
               <span>{done} виконано</span>
@@ -432,24 +493,6 @@ export function CoupleOverview({
           <div className="cabinet-photo">
             <Image src={photo} alt="Фото пари" fill className="object-cover" sizes="361px" />
           </div>
-
-          <article className="cabinet-panel cabinet-day-card">
-            <div className="cabinet-day-icon" aria-hidden>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
-                <path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" strokeWidth="1.6" />
-              </svg>
-            </div>
-            <h3>План весільного дня</h3>
-            <p>
-              {hasDayPlan
-                ? "Таймінг уже зібраний — можна доповнити або поділитись із підрядниками."
-                : "Розпишіть свій план весільного дня та поділіться ним з вашими підрядниками."}
-            </p>
-            <Link href="/day-plan" className="cabinet-panel-link">
-              {hasDayPlan ? "Відкрити план" : "Внести подію"}
-            </Link>
-          </article>
         </aside>
 
         <section className="cabinet-tasks-panel">
@@ -515,88 +558,152 @@ export function CoupleOverview({
               </li>
             ) : null}
 
-            {isTasksFirstState
-              ? STARTER_TASKS.map((item) => (
-                  <li key={item.id} className="cabinet-task-row is-starter">
-                    <span className="cabinet-task-check" aria-hidden />
-                    <div className="cabinet-task-body">
-                      <Link href={item.href} className="cabinet-task-title">
-                        {item.title}
-                      </Link>
-                      <div className="cabinet-task-meta-wrap">
-                        <div className="cabinet-task-meta" />
-                        <div className="cabinet-task-actions">
-                          <Link
-                            href={item.href}
+            {tasks.map(({ task, due, done: isDone }) => {
+              const cat = taskCategoryMeta(task.categorySlug, task.title);
+              const who =
+                task.assignee === "owner" ||
+                task.assignee === "partner" ||
+                task.assignee === "both" ||
+                task.assignee === "none" ||
+                task.assignee === "other"
+                  ? task.assignee
+                  : task.sortOrder % 2 === 0
+                    ? "owner"
+                    : "partner";
+              return (
+                <li
+                  key={task.id}
+                  className={`cabinet-task-row${isDone ? " is-done" : ""}`}
+                >
+                  <Checkbox
+                    checked={isDone}
+                    aria-label={isDone ? "Повернути в роботу" : "Виконано"}
+                    onCheckedChange={() => void onToggleTask(task, isDone)}
+                  />
+                  <div className="cabinet-task-body">
+                    <p className="cabinet-task-title">{task.title}</p>
+                    <div className="cabinet-task-meta-wrap">
+                      <div className="cabinet-task-meta">
+                        <span className={`cabinet-task-tag is-${cat.tone}`}>
+                          {cat.label}
+                        </span>
+                        {due ? (
+                          <span
+                            className={`cabinet-task-date${taskDateTone(due, isDone)}`}
+                          >
+                            {formatTaskDate(due)}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="cabinet-task-actions">
+                        <TaskResponsibleAvatar
+                          who={who}
+                          ownerName={greetingName}
+                          partnerName={partnerName}
+                        />
+                        <div className="cabinet-ctx-menu-wrap">
+                          <button
+                            type="button"
                             className="cabinet-task-menu"
-                            aria-label="Відкрити"
+                            aria-label="Меню завдання"
+                            aria-expanded={menuOpenId === task.id}
+                            onClick={() =>
+                              setMenuOpenId((id) =>
+                                id === task.id ? null : task.id,
+                              )
+                            }
                           >
                             <IconMore />
-                          </Link>
+                          </button>
+                          {menuOpenId === task.id ? (
+                            <CabinetContextMenu>
+                              <CabinetContextMenuItem
+                                icon={<IconEdit />}
+                                onClick={() => openEdit(task)}
+                              >
+                                Редагувати
+                              </CabinetContextMenuItem>
+                              <CabinetContextMenuItem
+                                icon={<IconTrash />}
+                                danger
+                                onClick={() => requestDelete(task)}
+                              >
+                                Видалити
+                              </CabinetContextMenuItem>
+
+                              <CabinetContextMenuDivider />
+                              <CabinetContextMenuLabel>
+                                Хто відповідальний
+                              </CabinetContextMenuLabel>
+
+                              <CabinetContextMenuItem
+                                icon={
+                                  <ResponsibleAvatar
+                                    name={greetingName}
+                                    tone="owner"
+                                  />
+                                }
+                                active={who === "owner"}
+                                onClick={() =>
+                                  void onSetAssignee(task, "owner")
+                                }
+                              >
+                                {greetingName}
+                              </CabinetContextMenuItem>
+                              <CabinetContextMenuItem
+                                icon={
+                                  <ResponsibleAvatar
+                                    name={partnerName}
+                                    tone="partner"
+                                  />
+                                }
+                                active={who === "partner"}
+                                onClick={() =>
+                                  void onSetAssignee(task, "partner")
+                                }
+                              >
+                                {partnerName}
+                              </CabinetContextMenuItem>
+                              <CabinetContextMenuItem
+                                icon={
+                                  <ResponsibleAvatarDuo
+                                    ownerName={greetingName}
+                                    partnerName={partnerName}
+                                    aria-hidden
+                                  />
+                                }
+                                active={who === "both"}
+                                onClick={() =>
+                                  void onSetAssignee(task, "both")
+                                }
+                              >
+                                Обоє
+                              </CabinetContextMenuItem>
+                              <CabinetContextMenuItem
+                                active={who === "none"}
+                                onClick={() =>
+                                  void onSetAssignee(task, "none")
+                                }
+                              >
+                                Ніхто
+                              </CabinetContextMenuItem>
+                              <CabinetContextMenuItem
+                                active={who === "other"}
+                                onClick={() =>
+                                  void onSetAssignee(task, "other")
+                                }
+                              >
+                                Хтось інший
+                              </CabinetContextMenuItem>
+                            </CabinetContextMenu>
+                          ) : null}
                         </div>
                       </div>
                     </div>
-                  </li>
-                ))
-              : tasks.map(({ task, due, done: isDone }) => {
-                  const cat = taskCategoryMeta(task.categorySlug, task.title);
-                  const who =
-                    task.assignee === "owner" ||
-                    task.assignee === "partner" ||
-                    task.assignee === "both" ||
-                    task.assignee === "none" ||
-                    task.assignee === "other"
-                      ? task.assignee
-                      : task.sortOrder % 2 === 0
-                        ? "owner"
-                        : "partner";
-                  return (
-                    <li
-                      key={task.id}
-                      className={`cabinet-task-row${isDone ? " is-done" : ""}`}
-                    >
-                      <button
-                        type="button"
-                        className="cabinet-task-check"
-                        aria-label={isDone ? "Повернути в роботу" : "Виконано"}
-                        onClick={() => void onToggleTask(task, isDone)}
-                      >
-                        <IconTaskCheck className="cabinet-task-check__mark" />
-                      </button>
-                      <div className="cabinet-task-body">
-                        <p className="cabinet-task-title">{task.title}</p>
-                        <div className="cabinet-task-meta-wrap">
-                          <div className="cabinet-task-meta">
-                            <span className={`cabinet-task-tag is-${cat.tone}`}>
-                              {cat.label}
-                            </span>
-                            {due ? (
-                              <span
-                                className={`cabinet-task-date${taskDateTone(due, isDone)}`}
-                              >
-                                {formatTaskDate(due)}
-                              </span>
-                            ) : null}
-                          </div>
-                          <div className="cabinet-task-actions">
-                            <TaskResponsibleAvatar
-                              who={who}
-                              ownerName={greetingName}
-                              partnerName={partnerName}
-                            />
-                            <Link
-                              href="/checklist"
-                              className="cabinet-task-menu"
-                              aria-label="Відкрити всі завдання"
-                            >
-                              <IconMore />
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           {isTasksFirstState ? (
             <Link
@@ -613,6 +720,61 @@ export function CoupleOverview({
           )}
         </section>
       </div>
+
+      {deleteTarget ? (
+        <div
+          className="cabinet-modal-root"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Видалити завдання"
+        >
+          <button
+            type="button"
+            className="cabinet-modal-backdrop"
+            aria-label="Закрити"
+            onClick={() => setDeleteTarget(null)}
+          />
+          <div className="cabinet-modal cabinet-confirm-modal">
+            <div className="cabinet-modal-head">
+              <div>
+                <h2>Видалити завдання</h2>
+                <p>Ви впевнені, що хочете видалити це завдання?</p>
+              </div>
+              <button
+                type="button"
+                className="cabinet-modal-close"
+                aria-label="Закрити"
+                onClick={() => setDeleteTarget(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="cabinet-modal-actions">
+              <Button
+                type="button"
+                tone="ghost"
+                size="m"
+                className="cabinet-drawer-cancel"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+              >
+                Скасувати
+              </Button>
+              <Button
+                type="button"
+                tone="ink"
+                size="m"
+                className="cabinet-confirm-delete"
+                loading={deleting}
+                loadingText="…"
+                onClick={() => void confirmDelete()}
+              >
+                Так, видалити
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

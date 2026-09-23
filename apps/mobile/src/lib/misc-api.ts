@@ -37,37 +37,3 @@ export async function getContentPost(slug: string) {
     ContentPost & { body?: unknown; excerpt: string }
   >;
 }
-
-export function createReview(input: {
-  vendorId: string;
-  rating: number;
-  text: string;
-}) {
-  return apiFetch("/api/reviews", {
-    method: "POST",
-    body: JSON.stringify(input),
-  });
-}
-
-export function getMyReview(vendorId: string) {
-  return apiFetch<{ id: string; rating: number; text: string } | null>(
-    `/api/reviews/mine/${vendorId}`,
-    { silent: true },
-  );
-}
-
-export function updateReview(
-  id: string,
-  input: { rating?: number; text?: string },
-) {
-  return apiFetch(`/api/reviews/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(input),
-  });
-}
-
-export function deleteReview(id: string) {
-  return apiFetch<{ ok: boolean }>(`/api/reviews/${id}`, {
-    method: "DELETE",
-  });
-}

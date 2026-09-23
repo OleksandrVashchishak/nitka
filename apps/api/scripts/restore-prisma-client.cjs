@@ -3,9 +3,8 @@
  * Restore pre-generated Prisma client into node_modules.
  * Render free tier OOMs / hangs on `prisma generate` — we commit the client instead.
  *
- * ONLY on Render (or FORCE_PRISMA_RESTORE=1). Locally / Docker the vendored Windows
- * bits must not clobber a correct linux engine unless we explicitly force it
- * (Docker bookworm image build copies debian engine from vendored).
+ * ONLY on Render (or FORCE_PRISMA_RESTORE=1). Locally the vendored engines
+ * must not clobber a correct host (Windows/mac) engine unless we force it.
  *
  * Never process.exit on skip — this file is required() from start-render.js.
  */

@@ -40,7 +40,7 @@ let UploadsService = class UploadsService {
         if (this.cloudinaryEnabled) {
             const result = await new Promise((resolve, reject) => {
                 const stream = cloudinary_1.v2.uploader.upload_stream({
-                    folder: process.env.CLOUDINARY_FOLDER || 'nitka/vendors',
+                    folder: process.env.CLOUDINARY_FOLDER || 'fata/uploads',
                     resource_type: 'image',
                 }, (err, uploaded) => {
                     if (err || !uploaded) {

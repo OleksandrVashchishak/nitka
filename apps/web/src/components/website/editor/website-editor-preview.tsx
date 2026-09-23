@@ -1,6 +1,7 @@
 "use client";
 
 import { renderWebsiteTemplate } from "@/components/website-templates";
+import { PreviewIframe } from "@/components/website/editor/preview-iframe";
 import {
   IconDesktop,
   IconMobile,
@@ -68,7 +69,9 @@ export function WebsiteEditorPreview({
             <div className="we-preview__url">{displayUrl}</div>
           </div>
           <div className="we-preview__frame">
-            {renderWebsiteTemplate(templateId, content, { weddingDate })}
+            <PreviewIframe className="we-preview__iframe">
+              {renderWebsiteTemplate(templateId, content, { weddingDate })}
+            </PreviewIframe>
           </div>
         </div>
       </div>

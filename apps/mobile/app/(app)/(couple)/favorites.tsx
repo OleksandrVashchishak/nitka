@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,20 +7,13 @@ import {
   createExternalVendor,
   getVendorPipeline,
   removeExternalVendor,
-  removeFavorite,
-  updateCatalogVendorPipeline,
   updateExternalVendor,
 } from "@/lib/favorites-api";
-import { href } from "@/lib/href";
 import {
   MANUAL_VENDOR_CATEGORIES,
   manualCategoryLabel,
 } from "@/lib/manual-categories";
-import type {
-  ExternalVendor,
-  FavoriteItem,
-  VendorPipelineStage,
-} from "@/lib/types";
+import type { ExternalVendor, VendorPipelineStage } from "@/lib/types";
 import { colors } from "@/theme";
 import { BackHeader } from "@/ui/back-header";
 import { ChipRow, Sheet } from "@/ui/sheet";
@@ -71,7 +63,6 @@ export default function FavoritesScreen() {
   const q = useQuery({ queryKey: ["pipeline"], queryFn: getVendorPipeline });
   const [stageFilter, setStageFilter] = useState("ALL");
   const [showAdd, setShowAdd] = useState(false);
-  const [editCatalog, setEditCatalog] = useState<FavoriteItem | null>(null);
   const [editManual, setEditManual] = useState<ExternalVendor | null>(null);
 
   const [name, setName] = useState("");
@@ -79,11 +70,6 @@ export default function FavoritesScreen() {
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
 
-  const [catalogForm, setCatalogForm] = useState({
-    stage: "SAVED" as VendorPipelineStage,
-    quotedPrice: "",
-    notes: "",
-  });
   const [manualForm, setManualForm] = useState({
     name: "",
     category: "photo",
@@ -97,7 +83,6 @@ export default function FavoritesScreen() {
 
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ["pipeline"] });
-    void qc.invalidateQueries({ queryKey: ["favorites"] });
   };
 
   const addMut = useMutation({
@@ -107,20 +92,6 @@ export default function FavoritesScreen() {
       setName("");
       setPhone("");
       setCity("");
-      invalidate();
-    },
-  });
-
-  const catalogMut = useMutation({
-    mutationFn: ({
-      vendorId,
-      input,
-    }: {
-      vendorId: string;
-      input: Parameters<typeof updateCatalogVendorPipeline>[1];
-    }) => updateCatalogVendorPipeline(vendorId, input),
-    onSuccess: () => {
-      setEditCatalog(null);
       invalidate();
     },
   });
@@ -139,14 +110,6 @@ export default function FavoritesScreen() {
     },
   });
 
-  const removeCatalogMut = useMutation({
-    mutationFn: removeFavorite,
-    onSuccess: () => {
-      setEditCatalog(null);
-      invalidate();
-    },
-  });
-
   const delMut = useMutation({
     mutationFn: removeExternalVendor,
     onSuccess: () => {
@@ -154,15 +117,6 @@ export default function FavoritesScreen() {
       invalidate();
     },
   });
-
-  function openCatalog(f: FavoriteItem) {
-    setEditCatalog(f);
-    setCatalogForm({
-      stage: f.stage,
-      quotedPrice: f.quotedPrice != null ? String(f.quotedPrice) : "",
-      notes: f.notes ?? "",
-    });
-  }
 
   function openManual(v: ExternalVendor) {
     setEditManual(v);
@@ -177,12 +131,6 @@ export default function FavoritesScreen() {
       stage: v.stage,
     });
   }
-
-  const catalog = useMemo(() => {
-    const all = q.data?.catalog ?? [];
-    if (stageFilter === "ALL") return all;
-    return all.filter((f) => f.stage === stageFilter);
-  }, [q.data, stageFilter]);
 
   const manual = useMemo(() => {
     const all = q.data?.manual ?? [];
@@ -203,10 +151,10 @@ export default function FavoritesScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "left", "right"]}>
-      <BackHeader title="Обране" />
+      <BackHeader title="Мої підрядники" />
       <ScrollView contentContainerStyle={styles.pad}>
-        <Title>Обране</Title>
-        <Subtitle>Пайплайн підрядників</Subtitle>
+        <Title>Мої підрядники</Title>
+        <Subtitle>Список підрядників, яких ви ведете вручну</Subtitle>
 
         <ChipRow
           options={STAGE_FILTERS}
@@ -214,30 +162,8 @@ export default function FavoritesScreen() {
           onChange={setStageFilter}
         />
 
-        <Text style={styles.section}>З каталогу</Text>
-        {catalog.length === 0 ? (
-          <Empty title="Порожньо" hint="Додай з каталогу підрядників" />
-        ) : (
-          catalog.map((f) => (
-            <Row
-              key={f.id}
-              title={f.vendor.name}
-              subtitle={[
-                f.vendor.category.name,
-                f.vendor.city,
-                money(f.quotedPrice),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-              right={<Badge label={stageLabel(f.stage)} tone="sage" />}
-              onPress={() => openCatalog(f)}
-            />
-          ))
-        )}
-
-        <Text style={styles.section}>Свої (вручну)</Text>
         {manual.length === 0 ? (
-          <Empty title="Немає ручних" />
+          <Empty title="Порожньо" hint="Додайте свого підрядника" />
         ) : (
           manual.map((v) => (
             <Row
@@ -258,7 +184,7 @@ export default function FavoritesScreen() {
         )}
 
         <View style={{ height: 12 }} />
-        <Button label="Додати свого підрядника" onPress={() => setShowAdd(true)} />
+        <Button label="Додати підрядника" onPress={() => setShowAdd(true)} />
         <Subtitle>Тап по картці — редагувати</Subtitle>
       </ScrollView>
 
@@ -306,82 +232,6 @@ export default function FavoritesScreen() {
             }
           />
         ) : null}
-      </Sheet>
-
-      <Sheet
-        visible={!!editCatalog}
-        title={editCatalog?.vendor.name ?? "Підрядник"}
-        onClose={() => setEditCatalog(null)}
-        footer={
-          <>
-            <Button
-              label="Зберегти"
-              loading={catalogMut.isPending}
-              onPress={() => {
-                if (!editCatalog) return;
-                catalogMut.mutate({
-                  vendorId: editCatalog.vendor.id,
-                  input: {
-                    stage: catalogForm.stage,
-                    quotedPrice: catalogForm.quotedPrice
-                      ? Number(catalogForm.quotedPrice)
-                      : null,
-                    notes: catalogForm.notes.trim() || null,
-                  },
-                });
-              }}
-            />
-            {editCatalog?.vendor.slug ? (
-              <Button
-                label="Відкрити в каталозі"
-                variant="ghost"
-                onPress={() => {
-                  const slug = editCatalog.vendor.slug!;
-                  setEditCatalog(null);
-                  router.push(href(`/vendors/${slug}`));
-                }}
-              />
-            ) : null}
-            <Button
-              label="Прибрати з обраного"
-              variant="danger"
-              onPress={() => {
-                if (!editCatalog) return;
-                confirmAction(
-                  "Прибрати з обраного?",
-                  editCatalog.vendor.name,
-                  () => removeCatalogMut.mutate(editCatalog.vendor.id),
-                );
-              }}
-            />
-          </>
-        }
-      >
-        <Text style={styles.fieldLabel}>Етап</Text>
-        <ChipRow
-          options={STAGES.map((s) => ({ id: s, label: stageLabel(s) }))}
-          value={catalogForm.stage}
-          onChange={(id) =>
-            setCatalogForm((s) => ({
-              ...s,
-              stage: id as VendorPipelineStage,
-            }))
-          }
-        />
-        <Input
-          label="Пропозиція, грн"
-          keyboardType="number-pad"
-          value={catalogForm.quotedPrice}
-          onChangeText={(v) =>
-            setCatalogForm((s) => ({ ...s, quotedPrice: v }))
-          }
-        />
-        <Input
-          label="Нотатки"
-          value={catalogForm.notes}
-          onChangeText={(v) => setCatalogForm((s) => ({ ...s, notes: v }))}
-          multiline
-        />
       </Sheet>
 
       <Sheet
@@ -451,11 +301,7 @@ export default function FavoritesScreen() {
             }))
           }
         />
-        <Input
-          label="Місто"
-          value={manualForm.city}
-          onChangeText={(v) => setManualForm((s) => ({ ...s, city: v }))}
-        />
+        <Input label="Місто" value={manualForm.city} onChangeText={(v) => setManualForm((s) => ({ ...s, city: v }))} />
         <Input
           label="Телефон"
           value={manualForm.phone}
@@ -489,19 +335,11 @@ export default function FavoritesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.paper },
-  pad: { padding: 16, paddingBottom: 40 },
-  section: {
-    marginTop: 12,
-    marginBottom: 8,
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.primaryDeep,
-  },
+  pad: { padding: 16, paddingBottom: 32, gap: 8 },
   fieldLabel: {
-    marginTop: 8,
-    marginBottom: 6,
     fontSize: 13,
-    fontWeight: "600",
-    color: colors.inkSoft,
+    color: colors.inkMuted,
+    marginTop: 8,
+    marginBottom: 4,
   },
 });

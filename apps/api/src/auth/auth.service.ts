@@ -120,16 +120,13 @@ export class AuthService {
   }
 
   private resolveRegisterRole(role?: Role): Role {
-    if (!role || role === Role.GUEST) {
+    if (!role || role === Role.GUEST || role === Role.COUPLE) {
       return Role.COUPLE;
     }
-    if (role === Role.ADMIN) {
-      throw new BadRequestException('Не можна зареєструватись як admin');
+    if (role === Role.ADMIN || role === Role.VENDOR) {
+      throw new BadRequestException('Не можна зареєструватись з цією роллю');
     }
-    if (role !== Role.COUPLE && role !== Role.VENDOR) {
-      throw new BadRequestException('Невірна роль');
-    }
-    return role;
+    throw new BadRequestException('Невірна роль');
   }
 
   private get refreshSecret() {

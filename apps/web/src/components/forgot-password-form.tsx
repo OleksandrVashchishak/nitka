@@ -5,6 +5,7 @@ import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLogo, AuthSplitShell } from "@/components/auth-split-shell";
 import { Button } from "@/components/ui/button";
+import { TextInput } from "@/components/ui/text-input";
 import { toast } from "@/lib/toast";
 
 function ForgotPasswordFormInner() {
@@ -48,20 +49,19 @@ function ForgotPasswordFormInner() {
 
       <form onSubmit={onSubmit} className="login-form">
         <div className="login-fields">
-          <label className="login-field" htmlFor="email">
-            <span className="login-label">Електронна пошта</span>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="login-input"
-              placeholder="name@example.com"
-            />
-          </label>
+          <TextInput
+            id="email"
+            name="email"
+            type="email"
+            size="l"
+            shape="pill"
+            label="Електронна пошта"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@example.com"
+          />
         </div>
 
         <Button

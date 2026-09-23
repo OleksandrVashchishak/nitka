@@ -26,21 +26,10 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   if (user) {
-    if (user.role === "VENDOR") return <Redirect href={href("/(app)/(vendor)")} />;
-    if (user.role === "ADMIN") return <Redirect href={href("/(app)/(admin)")} />;
     return <Redirect href={href("/(app)/(couple)")} />;
   }
 
   async function redirectAfterAuth() {
-    const role = useAuthStore.getState().user?.role;
-    if (role === "VENDOR") {
-      router.replace(href("/(app)/(vendor)"));
-      return;
-    }
-    if (role === "ADMIN") {
-      router.replace(href("/(app)/(admin)"));
-      return;
-    }
     const pending = await peekPendingPartnerInvite();
     if (pending) {
       router.replace(href(`/partner-invite/${pending}`));

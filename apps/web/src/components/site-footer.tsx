@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/brand-logo";
+import { Button } from "@/components/ui/button";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -14,9 +15,9 @@ export function SiteFooter() {
         <p className="mx-auto max-w-3xl font-[family-name:var(--font-display)] text-3xl leading-tight tracking-wide md:text-5xl">
           З fata.studio всі ці речі простіше і безкоштовно
         </p>
-        <Link href="/register" className="btn-cta mt-10">
+        <Button href="/register" tone="light" size="l" className="mt-10">
           Розпочати безкоштовно
-        </Link>
+        </Button>
         <p className="mt-16 text-xs text-white/50">© 2026 fata.studio</p>
       </footer>
     );
@@ -29,8 +30,8 @@ export function SiteFooter() {
           <div>
             <BrandLogo />
             <p className="mt-3 max-w-xs text-sm leading-6 text-ink-soft">
-              Планування весілля: чекліст, бюджет, гості, розсадка, запрошення й
-              сайт пари.
+              Планування весілля: чекліст, бюджет, гості, запрошення й сайт
+              пари.
             </p>
           </div>
           <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-ink-soft">
@@ -42,9 +43,6 @@ export function SiteFooter() {
             </Link>
             <Link href="/spysok-gostey" className="hover:text-ink">
               Гості
-            </Link>
-            <Link href="/rozsadka-gostey" className="hover:text-ink">
-              Розсадка
             </Link>
             <Link href="/blog" className="hover:text-ink">
               Блог
@@ -73,18 +71,14 @@ export function SiteFooterWrapper() {
     pathname.startsWith("/email-confirmed") ||
     pathname.startsWith("/verify-email") ||
     pathname.startsWith("/w/") ||
-    pathname.startsWith("/rsvp/") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/checklist") ||
     pathname.startsWith("/day-plan") ||
     pathname.startsWith("/budget") ||
     pathname.startsWith("/guests") ||
     pathname.startsWith("/seating") ||
-    pathname.startsWith("/invitations") ||
     pathname.startsWith("/website") ||
-    pathname.startsWith("/my-vendors") ||
-    pathname.startsWith("/favorites") ||
-    pathname.startsWith("/requests")
+    pathname.startsWith("/my-vendors")
   )
     return null;
   return <SiteFooter />;

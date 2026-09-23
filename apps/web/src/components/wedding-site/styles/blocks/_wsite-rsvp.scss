@@ -1,50 +1,151 @@
 .wsite-rsvp {
+  padding: 140px 80px;
+  background: var(--wsite-dark, #1e1b15);
+  color: #fffdf9;
   text-align: center;
 
-  &__copy {
-    max-width: 28rem;
-    margin: 0 auto;
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    max-width: 48rem;
+    margin-inline: auto;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-family: var(--wsite-font-label);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: normal;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #c5bcb0;
   }
 
   &__title {
-    margin: 0 0 1rem;
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 5vw, 4rem); // 64px
+    line-height: normal;
+    text-align: center;
+    color: #fffdf9;
+  }
+
+  &__spark {
+    display: none;
+    color: #fffdf9;
+  }
+
+  &__spark-icon {
+    display: block;
+    width: 48px;
+    height: 48px;
   }
 
   &__text {
     margin: 0;
+    max-width: 640px;
+    font-family: var(--wsite-font-label);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #fffdf9;
+    opacity: 0.9;
   }
 
   &__actions {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-width: 18rem;
-    margin: 2rem auto 0;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 
   &__btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    padding: 0.85rem 1.25rem;
-    border-radius: 999px;
-    font-family: var(--wsite-font-body);
-    font-size: 0.92rem;
-    font-weight: 600;
-    line-height: 1;
+    padding: 14px 32px;
+    border-radius: 40px;
+    font-family: var(--wsite-font-display);
+    font-size: 18px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 18px;
     text-decoration: none;
     cursor: pointer;
     border: 0;
   }
 
   &__btn--yes {
-    background: var(--wsite-btn-yes);
-    color: var(--wsite-ink);
+    background: #f8f2f0;
+    color: #1a1a1a;
   }
 
   &__btn--no {
-    background: var(--wsite-btn-no);
-    color: #fff;
+    background: #1e1b15;
+    border: 1px solid #c5bcb0;
+    color: #fffdf9;
+  }
+
+  // Figma mobile 1109:8826 — gap32 / px24 py64 / title36 / spark48 / buttons row gap24
+  @media (max-width: 900px) {
+    padding: 64px 24px;
+
+    &__inner {
+      gap: 32px;
+      max-width: none;
+    }
+
+    &__heading {
+      gap: 12px;
+    }
+
+    &__eyebrow {
+      font-size: 12px;
+      letter-spacing: 4px;
+    }
+
+    &__title {
+      font-size: 36px;
+      max-width: none;
+    }
+
+    &__spark {
+      display: flex;
+    }
+
+    &__text {
+      font-size: 16px;
+      line-height: 1.5;
+      max-width: none;
+    }
+
+    &__actions {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 24px;
+      width: 100%;
+      max-width: none;
+    }
+
+    &__btn {
+      width: auto;
+      flex: 0 0 auto;
+      padding: 14px 32px;
+      font-size: 18px;
+    }
   }
 }

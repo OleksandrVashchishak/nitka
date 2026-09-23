@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
 import { PageLoader } from "@/components/ui-loader";
@@ -11,6 +12,7 @@ import {
 } from "@/components/website/editor/design-catalog";
 import { WebsiteEditorContentTab } from "@/components/website/editor/website-editor-content-tab";
 import { WebsiteEditorDesignTab } from "@/components/website/editor/website-editor-design-tab";
+import { WebsiteEditorFooter } from "@/components/website/editor/website-editor-footer";
 import { WebsiteEditorHeader } from "@/components/website/editor/website-editor-header";
 import {
   WebsiteEditorNav,
@@ -39,6 +41,8 @@ type PendingSave = {
   slug?: string;
 };
 
+const TAB_ORDER: EditorTab[] = ["design", "content", "settings"];
+
 function splitHeadline(headline: string): [string, string] {
   const parts = headline.split(/\s+(?:та|and|&)\s+/i);
   if (parts.length >= 2) {
@@ -55,6 +59,7 @@ function joinNames(bride: string, groom: string) {
 }
 
 function WebsiteEditorInner() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [site, setSite] = useState<WeddingWebsite | null>(null);
@@ -66,6 +71,7 @@ function WebsiteEditorInner() {
   const [templateId, setTemplateId] = useState(DESIGN_OPTIONS[0].templateId);
   const [tab, setTab] = useState<EditorTab>("design");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [autosave, setAutosave] = useState<AutosaveState>("saved");
   const [publishing, setPublishing] = useState(false);
   const [unpublishing, setUnpublishing] = useState(false);
@@ -274,9 +280,33 @@ function WebsiteEditorInner() {
   const publicHref = `${origin}${site.publicPath}`;
   const displayUrl = `${host}${site.publicPath}`;
   const fancyAddress = `${slug || site.slug}.fata.studio`;
+  const tabIndex = TAB_ORDER.indexOf(tab);
+
+  function onMobileBack() {
+    if (tabIndex <= 0) {
+      router.push("/website");
+      return;
+    }
+    setTab(TAB_ORDER[tabIndex - 1]);
+  }
+
+  function onMobileNext() {
+    if (tabIndex >= TAB_ORDER.length - 1) {
+      router.push("/website");
+      return;
+    }
+    setTab(TAB_ORDER[tabIndex + 1]);
+  }
+
+  function onOpenMobilePreview() {
+    setPreviewMode("mobile");
+    setMobilePreviewOpen(true);
+  }
 
   return (
-    <div className="we-editor">
+    <div
+      className={`we-editor${mobilePreviewOpen ? " we-editor--preview-open" : ""}`}
+    >
       <WebsiteEditorHeader
         autosave={autosave}
         publishing={publishing}
@@ -319,16 +349,40 @@ function WebsiteEditorInner() {
               onEditSite={() => setTab("content")}
             />
           ) : null}
-          <WebsiteEditorPreview
-            mode={previewMode}
-            onModeChange={setPreviewMode}
-            templateId={templateId}
-            content={content}
-            displayUrl={displayUrl}
-            weddingDate={site.wedding.date}
-          />
+          <div
+            className={`we-editor__preview-wrap${
+              mobilePreviewOpen ? " we-editor__preview-wrap--open" : ""
+            }`}
+          >
+            <button
+              type="button"
+              className="we-editor__preview-close"
+              onClick={() => setMobilePreviewOpen(false)}
+            >
+              Закрити передогляд
+            </button>
+            <WebsiteEditorPreview
+              mode={previewMode}
+              onModeChange={setPreviewMode}
+              templateId={templateId}
+              content={content}
+              displayUrl={displayUrl}
+              weddingDate={site.wedding.date}
+            />
+          </div>
         </div>
       </div>
+      <WebsiteEditorFooter
+        mode={tab === "settings" && !site.published ? "publish" : "wizard"}
+        canGoBack
+        nextLabel={tabIndex >= TAB_ORDER.length - 1 ? "Готово" : "Далі"}
+        publishLabel={publishing ? "Публікуємо…" : "Опублікувати"}
+        publishDisabled={publishing || slug.trim().length < 2}
+        onPreview={onOpenMobilePreview}
+        onBack={onMobileBack}
+        onNext={onMobileNext}
+        onPublish={() => void onPublish()}
+      />
     </div>
   );
 }

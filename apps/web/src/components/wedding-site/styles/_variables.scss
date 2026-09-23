@@ -1,28 +1,38 @@
 .wsite {
-  --wsite-bg: #f3efe8;
-  --wsite-bg-soft: #faf8f4;
+  --wsite-bg: #faf7f2;
+  --wsite-bg-soft: #f8f2f0;
   --wsite-bg-alt: #ffffff;
-  --wsite-ink: #1a1a1a;
-  --wsite-ink-soft: #5c5c5c;
-  --wsite-line: rgba(26, 26, 26, 0.14);
-  --wsite-dark: #1c1c1c;
+  --wsite-bg-sand: #ddd8c5;
+  --wsite-ink: #1e1b15;
+  --wsite-ink-soft: #59554e;
+  --wsite-ink-muted: #a09382;
+  --wsite-ink-label: #72624e;
+  --wsite-line: #c5bcb0;
+  --wsite-dark: #1e1b15;
   --wsite-accent: #4f5d3a;
   --wsite-accent-text: #ffffff;
-  --wsite-btn-yes: #f0e6c8;
-  --wsite-btn-no: #6b1d1d;
+  --wsite-btn-yes: #f8f2f0;
+  --wsite-btn-no: #1e1b15;
+  --wsite-hero-fg: #fffdf9;
   --wsite-font-display: var(--font-script), "Cormorant Garamond", Georgia, serif;
   --wsite-font-body: var(--font-sans), "Montserrat", sans-serif;
+  --wsite-font-label: var(--font-manrope), "Manrope", sans-serif;
   --wsite-space: clamp(1.5rem, 4vw, 3.5rem);
   --wsite-max: 72rem;
   --wsite-radius: 2px;
+  --wsite-pad-x: 80px;
+  --wsite-pad-y: 100px;
 }
 
 .wsite--navy-gold {
   --wsite-bg: #1b334a;
   --wsite-bg-soft: #203a52;
   --wsite-bg-alt: #243f5a;
+  --wsite-bg-sand: #203a52;
   --wsite-ink: #f3e6d8;
   --wsite-ink-soft: #c9a08c;
+  --wsite-ink-muted: #c9a08c;
+  --wsite-ink-label: #c9a08c;
   --wsite-line: rgba(228, 178, 158, 0.25);
   --wsite-dark: #102233;
   --wsite-accent: #e4b29e;
@@ -35,8 +45,11 @@
   --wsite-bg: #0c0c0c;
   --wsite-bg-soft: #141414;
   --wsite-bg-alt: #111111;
+  --wsite-bg-sand: #141414;
   --wsite-ink: #e6d3a8;
   --wsite-ink-soft: #b5935b;
+  --wsite-ink-muted: #b5935b;
+  --wsite-ink-label: #b5935b;
   --wsite-line: rgba(181, 147, 91, 0.28);
   --wsite-dark: #050505;
   --wsite-accent: #b5935b;

@@ -2,11 +2,13 @@
   "name": "wedding",
   "private": true,
   "scripts": {
-    "docker:up": "node scripts/docker.cjs up",
-    "docker:down": "node scripts/docker.cjs down",
-    "docker:status": "node scripts/docker.cjs status",
-    "docker:smoke": "node scripts/docker.cjs smoke",
-    "docker:reset": "node scripts/docker.cjs reset",
-    "docker:rebuild-api": "node scripts/docker.cjs rebuild-api"
+    "local:setup": "node scripts/local.cjs setup",
+    "local:install": "node scripts/local.cjs install",
+    "local:db": "node scripts/local.cjs db",
+    "local:migrate": "node scripts/local.cjs migrate",
+    "local:seed": "node scripts/local.cjs seed",
+    "local:status": "node scripts/local.cjs status",
+    "api": "npm run start:dev --prefix apps/api",
+    "web": "npm run dev --prefix apps/web"
   }
 }

@@ -15,7 +15,6 @@ import { Roles, RolesGuard } from '../auth/roles.guard';
 import {
   CreateExternalVendorDto,
   UpdateExternalVendorDto,
-  UpdatePipelineDto,
 } from './dto/pipeline.dto';
 import { FavoritesService } from './favorites.service';
 
@@ -24,11 +23,6 @@ import { FavoritesService } from './favorites.service';
 @Roles(Role.COUPLE, Role.ADMIN)
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
-
-  @Get()
-  list(@CurrentUser() user: AuthUser) {
-    return this.favoritesService.list(user.id);
-  }
 
   @Get('pipeline')
   pipeline(@CurrentUser() user: AuthUser) {
@@ -55,24 +49,5 @@ export class FavoritesController {
   @Delete('manual/:id')
   removeExternal(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.favoritesService.removeExternal(user.id, id);
-  }
-
-  @Patch(':vendorId/pipeline')
-  updatePipeline(
-    @CurrentUser() user: AuthUser,
-    @Param('vendorId') vendorId: string,
-    @Body() dto: UpdatePipelineDto,
-  ) {
-    return this.favoritesService.updatePipeline(user.id, vendorId, dto);
-  }
-
-  @Post(':vendorId')
-  add(@CurrentUser() user: AuthUser, @Param('vendorId') vendorId: string) {
-    return this.favoritesService.add(user.id, vendorId);
-  }
-
-  @Delete(':vendorId')
-  remove(@CurrentUser() user: AuthUser, @Param('vendorId') vendorId: string) {
-    return this.favoritesService.remove(user.id, vendorId);
   }
 }

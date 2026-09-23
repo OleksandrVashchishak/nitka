@@ -316,22 +316,10 @@ export default function CoupleHomeScreen() {
             onPress={() => router.push(href("/(app)/(couple)/day-plan"))}
           />
           <ListRow
-            icon="🪑"
-            title="Розсадка"
-            subtitle="Столи та місця"
-            onPress={() => router.push(href("/(app)/(couple)/seating"))}
-          />
-          <ListRow
             icon="🌐"
             title="Весільний сайт"
             subtitle="Лінк для гостей"
             onPress={() => router.push(href("/(app)/(couple)/website"))}
-          />
-          <ListRow
-            icon="✉️"
-            title="Запрошення"
-            subtitle="Дизайн для гостей"
-            onPress={() => router.push(href("/(app)/(couple)/invitations"))}
           />
           <ListRow
             icon="💍"

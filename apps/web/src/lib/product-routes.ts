@@ -29,20 +29,6 @@ export const PRODUCT_NAV = [
     coupleHref: "/guests",
   },
   {
-    id: "seating",
-    label: "Розсадка гостей",
-    shortLabel: "Розсадка",
-    guestHref: "/rozsadka-gostey",
-    coupleHref: "/seating",
-  },
-  {
-    id: "invitations",
-    label: "Онлайн-запрошення",
-    shortLabel: "Запрошення",
-    guestHref: "/zaprosinnya",
-    coupleHref: "/invitations",
-  },
-  {
     id: "website",
     label: "Весільний сайт",
     shortLabel: "Сайт",

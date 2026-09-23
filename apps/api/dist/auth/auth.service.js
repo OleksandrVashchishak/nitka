@@ -139,16 +139,13 @@ let AuthService = class AuthService {
         return user;
     }
     resolveRegisterRole(role) {
-        if (!role || role === client_1.Role.GUEST) {
+        if (!role || role === client_1.Role.GUEST || role === client_1.Role.COUPLE) {
             return client_1.Role.COUPLE;
         }
-        if (role === client_1.Role.ADMIN) {
-            throw new common_1.BadRequestException('Не можна зареєструватись як admin');
+        if (role === client_1.Role.ADMIN || role === client_1.Role.VENDOR) {
+            throw new common_1.BadRequestException('Не можна зареєструватись з цією роллю');
         }
-        if (role !== client_1.Role.COUPLE && role !== client_1.Role.VENDOR) {
-            throw new common_1.BadRequestException('Невірна роль');
-        }
-        return role;
+        throw new common_1.BadRequestException('Невірна роль');
     }
     get refreshSecret() {
         return (process.env.JWT_REFRESH_SECRET ??

@@ -11,6 +11,7 @@ import {
 import { InvitationCard } from "@/components/invitation-card";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PageLoader } from "@/components/ui-loader";
 import { uploadFile } from "@/lib/client-api";
 import { INVITATION_THEMES } from "@/lib/invitation-themes";
@@ -337,11 +338,11 @@ function InvitationsEditorInner() {
               onChange={(url) => patch("coverImageUrl", url)}
             />
             <label className="flex cursor-pointer items-start gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={content.showWebsiteLink}
-                onChange={(e) => patch("showWebsiteLink", e.target.checked)}
-                className="mt-0.5 shrink-0"
+                onCheckedChange={(v) => patch("showWebsiteLink", v)}
+                aria-label="Показувати лінк на весільний сайт"
+                className="mt-0.5"
               />
               <span className="min-w-0 leading-snug">
                 Показувати лінк на весільний сайт

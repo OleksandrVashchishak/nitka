@@ -1,4 +1,4 @@
-# NITKA mobile (Expo)
+# fata.studio mobile (Expo)
 
 Клієнт до того ж Nest API, що й `apps/web`.
 
@@ -6,13 +6,10 @@
 
 | Роль | Екрани |
 |---|---|
-| COUPLE | дім, чекліст, гості (+стіл, імпорт, delete), бюджет, план дня, заявки+чат, обране (+manual), весілля+фото, каталог |
-| VENDOR | дашборд, заявки+чат (+badge), профіль+фото |
-| ADMIN | стата, вендори, юзери, заявки, категорії, відгуки, контент |
-| Public | каталог, профіль вендора, контент, запрошення, partner-invite |
+| COUPLE | дім, чекліст, гості, бюджет, план дня, мої підрядники, весілля, сайт |
+| Public | контент (блог), partner-invite, RSVP |
 
-Push: Expo token → `POST /api/notifications/push-token`. Шлеться на нову заявку / повідомлення / запрошення (на реальному девайсі, не в web).
-
+Push: Expo token → `POST /api/notifications/push-token`.
 
 ## Start
 

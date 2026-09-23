@@ -3,46 +3,36 @@
 type Props = {
   title: string;
   body: string;
-  mainImage?: string;
-  sideImages?: string[];
+  imageUrl?: string;
+  eyebrow?: string;
 };
 
-export function WsiteStory({ title, body, mainImage, sideImages = [] }: Props) {
-  const shots = sideImages.filter(Boolean).slice(0, 2);
+export function WsiteStory({
+  title,
+  body,
+  imageUrl,
+  eyebrow = "Історія кохання",
+}: Props) {
   const paragraphs = body.split(/\n+/).filter(Boolean);
+  if (!paragraphs.length && !imageUrl) return null;
 
   return (
-    <section className="wsite-section wsite-section--alt wsite-story">
-      <div className="wsite-section__inner">
-        <div className="wsite-story__grid">
-          <div className="wsite-story__col">
-            <h2 className="wsite-section__title wsite-story__title">{title}</h2>
-            {mainImage ? (
-              <div className="wsite-story__main">
-                <img src={mainImage} alt="" className="wsite-story__main-img" />
-              </div>
-            ) : null}
-          </div>
-
-          <div className="wsite-story__col">
-            <div className="wsite-story__copy">
-              {paragraphs.map((paragraph) => (
-                <p key={paragraph.slice(0, 24)} className="wsite-section__text">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-            {shots.length ? (
-              <div className="wsite-story__stack">
-                {shots.map((src) => (
-                  <div key={src} className="wsite-story__shot">
-                    <img src={src} alt="" className="wsite-story__shot-img" />
-                  </div>
-                ))}
-              </div>
-            ) : null}
+    <section className="wsite-story">
+      <div className="wsite-story__copy">
+        <p className="wsite-story__eyebrow">{eyebrow}</p>
+        <div className="wsite-story__heading">
+          <h2 className="wsite-story__title">{title}</h2>
+          <div className="wsite-story__text">
+            {paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 32)}>{paragraph}</p>
+            ))}
           </div>
         </div>
+      </div>
+      <div className="wsite-story__media" aria-hidden>
+        {imageUrl ? (
+          <img src={imageUrl} alt="" className="wsite-story__img" />
+        ) : null}
       </div>
     </section>
   );

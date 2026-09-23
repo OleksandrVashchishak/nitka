@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   SMART_DONE_GROUPS,
   SMART_FEATURES,
@@ -18,35 +19,6 @@ type Props = {
   onClose: () => void;
   onComplete: (tasks: SmartPlanTask[]) => Promise<void>;
 };
-
-function CircleCheck({
-  checked,
-  tone = "default",
-}: {
-  checked: boolean;
-  tone?: "default" | "lime";
-}) {
-  return (
-    <span
-      className={`smart-plan-check${checked ? " is-checked" : ""}${
-        tone === "lime" && checked ? " is-lime" : ""
-      }`}
-      aria-hidden
-    >
-      {checked ? (
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-          <path
-            d="M3.5 8.2 6.4 11l6-6.5"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : null}
-    </span>
-  );
-}
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
   return (
@@ -201,7 +173,7 @@ export function SmartPlanningWizard({
                         className={`smart-plan-option${checked ? " is-on" : ""}`}
                         onClick={() => toggleFeature(item.id)}
                       >
-                        <CircleCheck checked={checked} />
+                        <Checkbox checked={checked} />
                         <span>{item.label}</span>
                       </button>
                     </li>
@@ -233,7 +205,7 @@ export function SmartPlanningWizard({
                       }`}
                       onClick={() => toggleGroup(group.id)}
                     >
-                      <CircleCheck checked={allOn || someOn} tone="lime" />
+                      <Checkbox checked={allOn || someOn} />
                       <span>{group.title}</span>
                     </button>
                     <ul className="smart-plan-option-list">
@@ -248,7 +220,7 @@ export function SmartPlanningWizard({
                               }`}
                               onClick={() => toggleDone(item.id)}
                             >
-                              <CircleCheck checked={checked} tone="lime" />
+                              <Checkbox checked={checked} />
                               <span>{item.label}</span>
                             </button>
                           </li>

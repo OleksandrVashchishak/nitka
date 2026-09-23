@@ -45,8 +45,6 @@ export default function RegisterScreen() {
   }, []);
 
   if (user) {
-    if (user.role === "VENDOR") return <Redirect href={href("/(app)/(vendor)")} />;
-    if (user.role === "ADMIN") return <Redirect href={href("/(app)/(admin)")} />;
     return <Redirect href={href("/(app)/(couple)")} />;
   }
 

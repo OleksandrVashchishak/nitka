@@ -51,7 +51,7 @@ export async function registerRequest(input: {
   email: string;
   password: string;
   name: string;
-  role: "COUPLE" | "VENDOR";
+  role: "COUPLE";
 }): Promise<AuthResponse> {
   const res = await fetch(api("/api/auth/register"), {
     method: "POST",

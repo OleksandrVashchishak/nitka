@@ -12,7 +12,7 @@ export function getSiteUrl() {
 export const SITE_NAME = "fata.studio";
 
 export const SITE_DESCRIPTION =
-  "Платформа планування весілля: чекліст, бюджет, гості, розсадка, запрошення та сайт пари.";
+  "Платформа планування весілля: чекліст, бюджет, гості, запрошення та сайт пари.";
 
 /** Metadata для кабінетів / адмінки — не індексувати. */
 export const noIndexRobots = {

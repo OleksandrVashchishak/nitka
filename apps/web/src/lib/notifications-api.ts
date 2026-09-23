@@ -24,11 +24,8 @@ export type NotificationsSummary = {
   items: NotificationItem[];
   feed?: NotificationFeedItem[];
   moreHref?: string;
-  newRequests?: number;
   pendingRsvp?: number;
   newRsvp?: number;
-  waitingRequests?: number;
-  vendorReplied?: number;
 };
 
 export function getNotificationsSummary() {

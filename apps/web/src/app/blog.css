@@ -127,39 +127,11 @@
 }
 
 .blog-city {
-  appearance: none;
   margin-bottom: 10px;
-  padding: 8px 32px 8px 14px;
-  border: 1px solid #d9d9d9;
-  border-radius: 999px;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%231A1A1A' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 12px center;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  color: #1a1a1a;
-  outline: none;
 }
 
 .blog-picks {
   display: none;
-}
-
-.blog-pick {
-  appearance: none;
-  width: 100%;
-  height: 36px;
-  padding: 8px 32px 8px 16px;
-  border: 1.5px solid #1a1a1a;
-  border-radius: 30px;
-  cursor: pointer;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%231A1A1A' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 16px center;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1;
-  color: #1a1a1a;
-  outline: none;
 }
 
 .blog-grid {
@@ -578,20 +550,6 @@
   color: #1a1a1a;
 }
 
-.blog-prose-gallery {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin: 8px 0 36px;
-}
-
-.blog-prose-gallery img {
-  display: block;
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
-}
-
 .blog-faq {
   max-width: 920px;
   margin: 56px auto 0;
@@ -695,12 +653,6 @@
   color: #ff4200;
   text-decoration: none;
   white-space: nowrap;
-}
-
-@media (min-width: 768px) {
-  .blog-prose-gallery {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 @media (min-width: 768px) and (max-width: 1099px) {
@@ -903,16 +855,6 @@
 
   .blog-prose blockquote p {
     font-size: 18px;
-  }
-
-  .blog-prose-gallery {
-    gap: 12px;
-    margin: 8px 0 28px;
-  }
-
-  .blog-prose-gallery img {
-    height: auto;
-    aspect-ratio: 358 / 240;
   }
 
   .blog-related {

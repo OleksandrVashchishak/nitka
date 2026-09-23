@@ -44,11 +44,11 @@ export declare class AuthService {
         ok: boolean;
     }>;
     me(userId: string): Promise<{
+        email: string;
         name: string;
+        role: import(".prisma/client").$Enums.Role;
         id: string;
         createdAt: Date;
-        email: string;
-        role: import(".prisma/client").$Enums.Role;
     }>;
     private resolveRegisterRole;
     private get refreshSecret();

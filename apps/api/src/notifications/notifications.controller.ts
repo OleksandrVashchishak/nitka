@@ -21,7 +21,7 @@ export class NotificationsController {
 
   @Post('push-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.VENDOR, Role.ADMIN)
+  @Roles(Role.COUPLE, Role.ADMIN)
   registerPush(
     @CurrentUser() user: AuthUser,
     @Body() dto: RegisterPushDto,
@@ -35,7 +35,7 @@ export class NotificationsController {
 
   @Delete('push-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.VENDOR, Role.ADMIN)
+  @Roles(Role.COUPLE, Role.ADMIN)
   unregisterPush(
     @CurrentUser() user: AuthUser,
     @Body() dto: RegisterPushDto,
@@ -55,7 +55,7 @@ export class NotificationsController {
 
   @Get('summary')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COUPLE, Role.VENDOR, Role.ADMIN)
+  @Roles(Role.COUPLE, Role.ADMIN)
   summary(@CurrentUser() user: AuthUser) {
     return this.notifications.getSummary(user);
   }

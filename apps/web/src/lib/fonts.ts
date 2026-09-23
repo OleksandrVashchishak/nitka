@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import {
   Cormorant_Garamond,
+  Manrope,
   Marck_Script,
   Montserrat,
   Poppins,
@@ -47,7 +48,7 @@ export const mak = localFont({
 export const cormorant = Cormorant_Garamond({
   variable: "--font-script",
   subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
 });
 
@@ -55,6 +56,12 @@ export const scriptCyr = Marck_Script({
   variable: "--font-script-cyr",
   weight: "400",
   subsets: ["cyrillic", "latin", "latin-ext"],
+});
+
+export const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const montserrat = Montserrat({

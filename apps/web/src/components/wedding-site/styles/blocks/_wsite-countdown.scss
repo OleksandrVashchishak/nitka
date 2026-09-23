@@ -1,48 +1,135 @@
 .wsite-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  padding: 100px 80px 80px;
   text-align: center;
+  background: var(--wsite-bg-soft, #f8f2f0);
+  color: var(--wsite-ink);
+
+  &__inner {
+    display: contents;
+  }
+
+  &__spark {
+    display: flex;
+    justify-content: center;
+    color: var(--wsite-ink);
+  }
+
+  &__spark-icon {
+    display: block;
+    width: 48px;
+    height: 48px;
+  }
+
+  &__title {
+    margin: 0;
+    width: 100%;
+    font-family: var(--wsite-font-display);
+    font-weight: 600;
+    font-size: clamp(1.75rem, 4vw, 2.75rem); // 44px
+    line-height: normal;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--wsite-ink);
+  }
 
   &__grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
-    max-width: 40rem;
-    margin: 1.75rem auto 0;
+    gap: 32px;
+    width: 100%;
+    max-width: 72rem;
+    margin: 0;
   }
 
   &__item {
-    padding: 0.5rem 0.75rem;
-    border-right: 1px solid var(--wsite-line);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 0;
 
-    &:last-child {
-      border-right: 0;
+    &:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: 18%;
+      bottom: 18%;
+      left: -16px;
+      width: 1px;
+      background: var(--wsite-line);
     }
   }
 
   &__value {
     margin: 0;
     font-family: var(--wsite-font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 500;
+    font-weight: 300;
+    font-size: clamp(2.75rem, 7vw, 5rem); // 80px
     line-height: 1;
+    letter-spacing: 0;
+    color: var(--wsite-ink);
   }
 
   &__label {
-    margin: 0.5rem 0 0;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    margin: 0;
+    font-family: var(--wsite-font-label);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: normal;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--wsite-ink-soft);
+    color: var(--wsite-ink-muted, #a09382);
   }
 
-  @media (max-width: 560px) {
-    &__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      row-gap: 1.25rem;
+  // Figma mobile 1109:8746 — gap32 / px16 py64 / star64 / title28 / value40 Medium
+  @media (max-width: 900px) {
+    padding: 64px 16px;
+    gap: 32px;
+
+    &__spark-icon {
+      width: 64px;
+      height: 64px;
     }
 
-    &__item:nth-child(2) {
-      border-right: 0;
+    &__title {
+      font-size: 28px;
+      letter-spacing: 4px;
+    }
+
+    &__grid {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 7px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    &__item {
+      flex: 1 1 0;
+      min-width: 0;
+      gap: 4px;
+      padding: 16px;
+
+      &:not(:first-child)::before {
+        display: none;
+      }
+    }
+
+    &__value {
+      font-size: 40px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    &__label {
+      font-size: 12px;
+      letter-spacing: 1px;
     }
   }
 }

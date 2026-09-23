@@ -39,12 +39,6 @@ let GuestsController = class GuestsController {
     remove(user, id) {
         return this.guestsService.remove(user.id, id);
     }
-    getPublic(token) {
-        return this.guestsService.getPublicInvite(token);
-    }
-    submitPublic(token, dto) {
-        return this.guestsService.submitPublicRsvp(token, dto);
-    }
 };
 exports.GuestsController = GuestsController;
 __decorate([
@@ -97,21 +91,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], GuestsController.prototype, "remove", null);
-__decorate([
-    (0, common_1.Get)('rsvp/:token'),
-    __param(0, (0, common_1.Param)('token')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], GuestsController.prototype, "getPublic", null);
-__decorate([
-    (0, common_1.Post)('rsvp/:token'),
-    __param(0, (0, common_1.Param)('token')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, guest_dto_1.PublicRsvpDto]),
-    __metadata("design:returntype", void 0)
-], GuestsController.prototype, "submitPublic", null);
 exports.GuestsController = GuestsController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [guests_service_1.GuestsService])

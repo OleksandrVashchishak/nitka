@@ -62,7 +62,7 @@ function CoupleSettingsInner() {
         </div>
       </div>
 
-      <section className="cabinet-panel cabinet-day-card" style={{ marginTop: 24 }}>
+      <section className="cabinet-panel" style={{ marginTop: 24 }}>
         <h2>Профіль</h2>
         <p>Тут згодом зʼявляться налаштування акаунта й весілля.</p>
       </section>

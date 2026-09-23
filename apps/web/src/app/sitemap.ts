@@ -37,12 +37,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     },
     {
-      url: `${siteUrl}/zaprosinnya`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
       url: `${siteUrl}/vesilnyy-sayt`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -56,12 +50,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${siteUrl}/plan-dnya-vesillya`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.85,
-    },
-    {
-      url: `${siteUrl}/rozsadka-gostey`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.85,

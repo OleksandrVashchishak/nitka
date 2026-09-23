@@ -1,4 +1,3 @@
-import * as Clipboard from "expo-clipboard";
 import * as DocumentPicker from "expo-document-picker";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -8,7 +7,6 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   View,
@@ -42,8 +40,6 @@ import {
   ScreenHeader,
   SkeletonScreen,
 } from "@/ui";
-
-const WEB_BASE = process.env.EXPO_PUBLIC_WEB_URL || "https://nitka.ua";
 
 const RSVP_FILTERS = [
   { id: "ALL", label: "Усі" },
@@ -88,10 +84,6 @@ function rsvpTone(s: RsvpStatus): "ok" | "warn" | "muted" | "sage" {
 function nextRsvp(s: RsvpStatus): RsvpStatus {
   const i = RSVP_CYCLE.indexOf(s);
   return RSVP_CYCLE[(i + 1) % RSVP_CYCLE.length]!;
-}
-
-function inviteUrl(token: string) {
-  return `${WEB_BASE.replace(/\/$/, "")}/rsvp/${token}`;
 }
 
 function buzz(light = true) {
@@ -187,24 +179,6 @@ export default function GuestsScreen() {
       tableLabel: g.tableLabel ?? undefined,
       notes: g.notes ?? undefined,
     });
-  }
-
-  async function shareInvite(g: Guest) {
-    const url = inviteUrl(g.inviteToken);
-    try {
-      await Share.share({ message: `${g.name}: ${url}`, url });
-    } catch {
-      await Clipboard.setStringAsync(url);
-      notify("Скопійовано", url);
-    }
-  }
-
-  async function copyAllLinks(guests: Guest[]) {
-    const text = guests
-      .map((g) => `${g.name}: ${inviteUrl(g.inviteToken)}`)
-      .join("\n");
-    await Clipboard.setStringAsync(text);
-    notify("Скопійовано", `${guests.length} лінків`);
   }
 
   async function pickCsvFile() {
@@ -344,10 +318,6 @@ export default function GuestsScreen() {
         {data.guests.length > 0 ? (
           <ListGroup>
             <ListRow
-              title="Скопіювати всі лінки запрошень"
-              onPress={() => void copyAllLinks(data.guests)}
-            />
-            <ListRow
               title="Розсадка за столами"
               subtitle="Призначити місця"
               onPress={() => router.push(href("/(app)/(couple)/seating"))}
@@ -383,7 +353,6 @@ export default function GuestsScreen() {
                 guest={g}
                 last={i === guests.length - 1}
                 onPress={() => openEdit(g)}
-                onShare={() => void shareInvite(g)}
                 onCycleRsvp={() => {
                   const next = nextRsvp(g.rsvpStatus);
                   quickRsvpMut.mutate({ id: g.id, rsvpStatus: next });
@@ -514,11 +483,6 @@ export default function GuestsScreen() {
               }}
             />
             <Button
-              label="Поділитись запрошенням"
-              variant="ghost"
-              onPress={() => editing && void shareInvite(editing)}
-            />
-            <Button
               label="Видалити"
               variant="danger"
               onPress={() => {
@@ -620,14 +584,12 @@ function GuestSwipeRow({
   guest: g,
   last,
   onPress,
-  onShare,
   onCycleRsvp,
   onDelete,
 }: {
   guest: Guest;
   last: boolean;
   onPress: () => void;
-  onShare: () => void;
   onCycleRsvp: () => void;
   onDelete: () => void;
 }) {
@@ -635,15 +597,6 @@ function GuestSwipeRow({
 
   const actions = (
     <View style={styles.swipeActions}>
-      <Pressable
-        style={[styles.swipeBtn, styles.swipeShare]}
-        onPress={() => {
-          ref.current?.close();
-          onShare();
-        }}
-      >
-        <Text style={styles.swipeText}>Шер</Text>
-      </Pressable>
       <Pressable
         style={[styles.swipeBtn, styles.swipeRsvp]}
         onPress={() => {
@@ -755,7 +708,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  swipeShare: { backgroundColor: colors.primarySoft },
   swipeRsvp: { backgroundColor: colors.primary },
   swipeDel: { backgroundColor: colors.danger },
   swipeText: {

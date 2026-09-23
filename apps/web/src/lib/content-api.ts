@@ -1,5 +1,3 @@
-import type { Category } from "@/lib/api";
-
 const API_URL =
   process.env.API_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
@@ -49,7 +47,6 @@ export type ContentPost = {
   seoDescription: string;
   ogImageUrl?: string | null;
   city?: string | null;
-  vendorCategorySlug?: string | null;
   featured: boolean;
   topicId: string;
   publishedAt?: string | null;
@@ -149,6 +146,3 @@ export function contentKindLabel(kind: ContentKind) {
       return "Стаття";
   }
 }
-
-/** Re-export for admin landing picker typing */
-export type { Category };

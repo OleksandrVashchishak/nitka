@@ -1,12 +1,16 @@
 .wsite-hero {
   position: relative;
-  min-height: min(92vh, 820px);
+  min-height: 900px;
+  height: 100svh;
+  max-height: 1100px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
+  justify-content: space-between;
+  padding: 64px 80px;
   overflow: hidden;
   background: #222;
+  color: var(--wsite-hero-fg, #fffdf9);
 
   &__media {
     position: absolute;
@@ -22,42 +26,125 @@
   &__shade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.55) 0%,
-      rgba(0, 0, 0, 0.15) 45%,
-      rgba(0, 0, 0, 0.25) 100%
-    );
+    background: rgba(30, 27, 21, 0.4);
+  }
+
+  &__top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-family: var(--wsite-font-label);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--wsite-hero-fg, #fffdf9);
   }
 
   &__content {
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 56rem;
     text-align: center;
-    color: #fff;
+    color: var(--wsite-hero-fg, #fffdf9);
   }
 
   &__names {
     margin: 0;
     font-family: var(--wsite-font-display);
-    font-weight: 500;
-    font-size: clamp(2.8rem, 8vw, 5.5rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+    font-weight: 300;
+    font-size: clamp(3.25rem, 9vw, 6.875rem); // 110px
+    line-height: 1;
+    letter-spacing: 0;
     text-wrap: balance;
+    color: var(--wsite-hero-fg, #fffdf9);
   }
 
-  &__meta {
-    margin: 1rem 0 0;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+  &__rule {
+    width: 120px;
+    height: 1px;
+    margin: 0;
+    background: var(--wsite-hero-fg, #fffdf9);
     opacity: 0.9;
+  }
+
+  &__invite {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(1.125rem, 2.4vw, 1.75rem); // 28px
+    line-height: normal;
+    letter-spacing: 0;
+    text-wrap: balance;
+    color: var(--wsite-hero-fg, #fffdf9);
+  }
+
+  &__scroll {
+    position: relative;
+    z-index: 1;
+    color: var(--wsite-hero-fg, #fffdf9);
+  }
+
+  &__scroll-icon {
+    display: block;
+    width: 34px;
+    height: 53px;
   }
 
   &--compact {
     min-height: 220px;
+    height: auto;
+    max-height: none;
     padding: 1.5rem;
+    justify-content: center;
+
+    .wsite-hero__names {
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+    }
+  }
+
+  // Figma mobile 1109:8734 — cover 700 / px24 py48
+  @media (max-width: 900px) {
+    min-height: 700px;
+    height: 100svh;
+    max-height: none;
+    padding: 48px 24px;
+
+    &__top {
+      font-size: 12px;
+      letter-spacing: 3px;
+    }
+
+    &__content {
+      gap: 16px;
+    }
+
+    &__names {
+      font-size: 48px;
+      line-height: 1.1;
+    }
+
+    &__rule {
+      width: 80px;
+    }
+
+    &__invite {
+      font-size: 20px;
+    }
+
+    &__scroll-icon {
+      width: 24px;
+      height: 38px;
+    }
   }
 }

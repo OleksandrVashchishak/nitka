@@ -1,19 +1,57 @@
 .wsite-couple {
-  &__grid {
+  padding: 100px 80px;
+  background: var(--wsite-bg-soft, #f8f2f0);
+  color: var(--wsite-ink);
+
+  &__inner {
+    position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem 3rem;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 96px;
+    align-items: center;
+    max-width: 72rem;
+    margin-inline: auto;
   }
 
-  &__card {
-    text-align: left;
+  &__spark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--wsite-ink);
+  }
+
+  &__spark-icon {
+    display: block;
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+
+    &--photo-first {
+      justify-self: stretch;
+      text-align: left;
+    }
+
+    &--text-first {
+      justify-self: stretch;
+      text-align: left;
+
+      .wsite-couple__photo {
+        margin: 0;
+      }
+    }
   }
 
   &__photo {
-    aspect-ratio: 3 / 4;
+    width: min(360px, 100%);
+    aspect-ratio: 360 / 480;
+    margin: 0;
+    border-radius: 50%;
     overflow: hidden;
-    background: #ddd;
-    margin-bottom: 1.25rem;
+    background: #e8e4dc;
   }
 
   &__img {
@@ -25,21 +63,78 @@
   &__name {
     margin: 0;
     font-family: var(--wsite-font-display);
-    font-size: clamp(1.75rem, 3vw, 2.4rem);
     font-weight: 500;
-    line-height: 1.1;
+    font-size: clamp(2.25rem, 5vw, 3.875rem); // 62px
+    line-height: 1;
+    letter-spacing: 0;
   }
 
   &__bio {
-    margin: 0.85rem 0 0;
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: var(--wsite-ink-soft);
+    margin: 0;
+    font-family: var(--wsite-font-label);
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--wsite-ink);
+    opacity: 0.9;
   }
 
-  @media (max-width: 768px) {
-    &__grid {
+  // Figma mobile 1109:8789 — gap48 / px24 py64 / photo240×320 / name36 / bio16 Regular / star40
+  @media (max-width: 900px) {
+    padding: 64px 24px;
+
+    &__inner {
       grid-template-columns: 1fr;
+      gap: 48px;
+      justify-items: center;
+    }
+
+    &__spark {
+      order: 2;
+    }
+
+    &__spark-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    &__col {
+      align-items: center;
+      gap: 16px;
+      max-width: none;
+      width: 100%;
+      text-align: center;
+    }
+
+    &__col--photo-first {
+      order: 1;
+    }
+
+    &__col--text-first {
+      order: 3;
+
+      .wsite-couple__photo {
+        order: -1;
+        margin: 0 auto;
+      }
+    }
+
+    &__photo {
+      width: 240px;
+      aspect-ratio: 240 / 320;
+      margin-inline: auto;
+    }
+
+    &__name {
+      font-size: 36px;
+      line-height: normal;
+    }
+
+    &__bio {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.5;
+      max-width: none;
     }
   }
 }

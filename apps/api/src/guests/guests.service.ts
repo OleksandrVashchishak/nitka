@@ -4,14 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { RsvpStatus } from '@prisma/client';
-import { InvitationsService } from '../invitations/invitations.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
   CreateGuestDto,
   ImportGuestsDto,
-  PublicRsvpDto,
   UpdateGuestDto,
 } from './dto/guest.dto';
 
@@ -20,7 +18,6 @@ export class GuestsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
-    private readonly invitations: InvitationsService,
   ) {}
 
   private async getWeddingForUser(userId: string) {
@@ -88,7 +85,6 @@ export class GuestsService {
         plusOneName: dto.plusOneName?.trim() || null,
         plusOneAttending: dto.plusOneAttending ?? null,
         allergies: dto.allergies?.trim() || null,
-        tableLabel: dto.tableLabel?.trim() || null,
         notes: dto.notes?.trim() || null,
         respondedAt:
           dto.rsvpStatus && dto.rsvpStatus !== 'PENDING' ? new Date() : null,
@@ -163,9 +159,6 @@ export class GuestsService {
         ...(dto.allergies !== undefined
           ? { allergies: dto.allergies?.trim() || null }
           : {}),
-        ...(dto.tableLabel !== undefined
-          ? { tableLabel: dto.tableLabel?.trim() || null }
-          : {}),
         ...(dto.notes !== undefined
           ? { notes: dto.notes?.trim() || null }
           : {}),
@@ -185,120 +178,5 @@ export class GuestsService {
     }
     await this.prisma.guest.delete({ where: { id: guestId } });
     return { ok: true };
-  }
-
-  async getPublicInvite(token: string) {
-    const guest = await this.prisma.guest.findUnique({
-      where: { inviteToken: token },
-      include: {
-        wedding: {
-          select: {
-            id: true,
-            date: true,
-            city: true,
-            partnerOneName: true,
-            partnerTwoName: true,
-            user: { select: { name: true } },
-            website: { select: { slug: true, published: true } },
-          },
-        },
-      },
-    });
-    if (!guest) {
-      throw new NotFoundException('Запрошення не знайдено');
-    }
-
-    const partners = [guest.wedding.partnerOneName, guest.wedding.partnerTwoName]
-      .map((name) => name.trim())
-      .filter(Boolean);
-    const coupleName =
-      partners.length > 0 ? partners.join(' і ') : guest.wedding.user.name;
-
-    const design = await this.invitations.getDesignForWedding(guest.wedding.id);
-    const websiteUrl =
-      guest.wedding.website?.published && guest.wedding.website.slug
-        ? `/w/${guest.wedding.website.slug}`
-        : null;
-
-    // Не світимо email/phone у публічному GET — гість сам вводить у формі.
-    return {
-      token: guest.inviteToken,
-      name: guest.name,
-      rsvpStatus: guest.rsvpStatus,
-      plusOne: guest.plusOne,
-      plusOneName: guest.plusOneName,
-      plusOneAttending: guest.plusOneAttending,
-      allergies: guest.allergies,
-      notes: guest.notes,
-      wedding: {
-        date: guest.wedding.date,
-        city: guest.wedding.city,
-        coupleName,
-        websiteUrl,
-      },
-      invitation: design,
-    };
-  }
-
-  async submitPublicRsvp(token: string, dto: PublicRsvpDto) {
-    if (dto.rsvpStatus === 'PENDING') {
-      throw new BadRequestException('Обери відповідь: так / ні / можливо');
-    }
-
-    const guest = await this.prisma.guest.findUnique({
-      where: { inviteToken: token },
-      include: { wedding: { select: { userId: true } } },
-    });
-    if (!guest) {
-      throw new NotFoundException('Запрошення не знайдено');
-    }
-
-    if (!guest.plusOne && dto.plusOneAttending) {
-      throw new BadRequestException('Plus one не передбачено');
-    }
-
-    const updated = await this.prisma.guest.update({
-      where: { inviteToken: token },
-      data: {
-        rsvpStatus: dto.rsvpStatus,
-        plusOneAttending: guest.plusOne
-          ? (dto.plusOneAttending ?? false)
-          : null,
-        plusOneName: guest.plusOne
-          ? dto.plusOneName?.trim() || guest.plusOneName
-          : null,
-        allergies: dto.allergies?.trim() || null,
-        email: dto.email?.trim() || guest.email,
-        phone: dto.phone?.trim() || guest.phone,
-        notes: dto.notes?.trim() || guest.notes,
-        respondedAt: new Date(),
-      },
-      select: {
-        name: true,
-        rsvpStatus: true,
-        plusOne: true,
-        plusOneName: true,
-        plusOneAttending: true,
-        allergies: true,
-        weddingId: true,
-      },
-    });
-
-    const statusLabel =
-      updated.rsvpStatus === 'YES'
-        ? 'Так'
-        : updated.rsvpStatus === 'NO'
-          ? 'Ні'
-          : updated.rsvpStatus === 'MAYBE'
-            ? 'Може'
-            : 'Очікуємо';
-
-    void this.notifications.notifyWeddingMembers(updated.weddingId, {
-      title: 'Відповідь на запрошення',
-      body: `${updated.name}: ${statusLabel}`,
-      data: { type: 'invite_reply' },
-    });
-
-    return updated;
   }
 }

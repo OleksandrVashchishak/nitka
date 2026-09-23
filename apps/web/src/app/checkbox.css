@@ -1,0 +1,84 @@
+/* Shared task-style checkbox — rounded square, lime when checked. */
+
+.fata-checkbox {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 1.5px solid #7f8791;
+  border-radius: 7px;
+  background: transparent;
+  color: #1a1a1a;
+  flex-shrink: 0;
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    transform 0.2s ease;
+}
+
+button.fata-checkbox {
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+span.fata-checkbox {
+  cursor: inherit;
+}
+
+.fata-checkbox.is-checked {
+  border-color: #f0febb;
+  background: #f0febb;
+}
+
+.fata-checkbox__mark {
+  display: block;
+  opacity: 0;
+  transform: scale(0.55);
+  transition:
+    opacity 0.18s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-checkbox__path {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  transition: stroke-dashoffset 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fata-checkbox.is-checked .fata-checkbox__mark {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 0.06s;
+}
+
+.fata-checkbox.is-checked .fata-checkbox__path {
+  stroke-dashoffset: 0;
+  transition-delay: 0.1s;
+}
+
+button.fata-checkbox:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+button.fata-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fata-checkbox,
+  .fata-checkbox__mark,
+  .fata-checkbox__path {
+    transition: none;
+  }
+
+  .fata-checkbox.is-checked .fata-checkbox__mark,
+  .fata-checkbox.is-checked .fata-checkbox__path {
+    transition-delay: 0s;
+  }
+}

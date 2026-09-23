@@ -7,6 +7,7 @@ import {
   IconTrash,
   WebsiteToggle,
 } from "@/components/website/editor/website-editor-toggle";
+import { TextInput } from "@/components/ui/text-input";
 import type {
   WebsiteContent,
   WebsiteScheduleItem,
@@ -131,33 +132,26 @@ export function WebsiteEditorContentTab({
           onToggleOpen={() => toggleOpen("hero")}
         >
           <div className="we-blocks__fields">
-            <Field label="Імʼя нареченої">
-              <input
-                className="we-blocks__input"
-                value={bride}
-                onChange={(e) => onNamesChange(e.target.value, groom)}
-              />
-            </Field>
-            <Field label="Імʼя нареченого">
-              <input
-                className="we-blocks__input"
-                value={groom}
-                onChange={(e) => onNamesChange(bride, e.target.value)}
-              />
-            </Field>
-            <Field label="Дата">
-              <div className="we-blocks__input-wrap">
-                <input
-                  className="we-blocks__input we-blocks__input--with-icon"
-                  value={content.dateLabel}
-                  onChange={(e) => patch({ dateLabel: e.target.value })}
-                  placeholder="25.08.27"
-                />
-                <span className="we-blocks__input-icon">
-                  <IconCalendar />
-                </span>
-              </div>
-            </Field>
+            <TextInput
+              size="s"
+              label="Імʼя нареченої"
+              value={bride}
+              onChange={(e) => onNamesChange(e.target.value, groom)}
+            />
+            <TextInput
+              size="s"
+              label="Імʼя нареченого"
+              value={groom}
+              onChange={(e) => onNamesChange(bride, e.target.value)}
+            />
+            <TextInput
+              size="s"
+              label="Дата"
+              value={content.dateLabel}
+              onChange={(e) => patch({ dateLabel: e.target.value })}
+              placeholder="25.08.27"
+              endAdornment={<IconCalendar />}
+            />
           </div>
         </Block>
 
@@ -193,34 +187,31 @@ export function WebsiteEditorContentTab({
                 </button>
               </div>
               <div className="we-blocks__event-grid">
-                <Field label="Час">
-                  <input
-                    className="we-blocks__input we-blocks__input--time"
-                    value={item.time}
-                    onChange={(e) => updateEvent(index, { time: e.target.value })}
-                    placeholder="16:00"
-                  />
-                </Field>
-                <Field label="Подія">
-                  <input
-                    className="we-blocks__input"
-                    value={item.title}
-                    onChange={(e) =>
-                      updateEvent(index, { title: e.target.value })
-                    }
-                    placeholder="Церемонія"
-                  />
-                </Field>
-                <Field label="Локація">
-                  <input
-                    className="we-blocks__input"
-                    value={item.detail}
-                    onChange={(e) =>
-                      updateEvent(index, { detail: e.target.value })
-                    }
-                    placeholder="Адреса або локація"
-                  />
-                </Field>
+                <TextInput
+                  size="s"
+                  label="Час"
+                  value={item.time}
+                  onChange={(e) => updateEvent(index, { time: e.target.value })}
+                  placeholder="16:00"
+                />
+                <TextInput
+                  size="s"
+                  label="Подія"
+                  value={item.title}
+                  onChange={(e) =>
+                    updateEvent(index, { title: e.target.value })
+                  }
+                  placeholder="Церемонія"
+                />
+                <TextInput
+                  size="s"
+                  label="Локація"
+                  value={item.detail}
+                  onChange={(e) =>
+                    updateEvent(index, { detail: e.target.value })
+                  }
+                  placeholder="Адреса або локація"
+                />
               </div>
             </div>
           ))}
@@ -412,21 +403,6 @@ export function WebsiteEditorContentTab({
         </Block>
       </div>
     </section>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className="we-blocks__field">
-      <span className="we-blocks__field-label">{label}</span>
-      {children}
-    </label>
   );
 }
 

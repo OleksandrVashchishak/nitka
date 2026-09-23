@@ -63,8 +63,6 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="login" />
           <Stack.Screen name="register" />
-          <Stack.Screen name="rsvp" />
-          <Stack.Screen name="vendors" />
           <Stack.Screen name="content" />
           <Stack.Screen name="partner-invite" />
           <Stack.Screen name="(app)" />

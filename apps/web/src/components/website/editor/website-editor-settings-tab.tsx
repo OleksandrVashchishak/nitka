@@ -7,6 +7,7 @@ import {
   IconLink,
   IconPencil,
 } from "@/components/website/website-icons";
+import { TextInput } from "@/components/ui/text-input";
 
 type Props = {
   slug: string;
@@ -67,15 +68,13 @@ export function WebsiteEditorSettingsTab({
       </div>
 
       <div className="we-settings__body">
-        <label className="we-settings__field">
-          <span className="we-settings__label">Адреса твого веб-сайту</span>
-          <div className="we-settings__address">
-            <input
-              className="we-settings__address-input"
-              value={addressValue}
-              onChange={(e) => onSlugChange(slugFromAddress(e.target.value))}
-              spellCheck={false}
-            />
+        <TextInput
+          size="m"
+          label="Адреса твого веб-сайту"
+          value={addressValue}
+          onChange={(e) => onSlugChange(slugFromAddress(e.target.value))}
+          spellCheck={false}
+          endAdornment={
             <button
               type="button"
               className="we-settings__copy"
@@ -84,8 +83,8 @@ export function WebsiteEditorSettingsTab({
             >
               <IconCopy />
             </button>
-          </div>
-        </label>
+          }
+        />
 
         <label className="we-settings__field">
           <span className="we-settings__label">Опис вебсайту</span>

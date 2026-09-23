@@ -4,6 +4,7 @@
   justify-content: center;
   gap: 6px;
   box-sizing: border-box;
+  flex-shrink: 0;
   min-height: 23px;
   padding: 3px 8px;
   border-radius: var(--ws-radius-badge);
@@ -22,6 +23,8 @@
   }
 
   &--unpublished {
+    min-width: 146px;
+    height: 23px;
     background: #b8b4d8;
     color: #fff;
   }

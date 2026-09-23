@@ -1,5 +1,3 @@
-import { apiFetch } from "@/lib/client-api";
-
 export type InvitationContent = {
   headline: string;
   opener: string;
@@ -12,35 +10,6 @@ export type InvitationContent = {
   rsvpNote: string;
   coverImageUrl: string;
   showWebsiteLink: boolean;
-};
-
-export type InvitationTemplateMeta = {
-  id: string;
-  name: string;
-  description: string;
-};
-
-export type InvitationMineResponse = {
-  invitation: {
-    templateId: string;
-    content: InvitationContent;
-    updatedAt: string | null;
-  };
-  wedding: {
-    id: string;
-    date: string;
-    city: string;
-    coupleName: string;
-  };
-  website: { slug: string; url: string } | null;
-  guestsPreview: Array<{
-    id: string;
-    name: string;
-    inviteToken: string;
-    rsvpStatus: string;
-  }>;
-  guestsTotal: number;
-  templates: InvitationTemplateMeta[];
 };
 
 export function normalizeInvitationContent(
@@ -72,29 +41,4 @@ export function normalizeInvitationContent(
       raw?.showWebsiteLink ?? fallback?.showWebsiteLink ?? true,
     ),
   };
-}
-
-export function getMyInvitation() {
-  return apiFetch<InvitationMineResponse>("/api/invitations/me");
-}
-
-export function upsertMyInvitation(input: {
-  templateId?: string;
-  content?: InvitationContent;
-}) {
-  return apiFetch<{
-    invitation: InvitationMineResponse["invitation"];
-    templates: InvitationTemplateMeta[];
-  }>("/api/invitations/me", {
-    method: "PUT",
-    body: JSON.stringify(input),
-  });
-}
-
-export function invitationsEditorUrl() {
-  const base = (process.env.EXPO_PUBLIC_WEB_URL || "https://nitka.ua").replace(
-    /\/$/,
-    "",
-  );
-  return `${base}/invitations`;
 }

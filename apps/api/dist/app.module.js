@@ -13,15 +13,10 @@ const app_service_1 = require("./app.service");
 const auth_module_1 = require("./auth/auth.module");
 const roles_guard_1 = require("./auth/roles.guard");
 const prisma_module_1 = require("./prisma/prisma.module");
-const categories_module_1 = require("./categories/categories.module");
-const vendors_module_1 = require("./vendors/vendors.module");
 const weddings_module_1 = require("./weddings/weddings.module");
 const favorites_module_1 = require("./favorites/favorites.module");
-const requests_module_1 = require("./requests/requests.module");
-const admin_module_1 = require("./admin/admin.module");
 const guests_module_1 = require("./guests/guests.module");
 const budget_module_1 = require("./budget/budget.module");
-const reviews_module_1 = require("./reviews/reviews.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 const content_module_1 = require("./content/content.module");
@@ -37,15 +32,10 @@ exports.AppModule = AppModule = __decorate([
             prisma_module_1.PrismaModule,
             email_module_1.EmailModule,
             auth_module_1.AuthModule,
-            categories_module_1.CategoriesModule,
-            vendors_module_1.VendorsModule,
             weddings_module_1.WeddingsModule,
             favorites_module_1.FavoritesModule,
-            requests_module_1.RequestsModule,
-            admin_module_1.AdminModule,
             guests_module_1.GuestsModule,
             budget_module_1.BudgetModule,
-            reviews_module_1.ReviewsModule,
             notifications_module_1.NotificationsModule,
             uploads_module_1.UploadsModule,
             content_module_1.ContentModule,

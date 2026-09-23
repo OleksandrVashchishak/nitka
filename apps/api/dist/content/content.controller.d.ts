@@ -10,56 +10,55 @@ export declare class ContentController {
     } & {
         name: string;
         id: string;
-        slug: string;
-        description: string;
         sortOrder: number;
         icon: string;
+        slug: string;
+        description: string;
         coverUrl: string | null;
     })[]>;
     getTopic(slug: string): Promise<{
         name: string;
         id: string;
-        slug: string;
-        description: string;
         sortOrder: number;
         icon: string;
+        slug: string;
+        description: string;
         coverUrl: string | null;
     }>;
     listCities(): Promise<string[]>;
     list(topic?: string, kind?: ContentKind, featured?: string, q?: string, city?: string, page?: string, limit?: string): Promise<{
         items: ({
+            topic: {
+                name: string;
+                id: string;
+                sortOrder: number;
+                icon: string;
+                slug: string;
+                description: string;
+                coverUrl: string | null;
+            };
             author: {
                 name: string;
                 id: string;
             } | null;
-            topic: {
-                name: string;
-                id: string;
-                slug: string;
-                description: string;
-                sortOrder: number;
-                icon: string;
-                coverUrl: string | null;
-            };
         } & {
             id: string;
-            city: string | null;
-            title: string;
             createdAt: Date;
+            city: string | null;
             updatedAt: Date;
-            slug: string;
+            title: string;
             status: import(".prisma/client").$Enums.ContentStatus;
-            featured: boolean;
-            authorId: string | null;
-            body: import("@prisma/client/runtime/library").JsonValue;
-            excerpt: string;
+            slug: string;
             coverUrl: string | null;
             kind: import(".prisma/client").$Enums.ContentKind;
+            featured: boolean;
+            excerpt: string;
+            body: import("@prisma/client/runtime/library").JsonValue;
             seoTitle: string;
             seoDescription: string;
             ogImageUrl: string | null;
-            vendorCategorySlug: string | null;
             topicId: string;
+            authorId: string | null;
             publishedAt: Date | null;
         })[];
         total: number;
@@ -67,38 +66,37 @@ export declare class ContentController {
         limit: number;
     }>;
     getBySlug(slug: string): Promise<{
+        topic: {
+            name: string;
+            id: string;
+            sortOrder: number;
+            icon: string;
+            slug: string;
+            description: string;
+            coverUrl: string | null;
+        };
         author: {
             name: string;
             id: string;
         } | null;
-        topic: {
-            name: string;
-            id: string;
-            slug: string;
-            description: string;
-            sortOrder: number;
-            icon: string;
-            coverUrl: string | null;
-        };
     } & {
         id: string;
-        city: string | null;
-        title: string;
         createdAt: Date;
+        city: string | null;
         updatedAt: Date;
-        slug: string;
+        title: string;
         status: import(".prisma/client").$Enums.ContentStatus;
-        featured: boolean;
-        authorId: string | null;
-        body: import("@prisma/client/runtime/library").JsonValue;
-        excerpt: string;
+        slug: string;
         coverUrl: string | null;
         kind: import(".prisma/client").$Enums.ContentKind;
+        featured: boolean;
+        excerpt: string;
+        body: import("@prisma/client/runtime/library").JsonValue;
         seoTitle: string;
         seoDescription: string;
         ogImageUrl: string | null;
-        vendorCategorySlug: string | null;
         topicId: string;
+        authorId: string | null;
         publishedAt: Date | null;
     }>;
 }

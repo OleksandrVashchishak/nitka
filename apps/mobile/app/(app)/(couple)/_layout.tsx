@@ -26,9 +26,7 @@ export default function CoupleLayout() {
     0;
 
   if (!user) return <Redirect href="/login" />;
-  if (user.role === "VENDOR") return <Redirect href={href("/(app)/(vendor)")} />;
-  if (user.role === "ADMIN") return <Redirect href={href("/(app)/(admin)")} />;
-  if (user.role !== "COUPLE") return <Redirect href="/login" />;
+  if (user.role === "GUEST") return <Redirect href="/login" />;
 
   return (
     <Tabs
@@ -130,14 +128,11 @@ export default function CoupleLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="requests" options={{ href: null }} />
       <Tabs.Screen name="favorites" options={{ href: null }} />
       <Tabs.Screen name="wedding" options={{ href: null }} />
       <Tabs.Screen name="day-plan" options={{ href: null }} />
-      <Tabs.Screen name="seating" options={{ href: null }} />
       <Tabs.Screen name="onboarding" options={{ href: null }} />
       <Tabs.Screen name="website" options={{ href: null }} />
-      <Tabs.Screen name="invitations" options={{ href: null }} />
     </Tabs>
   );
 }

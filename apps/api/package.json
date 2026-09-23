@@ -10,7 +10,7 @@
     "build": "node scripts/restore-prisma-client.cjs && node scripts/verify-dist.cjs",
     "build:nest": "prisma generate && nest build",
     "start": "node scripts/start-render.js",
-    "start:dev": "nest start --watch",
+    "start:dev": "node --env-file=.env ./node_modules/@nestjs/cli/bin/nest.js start --watch",
     "start:prod": "node scripts/start-render.js",
     "prisma:generate": "prisma generate",
     "prisma:vendor": "node scripts/vendor-prisma-client.cjs",
@@ -38,7 +38,7 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.5",
+    "@nestjs/cli": "^11.0.24",
     "@nestjs/schematics": "^11.0.2",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.6",

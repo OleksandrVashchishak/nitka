@@ -327,12 +327,6 @@ body.has-fata-header-home .fata-hero-mobile {
     gap: 10px;
   }
 
-  .fata-btn {
-    height: 36px;
-    padding: 14px 22px;
-    font-size: 14px;
-  }
-
   .fata-auth-skeleton {
     width: 120px;
     height: 36px;
@@ -385,62 +379,6 @@ body.has-fata-header-home .fata-hero-mobile {
   .fata-hero-mobile *::before,
   .fata-hero-mobile *::after {
     box-sizing: border-box;
-  }
-
-  .fata-m-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 18px 20px;
-  }
-
-  .fata-m-logo,
-  .fata-m-logo.fata-logo {
-    position: static;
-    width: auto;
-    height: auto;
-    flex: 0 1 auto;
-    min-width: 0;
-  }
-
-  .fata-m-logo img {
-    display: block;
-    width: 154px;
-    height: auto;
-    object-fit: contain;
-  }
-
-  .fata-m-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin: 16px 0 8px;
-    padding: 16px 0 8px;
-    border-top: 1px solid rgb(255 255 255 / 18%);
-  }
-
-  .fata-m-nav a {
-    color: #f0febb;
-    font-family: var(--font-akzidenz), sans-serif;
-    font-size: 16px;
-    font-style: italic;
-    line-height: 1.2;
-    text-decoration: none;
-  }
-
-  .fata-m-nav-start {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    padding: 0 22px;
-    border-radius: 40px;
-    background: #f0febb;
-    color: #61040f !important;
-    font-style: italic;
-    font-weight: 500;
-    width: fit-content;
   }
 
   .fata-m-main {

@@ -9,7 +9,6 @@ export declare class CreateGuestDto {
     plusOneName?: string;
     plusOneAttending?: boolean;
     allergies?: string;
-    tableLabel?: string;
     notes?: string;
 }
 export declare class ImportGuestRowDto {
@@ -33,15 +32,5 @@ export declare class UpdateGuestDto {
     plusOneName?: string | null;
     plusOneAttending?: boolean | null;
     allergies?: string | null;
-    tableLabel?: string | null;
     notes?: string | null;
-}
-export declare class PublicRsvpDto {
-    rsvpStatus: RsvpStatus;
-    plusOneAttending?: boolean;
-    plusOneName?: string;
-    allergies?: string;
-    email?: string;
-    phone?: string;
-    notes?: string;
 }

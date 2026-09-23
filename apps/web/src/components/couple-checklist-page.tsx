@@ -1,17 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import {
+  IconCalendar,
   IconClose,
   IconFilters,
   IconQuickAdd,
-  IconTaskCheck,
 } from "@/components/cabinet-task-icons";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  CabinetContextMenu,
+  CabinetContextMenuDivider,
+  CabinetContextMenuItem,
+  CabinetContextMenuLabel,
+} from "@/components/cabinet-context-menu";
+import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
+import { IconTrash } from "@/components/icon-trash";
 import {
   ResponsibleAvatar,
   ResponsibleAvatarDuo,
@@ -21,6 +30,8 @@ import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
+import { TextInput } from "@/components/ui/text-input";
 import {
   createPartnerInvite,
   createTask,
@@ -41,8 +52,8 @@ import {
   smartPlanDoneKey,
   type SmartPlanTask,
 } from "@/lib/smart-planning";
-import { suggestedDueDateForPlanItem } from "@/lib/wedding-plan";
 import { toast } from "@/lib/toast";
+import { useAnimatedProgress } from "@/lib/use-animated-progress";
 import { useAuthStore } from "@/lib/auth-store";
 import "../app/couple-cabinet.css";
 
@@ -118,13 +129,9 @@ function formatTaskDate(iso: string) {
   return `${d}.${m}.${y}`;
 }
 
-function effectiveDueFor(task: WeddingTask, weddingDate: string) {
-  if (task.dueDate) return task.dueDate.slice(0, 10);
-  return suggestedDueDateForPlanItem(
-    weddingDate,
-    task.categorySlug,
-    task.sortOrder,
-  );
+function effectiveDueFor(task: WeddingTask, _weddingDate: string) {
+  // Only a real dueDate — never invent suggested/plan dates in the list
+  return task.dueDate ? task.dueDate.slice(0, 10) : null;
 }
 
 function resolveTaskType(
@@ -230,6 +237,8 @@ function firstName(value: string) {
 function ChecklistInner() {
   const user = useAuthStore((s) => s.user);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const editHandledRef = useRef<string | null>(null);
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -372,7 +381,7 @@ function ChecklistInner() {
       const target = event.target;
       if (
         !(target instanceof Element) ||
-        !target.closest(".cabinet-guest-menu-wrap")
+        !target.closest(".cabinet-ctx-menu-wrap")
       ) {
         setMenuOpenId(null);
       }
@@ -518,9 +527,6 @@ function ChecklistInner() {
       if (sortMode === "alpha") {
         return a.title.localeCompare(b.title, "uk");
       }
-      const aDone = a.status === "DONE" ? 1 : 0;
-      const bDone = b.status === "DONE" ? 1 : 0;
-      if (aDone !== bDone) return aDone - bDone;
       const aDue = a.effectiveDue ?? "9999-99-99";
       const bDue = b.effectiveDue ?? "9999-99-99";
       if (sortMode === "urgent") {
@@ -575,6 +581,7 @@ function ChecklistInner() {
   const remaining = totalCount - doneCount;
   const progress =
     totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+  const { displayPercent, barWidth } = useAnimatedProgress(progress);
 
   const isOwner = (wedding?.myRole ?? "OWNER") === "OWNER";
   const hasPartner = (wedding?.members ?? []).some(
@@ -652,7 +659,8 @@ function ChecklistInner() {
   function openEdit(task: ChecklistRow) {
     setEditingId(task.id);
     setNewTitle(task.title);
-    setNewDue(task.effectiveDue ?? task.dueDate?.slice(0, 10) ?? "");
+    // Only real dueDate — never suggested/plan dates in the form
+    setNewDue(task.dueDate?.slice(0, 10) ?? "");
     setNewType(task.taskType);
     setNewWho(task.who);
     setNewOtherName("");
@@ -660,10 +668,22 @@ function ChecklistInner() {
     setDrawerOpen(true);
   }
 
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId || rows.length === 0) return;
+    if (editHandledRef.current === editId) return;
+    const task = rows.find((t) => t.id === editId);
+    if (!task) return;
+    editHandledRef.current = editId;
+    openEdit(task);
+    router.replace("/checklist", { scroll: false });
+  }, [searchParams, rows, router]);
+
   async function onSaveTask(e: FormEvent) {
     e.preventDefault();
     const title = newTitle.trim();
     if (!title || !wedding) return;
+    const dueDate = newDue.trim() ? newDue.trim() : null;
     setAdding(true);
     try {
       if (editingId) {
@@ -673,7 +693,7 @@ function ChecklistInner() {
           dueDate: string | null;
           assignee: TaskAssignee;
         } = {
-          dueDate: newDue || null,
+          dueDate,
           assignee: newWho,
         };
         if (existing?.isCustom) {
@@ -684,7 +704,7 @@ function ChecklistInner() {
       } else {
         const created = await createTask({
           title,
-          dueDate: newDue || undefined,
+          ...(dueDate ? { dueDate } : {}),
           categorySlug: typeToSlug(newType),
           sortOrder: newWho === "partner" ? 1 : 0,
           assignee: newWho,
@@ -891,7 +911,7 @@ function ChecklistInner() {
       <article className="cabinet-tasks-progress">
         <div className="cabinet-tasks-progress-head">
           <div className="cabinet-tasks-progress-left">
-            <p className="cabinet-tasks-progress-value">{progress}%</p>
+            <p className="cabinet-tasks-progress-value">{displayPercent}%</p>
             <p className="cabinet-tasks-progress-label">готовність весілля</p>
           </div>
           <span className="cabinet-tasks-progress-ratio">
@@ -899,7 +919,7 @@ function ChecklistInner() {
           </span>
         </div>
         <div className="cabinet-tasks-progress-bar">
-          <span style={{ width: `${Math.min(100, progress)}%` }} />
+          <span style={{ width: `${barWidth}%` }} />
         </div>
         <div className="cabinet-tasks-progress-meta">
           <span>{doneCount} виконано</span>
@@ -916,8 +936,10 @@ function ChecklistInner() {
           <IconFilters size={14} />
           Фільтри
         </button>
-        <label className="cabinet-tasks-chip cabinet-tasks-chip--select">
-          <select
+        <div className="cabinet-tasks-chip cabinet-tasks-chip--select">
+          <Select
+            tone="ghost"
+            size="s"
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as SortMode)}
             aria-label="Сортування"
@@ -925,8 +947,8 @@ function ChecklistInner() {
             <option value="urgent">Термінові зверху</option>
             <option value="date">За датою</option>
             <option value="alpha">За алфавітом</option>
-          </select>
-        </label>
+          </Select>
+        </div>
       </div>
 
       <div className="cabinet-tasks-layout">
@@ -982,16 +1004,18 @@ function ChecklistInner() {
           <div className="cabinet-tasks-list-head">
             <h2>Список завдань</h2>
             <div className="cabinet-tasks-list-actions">
-              <label className="cabinet-tasks-sort">
-                <select
-                  value={sortMode}
-                  onChange={(e) => setSortMode(e.target.value as SortMode)}
-                >
-                  <option value="urgent">Термінові зверху</option>
-                  <option value="date">За датою</option>
-                  <option value="alpha">За алфавітом</option>
-                </select>
-              </label>
+              <Select
+                className="cabinet-tasks-sort"
+                size="m"
+                shape="pill"
+                value={sortMode}
+                onChange={(e) => setSortMode(e.target.value as SortMode)}
+                aria-label="Сортування"
+              >
+                <option value="urgent">Термінові зверху</option>
+                <option value="date">За датою</option>
+                <option value="alpha">За алфавітом</option>
+              </Select>
               <Button
                 type="button"
                 tone="black"
@@ -1108,14 +1132,11 @@ function ChecklistInner() {
                     key={task.id}
                     className={`cabinet-task-row${done ? " is-done" : ""}`}
                   >
-                    <button
-                      type="button"
-                      className="cabinet-task-check"
+                    <Checkbox
+                      checked={done}
                       aria-label={done ? "Повернути в роботу" : "Виконано"}
-                      onClick={() => void onToggle(task)}
-                    >
-                      <IconTaskCheck className="cabinet-task-check__mark" />
-                    </button>
+                      onCheckedChange={() => void onToggle(task)}
+                    />
                     <div className="cabinet-task-body">
                       <p className="cabinet-task-title">{task.title}</p>
                       <div className="cabinet-task-meta-wrap">
@@ -1140,7 +1161,7 @@ function ChecklistInner() {
                             ownerName={ownerShort}
                             partnerName={partnerShort}
                           />
-                          <div className="cabinet-guest-menu-wrap">
+                          <div className="cabinet-ctx-menu-wrap">
                             <button
                               type="button"
                               className="cabinet-task-menu"
@@ -1155,127 +1176,88 @@ function ChecklistInner() {
                               <IconMore />
                             </button>
                             {menuOpenId === task.id ? (
-                              <div className="cabinet-guest-menu" role="menu">
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  className="cabinet-guest-menu-item"
+                              <CabinetContextMenu>
+                                <CabinetContextMenuItem
+                                  icon={<IconEdit />}
                                   onClick={() => openEdit(task)}
                                 >
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    aria-hidden
-                                  >
-                                    <path
-                                      d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
-                                      stroke="currentColor"
-                                      strokeWidth="1.6"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
                                   Редагувати
-                                </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className="cabinet-guest-menu-item is-danger"
-                              onClick={() => requestDelete(task)}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden
-                              >
-                                <path
-                                  d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-                                  stroke="currentColor"
-                                  strokeWidth="1.6"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                              Видалити
-                            </button>
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  icon={<IconTrash />}
+                                  danger
+                                  onClick={() => requestDelete(task)}
+                                >
+                                  Видалити
+                                </CabinetContextMenuItem>
 
-                            <div className="cabinet-guest-menu-divider" />
-                            <p className="cabinet-guest-menu-label is-caps">
-                              Хто відповідальний:
-                            </p>
+                                <CabinetContextMenuDivider />
+                                <CabinetContextMenuLabel>
+                                  Хто відповідальний
+                                </CabinetContextMenuLabel>
 
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                task.who === "owner" ? " is-active" : ""
-                              }`}
-                              onClick={() => void onSetAssignee(task, "owner")}
-                            >
-                              <ResponsibleAvatar
-                                name={ownerShort}
-                                tone="owner"
-                              />
-                              {ownerShort}
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                task.who === "partner" ? " is-active" : ""
-                              }`}
-                              onClick={() =>
-                                void onSetAssignee(task, "partner")
-                              }
-                            >
-                              <ResponsibleAvatar
-                                name={partnerShort}
-                                tone="partner"
-                              />
-                              {partnerShort}
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                task.who === "both" ? " is-active" : ""
-                              }`}
-                              onClick={() => void onSetAssignee(task, "both")}
-                            >
-                              <ResponsibleAvatarDuo
-                                ownerName={ownerShort}
-                                partnerName={partnerShort}
-                                aria-hidden
-                              />
-                              Обоє
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                task.who === "none" ? " is-active" : ""
-                              }`}
-                              onClick={() => void onSetAssignee(task, "none")}
-                            >
-                              Ніхто
-                            </button>
-                            <button
-                              type="button"
-                              role="menuitem"
-                              className={`cabinet-guest-menu-item${
-                                task.who === "other" ? " is-active" : ""
-                              }`}
-                              onClick={() => void onSetAssignee(task, "other")}
-                            >
-                              Хтось інший
-                            </button>
+                                <CabinetContextMenuItem
+                                  icon={
+                                    <ResponsibleAvatar
+                                      name={ownerShort}
+                                      tone="owner"
+                                    />
+                                  }
+                                  active={task.who === "owner"}
+                                  onClick={() =>
+                                    void onSetAssignee(task, "owner")
+                                  }
+                                >
+                                  {ownerShort}
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  icon={
+                                    <ResponsibleAvatar
+                                      name={partnerShort}
+                                      tone="partner"
+                                    />
+                                  }
+                                  active={task.who === "partner"}
+                                  onClick={() =>
+                                    void onSetAssignee(task, "partner")
+                                  }
+                                >
+                                  {partnerShort}
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  icon={
+                                    <ResponsibleAvatarDuo
+                                      ownerName={ownerShort}
+                                      partnerName={partnerShort}
+                                      aria-hidden
+                                    />
+                                  }
+                                  active={task.who === "both"}
+                                  onClick={() =>
+                                    void onSetAssignee(task, "both")
+                                  }
+                                >
+                                  Обоє
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  active={task.who === "none"}
+                                  onClick={() =>
+                                    void onSetAssignee(task, "none")
+                                  }
+                                >
+                                  Ніхто
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  active={task.who === "other"}
+                                  onClick={() =>
+                                    void onSetAssignee(task, "other")
+                                  }
+                                >
+                                  Хтось інший
+                                </CabinetContextMenuItem>
+                              </CabinetContextMenu>
+                            ) : null}
                           </div>
-                        ) : null}
-                      </div>
                         </div>
                       </div>
                     </div>
@@ -1454,78 +1436,88 @@ function ChecklistInner() {
               </button>
             </div>
             <form className="cabinet-drawer-form" onSubmit={onSaveTask}>
-              <label className="cabinet-drawer-field">
-                <span>Назва завдання</span>
-                <input
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Наприклад, Замовити весільний торт"
-                  required
-                  disabled={Boolean(
-                    editingId &&
-                      wedding?.tasks.find((t) => t.id === editingId) &&
-                      !wedding.tasks.find((t) => t.id === editingId)?.isCustom,
-                  )}
-                />
-              </label>
+              <TextInput
+                label="Назва завдання"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="Наприклад, Замовити весільний торт"
+                required
+                disabled={Boolean(
+                  editingId &&
+                    wedding?.tasks.find((t) => t.id === editingId) &&
+                    !wedding.tasks.find((t) => t.id === editingId)?.isCustom,
+                )}
+              />
               <label className="cabinet-drawer-field">
                 <span>Дедлайн</span>
-                <div className="cabinet-drawer-field-control">
+                <div
+                  className={`cabinet-tasks-date${newDue ? " has-value" : ""}`}
+                >
                   <input
                     type="date"
                     value={newDue}
                     onChange={(e) => setNewDue(e.target.value)}
-                    placeholder="Оберіть дату"
+                    aria-label="Дедлайн"
+                  />
+                  {!newDue ? (
+                    <span className="cabinet-tasks-date__placeholder" aria-hidden>
+                      Оберіть дату
+                    </span>
+                  ) : null}
+                  <IconCalendar
+                    size={18}
+                    className="cabinet-tasks-date__icon"
                   />
                 </div>
               </label>
               {!editingId ? (
-                <label className="cabinet-drawer-field">
-                  <span>Тип завдання</span>
-                  <select
-                    value={newType}
-                    onChange={(e) =>
-                      setNewType(
-                        e.target.value as
-                          | Exclude<
-                              TypeFilter,
-                              "all" | "other" | "guests_invites"
-                            >
-                          | "",
-                      )
-                    }
-                  >
-                    <option value="">Не призначено</option>
-                    {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
-              <label className="cabinet-drawer-field">
-                <span>Відповідальний</span>
-                <select
-                  value={newWho}
-                  onChange={(e) => setNewWho(e.target.value as TaskWho)}
+                <Select
+                  label="Тип завдання"
+                  value={newType}
+                  onChange={(e) =>
+                    setNewType(
+                      e.target.value as
+                        | Exclude<
+                            TypeFilter,
+                            "all" | "other" | "guests_invites"
+                          >
+                        | "",
+                    )
+                  }
                 >
-                  <option value="owner">{ownerShort}</option>
-                  <option value="partner">{partnerShort}</option>
-                  <option value="both">Обоє</option>
-                  <option value="none">Ніхто</option>
-                  <option value="other">Хтось інший</option>
-                </select>
-              </label>
-              {newWho === "other" ? (
-                <label className="cabinet-drawer-field">
-                  <span>Вкажіть відповідального</span>
-                  <input
-                    value={newOtherName}
-                    onChange={(e) => setNewOtherName(e.target.value)}
-                    placeholder="Введіть імʼя або роль"
+                  <option value="">Не призначено</option>
+                  {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Select>
+              ) : null}
+              <Select
+                label="Відповідальний"
+                value={newWho}
+                onChange={(e) => setNewWho(e.target.value as TaskWho)}
+                startAdornment={
+                  <TaskResponsibleAvatar
+                    who={newWho}
+                    ownerName={ownerShort}
+                    partnerName={partnerShort}
                   />
-                </label>
+                }
+              >
+                <option value="owner">{ownerShort}</option>
+                <option value="partner">{partnerShort}</option>
+                <option value="both">Обоє</option>
+                <option value="none">Ніхто</option>
+                <option value="other">Хтось інший</option>
+              </Select>
+              {newWho === "other" ? (
+                <TextInput
+                  label="Вкажіть відповідального"
+                  value={newOtherName}
+                  onChange={(e) => setNewOtherName(e.target.value)}
+                  placeholder="Введіть імʼя або роль"
+                />
               ) : null}
               <div className="cabinet-drawer-actions">
                 <Button

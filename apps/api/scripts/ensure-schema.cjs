@@ -17,9 +17,6 @@ END $$`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS is_custom BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assignee TEXT`,
 
-  `ALTER TABLE vendors ADD COLUMN IF NOT EXISTS slug TEXT`,
-  `UPDATE vendors SET slug = CONCAT('vendor-', id) WHERE slug IS NULL OR slug = ''`,
-
   `DO $$ BEGIN
   CREATE TYPE "ContentKind" AS ENUM ('ARTICLE', 'GUIDE', 'LANDING');
 EXCEPTION WHEN duplicate_object THEN null;
@@ -55,7 +52,6 @@ END $$`,
   seo_description TEXT NOT NULL DEFAULT '',
   og_image_url TEXT,
   city TEXT,
-  vendor_category_slug TEXT,
   featured BOOLEAN NOT NULL DEFAULT false,
   topic_id TEXT NOT NULL,
   author_id TEXT,
@@ -192,6 +188,32 @@ END $$`,
   updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS wedding_invitations_wedding_id_key ON wedding_invitations(wedding_id)`,
+
+  // --- Drop legacy content marketplace field ---
+  `ALTER TABLE content_posts DROP COLUMN IF EXISTS vendor_category_slug`,
+
+  // --- Drop legacy marketplace tables (idempotent) ---
+  `DROP TABLE IF EXISTS request_messages`,
+  `DROP TABLE IF EXISTS requests`,
+  `DROP TABLE IF EXISTS favorites`,
+  `DROP TABLE IF EXISTS reviews`,
+  `DROP TABLE IF EXISTS vendor_views`,
+  `DROP TABLE IF EXISTS vendor_faqs`,
+  `DROP TABLE IF EXISTS vendor_team_members`,
+  `DROP TABLE IF EXISTS vendor_packages`,
+  `DROP TABLE IF EXISTS vendor_photos`,
+  `DROP TABLE IF EXISTS vendors`,
+  `DROP TABLE IF EXISTS categories`,
+
+  `DO $$ BEGIN
+  DROP TYPE IF EXISTS "VendorStatus";
+EXCEPTION WHEN dependent_objects_still_exist THEN null;
+END $$`,
+
+  `DO $$ BEGIN
+  DROP TYPE IF EXISTS "RequestStatus";
+EXCEPTION WHEN dependent_objects_still_exist THEN null;
+END $$`,
 ];
 
 async function main() {

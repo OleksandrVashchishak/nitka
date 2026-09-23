@@ -19,8 +19,8 @@ export function WebsiteEditorDesignTab({ selectedId, onSelect }: Props) {
           Оберіть дизайн
         </h1>
         <p className="we-catalog__text">
-          Оберіть вигляд для вашого весільного сайту. Зміни можна робити в
-          будь-який момент.
+          Неважливо, чи ви тільки починаєте шукати ідеї, чи вже рахуєте останні
+          деталі — ми допоможемо вам організувати все необхідне.
         </p>
       </div>
 
@@ -38,20 +38,22 @@ export function WebsiteEditorDesignTab({ selectedId, onSelect }: Props) {
               aria-pressed={active}
               onClick={() => onSelect(option)}
             >
-              {active ? (
-                <span className="we-catalog__badge">Обраний</span>
-              ) : null}
               <div className="we-catalog__thumb">
                 <Image
                   src={option.thumb}
                   alt=""
-                  width={64}
-                  height={80}
+                  width={361}
+                  height={177}
                   className="we-catalog__thumb-img"
                 />
               </div>
               <div className="we-catalog__body">
-                <p className="we-catalog__name">{option.name}</p>
+                <div className="we-catalog__name-row">
+                  <p className="we-catalog__name">{option.name}</p>
+                  {active ? (
+                    <span className="we-catalog__badge">Обраний</span>
+                  ) : null}
+                </div>
                 <p className="we-catalog__desc">{option.description}</p>
               </div>
             </button>

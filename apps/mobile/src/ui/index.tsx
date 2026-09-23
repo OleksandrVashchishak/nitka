@@ -287,7 +287,6 @@ export function Loading() {
 
 export { SkeletonScreen } from "@/ui/skeleton";
 export { ToastHost } from "@/ui/toast";
-export { RsvpCelebration } from "@/ui/rsvp-celebration";
 export { FormScroll } from "@/ui/form-scroll";
 
 export function ErrorBox({ message }: { message: string }) {

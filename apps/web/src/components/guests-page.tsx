@@ -10,13 +10,24 @@ import {
   IconFilters,
   IconQuickAdd,
 } from "@/components/cabinet-task-icons";
+import {
+  CabinetContextMenu,
+  CabinetContextMenuDivider,
+  CabinetContextMenuItem,
+  CabinetContextMenuLabel,
+} from "@/components/cabinet-context-menu";
+import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
+import { IconTrash } from "@/components/icon-trash";
 import {
   ResponsibleAvatar,
   ResponsibleAvatarDuo,
 } from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
+import { TextInput } from "@/components/ui/text-input";
 import {
   createGuest,
   deleteGuest,
@@ -251,7 +262,7 @@ function GuestsInner() {
       const target = event.target;
       if (
         !(target instanceof Element) ||
-        !target.closest(".cabinet-guest-menu-wrap")
+        !target.closest(".cabinet-ctx-menu-wrap")
       ) {
         setMenuOpenId(null);
       }
@@ -652,8 +663,10 @@ function GuestsInner() {
                 </span>
               ) : null}
             </button>
-            <label className="cabinet-tasks-chip cabinet-tasks-chip--select">
-              <select
+            <div className="cabinet-tasks-chip cabinet-tasks-chip--select">
+              <Select
+                tone="ghost"
+                size="s"
                 value={sortMode}
                 onChange={(e) => setSortMode(e.target.value as SortMode)}
                 aria-label="Сортування"
@@ -661,8 +674,8 @@ function GuestsInner() {
                 <option value="recent">Недавно додані</option>
                 <option value="alpha">За алфавітом</option>
                 <option value="rsvp">За відповіддю</option>
-              </select>
-            </label>
+              </Select>
+            </div>
           </div>
 
           <div className="cabinet-tasks-layout">
@@ -744,16 +757,18 @@ function GuestsInner() {
                   </span>
                 </h2>
                 <div className="cabinet-tasks-list-actions">
-                  <label className="cabinet-tasks-sort">
-                    <select
-                      value={sortMode}
-                      onChange={(e) => setSortMode(e.target.value as SortMode)}
-                    >
-                      <option value="recent">Недавно додані</option>
-                      <option value="alpha">За алфавітом</option>
-                      <option value="rsvp">За відповіддю</option>
-                    </select>
-                  </label>
+                  <Select
+                    className="cabinet-tasks-sort"
+                    size="m"
+                    shape="pill"
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as SortMode)}
+                    aria-label="Сортування"
+                  >
+                    <option value="recent">Недавно додані</option>
+                    <option value="alpha">За алфавітом</option>
+                    <option value="rsvp">За відповіддю</option>
+                  </Select>
                   <Button
                     type="button"
                     tone="black"
@@ -845,7 +860,7 @@ function GuestsInner() {
                               }
                             />
                           )}
-                          <div className="cabinet-guest-menu-wrap">
+                          <div className="cabinet-ctx-menu-wrap">
                             <button
                               type="button"
                               className="cabinet-task-menu"
@@ -860,108 +875,69 @@ function GuestsInner() {
                               <IconMore />
                             </button>
                             {menuOpenId === guest.id ? (
-                              <div className="cabinet-guest-menu" role="menu">
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  className="cabinet-guest-menu-item"
+                              <CabinetContextMenu>
+                                <CabinetContextMenuItem
+                                  icon={<IconEdit />}
                                   disabled={busy}
                                   onClick={() => openEdit(guest)}
                                 >
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    aria-hidden
-                                  >
-                                    <path
-                                      d="M15.2 5.2 18.8 8.8M4 20l.7-3.7L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L7.7 19.3 4 20Z"
-                                      stroke="currentColor"
-                                      strokeWidth="1.6"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
                                   Редагувати
-                                </button>
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  className="cabinet-guest-menu-item is-danger"
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  icon={<IconTrash />}
+                                  danger
                                   disabled={busy}
                                   onClick={() => void onDelete(guest)}
                                 >
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    aria-hidden
-                                  >
-                                    <path
-                                      d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-                                      stroke="currentColor"
-                                      strokeWidth="1.6"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
                                   Видалити
-                                </button>
+                                </CabinetContextMenuItem>
 
-                                <div className="cabinet-guest-menu-divider" />
-                                <p className="cabinet-guest-menu-label">
-                                  з чиєї сторони
-                                </p>
+                                <CabinetContextMenuDivider />
+                                <CabinetContextMenuLabel>
+                                  З чиєї сторони
+                                </CabinetContextMenuLabel>
 
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  className={`cabinet-guest-menu-item${
-                                    guest.side === "BRIDE" ? " is-active" : ""
-                                  }`}
+                                <CabinetContextMenuItem
+                                  icon={
+                                    <ResponsibleAvatar
+                                      name={ownerName}
+                                      tone="owner"
+                                    />
+                                  }
+                                  active={guest.side === "BRIDE"}
                                   disabled={busy}
                                   onClick={() => void onSetSide(guest, "BRIDE")}
                                 >
-                                  <ResponsibleAvatar
-                                    name={ownerName}
-                                    tone="owner"
-                                  />
                                   {ownerName}
-                                </button>
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  className={`cabinet-guest-menu-item${
-                                    guest.side === "GROOM" ? " is-active" : ""
-                                  }`}
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  icon={
+                                    <ResponsibleAvatar
+                                      name={partnerName}
+                                      tone="partner"
+                                    />
+                                  }
+                                  active={guest.side === "GROOM"}
                                   disabled={busy}
                                   onClick={() => void onSetSide(guest, "GROOM")}
                                 >
-                                  <ResponsibleAvatar
-                                    name={partnerName}
-                                    tone="partner"
-                                  />
                                   {partnerName}
-                                </button>
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  className={`cabinet-guest-menu-item${
-                                    guest.side === "BOTH" ? " is-active" : ""
-                                  }`}
+                                </CabinetContextMenuItem>
+                                <CabinetContextMenuItem
+                                  icon={
+                                    <ResponsibleAvatarDuo
+                                      ownerName={ownerName}
+                                      partnerName={partnerName}
+                                      aria-hidden
+                                    />
+                                  }
+                                  active={guest.side === "BOTH"}
                                   disabled={busy}
                                   onClick={() => void onSetSide(guest, "BOTH")}
                                 >
-                                  <ResponsibleAvatarDuo
-                                    ownerName={ownerName}
-                                    partnerName={partnerName}
-                                    aria-hidden
-                                  />
                                   Обоє
-                                </button>
-                              </div>
+                                </CabinetContextMenuItem>
+                              </CabinetContextMenu>
                             ) : null}
                           </div>
                         </div>
@@ -1134,15 +1110,13 @@ function GuestsInner() {
               </button>
             </div>
             <form className="cabinet-drawer-form" onSubmit={onSave}>
-              <label className="cabinet-drawer-field">
-                <span>Імʼя і прізвище</span>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Наприклад: Ліля Василенко"
-                  required
-                />
-              </label>
+              <TextInput
+                label="Імʼя і прізвище"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Наприклад: Ліля Василенко"
+                required
+              />
 
               <button
                 type="button"
@@ -1152,34 +1126,30 @@ function GuestsInner() {
                 + Додати +1
               </button>
               {plusOne ? (
-                <label className="cabinet-drawer-field">
-                  <span>Імʼя +1</span>
-                  <input
-                    value={plusOneName}
-                    onChange={(e) => setPlusOneName(e.target.value)}
-                    placeholder="Імʼя супутника"
-                  />
-                </label>
+                <TextInput
+                  label="Імʼя +1"
+                  value={plusOneName}
+                  onChange={(e) => setPlusOneName(e.target.value)}
+                  placeholder="Імʼя супутника"
+                />
               ) : null}
 
-              <label className="cabinet-drawer-field">
-                <span>Сторона нареченого чи нареченої</span>
-                <select
-                  value={side}
-                  onChange={(e) => setSide(e.target.value as GuestSide | "")}
-                >
-                  <option value="">Обрати сторону</option>
-                  <option value="BRIDE">Гості нареченої</option>
-                  <option value="GROOM">Гості нареченого</option>
-                  <option value="BOTH">Спільні</option>
-                </select>
-              </label>
+              <Select
+                label="Сторона нареченого чи нареченої"
+                value={side}
+                onChange={(e) => setSide(e.target.value as GuestSide | "")}
+              >
+                <option value="">Обрати сторону</option>
+                <option value="BRIDE">Гості нареченої</option>
+                <option value="GROOM">Гості нареченого</option>
+                <option value="BOTH">Спільні</option>
+              </Select>
 
               <label className="cabinet-drawer-check">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={isChildGuest}
-                  onChange={(e) => setIsChildGuest(e.target.checked)}
+                  onCheckedChange={setIsChildGuest}
+                  aria-label="Дитина"
                 />
                 <span>Дитина</span>
               </label>
@@ -1201,26 +1171,22 @@ function GuestsInner() {
                     </button>
                   ))}
                 </div>
-                <label className="cabinet-drawer-field">
-                  <span>Номер телефону</span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+380"
-                  />
-                </label>
-                <label className="cabinet-drawer-field">
-                  <span>Статус</span>
-                  <select
-                    value={inviteStatus}
-                    onChange={(e) =>
-                      setInviteStatus(e.target.value as "not_invited" | "invited")
-                    }
-                  >
-                    <option value="not_invited">Не запрошено</option>
-                    <option value="invited">Запрошено</option>
-                  </select>
-                </label>
+                <TextInput
+                  label="Номер телефону"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+380"
+                />
+                <Select
+                  label="Статус"
+                  value={inviteStatus}
+                  onChange={(e) =>
+                    setInviteStatus(e.target.value as "not_invited" | "invited")
+                  }
+                >
+                  <option value="not_invited">Не запрошено</option>
+                  <option value="invited">Запрошено</option>
+                </Select>
               </div>
 
               <div className="cabinet-drawer-actions">

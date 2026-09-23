@@ -109,30 +109,24 @@
   padding-top: 28px;
 }
 
-.fata-drawer-cta a,
-.fata-drawer-cta button {
-  display: flex;
+/* Drawer CTAs sit on dark wine — override shared Button tones */
+.fata-drawer-cta .fata-button {
   height: 56px;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border-radius: 999px;
   font-family: var(--font-display), sans-serif;
   font-size: 18px;
-  font-style: italic;
-  text-decoration: none;
-  cursor: pointer;
 }
 
-.fata-drawer-login {
-  border: 1px solid #f0febb;
+.fata-drawer-cta .fata-button--ghost {
+  border-color: #f0febb;
   background: transparent;
   color: #f0febb;
 }
 
-.fata-drawer-start {
-  background: #f0febb;
+.fata-drawer-cta .fata-button--ghost:hover:not(:disabled) {
+  background: rgba(240, 254, 187, 0.08);
+}
+
+.fata-drawer-cta .fata-button--light {
   color: #1a1a1a;
 }
 

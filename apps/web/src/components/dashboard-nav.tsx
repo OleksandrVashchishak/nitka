@@ -29,21 +29,16 @@ const COUPLE_PRIMARY: NavLink[] = [
 
 const COUPLE_MORE: NavLink[] = [];
 
-const VENDOR_LINKS: NavLink[] = [
-  { href: "/vendor/dashboard", label: "Огляд", badgeKeys: ["newRequests"] },
-  { href: "/vendor/requests", label: "Заявки", badgeKeys: ["newRequests"] },
-  { href: "/vendor/profile", label: "Профіль" },
-];
-
 type Props = {
-  variant: "COUPLE" | "VENDOR";
+  /** @deprecated marketplace gone — always couple */
+  variant?: "COUPLE";
 };
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function DashboardNav({ variant }: Props) {
+export function DashboardNav(_props: Props = {}) {
   const inCabinet = useCoupleCabinet();
   const pathname = usePathname();
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -84,27 +79,7 @@ export function DashboardNav({ variant }: Props) {
       .reduce((sum, i) => sum + i.count, 0);
   }
 
-  if (variant === "COUPLE" && inCabinet) return null;
-
-  if (variant === "VENDOR") {
-    return (
-      <NavShell summary={summary}>
-        <nav
-          aria-label="Навігація кабінету"
-          className="flex max-w-full flex-wrap gap-1 rounded-2xl bg-mist p-1.5"
-        >
-          {VENDOR_LINKS.map((link) => (
-            <NavItem
-              key={link.href}
-              link={link}
-              active={isActive(pathname, link.href)}
-              badge={badgeFor(link.badgeKeys)}
-            />
-          ))}
-        </nav>
-      </NavShell>
-    );
-  }
+  if (inCabinet) return null;
 
   const moreActive = COUPLE_MORE.some((link) => isActive(pathname, link.href));
   const moreBadge = COUPLE_MORE.reduce(

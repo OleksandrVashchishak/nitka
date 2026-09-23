@@ -1,47 +1,112 @@
 .wsite-details {
+  padding: 100px 80px;
+  background: var(--wsite-bg, #faf7f2);
+  color: var(--wsite-ink);
+  text-align: center;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    max-width: 40rem;
+    margin-inline: auto;
+  }
+
   &__title {
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 500;
+    font-size: clamp(2.25rem, 5vw, 3.875rem); // 62px
+    line-height: normal;
     text-align: center;
-    margin-bottom: 2.5rem;
   }
 
   &__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 
   &__item {
-    padding-top: 1rem;
-    border-top: 1px solid var(--wsite-line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 0;
+    border-top: 1px solid #d8c7bc;
+
+    &:first-child {
+      border-top: 0;
+    }
   }
 
   &__mark {
-    display: block;
-    width: 7px;
-    height: 7px;
-    margin-bottom: 0.85rem;
-    border: 1px solid var(--wsite-ink);
-    transform: rotate(45deg);
+    display: none;
+    margin: 0;
+    font-family: var(--wsite-font-display);
+    font-weight: 400;
+    font-size: 32px;
+    line-height: normal;
+    color: var(--wsite-ink);
   }
 
   &__name {
     margin: 0;
     font-family: var(--wsite-font-display);
-    font-size: 1.35rem;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem); // 40px
     font-weight: 500;
-    line-height: 1.2;
+    line-height: normal;
   }
 
   &__text {
-    margin: 0.75rem 0 0;
-    font-size: 0.92rem;
+    margin: 0;
+    max-width: 600px;
+    font-family: var(--wsite-font-label);
+    font-weight: 500;
+    font-size: 16px;
     line-height: 1.6;
-    color: var(--wsite-ink-soft);
+    color: #626261;
+    text-align: center;
   }
 
-  @media (max-width: 700px) {
-    &__grid {
-      grid-template-columns: 1fr;
+  // Figma mobile 1109:8804 — gap32 / px24 py64 / title36 / mark+name 32 / item gap8 py16
+  @media (max-width: 900px) {
+    padding: 64px 24px;
+
+    &__inner {
+      gap: 32px;
+      max-width: none;
+    }
+
+    &__title {
+      font-size: 36px;
+      max-width: none;
+    }
+
+    &__item {
+      gap: 8px;
+      padding: 16px 0;
+      border-top: 0;
+      border-bottom: 1px solid #d8c7bc;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    &__mark {
+      display: block;
+    }
+
+    &__name {
+      font-size: 32px;
+    }
+
+    &__text {
+      font-size: 16px;
+      line-height: 1.5;
+      max-width: none;
     }
   }
 }
