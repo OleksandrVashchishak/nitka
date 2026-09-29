@@ -1,0 +1,562 @@
+/* Seating chart print editor — Frame 74 @1x (990×728) */
+
+.seat-chart-editor {
+  --sc-orange: #ff4200;
+  --sc-ink: #1a1a1a;
+  --sc-muted: #7f7e7c;
+  --sc-line: #e4e4e7;
+  --sc-panel: #fafafa;
+  --sc-preview: #f3f3f3;
+  --sc-sheet-bg: #fffbf4;
+  --sc-font: var(--font-sans), "Montserrat", sans-serif;
+  --sc-font-display: var(--font-display), var(--font-akzidenz), sans-serif;
+  --sc-aside-w: 320px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: var(--sc-ink);
+}
+
+.seat-chart-editor__header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--sc-line);
+  background: #fff;
+}
+
+.seat-chart-editor__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.seat-chart-editor__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sc-ink);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sc-panel);
+  }
+}
+
+.seat-chart-editor__brand {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.seat-chart-editor__pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 156px;
+  height: 37px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--sc-orange);
+  color: #fff;
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 100%;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.92;
+  }
+}
+
+.seat-chart-editor__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.seat-chart-editor__aside {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--sc-aside-w);
+  min-height: 0;
+  padding: 24px 16px;
+  border-right: 1px solid var(--sc-line);
+  background: #fff;
+  overflow: hidden;
+}
+
+.seat-chart-editor__title {
+  margin: 0 0 20px;
+  font-family: var(--sc-font);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 150%;
+  color: var(--sc-ink);
+}
+
+.seat-chart-editor__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.seat-chart-editor__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--sc-line);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    border-color: #d4d4d8;
+  }
+
+  &.is-active {
+    border: 2px solid var(--sc-orange);
+    background: var(--sc-panel);
+    padding: 13px 15px;
+  }
+}
+
+.seat-chart-editor__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.seat-chart-editor__card-name {
+  margin: 0;
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 100%;
+  color: #18181b;
+}
+
+.seat-chart-editor__card-desc {
+  margin: 0;
+  font-family: var(--sc-font);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 140%;
+  color: var(--sc-muted);
+}
+
+.seat-chart-editor__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 66px;
+  height: 16px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--sc-orange);
+  color: #fff;
+  font-family: Inter, var(--sc-font), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 100%;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.seat-chart-editor__badge--soon {
+  background: #a1a1aa;
+}
+
+.seat-chart-editor__preview {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sc-preview);
+  overflow: auto;
+}
+
+.seat-chart-editor__stage {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.seat-chart-editor__sheet-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 990px;
+  height: 728px;
+  transform-origin: top left;
+}
+
+/* —— Sheet: Modern (Frame 74) —— */
+
+.seat-chart-sheet {
+  box-sizing: border-box;
+  width: 990px;
+  height: 728px;
+  background: var(--sc-sheet-bg, #fffbf4);
+  color: #000;
+  overflow: hidden;
+}
+
+.seat-chart-sheet--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  font-family: var(--sc-font);
+  font-size: 16px;
+  color: #71717a;
+  text-align: center;
+}
+
+.seat-chart-sheet--modern {
+  position: relative;
+  padding: 32px 40px 36px 56px;
+  font-family: var(--sc-font);
+}
+
+.seat-chart-modern__presidium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 28px;
+  max-width: 560px;
+}
+
+.seat-chart-modern__section-title {
+  margin: 0;
+  font-family: var(--sc-font);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #000;
+}
+
+.seat-chart-modern__rule {
+  width: 220px;
+  height: 1px;
+  background: #000;
+}
+
+.seat-chart-modern__rule--kids {
+  width: 72px;
+}
+
+.seat-chart-modern__presidium-names {
+  margin: 0;
+  font-family: var(--sc-font);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #000;
+
+  &.is-empty {
+    opacity: 0.25;
+  }
+}
+
+.seat-chart-modern__body {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  min-height: 420px;
+  padding: 12px 8px 72px 48px;
+}
+
+.seat-chart-modern__tables {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  min-width: 0;
+  padding: 0 8px;
+  overflow: hidden;
+}
+
+.seat-chart-modern__table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 180px;
+  padding: 0 14px;
+
+  & + & {
+    border-left: 1px solid #000;
+  }
+
+  &.is-wide {
+    flex: 1.6 1 0;
+    max-width: 280px;
+  }
+}
+
+.seat-chart-modern__table-label {
+  margin: 0;
+  font-family: var(--sc-font);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #000;
+  white-space: nowrap;
+}
+
+.seat-chart-modern__table-rule {
+  width: 48px;
+  height: 1px;
+  background: #000;
+}
+
+.seat-chart-modern__table-cols {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+}
+
+.seat-chart-modern__col {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 8px;
+
+  & + & {
+    border-left: 1px solid #000;
+  }
+}
+
+.seat-chart-modern__couple {
+  position: absolute;
+  left: 0;
+  bottom: 48px;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--sc-font-display);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #000;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    width: 1px;
+    background: #000;
+  }
+}
+
+.seat-chart-modern__names {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--sc-font);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 19.5px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.seat-chart-modern__names li {
+  white-space: nowrap;
+}
+
+.seat-chart-modern__footer {
+  position: absolute;
+  right: 40px;
+  bottom: 36px;
+  left: 56px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 24px;
+}
+
+.seat-chart-modern__kids {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  justify-self: center;
+  max-width: 640px;
+  margin-left: 80px;
+}
+
+.seat-chart-modern__kids .seat-chart-modern__section-title {
+  text-align: center;
+}
+
+.seat-chart-modern__kids-names {
+  margin: 0;
+  font-family: var(--sc-font);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.seat-chart-modern__date {
+  margin: 0;
+  flex-shrink: 0;
+  font-family: var(--sc-font-display);
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: #000;
+}
+
+@media (max-width: 960px) {
+  .seat-chart-editor__body {
+    flex-direction: column;
+  }
+
+  .seat-chart-editor__aside {
+    width: 100%;
+    max-height: 40vh;
+    border-right: 0;
+    border-bottom: 1px solid var(--sc-line);
+  }
+
+  .seat-chart-editor__header {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .seat-chart-editor__pdf {
+    min-width: 0;
+    padding: 0 20px;
+  }
+}
+
+/* Print / Save PDF */
+@media print {
+  @page {
+    size: 990px 728px;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    width: 990px !important;
+    height: 728px !important;
+  }
+
+  body.is-seat-chart-print * {
+    visibility: hidden !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-editor,
+  body.is-seat-chart-print .seat-chart-editor * {
+    visibility: visible !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-editor {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    background: #fff !important;
+    width: 990px !important;
+    height: 728px !important;
+    overflow: visible !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-editor__header,
+  body.is-seat-chart-print .seat-chart-editor__aside {
+    display: none !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-editor__body,
+  body.is-seat-chart-print .seat-chart-editor__preview {
+    display: block !important;
+    background: #fff !important;
+    overflow: visible !important;
+    min-height: 0 !important;
+    width: 990px !important;
+    height: 728px !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-editor__stage {
+    width: 990px !important;
+    height: 728px !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-editor__sheet-scale {
+    position: static !important;
+    transform: none !important;
+  }
+
+  body.is-seat-chart-print .seat-chart-sheet {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

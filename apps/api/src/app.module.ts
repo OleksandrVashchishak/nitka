@@ -14,6 +14,7 @@ import { WebsiteModule } from './website/website.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { EmailModule } from './email/email.module';
 import { VendorsModule } from './vendors/vendors.module';
+import { SeatingModule } from './seating/seating.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { VendorsModule } from './vendors/vendors.module';
     ContentModule,
     WebsiteModule,
     InvitationsModule,
+    SeatingModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],

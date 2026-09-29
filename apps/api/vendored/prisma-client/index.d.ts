@@ -5765,6 +5765,8 @@ export namespace Prisma {
     guestsUndecided: number
     dayPlan: number
     vendorPlan: number
+    seatingDraft: number
+    seatingPlan: number
     _all: number
   }
 
@@ -5824,6 +5826,8 @@ export namespace Prisma {
     guestsUndecided?: true
     dayPlan?: true
     vendorPlan?: true
+    seatingDraft?: true
+    seatingPlan?: true
     _all?: true
   }
 
@@ -5928,6 +5932,8 @@ export namespace Prisma {
     guestsUndecided: boolean
     dayPlan: JsonValue | null
     vendorPlan: JsonValue | null
+    seatingDraft: JsonValue | null
+    seatingPlan: JsonValue | null
     _count: WeddingCountAggregateOutputType | null
     _avg: WeddingAvgAggregateOutputType | null
     _sum: WeddingSumAggregateOutputType | null
@@ -5964,6 +5970,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: boolean
     vendorPlan?: boolean
+    seatingDraft?: boolean
+    seatingPlan?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Wedding$membersArgs<ExtArgs>
     invites?: boolean | Wedding$invitesArgs<ExtArgs>
@@ -5990,6 +5998,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: boolean
     vendorPlan?: boolean
+    seatingDraft?: boolean
+    seatingPlan?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wedding"]>
 
@@ -6008,6 +6018,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: boolean
     vendorPlan?: boolean
+    seatingDraft?: boolean
+    seatingPlan?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wedding"]>
 
@@ -6026,9 +6038,11 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: boolean
     vendorPlan?: boolean
+    seatingDraft?: boolean
+    seatingPlan?: boolean
   }
 
-  export type WeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "date" | "city" | "guests" | "budget" | "partnerOneName" | "partnerTwoName" | "couplePhotoUrl" | "planningStage" | "cityUndecided" | "guestsUndecided" | "dayPlan" | "vendorPlan", ExtArgs["result"]["wedding"]>
+  export type WeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "date" | "city" | "guests" | "budget" | "partnerOneName" | "partnerTwoName" | "couplePhotoUrl" | "planningStage" | "cityUndecided" | "guestsUndecided" | "dayPlan" | "vendorPlan" | "seatingDraft" | "seatingPlan", ExtArgs["result"]["wedding"]>
   export type WeddingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Wedding$membersArgs<ExtArgs>
@@ -6074,6 +6088,8 @@ export namespace Prisma {
       guestsUndecided: boolean
       dayPlan: Prisma.JsonValue | null
       vendorPlan: Prisma.JsonValue | null
+      seatingDraft: Prisma.JsonValue | null
+      seatingPlan: Prisma.JsonValue | null
     }, ExtArgs["result"]["wedding"]>
     composites: {}
   }
@@ -6519,6 +6535,8 @@ export namespace Prisma {
     readonly guestsUndecided: FieldRef<"Wedding", 'Boolean'>
     readonly dayPlan: FieldRef<"Wedding", 'Json'>
     readonly vendorPlan: FieldRef<"Wedding", 'Json'>
+    readonly seatingDraft: FieldRef<"Wedding", 'Json'>
+    readonly seatingPlan: FieldRef<"Wedding", 'Json'>
   }
     
 
@@ -17412,7 +17430,9 @@ export namespace Prisma {
     cityUndecided: 'cityUndecided',
     guestsUndecided: 'guestsUndecided',
     dayPlan: 'dayPlan',
-    vendorPlan: 'vendorPlan'
+    vendorPlan: 'vendorPlan',
+    seatingDraft: 'seatingDraft',
+    seatingPlan: 'seatingPlan'
   };
 
   export type WeddingScalarFieldEnum = (typeof WeddingScalarFieldEnum)[keyof typeof WeddingScalarFieldEnum]
@@ -18060,6 +18080,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFilter<"Wedding"> | boolean
     dayPlan?: JsonNullableFilter<"Wedding">
     vendorPlan?: JsonNullableFilter<"Wedding">
+    seatingDraft?: JsonNullableFilter<"Wedding">
+    seatingPlan?: JsonNullableFilter<"Wedding">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WeddingMemberListRelationFilter
     invites?: WeddingInviteListRelationFilter
@@ -18085,6 +18107,8 @@ export namespace Prisma {
     guestsUndecided?: SortOrder
     dayPlan?: SortOrderInput | SortOrder
     vendorPlan?: SortOrderInput | SortOrder
+    seatingDraft?: SortOrderInput | SortOrder
+    seatingPlan?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     members?: WeddingMemberOrderByRelationAggregateInput
     invites?: WeddingInviteOrderByRelationAggregateInput
@@ -18113,6 +18137,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFilter<"Wedding"> | boolean
     dayPlan?: JsonNullableFilter<"Wedding">
     vendorPlan?: JsonNullableFilter<"Wedding">
+    seatingDraft?: JsonNullableFilter<"Wedding">
+    seatingPlan?: JsonNullableFilter<"Wedding">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WeddingMemberListRelationFilter
     invites?: WeddingInviteListRelationFilter
@@ -18138,6 +18164,8 @@ export namespace Prisma {
     guestsUndecided?: SortOrder
     dayPlan?: SortOrderInput | SortOrder
     vendorPlan?: SortOrderInput | SortOrder
+    seatingDraft?: SortOrderInput | SortOrder
+    seatingPlan?: SortOrderInput | SortOrder
     _count?: WeddingCountOrderByAggregateInput
     _avg?: WeddingAvgOrderByAggregateInput
     _max?: WeddingMaxOrderByAggregateInput
@@ -18163,6 +18191,8 @@ export namespace Prisma {
     guestsUndecided?: BoolWithAggregatesFilter<"Wedding"> | boolean
     dayPlan?: JsonNullableWithAggregatesFilter<"Wedding">
     vendorPlan?: JsonNullableWithAggregatesFilter<"Wedding">
+    seatingDraft?: JsonNullableWithAggregatesFilter<"Wedding">
+    seatingPlan?: JsonNullableWithAggregatesFilter<"Wedding">
   }
 
   export type WeddingWebsiteWhereInput = {
@@ -19171,6 +19201,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -19196,6 +19228,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -19219,6 +19253,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -19244,6 +19280,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -19268,6 +19306,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type WeddingUpdateManyMutationInput = {
@@ -19284,6 +19324,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type WeddingUncheckedUpdateManyInput = {
@@ -19301,6 +19343,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type WeddingWebsiteCreateInput = {
@@ -20543,6 +20587,8 @@ export namespace Prisma {
     guestsUndecided?: SortOrder
     dayPlan?: SortOrder
     vendorPlan?: SortOrder
+    seatingDraft?: SortOrder
+    seatingPlan?: SortOrder
   }
 
   export type WeddingAvgOrderByAggregateInput = {
@@ -22421,6 +22467,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
@@ -22444,6 +22492,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -22618,6 +22668,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
@@ -22641,6 +22693,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -23515,6 +23569,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -23539,6 +23595,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -23577,6 +23635,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -23601,6 +23661,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -23623,6 +23685,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -23647,6 +23711,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -23685,6 +23751,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -23709,6 +23777,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -23731,6 +23801,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
@@ -23755,6 +23827,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
@@ -23828,6 +23902,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
@@ -23852,6 +23928,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
@@ -23915,6 +23993,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     tasks?: TaskCreateNestedManyWithoutWeddingInput
@@ -23939,6 +24019,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
@@ -23977,6 +24059,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUpdateManyWithoutWeddingNestedInput
@@ -24001,6 +24085,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
@@ -24023,6 +24109,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -24047,6 +24135,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
@@ -24085,6 +24175,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -24109,6 +24201,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
@@ -24131,6 +24225,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -24155,6 +24251,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -24193,6 +24291,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -24217,6 +24317,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
@@ -24239,6 +24341,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutWeddingInput
     members?: WeddingMemberCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
@@ -24263,6 +24367,8 @@ export namespace Prisma {
     guestsUndecided?: boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
     invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
     tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
@@ -24336,6 +24442,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutWeddingNestedInput
     members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
@@ -24360,6 +24468,8 @@ export namespace Prisma {
     guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
     dayPlan?: NullableJsonNullValueInput | InputJsonValue
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
     members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
     invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput

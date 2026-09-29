@@ -23,6 +23,7 @@ const website_module_1 = require("./website/website.module");
 const invitations_module_1 = require("./invitations/invitations.module");
 const email_module_1 = require("./email/email.module");
 const vendors_module_1 = require("./vendors/vendors.module");
+const seating_module_1 = require("./seating/seating.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
             content_module_1.ContentModule,
             website_module_1.WebsiteModule,
             invitations_module_1.InvitationsModule,
+            seating_module_1.SeatingModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, roles_guard_1.RolesGuard],

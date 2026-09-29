@@ -18,6 +18,8 @@ import {
   CabinetContextMenuItem,
   CabinetContextMenuLabel,
 } from "@/components/cabinet-context-menu";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
+import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
@@ -26,6 +28,7 @@ import {
   ResponsibleAvatarDuo,
   TaskResponsibleAvatar,
 } from "@/components/responsible-avatar";
+import { PartnerInviteBanner } from "@/components/partner-invite-banner";
 import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
@@ -55,7 +58,7 @@ import {
 import { toast } from "@/lib/toast";
 import { useAnimatedProgress } from "@/lib/use-animated-progress";
 import { useAuthStore } from "@/lib/auth-store";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
 
 type StatusFilter = "all" | "open" | "done";
 type TypeFilter =
@@ -257,8 +260,6 @@ function ChecklistInner() {
   const [filtersMounted, setFiltersMounted] = useState(false);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMounted, setDrawerMounted] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -352,28 +353,6 @@ function ChecklistInner() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen) {
-      setDrawerVisible(false);
-      const timer = window.setTimeout(() => setDrawerMounted(false), 320);
-      return () => window.clearTimeout(timer);
-    }
-    setDrawerMounted(true);
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setDrawerVisible(true));
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [drawerOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setDrawerOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
 
   useEffect(() => {
     if (!menuOpenId) return;
@@ -1030,62 +1009,12 @@ function ChecklistInner() {
           </div>
 
           {showInviteTask ? (
-            <div className="cabinet-task-invite cabinet-tasks-invite">
-              <div className="cabinet-task-invite-icon" aria-hidden>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M4 6.5h16v11H4v-11Z"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="m4 7 8 6 8-6"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="cabinet-task-invite-copy">
-                <p className="cabinet-task-invite-title">
-                  Запросіть {inviteName}
-                </p>
-                <p className="cabinet-task-invite-text">
-                  Додайте {inviteName} до спільного доступу, щоб він міг бачити
-                  та редагувати ваш дашборд.
-                </p>
-              </div>
-              <div className="cabinet-task-invite-actions">
-                <Button
-                  type="button"
-                  tone="black"
-                  size="s"
-                  className="cabinet-task-invite-btn"
-                  loading={inviteBusy}
-                  loadingText="…"
-                  onClick={() => void onInvitePartner()}
-                >
-                  Запросити
-                </Button>
-                <button
-                  type="button"
-                  className="cabinet-task-invite-dismiss"
-                  aria-label="Закрити"
-                  onClick={onDismissInvite}
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-                    <path
-                      d="M2 2l8 8M10 2 2 10"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <PartnerInviteBanner
+              partnerName={inviteName}
+              busy={inviteBusy}
+              onInvite={() => void onInvitePartner()}
+              onDismiss={onDismissInvite}
+            />
           ) : null}
 
           {visible.length === 0 ? (
@@ -1275,7 +1204,7 @@ function ChecklistInner() {
                 aria-label="Закрити"
                 onClick={dismissSmartBanner}
               >
-                ×
+                <IconClose />
               </button>
               <h3>Розумне планування весілля</h3>
               <p>
@@ -1410,196 +1339,133 @@ function ChecklistInner() {
         />
       ) : null}
 
-      {drawerMounted ? (
-        <div
-          className={`cabinet-drawer-root${drawerVisible ? " is-open" : ""}`}
-        >
-          <button
-            type="button"
-            className="cabinet-drawer-backdrop"
-            aria-label="Закрити"
-            onClick={closeDrawer}
-          />
-          <aside
-            className="cabinet-drawer cabinet-tasks-drawer"
-            aria-label={editingId ? "Редагувати завдання" : "Додати завдання"}
+      <CabinetOverlay
+        open={drawerOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Редагувати завдання" : "Додати завдання"}
+        variant="drawer"
+        width={500}
+        panelClassName="cabinet-tasks-drawer"
+        asForm
+        onSubmit={onSaveTask}
+        footer={
+          <>
+            <Button
+              type="button"
+              tone="ghost"
+              size="m"
+              className="cabinet-drawer-cancel"
+              onClick={closeDrawer}
+            >
+              Скасувати
+            </Button>
+            <Button
+              type="submit"
+              tone="black"
+              size="m"
+              className="cabinet-drawer-save"
+              disabled={adding || !newTitle.trim()}
+              loading={adding}
+              loadingText="…"
+            >
+              Зберегти
+            </Button>
+          </>
+        }
+      >
+        <TextInput
+          label="Назва завдання"
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          placeholder="Наприклад, Замовити весільний торт"
+          required
+          disabled={Boolean(
+            editingId &&
+              wedding?.tasks.find((t) => t.id === editingId) &&
+              !wedding.tasks.find((t) => t.id === editingId)?.isCustom,
+          )}
+        />
+        <label className="cabinet-drawer-field">
+          <span>Дедлайн</span>
+          <div
+            className={`cabinet-tasks-date${newDue ? " has-value" : ""}`}
           >
-            <div className="cabinet-drawer-head">
-              <h2>{editingId ? "Редагувати завдання" : "Додати завдання"}</h2>
-              <button
-                type="button"
-                className="cabinet-drawer-close"
-                aria-label="Закрити"
-                onClick={closeDrawer}
-              >
-                <IconClose size={18} />
-              </button>
-            </div>
-            <form className="cabinet-drawer-form" onSubmit={onSaveTask}>
-              <TextInput
-                label="Назва завдання"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Наприклад, Замовити весільний торт"
-                required
-                disabled={Boolean(
-                  editingId &&
-                    wedding?.tasks.find((t) => t.id === editingId) &&
-                    !wedding.tasks.find((t) => t.id === editingId)?.isCustom,
-                )}
-              />
-              <label className="cabinet-drawer-field">
-                <span>Дедлайн</span>
-                <div
-                  className={`cabinet-tasks-date${newDue ? " has-value" : ""}`}
-                >
-                  <input
-                    type="date"
-                    value={newDue}
-                    onChange={(e) => setNewDue(e.target.value)}
-                    aria-label="Дедлайн"
-                  />
-                  {!newDue ? (
-                    <span className="cabinet-tasks-date__placeholder" aria-hidden>
-                      Оберіть дату
-                    </span>
-                  ) : null}
-                  <IconCalendar
-                    size={18}
-                    className="cabinet-tasks-date__icon"
-                  />
-                </div>
-              </label>
-              {!editingId ? (
-                <Select
-                  label="Тип завдання"
-                  value={newType}
-                  onChange={(e) =>
-                    setNewType(
-                      e.target.value as
-                        | Exclude<
-                            TypeFilter,
-                            "all" | "other" | "guests_invites"
-                          >
-                        | "",
-                    )
-                  }
-                >
-                  <option value="">Не призначено</option>
-                  {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </Select>
-              ) : null}
-              <Select
-                label="Відповідальний"
-                value={newWho}
-                onChange={(e) => setNewWho(e.target.value as TaskWho)}
-                startAdornment={
-                  <TaskResponsibleAvatar
-                    who={newWho}
-                    ownerName={ownerShort}
-                    partnerName={partnerShort}
-                  />
-                }
-              >
-                <option value="owner">{ownerShort}</option>
-                <option value="partner">{partnerShort}</option>
-                <option value="both">Обоє</option>
-                <option value="none">Ніхто</option>
-                <option value="other">Хтось інший</option>
-              </Select>
-              {newWho === "other" ? (
-                <TextInput
-                  label="Вкажіть відповідального"
-                  value={newOtherName}
-                  onChange={(e) => setNewOtherName(e.target.value)}
-                  placeholder="Введіть імʼя або роль"
-                />
-              ) : null}
-              <div className="cabinet-drawer-actions">
-                <Button
-                  type="button"
-                  tone="ghost"
-                  size="m"
-                  className="cabinet-drawer-cancel"
-                  onClick={closeDrawer}
-                >
-                  Скасувати
-                </Button>
-                <Button
-                  type="submit"
-                  tone="black"
-                  size="m"
-                  className="cabinet-drawer-save"
-                  disabled={adding || !newTitle.trim()}
-                  loading={adding}
-                  loadingText="…"
-                >
-                  Зберегти
-                </Button>
-              </div>
-            </form>
-          </aside>
-        </div>
-      ) : null}
-
-      {deleteTarget ? (
-        <div
-          className="cabinet-modal-root"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Видалити завдання"
-        >
-          <button
-            type="button"
-            className="cabinet-modal-backdrop"
-            aria-label="Закрити"
-            onClick={() => setDeleteTarget(null)}
-          />
-          <div className="cabinet-modal cabinet-confirm-modal">
-            <div className="cabinet-modal-head">
-              <div>
-                <h2>Видалити завдання</h2>
-                <p>Ви впевнені, що хочете видалити це завдання?</p>
-              </div>
-              <button
-                type="button"
-                className="cabinet-modal-close"
-                aria-label="Закрити"
-                onClick={() => setDeleteTarget(null)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="cabinet-modal-actions">
-              <Button
-                type="button"
-                tone="ghost"
-                size="m"
-                className="cabinet-drawer-cancel"
-                onClick={() => setDeleteTarget(null)}
-                disabled={deleting}
-              >
-                Скасувати
-              </Button>
-              <Button
-                type="button"
-                tone="ink"
-                size="m"
-                className="cabinet-confirm-delete"
-                loading={deleting}
-                loadingText="…"
-                onClick={() => void confirmDelete()}
-              >
-                Так, видалити
-              </Button>
-            </div>
+            <input
+              type="date"
+              value={newDue}
+              onChange={(e) => setNewDue(e.target.value)}
+              aria-label="Дедлайн"
+            />
+            {!newDue ? (
+              <span className="cabinet-tasks-date__placeholder" aria-hidden>
+                Оберіть дату
+              </span>
+            ) : null}
+            <IconCalendar
+              size={18}
+              className="cabinet-tasks-date__icon"
+            />
           </div>
-        </div>
-      ) : null}
+        </label>
+        {!editingId ? (
+          <Select
+            label="Тип завдання"
+            value={newType}
+            onChange={(e) =>
+              setNewType(
+                e.target.value as
+                  | Exclude<
+                      TypeFilter,
+                      "all" | "other" | "guests_invites"
+                    >
+                  | "",
+              )
+            }
+          >
+            <option value="">Не призначено</option>
+            {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label}
+              </option>
+            ))}
+          </Select>
+        ) : null}
+        <Select
+          label="Відповідальний"
+          value={newWho}
+          onChange={(e) => setNewWho(e.target.value as TaskWho)}
+          startAdornment={
+            <TaskResponsibleAvatar
+              who={newWho}
+              ownerName={ownerShort}
+              partnerName={partnerShort}
+            />
+          }
+        >
+          <option value="owner">{ownerShort}</option>
+          <option value="partner">{partnerShort}</option>
+          <option value="both">Обоє</option>
+          <option value="none">Ніхто</option>
+          <option value="other">Хтось інший</option>
+        </Select>
+        {newWho === "other" ? (
+          <TextInput
+            label="Вкажіть відповідального"
+            value={newOtherName}
+            onChange={(e) => setNewOtherName(e.target.value)}
+            placeholder="Введіть імʼя або роль"
+          />
+        ) : null}
+      </CabinetOverlay>
+
+      <DeleteConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Видалити завдання"
+        description="Ви впевнені, що хочете видалити це завдання?"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
   );
 }

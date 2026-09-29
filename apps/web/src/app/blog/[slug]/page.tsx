@@ -16,7 +16,7 @@ import { ContentCard } from "@/components/content-card";
 import { ContentBlogHero } from "@/components/content-blog-hero";
 import { BlogArticle } from "@/components/blog-article";
 import { faqForPost } from "@/lib/blog-faq";
-import "../../blog.css";
+import "@/styles/blog/blog.scss";
 
 type Props = {
   params: Promise<{ slug: string }>;

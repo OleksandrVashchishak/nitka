@@ -17,14 +17,15 @@ export function CabinetContextMenu({ children, className }: MenuProps) {
   );
 }
 
-type ItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ActionItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   icon?: ReactNode;
   danger?: boolean;
   active?: boolean;
 };
 
-export function CabinetContextMenuItem({
+/** Text action row (icon + label), optional danger styling. */
+export function CabinetActionItem({
   children,
   icon,
   danger,
@@ -32,9 +33,9 @@ export function CabinetContextMenuItem({
   className,
   type = "button",
   ...rest
-}: ItemProps) {
+}: ActionItemProps) {
   const classes = [
-    "cabinet-ctx-menu-item",
+    "cabinet-action-item",
     danger ? "is-danger" : null,
     active ? "is-active" : null,
     className || null,
@@ -43,11 +44,25 @@ export function CabinetContextMenuItem({
     .join(" ");
 
   return (
-    <button type={type} role="menuitem" className={classes} {...rest}>
+    <button type={type} className={classes} {...rest}>
       {icon}
       {children}
     </button>
   );
+}
+
+export function CabinetContextMenuItem({
+  className,
+  ...rest
+}: ActionItemProps) {
+  const classes = [
+    "cabinet-ctx-menu-item",
+    className || null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <CabinetActionItem className={classes} {...rest} role="menuitem" />;
 }
 
 export function CabinetContextMenuDivider() {

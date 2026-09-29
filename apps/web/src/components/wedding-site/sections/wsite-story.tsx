@@ -11,7 +11,7 @@ export function WsiteStory({
   title,
   body,
   imageUrl,
-  eyebrow = "Історія кохання",
+  eyebrow,
 }: Props) {
   const paragraphs = body.split(/\n+/).filter(Boolean);
   if (!paragraphs.length && !imageUrl) return null;
@@ -19,7 +19,7 @@ export function WsiteStory({
   return (
     <section className="wsite-story">
       <div className="wsite-story__copy">
-        <p className="wsite-story__eyebrow">{eyebrow}</p>
+        {eyebrow ? <p className="wsite-story__eyebrow">{eyebrow}</p> : null}
         <div className="wsite-story__heading">
           <h2 className="wsite-story__title">{title}</h2>
           <div className="wsite-story__text">

@@ -31,7 +31,7 @@ import {
   type WebsiteContent,
   type WeddingWebsite,
 } from "@/lib/website-api";
-import "@/app/website/styles/editor/index.scss";
+import "@/styles/website/editor/index.scss";
 
 type AutosaveState = "saved" | "saving" | "error";
 

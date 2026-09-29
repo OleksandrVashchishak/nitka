@@ -32,15 +32,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                email: string;
                 name: string;
                 id: string;
+                email: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
-            createdAt: Date;
             userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
+            createdAt: Date;
             weddingId: string;
         })[];
         id: string;
@@ -57,6 +57,8 @@ export declare class WeddingsController {
         guestsUndecided: boolean;
         dayPlan: import("@prisma/client/runtime/library").JsonValue | null;
         vendorPlan: import("@prisma/client/runtime/library").JsonValue | null;
+        seatingDraft: import("@prisma/client/runtime/library").JsonValue | null;
+        seatingPlan: import("@prisma/client/runtime/library").JsonValue | null;
     } | undefined>;
     upsert(user: AuthUser, dto: UpsertWeddingDto): Promise<{
         tasks: ({
@@ -76,15 +78,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                email: string;
                 name: string;
                 id: string;
+                email: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
-            createdAt: Date;
             userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
+            createdAt: Date;
             weddingId: string;
         })[];
         id: string;
@@ -101,6 +103,8 @@ export declare class WeddingsController {
         guestsUndecided: boolean;
         dayPlan: import("@prisma/client/runtime/library").JsonValue | null;
         vendorPlan: import("@prisma/client/runtime/library").JsonValue | null;
+        seatingDraft: import("@prisma/client/runtime/library").JsonValue | null;
+        seatingPlan: import("@prisma/client/runtime/library").JsonValue | null;
     } | null>;
     getInsights(user: AuthUser): Promise<{
         city: string;
@@ -153,15 +157,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                email: string;
                 name: string;
                 id: string;
+                email: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
-            createdAt: Date;
             userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
+            createdAt: Date;
             weddingId: string;
         })[];
         id: string;
@@ -178,6 +182,8 @@ export declare class WeddingsController {
         guestsUndecided: boolean;
         dayPlan: import("@prisma/client/runtime/library").JsonValue | null;
         vendorPlan: import("@prisma/client/runtime/library").JsonValue | null;
+        seatingDraft: import("@prisma/client/runtime/library").JsonValue | null;
+        seatingPlan: import("@prisma/client/runtime/library").JsonValue | null;
     } | null>;
     createTask(user: AuthUser, dto: CreateTaskDto): Promise<{
         id: string;

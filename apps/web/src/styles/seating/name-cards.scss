@@ -1,0 +1,388 @@
+/* Name cards print design — chrome mirrors seat-chart-editor; sheet = A4 landscape 4×2 */
+
+.name-cards-editor {
+  --nc-orange: #ff4200;
+  --nc-ink: #1a1a1a;
+  --nc-muted: #7f7e7c;
+  --nc-line: #e4e4e7;
+  --nc-panel: #fafafa;
+  --nc-preview: #f3f3f3;
+  --nc-cut: #d7d7d7;
+  --nc-name: #18181b;
+  --nc-font: var(--font-sans), "Montserrat", sans-serif;
+  --nc-aside-w: 320px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: var(--nc-ink);
+}
+
+.name-cards-editor__header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--nc-line);
+  background: #fff;
+}
+
+.name-cards-editor__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.name-cards-editor__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nc-ink);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--nc-panel);
+  }
+}
+
+.name-cards-editor__brand {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.name-cards-editor__pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 156px;
+  height: 37px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--nc-orange);
+  color: #fff;
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 100%;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.92;
+  }
+}
+
+.name-cards-editor__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.name-cards-editor__aside {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--nc-aside-w);
+  min-height: 0;
+  padding: 24px 16px;
+  border-right: 1px solid var(--nc-line);
+  background: #fff;
+  overflow: hidden;
+}
+
+.name-cards-editor__title {
+  margin: 0;
+  font-family: var(--nc-font);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 150%;
+  color: var(--nc-ink);
+}
+
+.name-cards-editor__lead {
+  margin: 4px 0 0;
+  font-family: var(--nc-font);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 140%;
+  color: var(--nc-muted);
+}
+
+.name-cards-editor__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.name-cards-editor__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--nc-line);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    border-color: #d4d4d8;
+  }
+
+  &.is-active {
+    border: 2px solid var(--nc-orange);
+    background: var(--nc-panel);
+    padding: 13px 15px;
+  }
+}
+
+.name-cards-editor__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.name-cards-editor__card-name {
+  margin: 0;
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 100%;
+  color: #18181b;
+}
+
+.name-cards-editor__card-desc {
+  margin: 0;
+  font-family: var(--nc-font);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 140%;
+  color: var(--nc-muted);
+}
+
+.name-cards-editor__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 66px;
+  height: 16px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--nc-orange);
+  color: #fff;
+  font-family: Inter, var(--nc-font), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 100%;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.name-cards-editor__badge--soon {
+  background: #a1a1aa;
+}
+
+.name-cards-editor__preview {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: var(--nc-preview);
+  overflow: auto;
+}
+
+.name-cards-editor__format {
+  margin: 0;
+  font-family: var(--nc-font);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 100%;
+  color: var(--nc-ink);
+  text-align: center;
+}
+
+.name-cards-editor__stage {
+  width: min(100%, 760px);
+}
+
+.name-cards-editor__more {
+  margin: 0;
+  font-family: var(--nc-font);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 140%;
+  color: var(--nc-muted);
+  text-align: center;
+}
+
+/* A4 landscape 842×595 — 4 cols × 2 rows (SVG A4 - 1) */
+.name-cards-sheet {
+  container-type: inline-size;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 100%;
+  aspect-ratio: 842 / 595;
+  background: #fff;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
+
+  &__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    min-width: 0;
+    border-right: 1px dashed var(--nc-cut);
+    border-bottom: 1px dashed var(--nc-cut);
+
+    &:nth-child(4n) {
+      border-right: 0;
+    }
+
+    &:nth-child(n + 5) {
+      border-bottom: 0;
+    }
+  }
+
+  &__name {
+    display: block;
+    max-width: 100%;
+    font-family: var(--nc-font);
+    font-size: 1.45cqw;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--nc-name);
+    overflow-wrap: anywhere;
+  }
+
+  &--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    font-family: var(--nc-font);
+    font-size: 14px;
+    color: var(--nc-muted);
+    text-align: center;
+  }
+}
+
+.name-cards-print {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .name-cards-editor__body {
+    flex-direction: column;
+  }
+
+  .name-cards-editor__aside {
+    width: 100%;
+    max-height: 42vh;
+    border-right: 0;
+    border-bottom: 1px solid var(--nc-line);
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.is-name-cards-print {
+    background: #fff !important;
+  }
+
+  body.is-name-cards-print * {
+    visibility: hidden !important;
+  }
+
+  body.is-name-cards-print .name-cards-print,
+  body.is-name-cards-print .name-cards-print * {
+    visibility: visible !important;
+  }
+
+  body.is-name-cards-print .name-cards-editor {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  body.is-name-cards-print .name-cards-editor__header,
+  body.is-name-cards-print .name-cards-editor__body {
+    display: none !important;
+  }
+
+  body.is-name-cards-print .name-cards-print {
+    display: block !important;
+  }
+
+  body.is-name-cards-print .name-cards-sheet--print {
+    box-shadow: none !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    aspect-ratio: auto !important;
+    page-break-after: always;
+    break-after: page;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    &:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+  }
+
+  body.is-name-cards-print .name-cards-sheet__name {
+    font-size: 11pt !important;
+  }
+}

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand-logo";
-import "@/app/login.css";
+import "@/styles/auth/login.scss";
 
 export function AuthSplitShell({ children }: { children: ReactNode }) {
   return (

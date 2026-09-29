@@ -8,7 +8,7 @@ import {
 import { ContentCard } from "@/components/content-card";
 import { ContentBlogHero } from "@/components/content-blog-hero";
 import { noIndexRobots } from "@/lib/site";
-import "../blog.css";
+import "@/styles/blog/blog.scss";
 
 type Props = {
   searchParams: Promise<{ page?: string; q?: string; city?: string }>;

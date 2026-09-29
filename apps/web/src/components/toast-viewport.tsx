@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { IconClose } from "@/components/cabinet-task-icons";
 import { useToastStore, type ToastTone } from "@/lib/toast";
 
 const TONE_STYLES: Record<
@@ -93,7 +94,7 @@ function ToastCard({
           className="rounded-full px-2 py-1 text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
           aria-label="Закрити"
         >
-          ×
+          <IconClose size={16} />
         </button>
       </div>
     </div>

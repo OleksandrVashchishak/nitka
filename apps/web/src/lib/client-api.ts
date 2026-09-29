@@ -128,9 +128,11 @@ export async function apiFetch<T>(
   }
 }
 
-export function uploadFile(file: File) {
+export async function uploadFile(file: File) {
+  const { compressImageFile } = await import("@/lib/compress-image");
+  const compressed = await compressImageFile(file);
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", compressed);
   return apiFetch<{ url: string; provider: "cloudinary" | "local" }>(
     "/api/uploads",
     { method: "POST", body },

@@ -23,9 +23,9 @@ export declare class GuestsService {
             headcount: number;
         };
         guests: {
-            email: string | null;
             name: string;
             id: string;
+            email: string | null;
             createdAt: Date;
             weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
@@ -42,9 +42,9 @@ export declare class GuestsService {
         }[];
     }>;
     create(userId: string, dto: CreateGuestDto): Promise<{
-        email: string | null;
         name: string;
         id: string;
+        email: string | null;
         createdAt: Date;
         weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
@@ -62,9 +62,9 @@ export declare class GuestsService {
     importMany(userId: string, dto: ImportGuestsDto): Promise<{
         imported: number;
         guests: {
-            email: string | null;
             name: string;
             id: string;
+            email: string | null;
             createdAt: Date;
             weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
@@ -81,9 +81,9 @@ export declare class GuestsService {
         }[];
     }>;
     update(userId: string, guestId: string, dto: UpdateGuestDto): Promise<{
-        email: string | null;
         name: string;
         id: string;
+        email: string | null;
         createdAt: Date;
         weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;

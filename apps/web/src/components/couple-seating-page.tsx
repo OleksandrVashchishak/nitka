@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { RequireAuth } from "@/components/require-auth";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { Button } from "@/components/ui/button";
 import { SeatingPlan } from "@/components/seating-plan";
 import {
@@ -14,15 +14,25 @@ import {
   type SeatingGuestsDraft,
   type SeatingTablesDraft,
 } from "@/components/seating-wizard";
+import { SeatingGroupsModal } from "@/components/seating-groups-modal";
 import { getMyWedding } from "@/lib/dashboard-api";
 import { getGuestList, type GuestListResponse } from "@/lib/guests-api";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
+import {
+  clearSeatingPlan,
+  loadSeatingWithMigration,
+  saveSeatingDraft,
+  type SeatingDraftPayload,
+  type SeatingPlanPayload,
+} from "@/lib/seating-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
+import "@/styles/seating/wizard.scss";
+import "@/styles/seating/plan.scss";
 
 type SeatingDraft = {
   tables: SeatingTablesDraft;
@@ -38,34 +48,20 @@ function guestsPhrase(n: number) {
   return `${n} гостей`;
 }
 
-function draftKey(weddingId: string) {
-  return `fata-seating-draft:v1:${weddingId}`;
-}
-
-function SeatingEmptyArt() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      className="cabinet-guests-empty-art cabinet-seating-empty-art"
-      src="/cabinet/empty/seating.svg"
-      alt=""
-      width={310}
-      height={202}
-      aria-hidden
-    />
-  );
-}
-
 function SeatingInner() {
-  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [data, setData] = useState<GuestListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [partnerInitials, setPartnerInitials] = useState("П");
+  const [partnerOneName, setPartnerOneName] = useState("");
+  const [partnerTwoName, setPartnerTwoName] = useState("");
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [groupsModalOpen, setGroupsModalOpen] = useState(false);
   const [draft, setDraft] = useState<SeatingDraft | null>(null);
+  const [plan, setPlan] = useState<SeatingPlanPayload | null>(null);
+  const [planEpoch, setPlanEpoch] = useState(0);
 
   useEffect(() => {
     void (async () => {
@@ -73,12 +69,18 @@ function SeatingInner() {
         setError(null);
         const list = await getGuestList();
         setData(list);
-        try {
-          const raw = localStorage.getItem(draftKey(list.wedding.id));
-          if (raw) setDraft(JSON.parse(raw) as SeatingDraft);
-        } catch {
-          /* ignore */
-        }
+        const seating = await loadSeatingWithMigration(list.wedding.id);
+        const nextDraft = seating.draft
+          ? {
+              tables: seating.draft.tables,
+              guests: {
+                ...seating.draft.guests,
+                detachedKeys: seating.draft.guests.detachedKeys ?? [],
+              },
+            }
+          : null;
+        setDraft(nextDraft);
+        setPlan(seating.plan);
       } catch (err) {
         setData(null);
         setError(err instanceof Error ? err.message : "Не вдалося завантажити");
@@ -96,6 +98,8 @@ function SeatingInner() {
         const oneRaw =
           wedding?.partnerOneName?.trim() || user?.name?.trim() || "";
         const twoRaw = wedding?.partnerTwoName?.trim() || "";
+        setPartnerOneName(oneRaw);
+        setPartnerTwoName(twoRaw);
         const one = oneRaw.charAt(0).toUpperCase() || "П";
         const two = twoRaw.charAt(0).toUpperCase();
         setPartnerInitials(two ? `${one}&${two}` : one);
@@ -103,14 +107,27 @@ function SeatingInner() {
       .catch(() => undefined);
   }, [user?.name]);
 
-  function persistDraft(next: SeatingDraft) {
+  async function persistDraft(next: SeatingDraftPayload) {
     setDraft(next);
-    if (!data) return;
     try {
-      localStorage.setItem(draftKey(data.wedding.id), JSON.stringify(next));
-    } catch {
-      /* ignore */
+      await saveSeatingDraft(next);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не збережено");
     }
+  }
+
+  async function finishWizard(payload: SeatingDraftPayload, rebuild: boolean) {
+    await persistDraft(payload);
+    if (rebuild) {
+      try {
+        await clearSeatingPlan();
+      } catch {
+        /* ignore */
+      }
+      setPlan(null);
+      setPlanEpoch((n) => n + 1);
+    }
+    setWizardOpen(false);
   }
 
   async function refreshGuests() {
@@ -141,35 +158,49 @@ function SeatingInner() {
     );
   }
 
-  const guestCount =
-    data.stats.total > 0 ? data.stats.total : data.wedding.plannedGuests;
+  const guestCount = data.stats.total;
+  const hasGuests = guestCount > 0;
 
   if (draft) {
     return (
       <div className="cabinet-tasks-page">
         {error ? <p className="cabinet-tasks-error">{error}</p> : null}
         <SeatingPlan
+          key={`${data.wedding.id}-${planEpoch}`}
           weddingId={data.wedding.id}
           guests={data.guests}
           draft={draft}
-          onEditGuests={() => setWizardOpen(true)}
+          initialPlan={plan}
+          partnerOneName={partnerOneName}
+          partnerTwoName={partnerTwoName}
+          weddingDate={data.wedding.date}
+          onEditGuests={() => setGroupsModalOpen(true)}
           onGuestsRefresh={refreshGuests}
         />
+        {groupsModalOpen ? (
+          <SeatingGroupsModal
+            open
+            guests={data.guests}
+            initial={draft.guests}
+            hasPresidium={draft.tables.hasPresidium}
+            hasKidsTable={draft.tables.hasKidsTable}
+            onClose={() => setGroupsModalOpen(false)}
+            onSave={(guests) => {
+              void persistDraft({ ...draft, guests }).then(() => {
+                setGroupsModalOpen(false);
+                toast.success("Групи оновлено");
+              });
+            }}
+          />
+        ) : null}
         {wizardOpen ? (
           <SeatingWizard
             guests={data.guests}
             onClose={() => setWizardOpen(false)}
             onComplete={(payload) => {
-              persistDraft(payload);
-              setWizardOpen(false);
-              try {
-                localStorage.removeItem(
-                  `fata-seating-plan:v1:${data.wedding.id}`,
-                );
-              } catch {
-                /* ignore */
-              }
-              toast.success("Оновлено", "План перезібрано за новими групами");
+              void finishWizard(payload, true).then(() => {
+                toast.success("Оновлено", "План перезібрано за новими групами");
+              });
             }}
           />
         ) : null}
@@ -191,31 +222,34 @@ function SeatingInner() {
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
-      <div className="cabinet-guests-empty cabinet-seating-empty">
-        <div className="cabinet-guests-empty-glow" aria-hidden />
-        <SeatingEmptyArt />
-        <h2>
-          <span className="cabinet-seating-empty-accent">
-            {guestsPhrase(guestCount)}
-          </span>{" "}
-          чекають на те, щоб ви їх розсадили
-        </h2>
-        <p>
-          Розсадіть гостей, побудуйте дизайн посадкової карти, іменні таблички
-          на столи — все в одному місці.
-        </p>
-        <div className="cabinet-guests-empty-actions">
-          {data.stats.total === 0 ? (
-            <Button
-              type="button"
-              tone="ink"
-              size="m"
-              className="cabinet-empty-cta"
-              onClick={() => router.push("/guests")}
-            >
-              Спочатку додати гостей
-            </Button>
+      <CabinetEmptyState
+        className="cabinet-seating-empty"
+        art={{
+          src: "/cabinet/empty/seating.svg",
+          width: 310,
+          height: 202,
+          className: "cabinet-seating-empty-art",
+        }}
+        title={
+          hasGuests ? (
+            <>
+              <span className="cabinet-seating-empty-accent">
+                {guestsPhrase(guestCount)}
+              </span>{" "}
+              чекають на те, щоб ви їх розсадили
+            </>
           ) : (
+            "Для того, щоб розпочати розсадку, внесіть своїх гостей"
+          )
+        }
+        description={
+          <p>
+            Розсадіть гостей, побудуйте дизайн посадкової карти, іменні таблички
+            на столи — все в одному місці.
+          </p>
+        }
+        actions={
+          hasGuests ? (
             <Button
               type="button"
               tone="ink"
@@ -225,18 +259,38 @@ function SeatingInner() {
             >
               Розпочати розсадку
             </Button>
-          )}
-        </div>
-      </div>
+          ) : (
+            <>
+              <Button
+                tone="ink"
+                size="m"
+                className="cabinet-empty-cta"
+                href="/guests"
+              >
+                <span aria-hidden>+</span>
+                Додати гостей
+              </Button>
+              <Button
+                tone="ghost"
+                size="m"
+                className="cabinet-guests-import-btn"
+                href="/guests"
+              >
+                Імпорт CSV
+              </Button>
+            </>
+          )
+        }
+      />
 
       {wizardOpen ? (
         <SeatingWizard
           guests={data.guests}
           onClose={() => setWizardOpen(false)}
           onComplete={(payload) => {
-            persistDraft(payload);
-            setWizardOpen(false);
-            toast.success("Розсадку зібрано", "Можна правити місця на плані");
+            void finishWizard(payload, false).then(() => {
+              toast.success("Розсадку зібрано", "Можна правити місця на плані");
+            });
           }}
         />
       ) : null}

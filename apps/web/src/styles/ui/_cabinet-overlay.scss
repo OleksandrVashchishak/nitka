@@ -1,0 +1,131 @@
+/* Shared cabinet overlay enhancements — works with existing .cabinet-drawer-* / .cabinet-modal-* */
+
+.cabinet-drawer {
+  width: min(var(--cabinet-overlay-width, 420px), 100%);
+}
+
+.cabinet-modal {
+  width: min(var(--cabinet-overlay-width, 520px), 100%);
+}
+
+.cabinet-modal.cabinet-confirm-modal {
+  width: min(var(--cabinet-overlay-width, 710px), 100%);
+}
+
+/* Modal / confirm enter-exit (drawers already animate via .is-open) */
+.cabinet-modal-root.cabinet-overlay-root {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.24s ease;
+}
+
+.cabinet-modal-root.cabinet-overlay-root.is-open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.cabinet-modal-root.cabinet-overlay-root .cabinet-modal {
+  transform: translateY(8px) scale(0.98);
+  opacity: 0;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease;
+}
+
+.cabinet-modal-root.cabinet-overlay-root.is-open .cabinet-modal {
+  transform: none;
+  opacity: 1;
+}
+
+/* Centered drawer presentation (budget desktop) — data-attr fallback;
+   legacy .cabinet-budget-drawer rules still apply when that class is set. */
+.cabinet-drawer-root[data-desktop-presentation="centered"] .cabinet-drawer,
+.cabinet-overlay-drawer--centered {
+  top: 50%;
+  right: auto;
+  left: 50%;
+  width: min(var(--cabinet-overlay-width, 430px), calc(100% - 32px));
+  height: auto;
+  max-height: calc(100vh - 48px);
+  transform: translate(-50%, -50%) scale(0.98);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.18);
+  opacity: 0;
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease;
+}
+
+.cabinet-drawer-root.is-open[data-desktop-presentation="centered"] .cabinet-drawer,
+.cabinet-drawer-root.is-open .cabinet-overlay-drawer--centered {
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+
+/* Mobile layout variants via data-mobile-variant on root */
+@media (max-width: 767px) {
+  .cabinet-drawer-root[data-desktop-presentation="centered"] .cabinet-drawer,
+  .cabinet-drawer-root[data-desktop-presentation="centered"] .cabinet-overlay-drawer--centered {
+    top: 0;
+    right: 0;
+    left: auto;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: -8px 0 40px rgb(0 0 0 / 0.12);
+    transform: translate3d(100%, 0, 0);
+    opacity: 1;
+  }
+
+  .cabinet-drawer-root.is-open[data-desktop-presentation="centered"] .cabinet-drawer,
+  .cabinet-drawer-root.is-open[data-desktop-presentation="centered"] .cabinet-overlay-drawer--centered {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .cabinet-modal-root[data-mobile-variant="fullscreen"] {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+  }
+
+  .cabinet-modal-root[data-mobile-variant="fullscreen"] .cabinet-modal {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .cabinet-modal-root[data-mobile-variant="sheet"] {
+    align-items: flex-end;
+    justify-content: stretch;
+    padding: 0;
+  }
+
+  .cabinet-modal-root[data-mobile-variant="sheet"] .cabinet-modal {
+    width: 100%;
+    max-width: none;
+    max-height: min(92vh, 100%);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 32px rgb(0 0 0 / 0.12);
+  }
+
+  .cabinet-modal-root[data-mobile-variant="center"] {
+    /* keep default centered padding */
+  }
+
+  .cabinet-modal-root[data-mobile-variant="center"] .cabinet-modal {
+    /* width from --cabinet-overlay-width; no fullscreen stretch */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cabinet-modal-root.cabinet-overlay-root,
+  .cabinet-modal-root.cabinet-overlay-root .cabinet-modal,
+  .cabinet-overlay-drawer--centered,
+  .cabinet-drawer-root[data-desktop-presentation="centered"] .cabinet-drawer {
+    transition: none;
+  }
+}

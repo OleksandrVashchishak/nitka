@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -19,13 +19,15 @@ import {
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
+import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import {
   ResponsibleAvatar,
   ResponsibleAvatarDuo,
 } from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
 import {
@@ -39,6 +41,18 @@ import {
   type GuestSide,
   type RsvpStatus,
 } from "@/lib/guests-api";
+import {
+  buildGuestNotes,
+  companionsToLegacyFields,
+  isChildGuest as notesIsChild,
+  isInvitedGuest,
+  parseChildNeed,
+  parseCompanions,
+  parseInviteMethod,
+  type ChildNeed,
+  type GuestCompanion,
+  type InviteMethod,
+} from "@/lib/guest-party";
 import { getMyWedding } from "@/lib/dashboard-api";
 import {
   getNotificationsSummary,
@@ -46,7 +60,7 @@ import {
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
 
 type SideFilter = "all" | "BRIDE" | "GROOM";
 type InviteFilter = "all" | "not_invited" | "invited";
@@ -54,14 +68,7 @@ type RsvpFilter = "all" | RsvpStatus;
 type AgeFilter = "all" | "adult" | "child";
 type SortMode = "recent" | "alpha" | "rsvp";
 
-type InviteMethod =
-  | "phone"
-  | "telegram"
-  | "messenger"
-  | "viber"
-  | "email"
-  | "meet"
-  | "other";
+type CompanionDraft = GuestCompanion & { key: string };
 
 const PAGE_SIZE = 12;
 
@@ -75,6 +82,12 @@ const INVITE_METHODS: Array<{ id: InviteMethod; label: string }> = [
   { id: "other", label: "Інше" },
 ];
 
+const CHILD_NEED_OPTIONS: Array<{ id: ChildNeed; label: string }> = [
+  { id: "kids_table", label: "За дитячий стіл" },
+  { id: "high_chair", label: "Дитяче крісло потрібне" },
+  { id: "with_parents", label: "З батьками в дорослому кріслі" },
+];
+
 const RSVP_UI: Record<
   RsvpStatus,
   { label: string; tone: "yes" | "no" | "maybe" | "pending" }
@@ -86,36 +99,32 @@ const RSVP_UI: Record<
 };
 
 function isChild(guest: Guest) {
-  return (guest.notes ?? "").includes("[child]");
+  return notesIsChild(guest.notes);
 }
 
 function isInvited(guest: Guest) {
-  if ((guest.notes ?? "").includes("[invited]")) return true;
-  return Boolean(guest.phone || guest.email || guest.respondedAt);
+  return isInvitedGuest(guest);
 }
 
-function buildNotes(input: {
-  child: boolean;
-  invited: boolean;
-  method: InviteMethod;
-  extra?: string | null;
-}) {
-  const parts: string[] = [];
-  if (input.child) parts.push("[child]");
-  if (input.invited) parts.push("[invited]");
-  parts.push(`invite:${input.method}`);
-  const extra = input.extra?.replace(/\[child\]|\[invited\]|invite:\w+/g, "").trim();
-  if (extra) parts.push(extra);
-  return parts.join(" ").trim() || null;
+function newCompanionKey() {
+  return `c-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function parseInviteMethod(notes: string | null): InviteMethod {
-  const match = notes?.match(/invite:(\w+)/);
-  const id = match?.[1];
-  if (INVITE_METHODS.some((item) => item.id === id)) {
-    return id as InviteMethod;
-  }
-  return "phone";
+function emptyCompanion(): CompanionDraft {
+  return {
+    key: newCompanionKey(),
+    name: "",
+    isChild: false,
+    childNeed: null,
+    rsvpStatus: "PENDING",
+  };
+}
+
+function contactLabel(method: InviteMethod) {
+  if (method === "telegram") return "Номер телефону або Telegram нікнейм";
+  if (method === "email") return "Email";
+  if (method === "meet" || method === "other") return "Контакт (за бажанням)";
+  return "Номер телефону";
 }
 
 function firstName(value: string) {
@@ -148,12 +157,9 @@ function GuestsInner() {
   const [draftAge, setDraftAge] = useState<AgeFilter>("all");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMounted, setDrawerMounted] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [plusOne, setPlusOne] = useState(false);
-  const [plusOneName, setPlusOneName] = useState("");
+  const [companions, setCompanions] = useState<CompanionDraft[]>([]);
   const [side, setSide] = useState<GuestSide | "">("");
   const [method, setMethod] = useState<InviteMethod>("phone");
   const [phone, setPhone] = useState("");
@@ -162,7 +168,10 @@ function GuestsInner() {
   );
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus>("PENDING");
   const [isChildGuest, setIsChildGuest] = useState(false);
+  const [childNeed, setChildNeed] = useState<ChildNeed | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Guest | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
@@ -229,33 +238,6 @@ function GuestsInner() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen) {
-      setDrawerVisible(false);
-      const timer = window.setTimeout(() => setDrawerMounted(false), 320);
-      return () => window.clearTimeout(timer);
-    }
-    setDrawerMounted(true);
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setDrawerVisible(true));
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [drawerOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setDrawerOpen(false);
-        resetDrawer();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-    // resetDrawer is stable enough for Escape close
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drawerOpen]);
 
   useEffect(() => {
     if (!menuOpenId) return;
@@ -362,14 +344,44 @@ function GuestsInner() {
   function resetDrawer() {
     setEditingId(null);
     setName("");
-    setPlusOne(false);
-    setPlusOneName("");
+    setCompanions([]);
     setSide("");
     setMethod("phone");
     setPhone("");
     setInviteStatus("not_invited");
     setRsvpStatus("PENDING");
     setIsChildGuest(false);
+    setChildNeed(null);
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    window.setTimeout(() => resetDrawer(), 320);
+  }
+
+  function updateCompanion(
+    key: string,
+    patch: Partial<Omit<CompanionDraft, "key">>,
+  ) {
+    setCompanions((prev) =>
+      prev.map((row) => {
+        if (row.key !== key) return row;
+        const next = { ...row, ...patch };
+        if (patch.isChild === false) next.childNeed = null;
+        if (patch.isChild === true && !next.childNeed) {
+          next.childNeed = "with_parents";
+        }
+        return next;
+      }),
+    );
+  }
+
+  function removeCompanion(key: string) {
+    setCompanions((prev) => prev.filter((row) => row.key !== key));
+  }
+
+  function addCompanion() {
+    setCompanions((prev) => [...prev, emptyCompanion()]);
   }
 
   function openCreate() {
@@ -380,14 +392,21 @@ function GuestsInner() {
   function openEdit(guest: Guest) {
     setEditingId(guest.id);
     setName(guest.name);
-    setPlusOne(guest.plusOne);
-    setPlusOneName(guest.plusOneName ?? "");
+    const parsed = parseCompanions(guest.notes, guest);
+    setCompanions(
+      parsed.map((row) => ({
+        ...row,
+        key: newCompanionKey(),
+      })),
+    );
     setSide(guest.side === "OTHER" ? "BOTH" : guest.side);
     setMethod(parseInviteMethod(guest.notes));
     setPhone(guest.phone ?? "");
     setInviteStatus(isInvited(guest) ? "invited" : "not_invited");
     setRsvpStatus(guest.rsvpStatus);
-    setIsChildGuest(isChild(guest));
+    const child = isChild(guest);
+    setIsChildGuest(child);
+    setChildNeed(child ? parseChildNeed(guest.notes) : null);
     setMenuOpenId(null);
     setDrawerOpen(true);
   }
@@ -396,24 +415,37 @@ function GuestsInner() {
     e.preventDefault();
     const nextName = name.trim();
     if (nextName.length < 2) {
-      toast.error("Вкажи імʼя гостя");
+      toast.error("Вкажи ім?я гостя");
       return;
     }
     setBusy(true);
     try {
       const invited = inviteStatus === "invited";
+      const companionPayload = companions.map(
+        ({ name: cName, isChild: cChild, childNeed: cNeed, rsvpStatus: cRsvp }) => ({
+          name: cName,
+          isChild: cChild,
+          childNeed: cChild ? cNeed : null,
+          rsvpStatus: cRsvp,
+        }),
+      );
+      const legacy = companionsToLegacyFields(companionPayload);
       const payload = {
         name: nextName,
         side: (side || "BOTH") as GuestSide,
         phone: phone.trim() || undefined,
-        plusOne,
-        plusOneName: plusOne ? plusOneName.trim() || undefined : undefined,
+        plusOne: legacy.plusOne,
+        plusOneName: legacy.plusOneName ?? undefined,
+        plusOneAttending: legacy.plusOneAttending,
         rsvpStatus,
-        notes: buildNotes({
-          child: isChildGuest,
-          invited,
-          method,
-        }) ?? undefined,
+        notes:
+          buildGuestNotes({
+            child: isChildGuest,
+            childNeed: isChildGuest ? childNeed : null,
+            invited,
+            method,
+            companions: companionPayload,
+          }) ?? undefined,
       };
 
       if (editingId) {
@@ -444,7 +476,11 @@ function GuestsInner() {
                   maybe: prev.stats.maybe + (rsvpStatus === "MAYBE" ? 1 : 0),
                   pending:
                     prev.stats.pending + (rsvpStatus === "PENDING" ? 1 : 0),
-                  headcount: prev.stats.headcount + 1 + (plusOne ? 1 : 0),
+                  headcount:
+                    prev.stats.headcount +
+                    (rsvpStatus === "YES" ? 1 : 0) +
+                    companionPayload.filter((c) => c.rsvpStatus === "YES")
+                      .length,
                 },
               }
             : prev,
@@ -466,16 +502,21 @@ function GuestsInner() {
     }
   }
 
-  async function onDelete(guest: Guest) {
-    if (!confirm(`Видалити «${guest.name}»?`)) return;
-    setBusy(true);
+  function requestDelete(guest: Guest) {
+    setMenuOpenId(null);
+    setDeleteTarget(guest);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await deleteGuest(guest.id);
+      await deleteGuest(deleteTarget.id);
       setData((prev) =>
         prev
           ? {
               ...prev,
-              guests: prev.guests.filter((g) => g.id !== guest.id),
+              guests: prev.guests.filter((g) => g.id !== deleteTarget.id),
               stats: {
                 ...prev.stats,
                 total: Math.max(0, prev.stats.total - 1),
@@ -483,11 +524,11 @@ function GuestsInner() {
             }
           : prev,
       );
+      setDeleteTarget(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не видалено");
     } finally {
-      setBusy(false);
-      setMenuOpenId(null);
+      setDeleting(false);
     }
   }
 
@@ -619,30 +660,46 @@ function GuestsInner() {
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
       {guests.length === 0 ? (
-        <div className="cabinet-guests-empty">
-          <div className="cabinet-guests-empty-glow" aria-hidden />
-          <GuestsEmptyArt />
-          <h2>Внесіть своїх перших гостей</h2>
-          <p>
-            Єдиний список гостей для вас обох. Всі контакти, статуси запрошень,
-            деталі щодо гостей — в одному місці.
-          </p>
-          <p>Додайте гостей вручну або імпортуйте список із CSV файлу</p>
-          <div className="cabinet-guests-empty-actions">
-            <Button type="button" tone="ink" size="m" className="cabinet-empty-cta" onClick={openCreate}>
-              Додати гостей
-            </Button>
-            <Button
-              type="button"
-              tone="ghost"
-              size="m"
-              className="cabinet-guests-import-btn"
-              onClick={() => fileRef.current?.click()}
-              disabled={busy}
-            >
-              Імпорт CSV
-            </Button>
-          </div>
+        <CabinetEmptyState
+          art={{
+            src: "/cabinet/empty/guests.png",
+            width: 320,
+            height: 220,
+          }}
+          title="Внесіть своїх перших гостей"
+          description={
+            <>
+              <p>
+                Єдиний список гостей для вас обох. Всі контакти, статуси
+                запрошень, деталі щодо гостей — в одному місці.
+              </p>
+              <p>Додайте гостей вручну або імпортуйте список із CSV файлу</p>
+            </>
+          }
+          actions={
+            <>
+              <Button
+                type="button"
+                tone="ink"
+                size="m"
+                className="cabinet-empty-cta"
+                onClick={openCreate}
+              >
+                Додати гостей
+              </Button>
+              <Button
+                type="button"
+                tone="ghost"
+                size="m"
+                className="cabinet-guests-import-btn"
+                onClick={() => fileRef.current?.click()}
+                disabled={busy}
+              >
+                Імпорт CSV
+              </Button>
+            </>
+          }
+        >
           <input
             ref={fileRef}
             type="file"
@@ -654,7 +711,7 @@ function GuestsInner() {
               e.target.value = "";
             }}
           />
-        </div>
+        </CabinetEmptyState>
       ) : (
         <>
           <div className="cabinet-tasks-mobile-bar">
@@ -837,7 +894,7 @@ function GuestsInner() {
                                 title="Дитина"
                                 aria-label="Дитина"
                               >
-                                ☺
+                                O
                               </span>
                             ) : null}
                           </p>
@@ -895,7 +952,7 @@ function GuestsInner() {
                                   icon={<IconTrash />}
                                   danger
                                   disabled={busy}
-                                  onClick={() => void onDelete(guest)}
+                                  onClick={() => requestDelete(guest)}
                                 >
                                   Видалити
                                 </CabinetContextMenuItem>
@@ -1086,61 +1143,180 @@ function GuestsInner() {
         </div>
       ) : null}
 
-      {drawerMounted ? (
-        <div
-          className={`cabinet-drawer-root${drawerVisible ? " is-open" : ""}`}
-        >
-          <button
-            type="button"
-            className="cabinet-drawer-backdrop"
-            aria-label="Закрити"
-            onClick={() => {
-              setDrawerOpen(false);
-              resetDrawer();
-            }}
-          />
-          <aside
-            className="cabinet-drawer"
-            aria-label={editingId ? "Редагувати гостя" : "Додати гостя"}
-          >
-            <div className="cabinet-drawer-head">
-              <h2>{editingId ? "Редагувати гостя" : "Додати гостя"}</h2>
-              <button
-                type="button"
-                className="cabinet-drawer-close"
-                aria-label="Закрити"
-                onClick={() => {
-                  setDrawerOpen(false);
-                  resetDrawer();
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <form className="cabinet-drawer-form" onSubmit={onSave}>
-              <TextInput
-                label="Імʼя і прізвище"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Наприклад: Ліля Василенко"
-                required
-              />
+      <CabinetOverlay
+        open={drawerOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Редагувати гостя" : "Додати гостя"}
+        variant="drawer"
+        width={420}
+        asForm
+        onSubmit={onSave}
+        footer={
+          <>
+            <Button
+              type="button"
+              tone="ghost"
+              size="m"
+              className="cabinet-drawer-cancel"
+              onClick={closeDrawer}
+            >
+              Скасувати
+            </Button>
+            <Button
+              type="submit"
+              tone="black"
+              size="m"
+              className="cabinet-drawer-save"
+              disabled={busy || name.trim().length < 2}
+              loading={busy}
+              loadingText="…"
+            >
+              Зберегти
+            </Button>
+          </>
+        }
+      >
+              <div className="cabinet-guests-party">
+                <div className="cabinet-guests-party-row">
+                  <div className="cabinet-guests-plus-line cabinet-guests-plus-line--main">
+                    <TextInput
+                      label="Ім'я і прізвище"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Наприклад: Ліля Василенко"
+                      required
+                    />
+                    <div
+                      className="cabinet-guests-age-toggle"
+                      role="group"
+                      aria-label="Вік гостя"
+                    >
+                      <button
+                        type="button"
+                        className={!isChildGuest ? "is-active" : undefined}
+                        onClick={() => {
+                          setIsChildGuest(false);
+                          setChildNeed(null);
+                        }}
+                      >
+                        Дорослий
+                      </button>
+                      <button
+                        type="button"
+                        className={isChildGuest ? "is-active" : undefined}
+                        onClick={() => {
+                          setIsChildGuest(true);
+                          setChildNeed((need) => need ?? "with_parents");
+                        }}
+                      >
+                        Дитина
+                      </button>
+                    </div>
+                  </div>
+                  {isChildGuest ? (
+                    <div
+                      className="cabinet-guests-child-needs"
+                      role="group"
+                      aria-label="Потрібне для дитини"
+                    >
+                      {CHILD_NEED_OPTIONS.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={
+                            childNeed === item.id ? "is-active" : undefined
+                          }
+                          onClick={() => setChildNeed(item.id)}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
 
-              <button
-                type="button"
-                className={`cabinet-guests-plusone${plusOne ? " is-on" : ""}`}
-                onClick={() => setPlusOne((v) => !v)}
-              >
-                + Додати +1
-              </button>
-              {plusOne ? (
-                <TextInput
-                  label="Імʼя +1"
-                  value={plusOneName}
-                  onChange={(e) => setPlusOneName(e.target.value)}
-                  placeholder="Імʼя супутника"
-                />
-              ) : null}
+                {companions.map((row, index) => (
+                  <div key={row.key} className="cabinet-guests-party-row">
+                    <div className="cabinet-guests-plus-line">
+                      <TextInput
+                        label={index === 0 ? "Ім'я +1" : undefined}
+                        value={row.name}
+                        onChange={(e) =>
+                          updateCompanion(row.key, { name: e.target.value })
+                        }
+                        placeholder="Ім'я"
+                        aria-label={`Ім'я +1 ${index + 1}`}
+                      />
+                      <div
+                        className="cabinet-guests-age-toggle"
+                        role="group"
+                        aria-label={`Вік +1 ${index + 1}`}
+                      >
+                        <button
+                          type="button"
+                          className={!row.isChild ? "is-active" : undefined}
+                          onClick={() =>
+                            updateCompanion(row.key, { isChild: false })
+                          }
+                        >
+                          Дорослий
+                        </button>
+                        <button
+                          type="button"
+                          className={row.isChild ? "is-active" : undefined}
+                          onClick={() =>
+                            updateCompanion(row.key, { isChild: true })
+                          }
+                        >
+                          Дитина
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        className="cabinet-guests-plus-remove"
+                        aria-label="Видалити +1"
+                        onClick={() => removeCompanion(row.key)}
+                      >
+                        <IconTrash size={18} />
+                      </button>
+                    </div>
+                    {row.isChild ? (
+                      <div
+                        className="cabinet-guests-child-needs"
+                        role="group"
+                        aria-label="Потрібне для дитини"
+                      >
+                        {CHILD_NEED_OPTIONS.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className={
+                              row.childNeed === item.id
+                                ? "is-active"
+                                : undefined
+                            }
+                            onClick={() =>
+                              updateCompanion(row.key, {
+                                childNeed: item.id,
+                              })
+                            }
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  className="cabinet-guests-plusone"
+                  onClick={addCompanion}
+                >
+                  + Додати +1
+                </button>
+              </div>
 
               <Select
                 label="Сторона нареченого чи нареченої"
@@ -1148,19 +1324,10 @@ function GuestsInner() {
                 onChange={(e) => setSide(e.target.value as GuestSide | "")}
               >
                 <option value="">Обрати сторону</option>
-                <option value="BRIDE">Гості нареченої</option>
-                <option value="GROOM">Гості нареченого</option>
+                <option value="BRIDE">{ownerName || "Наречена"}</option>
+                <option value="GROOM">{partnerName || "Наречений"}</option>
                 <option value="BOTH">Спільні</option>
               </Select>
-
-              <label className="cabinet-drawer-check">
-                <Checkbox
-                  checked={isChildGuest}
-                  onCheckedChange={setIsChildGuest}
-                  aria-label="Дитина"
-                />
-                <span>Дитина</span>
-              </label>
 
               <div className="cabinet-guests-invite-box">
                 <p className="cabinet-filter-title">Запрошення</p>
@@ -1186,13 +1353,15 @@ function GuestsInner() {
                   ))}
                 </div>
                 <TextInput
-                  label="Номер телефону"
+                  label={contactLabel(method)}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+380"
+                  placeholder={
+                    method === "telegram" ? "@nickname або +380" : "+380"
+                  }
                 />
                 <Select
-                  label="Статус запрошення"
+                  label="Статус"
                   value={inviteStatus}
                   onChange={(e) =>
                     setInviteStatus(e.target.value as "not_invited" | "invited")
@@ -1201,64 +1370,68 @@ function GuestsInner() {
                   <option value="not_invited">Не запрошено</option>
                   <option value="invited">Запрошено</option>
                 </Select>
-                <Select
-                  label="Результат"
-                  value={rsvpStatus}
-                  onChange={(e) =>
-                    setRsvpStatus(e.target.value as RsvpStatus)
-                  }
-                >
-                  <option value="PENDING">Ще не відповіли</option>
-                  <option value="YES">Прийде</option>
-                  <option value="NO">Відмова</option>
-                  <option value="MAYBE">Можливо прийде</option>
-                </Select>
-              </div>
 
-              <div className="cabinet-drawer-actions">
-                <Button
-                  type="button"
-                  tone="ghost"
-                  size="m"
-                  className="cabinet-drawer-cancel"
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    resetDrawer();
-                  }}
-                >
-                  Скасувати
-                </Button>
-                <Button
-                  type="submit"
-                  tone="black"
-                  size="m"
-                  className="cabinet-drawer-save"
-                  disabled={busy || name.trim().length < 2}
-                  loading={busy}
-                  loadingText="…"
-                >
-                  Зберегти
-                </Button>
+                <div className="cabinet-guests-rsvp-list">
+                  <p className="cabinet-drawer-field-label">
+                    Результат запрошення
+                  </p>
+                  <div className="cabinet-guests-rsvp-row">
+                    <span className="cabinet-guests-rsvp-name">
+                      {name.trim() || "Основний гість"}
+                    </span>
+                    <Select
+                      value={rsvpStatus}
+                      aria-label={`Результат: ${name.trim() || "основний гість"}`}
+                      onChange={(e) =>
+                        setRsvpStatus(e.target.value as RsvpStatus)
+                      }
+                    >
+                      <option value="YES">? Прийде</option>
+                      <option value="MAYBE">0 Можливо прийде</option>
+                      <option value="NO">? Не прийде</option>
+                      <option value="PENDING">0 Ще не відповіли</option>
+                    </Select>
+                  </div>
+                  {companions.map((row, index) => (
+                    <div key={row.key} className="cabinet-guests-rsvp-row">
+                      <span className="cabinet-guests-rsvp-name">
+                        {row.name.trim() || `+1 #${index + 1}`}
+                      </span>
+                      <Select
+                        value={row.rsvpStatus}
+                        aria-label={`Результат: ${
+                          row.name.trim() || `+1 #${index + 1}`
+                        }`}
+                        onChange={(e) =>
+                          updateCompanion(row.key, {
+                            rsvpStatus: e.target.value as RsvpStatus,
+                          })
+                        }
+                      >
+                        <option value="YES">? Прийде</option>
+                        <option value="MAYBE">0 Можливо прийде</option>
+                        <option value="NO">? Не прийде</option>
+                        <option value="PENDING">0 Ще не відповіли</option>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </form>
-          </aside>
-        </div>
-      ) : null}
+      </CabinetOverlay>
+
+      <DeleteConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Видалити гостя"
+        description={
+          deleteTarget
+            ? `Ви впевнені, що хочете видалити «${deleteTarget.name}»?`
+            : ""
+        }
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
-  );
-}
-
-function GuestsEmptyArt() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      className="cabinet-guests-empty-art"
-      src="/cabinet/empty/guests.png"
-      alt=""
-      width={320}
-      height={220}
-      aria-hidden
-    />
   );
 }
 

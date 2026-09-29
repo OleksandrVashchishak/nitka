@@ -6,7 +6,6 @@ export type GuestPopoverInfo = {
   key: string;
   guestId: string;
   name: string;
-  index: number;
   groupLabel: string | null;
   tableLabel: string | null;
   rsvpStatus: RsvpStatus;
@@ -46,10 +45,7 @@ export function GuestSeatPopover({
           </button>
         ))}
       </div>
-      <div className="seat-pop-footer">
-        <ClockIcon />
-        <span>{rsvpFooterLabel(info.rsvpStatus)}</span>
-      </div>
+      <GuestPopFooter status={info.rsvpStatus} />
       <button
         type="button"
         className="seat-pop-dismiss"
@@ -83,15 +79,18 @@ export function GuestListPopover({
         <button type="button" onClick={() => onSetRsvp("NO")}>
           Змінити статус на “Не прийде”
         </button>
-        <button type="button" onClick={onLeaveUnseated}>
-          Залишити поки що без місця
-        </button>
+        {info.tableLabel ? (
+          <button type="button" onClick={onLeaveUnseated}>
+            Залишити поки що без місця
+          </button>
+        ) : null}
         {info.linkedName && onDetach ? (
           <button type="button" onClick={onDetach}>
             Від’єднати від {info.linkedName}
           </button>
         ) : null}
       </div>
+      <GuestPopFooter status={info.rsvpStatus} />
       <button
         type="button"
         className="seat-pop-dismiss"
@@ -105,14 +104,20 @@ export function GuestListPopover({
 function GuestPopHeader({ info }: { info: GuestPopoverInfo }) {
   return (
     <div className="seat-pop-head">
-      <span className="seat-pop-avatar">{info.index}</span>
-      <div className="seat-pop-head-text">
-        <p className="seat-pop-name">{info.name}</p>
-        <div className="seat-pop-meta">
-          <span>{info.groupLabel || "Без групи"}</span>
-          <span>{info.tableLabel || "Без столу"}</span>
-        </div>
+      <p className="seat-pop-name">{info.name}</p>
+      <div className="seat-pop-meta">
+        <span>{info.groupLabel || "Без групи"}</span>
+        <span>{info.tableLabel || "Без столу"}</span>
       </div>
+    </div>
+  );
+}
+
+function GuestPopFooter({ status }: { status: RsvpStatus }) {
+  return (
+    <div className="seat-pop-footer">
+      <ClockIcon />
+      <span>{rsvpFooterLabel(status)}</span>
     </div>
   );
 }

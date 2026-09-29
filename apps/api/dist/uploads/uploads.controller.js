@@ -20,7 +20,7 @@ const multer_1 = require("multer");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const uploads_service_1 = require("./uploads.service");
-const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_BYTES = 500 * 1024;
 const ALLOWED = new Set([
     'image/jpeg',
     'image/png',
@@ -37,6 +37,9 @@ let UploadsController = class UploadsController {
         }
         if (!ALLOWED.has(file.mimetype)) {
             throw new common_1.BadRequestException('Дозволені лише JPEG, PNG, WebP, GIF');
+        }
+        if (file.size > MAX_BYTES) {
+            throw new common_1.BadRequestException('Фото має бути не більше 500 КБ');
         }
         return this.uploadsService.uploadImage({
             buffer: file.buffer,

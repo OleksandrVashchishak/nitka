@@ -13,8 +13,11 @@ import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
+import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
 import {
@@ -47,7 +50,7 @@ import {
   type VendorCurrency,
   type VendorMeta,
 } from "@/lib/vendor-manager";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
 
 type FormState = {
   category: string;
@@ -100,20 +103,6 @@ function contactValue(vendor: ExternalVendor, meta: VendorMeta) {
   return vendor.phone || vendor.website || "—";
 }
 
-function VendorsEmptyArt() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      className="cabinet-vendors-empty-art"
-      src="/cabinet/empty/vendors.png"
-      alt=""
-      width={360}
-      height={200}
-      aria-hidden
-    />
-  );
-}
-
 function MyVendorsInner() {
   const user = useAuthStore((s) => s.user);
   const [manual, setManual] = useState<ExternalVendor[]>([]);
@@ -130,6 +119,8 @@ function MyVendorsInner() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ExternalVendor | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -206,12 +197,24 @@ function MyVendorsInner() {
 
   const isEmpty = plan.length === 0 && manual.length === 0;
 
+  /** Categories that already have a vendor can't be unchecked until that vendor is removed. */
+  const lockedPlanSlugs = useMemo(() => {
+    const locked = new Set<string>();
+    for (const vendor of manual) locked.add(vendor.category);
+    return locked;
+  }, [manual]);
+
   function openPlanModal() {
-    setPlanDraft(plan.length ? [...plan] : []);
+    const base = plan.length ? [...plan] : [];
+    for (const slug of lockedPlanSlugs) {
+      if (!base.includes(slug)) base.push(slug);
+    }
+    setPlanDraft(base);
     setPlanModalOpen(true);
   }
 
   function togglePlanSlug(slug: string) {
+    if (lockedPlanSlugs.has(slug)) return;
     setPlanDraft((prev) =>
       prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
     );
@@ -220,7 +223,11 @@ function MyVendorsInner() {
   async function savePlan() {
     setSaving(true);
     try {
-      const saved = await saveVendorPlan(planDraft);
+      const next = [...planDraft];
+      for (const slug of lockedPlanSlugs) {
+        if (!next.includes(slug)) next.push(slug);
+      }
+      const saved = await saveVendorPlan(next);
       setPlan(saved.plan);
       clearLegacyVendorPlan();
       setPlanModalOpen(false);
@@ -322,14 +329,22 @@ function MyVendorsInner() {
     }
   }
 
-  async function onDelete(id: string) {
-    if (!confirm("Видалити підрядника?")) return;
+  function requestDelete(vendor: ExternalVendor) {
+    setMenuOpenId(null);
+    setDeleteTarget(vendor);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await removeExternalVendor(id);
-      setMenuOpenId(null);
+      await removeExternalVendor(deleteTarget.id);
+      setDeleteTarget(null);
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не вдалось видалити");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -350,16 +365,22 @@ function MyVendorsInner() {
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
       {isEmpty ? (
-        <div className="cabinet-guests-empty cabinet-vendors-empty">
-          <div className="cabinet-guests-empty-glow" aria-hidden />
-          <VendorsEmptyArt />
-          <h2>Внесіть своїх підрядників</h2>
-          <p>
-            Тримайте усі контакти, ціни, завдатки і процеси в одному місці, а
-            також надсилайте розклад весільного дня та інші деталі весілля усім
-            підрядникам одночасно звідси.
-          </p>
-          <div className="cabinet-guests-empty-actions">
+        <CabinetEmptyState
+          art={{
+            src: "/cabinet/empty/vendors.png",
+            width: 360,
+            height: 200,
+            className: "cabinet-vendors-empty-art",
+          }}
+          title="Внесіть своїх підрядників"
+          description={
+            <p>
+              Тримайте усі контакти, ціни, завдатки і процеси в одному місці, а
+              також надсилайте розклад весільного дня та інші деталі весілля
+              усім підрядникам одночасно звідси.
+            </p>
+          }
+          actions={
             <Button
               type="button"
               tone="ink"
@@ -369,8 +390,8 @@ function MyVendorsInner() {
             >
               Додати підрядників
             </Button>
-          </div>
-        </div>
+          }
+        />
       ) : (
         <>
           <div className="cabinet-vendors-toolbar">
@@ -484,7 +505,7 @@ function MyVendorsInner() {
                           <CabinetContextMenuItem
                             icon={<IconTrash />}
                             danger
-                            onClick={() => void onDelete(vendor.id)}
+                            onClick={() => requestDelete(vendor)}
                           >
                             Видалити
                           </CabinetContextMenuItem>
@@ -519,287 +540,282 @@ function MyVendorsInner() {
         </>
       )}
 
-      {planModalOpen ? (
-        <div className="cabinet-modal-root" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            className="cabinet-modal-backdrop"
-            aria-label="Закрити"
-            onClick={() => setPlanModalOpen(false)}
+      <CabinetOverlay
+        open={planModalOpen}
+        onClose={() => setPlanModalOpen(false)}
+        title="Мені будуть потрібні такі підрядники"
+        subtitle="Оберіть всіх, кого плануєте мати на весіллі - це допоможе побачити цілісну картину. Пізніше ви зможете редагувати список."
+        variant="modal"
+        width={520}
+        mobileVariant="fullscreen"
+        panelClassName="cabinet-vendors-plan-modal"
+        footerClassName="cabinet-modal-actions cabinet-vendors-modal-actions"
+        footer={
+          <>
+            <Button
+              type="button"
+              tone="ghost"
+              size="m"
+              className="cabinet-drawer-cancel"
+              onClick={() => setPlanModalOpen(false)}
+            >
+              Скасувати
+            </Button>
+            <Button
+              type="button"
+              tone="ink"
+              size="m"
+              className="cabinet-drawer-save"
+              disabled={saving}
+              onClick={() => void savePlan()}
+            >
+              Зберегти
+            </Button>
+          </>
+        }
+      >
+        <ul className="cabinet-vendors-plan-list">
+          {VENDOR_MANAGER_CATEGORIES.filter((c) => c.slug !== "other").map(
+            (cat) => {
+              const locked = lockedPlanSlugs.has(cat.slug);
+              const checked = locked || planDraft.includes(cat.slug);
+              return (
+                <li key={cat.slug}>
+                  <label
+                    className={`cabinet-vendors-plan-item${locked ? " is-locked" : ""}`}
+                    title={
+                      locked
+                        ? "Спочатку видали підрядника цього типу"
+                        : undefined
+                    }
+                  >
+                    <Checkbox
+                      checked={checked}
+                      disabled={locked}
+                      onCheckedChange={() => togglePlanSlug(cat.slug)}
+                      aria-label={cat.name}
+                    />
+                    <span>{cat.name}</span>
+                  </label>
+                </li>
+              );
+            },
+          )}
+        </ul>
+      </CabinetOverlay>
+
+      <CabinetOverlay
+        open={formModalOpen}
+        onClose={() => setFormModalOpen(false)}
+        title={editingId ? "Редагувати підрядника" : "Додати підрядника"}
+        variant="modal"
+        width={520}
+        mobileVariant="fullscreen"
+        panelClassName="cabinet-vendors-form-modal"
+        bodyClassName="cabinet-vendors-form-body"
+        footerClassName="cabinet-modal-actions cabinet-vendors-modal-actions"
+        asForm
+        onSubmit={onSubmit}
+        footer={
+          <>
+            <Button
+              type="button"
+              tone="ghost"
+              size="m"
+              className="cabinet-drawer-cancel"
+              onClick={() => setFormModalOpen(false)}
+            >
+              Скасувати
+            </Button>
+            <Button
+              type="submit"
+              tone="ink"
+              size="m"
+              className="cabinet-drawer-save"
+              loading={saving}
+              loadingText="Зберігаємо…"
+            >
+              Зберегти
+            </Button>
+          </>
+        }
+      >
+        <Select
+          label="Тип підрядника"
+          value={form.category}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, category: e.target.value }))
+          }
+          required
+        >
+          <option value="">Обрати тип</option>
+          {VENDOR_MANAGER_CATEGORIES.map((cat) => (
+            <option key={cat.slug} value={cat.slug}>
+              {cat.name}
+            </option>
+          ))}
+        </Select>
+
+        {form.category === "other" ? (
+          <TextInput
+            label="Назва підрядника"
+            value={form.customLabel}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, customLabel: e.target.value }))
+            }
+            placeholder="Наприклад: охоронець, водій автобуса"
+            required
           />
-          <div className="cabinet-modal cabinet-vendors-plan-modal">
-            <div className="cabinet-modal-head">
-              <div>
-                <h2>Мені будуть потрібні такі підрядники</h2>
-                <p>
-                  Оберіть всіх, кого плануєте мати на весіллі - це допоможе
-                  побачити цілісну картину. Пізніше ви зможете редагувати
-                  список.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="cabinet-modal-close"
-                aria-label="Закрити"
-                onClick={() => setPlanModalOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-            <ul className="cabinet-vendors-plan-list">
-              {VENDOR_MANAGER_CATEGORIES.filter((c) => c.slug !== "other").map(
-                (cat) => {
-                  const checked = planDraft.includes(cat.slug);
-                  return (
-                    <li key={cat.slug}>
-                      <label className="cabinet-vendors-plan-item">
-                        <Checkbox
-                          checked={checked}
-                          onCheckedChange={() => togglePlanSlug(cat.slug)}
-                          aria-label={cat.name}
-                        />
-                        <span>{cat.name}</span>
-                      </label>
-                    </li>
-                  );
-                },
-              )}
-            </ul>
-            <div className="cabinet-modal-actions cabinet-vendors-modal-actions">
-              <Button
-                type="button"
-                tone="ghost"
-                size="m"
-                className="cabinet-drawer-cancel"
-                onClick={() => setPlanModalOpen(false)}
-              >
-                Скасувати
-              </Button>
-              <Button
-                type="button"
-                tone="ink"
-                size="m"
-                className="cabinet-drawer-save"
-                disabled={saving}
-                onClick={() => void savePlan()}
-              >
-                Зберегти
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      {formModalOpen ? (
-        <div className="cabinet-modal-root" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            className="cabinet-modal-backdrop"
-            aria-label="Закрити"
-            onClick={() => setFormModalOpen(false)}
-          />
-          <form className="cabinet-modal cabinet-vendors-form-modal" onSubmit={onSubmit}>
-            <div className="cabinet-modal-head">
-              <h2>{editingId ? "Редагувати підрядника" : "Додати підрядника"}</h2>
-              <button
-                type="button"
-                className="cabinet-modal-close"
-                aria-label="Закрити"
-                onClick={() => setFormModalOpen(false)}
-              >
-                ×
-              </button>
-            </div>
+        <TextInput
+          label="Імʼя підрядника"
+          value={form.name}
+          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+          placeholder="Наприклад: Ліля Василенко"
+          required
+        />
 
-            <div className="cabinet-vendors-form-body">
-              <Select
-                label="Тип підрядника"
-                value={form.category}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, category: e.target.value }))
-                }
-                required
-              >
-                <option value="">Обрати тип</option>
-                {VENDOR_MANAGER_CATEGORIES.map((cat) => (
-                  <option key={cat.slug} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </Select>
+        <Select
+          label="Спосіб спілкування"
+          value={form.contactMethod}
+          onChange={(e) =>
+            setForm((f) => ({
+              ...f,
+              contactMethod: e.target.value as VendorContactMethod,
+            }))
+          }
+        >
+          {VENDOR_CONTACT_METHODS.map((method) => (
+            <option key={method.id} value={method.id}>
+              {method.label}
+            </option>
+          ))}
+        </Select>
 
-              {form.category === "other" ? (
-                <TextInput
-                  label="Назва підрядника"
-                  value={form.customLabel}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, customLabel: e.target.value }))
-                  }
-                  placeholder="Наприклад: охоронець, водій автобуса"
-                  required
-                />
-              ) : null}
+        <TextInput
+          label={
+            form.contactMethod === "instagram"
+              ? "Instagram підрядника"
+              : form.contactMethod === "email"
+                ? "Email підрядника"
+                : form.contactMethod === "telegram"
+                  ? "Telegram підрядника"
+                  : "Номер телефону підрядника"
+          }
+          value={
+            form.contactMethod === "phone" ||
+            form.contactMethod === "viber" ||
+            form.contactMethod === "messenger" ||
+            form.contactMethod === "meet" ||
+            form.contactMethod === "other"
+              ? form.phone
+              : form.website
+          }
+          onChange={(e) => {
+            const value = e.target.value;
+            if (
+              form.contactMethod === "instagram" ||
+              form.contactMethod === "email" ||
+              form.contactMethod === "telegram"
+            ) {
+              setForm((f) => ({ ...f, website: value }));
+            } else {
+              setForm((f) => ({ ...f, phone: value }));
+            }
+          }}
+          placeholder={
+            form.contactMethod === "instagram"
+              ? "@username"
+              : form.contactMethod === "email"
+                ? "name@example.com"
+                : "+380"
+          }
+        />
 
+        <Select
+          label="Статус"
+          value={form.booked ? "booked" : "open"}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, booked: e.target.value === "booked" }))
+          }
+        >
+          <option value="open">Не заброньовано</option>
+          <option value="booked">Заброньовано</option>
+        </Select>
+
+        {form.booked ? (
+          <>
+            <div className="cabinet-vendors-money-row">
               <TextInput
-                label="Імʼя підрядника"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Наприклад: Ліля Василенко"
-                required
+                label="Завдаток"
+                inputMode="numeric"
+                value={form.deposit}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, deposit: e.target.value }))
+                }
+                placeholder="0"
               />
-
               <Select
-                label="Спосіб спілкування"
-                value={form.contactMethod}
+                label="Валюта"
+                value={form.depositCurrency}
                 onChange={(e) =>
                   setForm((f) => ({
                     ...f,
-                    contactMethod: e.target.value as VendorContactMethod,
+                    depositCurrency: e.target.value as VendorCurrency,
                   }))
                 }
               >
-                {VENDOR_CONTACT_METHODS.map((method) => (
-                  <option key={method.id} value={method.id}>
-                    {method.label}
+                {VENDOR_CURRENCIES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
                   </option>
                 ))}
               </Select>
-
+            </div>
+            <div className="cabinet-vendors-money-row">
               <TextInput
-                label={
-                  form.contactMethod === "instagram"
-                    ? "Instagram підрядника"
-                    : form.contactMethod === "email"
-                      ? "Email підрядника"
-                      : form.contactMethod === "telegram"
-                        ? "Telegram підрядника"
-                        : "Номер телефону підрядника"
-                }
-                value={
-                  form.contactMethod === "phone" ||
-                  form.contactMethod === "viber" ||
-                  form.contactMethod === "messenger" ||
-                  form.contactMethod === "meet" ||
-                  form.contactMethod === "other"
-                    ? form.phone
-                    : form.website
-                }
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (
-                    form.contactMethod === "instagram" ||
-                    form.contactMethod === "email" ||
-                    form.contactMethod === "telegram"
-                  ) {
-                    setForm((f) => ({ ...f, website: value }));
-                  } else {
-                    setForm((f) => ({ ...f, phone: value }));
-                  }
-                }}
-                placeholder={
-                  form.contactMethod === "instagram"
-                    ? "@username"
-                    : form.contactMethod === "email"
-                      ? "name@example.com"
-                      : "+380"
-                }
-              />
-
-              <Select
-                label="Статус"
-                value={form.booked ? "booked" : "open"}
+                label="Треба доплатити"
+                inputMode="numeric"
+                value={form.balance}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, booked: e.target.value === "booked" }))
+                  setForm((f) => ({ ...f, balance: e.target.value }))
+                }
+                placeholder="0"
+              />
+              <Select
+                label="Валюта"
+                value={form.balanceCurrency}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    balanceCurrency: e.target.value as VendorCurrency,
+                  }))
                 }
               >
-                <option value="open">Не заброньовано</option>
-                <option value="booked">Заброньовано</option>
+                {VENDOR_CURRENCIES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
               </Select>
-
-              {form.booked ? (
-                <>
-                  <div className="cabinet-vendors-money-row">
-                    <TextInput
-                      label="Завдаток"
-                      inputMode="numeric"
-                      value={form.deposit}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, deposit: e.target.value }))
-                      }
-                      placeholder="0"
-                    />
-                    <Select
-                      label="Валюта"
-                      value={form.depositCurrency}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          depositCurrency: e.target.value as VendorCurrency,
-                        }))
-                      }
-                    >
-                      {VENDOR_CURRENCIES.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="cabinet-vendors-money-row">
-                    <TextInput
-                      label="Треба доплатити"
-                      inputMode="numeric"
-                      value={form.balance}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, balance: e.target.value }))
-                      }
-                      placeholder="0"
-                    />
-                    <Select
-                      label="Валюта"
-                      value={form.balanceCurrency}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          balanceCurrency: e.target.value as VendorCurrency,
-                        }))
-                      }
-                    >
-                      {VENDOR_CURRENCIES.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                </>
-              ) : null}
             </div>
+          </>
+        ) : null}
+      </CabinetOverlay>
 
-            <div className="cabinet-modal-actions cabinet-vendors-modal-actions">
-              <Button
-                type="button"
-                tone="ghost"
-                size="m"
-                className="cabinet-drawer-cancel"
-                onClick={() => setFormModalOpen(false)}
-              >
-                Скасувати
-              </Button>
-              <Button
-                type="submit"
-                tone="ink"
-                size="m"
-                className="cabinet-drawer-save"
-                loading={saving}
-                loadingText="Зберігаємо…"
-              >
-                Зберегти
-              </Button>
-            </div>
-          </form>
-        </div>
-      ) : null}
+      <DeleteConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Видалити підрядника"
+        description={
+          deleteTarget
+            ? `Ви впевнені, що хочете видалити «${deleteTarget.name}»?`
+            : "Ви впевнені, що хочете видалити цього підрядника?"
+        }
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
   );
 }

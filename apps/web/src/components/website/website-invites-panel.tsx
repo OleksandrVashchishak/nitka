@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Guest } from "@/lib/guests-api";
+import { parseCompanions } from "@/lib/guest-party";
 import {
   IconChevronDown,
   IconInstagram,
@@ -88,13 +89,18 @@ export function WebsiteInvitesPanel({
   }, []);
 
   const sentCount = guests.filter(isInvited).length;
-  const headcount = guests.reduce(
-    (sum, g) => sum + 1 + (g.plusOne ? 1 : 0),
-    0,
-  );
+  const headcount = guests.reduce((sum, g) => {
+    const companions = parseCompanions(g.notes, g).filter((c) => c.name.trim());
+    return sum + 1 + companions.length;
+  }, 0);
   const invitedHeadcount = guests
     .filter(isInvited)
-    .reduce((sum, g) => sum + 1 + (g.plusOne ? 1 : 0), 0);
+    .reduce((sum, g) => {
+      const companions = parseCompanions(g.notes, g).filter((c) =>
+        c.name.trim(),
+      );
+      return sum + 1 + companions.length;
+    }, 0);
 
   const rows = useMemo(() => {
     const list = [...guests];
@@ -223,17 +229,26 @@ export function WebsiteInvitesPanel({
                     ? partnerInitial
                     : ownerInitial;
 
+              const companions = parseCompanions(guest.notes, guest).filter(
+                (c) => c.name.trim(),
+              );
+
               return (
                 <tr key={guest.id} className="ws-invites__row">
                   <td className="ws-invites__td">
                     <div className="ws-invites__names">
                       <p className="ws-invites__name">
                         {guest.name}
-                        {guest.plusOne ? <IconSmile /> : null}
+                        {companions.length > 0 ? <IconSmile /> : null}
                       </p>
-                      {guest.plusOne && guest.plusOneName ? (
-                        <p className="ws-invites__name">{guest.plusOneName}</p>
-                      ) : null}
+                      {companions.map((companion) => (
+                        <p
+                          key={`${guest.id}-${companion.name}`}
+                          className="ws-invites__name"
+                        >
+                          {companion.name}
+                        </p>
+                      ))}
                     </div>
                   </td>
                   <td className="ws-invites__td">

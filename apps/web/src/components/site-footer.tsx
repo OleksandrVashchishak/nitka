@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
+import { isCabinetPath } from "@/lib/routes";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -71,13 +72,7 @@ export function SiteFooterWrapper() {
     pathname.startsWith("/email-confirmed") ||
     pathname.startsWith("/verify-email") ||
     pathname.startsWith("/w/") ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/checklist") ||
-    pathname.startsWith("/budget") ||
-    pathname.startsWith("/guests") ||
-    pathname.startsWith("/seating") ||
-    pathname.startsWith("/website") ||
-    pathname.startsWith("/my-vendors")
+    isCabinetPath(pathname)
   )
     return null;
   return <SiteFooter />;

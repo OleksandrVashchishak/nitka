@@ -16,8 +16,8 @@ import { MobileAppSection } from "@/components/landing/mobile-app-section";
 import { Prefooter } from "@/components/landing/prefooter/Prefooter";
 import { useHomeSmoothScroll } from "@/components/landing/smooth-scroll";
 import { Button } from "@/components/ui/button";
-import "@/app/hero-artboard.css";
-import "@/app/landing-rest.css";
+import "@/styles/landing/hero.scss";
+import "@/styles/landing/rest.scss";
 
 gsap.registerPlugin(ScrollTrigger);
 

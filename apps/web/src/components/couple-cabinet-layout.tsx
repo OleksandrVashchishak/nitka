@@ -9,7 +9,7 @@ import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 import { Button } from "@/components/ui/button";
 import { createPartnerInvite, getMyWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
 
 const CabinetCtx = createContext(false);
 export function useCoupleCabinet() {
@@ -24,12 +24,12 @@ const NAV = [
   { href: "/budget", label: "Бюджет", icon: "budget" },
   { href: "/website", label: "Сайт-запрошення", icon: "website" },
   { href: "/seating", label: "Розсадка", icon: "seating" },
-  { href: "/blog", label: "Дошка натхнення", icon: "board" },
+  { href: "/day-plan", label: "План дня", icon: "dayplan" },
+  { href: "/inspiration", label: "Дошка натхнення", icon: "board" },
 ] as const;
 
 function activePath(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard";
-  if (href === "/blog") return pathname.startsWith("/blog");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

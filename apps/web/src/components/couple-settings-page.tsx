@@ -11,7 +11,7 @@ import {
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
 
 function CoupleSettingsInner() {
   const user = useAuthStore((s) => s.user);

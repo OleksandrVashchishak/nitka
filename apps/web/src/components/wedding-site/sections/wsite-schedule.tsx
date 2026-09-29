@@ -6,9 +6,10 @@ type Props = {
   title: string;
   items: WebsiteScheduleItem[];
   imageUrl?: string;
+  dateLabel?: string;
 };
 
-export function WsiteSchedule({ title, items, imageUrl }: Props) {
+export function WsiteSchedule({ title, items, imageUrl, dateLabel }: Props) {
   if (!items.length && !imageUrl) return null;
 
   return (
@@ -25,8 +26,8 @@ export function WsiteSchedule({ title, items, imageUrl }: Props) {
             {title ? (
               <h2 className="wsite-schedule__title">{title}</h2>
             ) : null}
-            {items.length ? (
-              <p className="wsite-schedule__eyebrow">Розклад урочистостей</p>
+            {dateLabel ? (
+              <p className="wsite-schedule__eyebrow">{dateLabel}</p>
             ) : null}
           </div>
         </div>

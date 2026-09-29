@@ -7,6 +7,7 @@ import {
   IconTrash,
   WebsiteToggle,
 } from "@/components/website/editor/website-editor-toggle";
+import { WebsiteImageField } from "@/components/website/editor/website-image-field";
 import { TextInput } from "@/components/ui/text-input";
 import type {
   WebsiteContent,
@@ -88,6 +89,14 @@ export function WebsiteEditorContentTab({
     });
   }
 
+  function setGalleryImage(index: number, url: string) {
+    const next = [...content.galleryImages];
+    while (next.length <= index) next.push("");
+    next[index] = url;
+    while (next.length && !next[next.length - 1]) next.pop();
+    patch({ galleryImages: next });
+  }
+
   function setDetailsMaster(on: boolean) {
     if (on) {
       patchSections({
@@ -151,6 +160,12 @@ export function WebsiteEditorContentTab({
               onChange={(e) => patch({ dateLabel: e.target.value })}
               placeholder="25.08.27"
               endAdornment={<IconCalendar />}
+            />
+            <WebsiteImageField
+              label="Головне фото"
+              value={content.heroImageUrl}
+              onChange={(url) => patch({ heroImageUrl: url })}
+              hint="До 500 КБ — великі фото стиснемо автоматично"
             />
           </div>
         </Block>
@@ -218,6 +233,12 @@ export function WebsiteEditorContentTab({
           <button type="button" className="we-blocks__add" onClick={addEvent}>
             + Додати подію
           </button>
+          <WebsiteImageField
+            label="Фото біля розкладу"
+            value={content.coupleImageUrl}
+            onChange={(url) => patch({ coupleImageUrl: url })}
+            hint="Також як фото нареченої на блоці «Про нас»"
+          />
         </Block>
 
         <Block
@@ -239,6 +260,11 @@ export function WebsiteEditorContentTab({
                 value={content.storyBody}
                 onChange={(e) => patch({ storyBody: e.target.value })}
                 placeholder="Наприклад: Ми познайомились…"
+              />
+              <WebsiteImageField
+                label="Фото історії"
+                value={content.storyImageUrl}
+                onChange={(url) => patch({ storyImageUrl: url })}
               />
             </NestedItem>
             <NestedItem
@@ -282,9 +308,14 @@ export function WebsiteEditorContentTab({
                 onChange={(e) => patch({ groomBio: e.target.value })}
                 placeholder="Наприклад: трохи про нареченого…"
               />
+              <WebsiteImageField
+                label="Фото нареченого"
+                value={content.galleryImages[0] ?? ""}
+                onChange={(url) => setGalleryImage(0, url)}
+              />
             </NestedItem>
             <NestedItem
-              label="Пропозиція"
+              label="Як відбулася пропозиція"
               checked={content.proposalBody.length > 0}
               onCheckedChange={(v) => {
                 if (v) {
@@ -304,8 +335,17 @@ export function WebsiteEditorContentTab({
                 onChange={(e) => patch({ proposalBody: e.target.value })}
                 placeholder="Наприклад: як відбулася пропозиція…"
               />
-            </NestedItem>
-          </div>
+              <WebsiteImageField
+                label="Фото зліва"
+                value={content.galleryImages[1] ?? ""}
+                onChange={(url) => setGalleryImage(1, url)}
+              />
+              <WebsiteImageField
+                label="Фото справа"
+                value={content.galleryImages[2] ?? ""}
+                onChange={(url) => setGalleryImage(2, url)}
+              />
+            </NestedItem>          </div>
         </Block>
 
         <Block
@@ -318,7 +358,7 @@ export function WebsiteEditorContentTab({
         >
           <div className="we-blocks__nested">
             <NestedItem
-              label="Що дарувати"
+              label="Побажання щодо подарунків"
               checked={sections.registry}
               onCheckedChange={(v) => patchSections({ registry: v })}
             >
@@ -330,7 +370,7 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Дрескод"
+              label="Дрес-код"
               checked={sections.dressCode}
               onCheckedChange={(v) => patchSections({ dressCode: v })}
             >
@@ -354,7 +394,7 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Дитячі зони"
+              label="Діти на нашому святі"
               checked={sections.gallery}
               onCheckedChange={(v) => patchSections({ gallery: v })}
             >
@@ -366,7 +406,7 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Коли треба дати відповідь"
+              label="Підтвердіть свою присутність"
               checked={sections.rsvp}
               onCheckedChange={(v) => patchSections({ rsvp: v })}
             >
@@ -378,7 +418,7 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Інше"
+              label="Квіти"
               checked={sections.qa}
               onCheckedChange={(v) => patchSections({ qa: v })}
             >
@@ -389,7 +429,7 @@ export function WebsiteEditorContentTab({
                   patch({
                     qaItems: [
                       {
-                        question: content.qaItems[0]?.question || "Інше",
+                        question: content.qaItems[0]?.question || "Квіти",
                         answer: e.target.value,
                       },
                       ...content.qaItems.slice(1),

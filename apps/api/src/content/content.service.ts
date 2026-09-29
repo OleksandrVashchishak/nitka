@@ -72,7 +72,7 @@ export class ContentService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit() {
-    // Не блокуємо listen/healthcheck на Render — seed у фоні
+    // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ listen/healthcheck пїЅпїЅ Render пїЅ seed пїЅ пїЅпїЅпїЅпїЅ
     void this.seedTopicsAndPosts().catch((err) => {
       this.logger.error('Content seed failed', err instanceof Error ? err.stack : err);
     });
@@ -159,7 +159,7 @@ export class ContentService implements OnModuleInit {
       where: { slug, status: ContentStatus.PUBLISHED },
       include: postInclude,
     });
-    if (!post) throw new NotFoundException('Матеріал не знайдено');
+    if (!post) throw new NotFoundException('пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ');
     return post;
   }
 
@@ -176,7 +176,7 @@ export class ContentService implements OnModuleInit {
           sortOrder: t.sortOrder,
         },
         update: {
-          // Підтягуємо візуал seed, текст лишаємо якщо адмін уже правив name
+          // ПіпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ seed, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ name
           icon: t.icon,
           coverUrl: t.coverUrl,
           sortOrder: t.sortOrder,

@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
+const guest_party_1 = require("./guest-party");
 let GuestsService = class GuestsService {
     constructor(prisma, notifications) {
         this.prisma = prisma;
@@ -29,10 +30,9 @@ let GuestsService = class GuestsService {
         const maybe = guests.filter((g) => g.rsvpStatus === 'MAYBE').length;
         const pending = guests.filter((g) => g.rsvpStatus === 'PENDING').length;
         const headcount = guests.reduce((sum, g) => {
-            if (g.rsvpStatus !== 'YES')
-                return sum;
-            const plus = g.plusOne && g.plusOneAttending === true ? 1 : 0;
-            return sum + 1 + plus;
+            const primary = g.rsvpStatus === 'YES' ? 1 : 0;
+            const plus = (0, guest_party_1.countYesCompanions)(g.notes, g);
+            return sum + primary + plus;
         }, 0);
         return {
             total: guests.length,

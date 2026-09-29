@@ -26,9 +26,11 @@ import {
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { BrandLogo } from "@/components/brand-logo";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
+import { PartnerInviteBanner } from "@/components/partner-invite-banner";
 import {
   ResponsibleAvatar,
   ResponsibleAvatarDuo,
@@ -38,7 +40,6 @@ import {
   getNotificationsSummary,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/lib/toast";
 import { useAnimatedProgress } from "@/lib/use-animated-progress";
@@ -497,67 +498,15 @@ export function CoupleOverview({
 
         <section className="cabinet-tasks-panel">
           <h2>Завдання</h2>
+          {showInviteTask ? (
+            <PartnerInviteBanner
+              partnerName={inviteName}
+              busy={inviteBusy}
+              onInvite={() => void onInvitePartner()}
+              onDismiss={onDismissInvite}
+            />
+          ) : null}
           <ul className="cabinet-task-list">
-            {showInviteTask ? (
-              <li className="cabinet-task-invite">
-                <div className="cabinet-task-invite-icon" aria-hidden>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M9 11l3 3L22 4"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <div className="cabinet-task-invite-copy">
-                  <p className="cabinet-task-invite-title">
-                    Запросіть {inviteName}
-                  </p>
-                  <p className="cabinet-task-invite-text">
-                    Додайте {inviteName} до спільного доступу, щоб разом бачити
-                    та редагувати ваш дашборд.
-                  </p>
-                </div>
-                <div className="cabinet-task-invite-actions">
-                  <Button
-                    type="button"
-                    tone="black"
-                    size="s"
-                    className="cabinet-task-invite-btn"
-                    loading={inviteBusy}
-                    loadingText="…"
-                    onClick={() => void onInvitePartner()}
-                  >
-                    Запросити
-                  </Button>
-                  <button
-                    type="button"
-                    className="cabinet-task-invite-dismiss"
-                    aria-label="Закрити"
-                    onClick={onDismissInvite}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-                      <path
-                        d="M2 2l8 8M10 2 2 10"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </li>
-            ) : null}
-
             {tasks.map(({ task, due, done: isDone }) => {
               const cat = taskCategoryMeta(task.categorySlug, task.title);
               const who =
@@ -721,60 +670,14 @@ export function CoupleOverview({
         </section>
       </div>
 
-      {deleteTarget ? (
-        <div
-          className="cabinet-modal-root"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Видалити завдання"
-        >
-          <button
-            type="button"
-            className="cabinet-modal-backdrop"
-            aria-label="Закрити"
-            onClick={() => setDeleteTarget(null)}
-          />
-          <div className="cabinet-modal cabinet-confirm-modal">
-            <div className="cabinet-modal-head">
-              <div>
-                <h2>Видалити завдання</h2>
-                <p>Ви впевнені, що хочете видалити це завдання?</p>
-              </div>
-              <button
-                type="button"
-                className="cabinet-modal-close"
-                aria-label="Закрити"
-                onClick={() => setDeleteTarget(null)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="cabinet-modal-actions">
-              <Button
-                type="button"
-                tone="ghost"
-                size="m"
-                className="cabinet-drawer-cancel"
-                onClick={() => setDeleteTarget(null)}
-                disabled={deleting}
-              >
-                Скасувати
-              </Button>
-              <Button
-                type="button"
-                tone="ink"
-                size="m"
-                className="cabinet-confirm-delete"
-                loading={deleting}
-                loadingText="…"
-                onClick={() => void confirmDelete()}
-              >
-                Так, видалити
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <DeleteConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Видалити завдання"
+        description="Ви впевнені, що хочете видалити це завдання?"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
   );
 }

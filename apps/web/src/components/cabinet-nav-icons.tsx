@@ -94,6 +94,18 @@ export function CabinetNavIcon({
           <path d="M25.85 292.334C27.0282 292.334 27.9833 291.378 27.9833 290.2C27.9833 289.022 27.0282 288.067 25.85 288.067C24.6718 288.067 23.7167 289.022 23.7167 290.2C23.7167 291.378 24.6718 292.334 25.85 292.334Z" />
         </svg>
       );
+    case "dayplan":
+      return (
+        <svg {...common} viewBox={vb(0, 0, 24, 24, 1)} strokeMiterlimit={10}>
+          <path d="M8 2V5" />
+          <path d="M16 2V5" />
+          <path d="M3.5 9.09H20.5" />
+          <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" />
+          <path d="M11.9955 13.7H12.0045" strokeWidth={2} />
+          <path d="M8.29431 13.7H8.30329" strokeWidth={2} />
+          <path d="M8.29431 16.7H8.30329" strokeWidth={2} />
+        </svg>
+      );
     case "board":
       return (
         <svg {...common} viewBox={vb(13.5, 363.5, 15, 15)}>

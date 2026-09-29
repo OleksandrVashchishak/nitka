@@ -15,7 +15,7 @@ import {
   splitCoupleNames,
   themeClass,
 } from "@/components/wedding-site/wsite-utils";
-import "@/components/wedding-site/styles/index.scss";
+import "@/styles/wedding-site/index.scss";
 
 export type WeddingSiteProps = {
   templateId: string;
@@ -25,7 +25,16 @@ export type WeddingSiteProps = {
   cardPreview?: boolean;
 };
 
-const FALLBACK_IMG = "/landing/couple.jpg";
+/** Demo photos matching the Figma template mockup. */
+const DEMO = {
+  hero: "/wedding-site/hero.jpg",
+  schedule: "/wedding-site/schedule.jpg",
+  story: "/wedding-site/story.jpg",
+  bride: "/wedding-site/bride.jpg",
+  groom: "/wedding-site/groom.jpg",
+  proposalLeft: "/wedding-site/proposal-left.jpg",
+  proposalRight: "/wedding-site/proposal-right.jpg",
+} as const;
 
 export function WeddingSite({
   templateId,
@@ -46,15 +55,19 @@ export function WeddingSite({
   };
 
   const [bride, groom] = splitCoupleNames(content.headline);
-  const heroImage =
-    content.heroImageUrl || content.coupleImageUrl || FALLBACK_IMG;
+  const heroImage = content.heroImageUrl || DEMO.hero;
   const initials = coupleInitials(bride, groom);
   const targetDate = parseWeddingDate(weddingDate, content.dateLabel);
   const mini = compact || cardPreview;
 
   const gallery = content.galleryImages ?? [];
-  const storyMain =
-    content.storyImageUrl || content.coupleImageUrl || gallery[0] || FALLBACK_IMG;
+  const scheduleImage = content.coupleImageUrl || DEMO.schedule;
+  const storyImage = content.storyImageUrl || DEMO.story;
+  const brideImage = content.coupleImageUrl || DEMO.bride;
+  const groomImage = gallery[0] || DEMO.groom;
+  const proposalLeft = gallery[1] || DEMO.proposalLeft;
+  const proposalRight = gallery[2] || DEMO.proposalRight;
+  const closingImage = content.coupleImageUrl || DEMO.schedule;
 
   const detailItems = [
     sections.dressCode && content.dressCodeBody.trim()
@@ -62,16 +75,16 @@ export function WeddingSite({
       : null,
     sections.registry && content.registryBody.trim()
       ? {
-          title: content.registryTitle || "Що дарувати",
+          title: content.registryTitle || "Побажання щодо подарунків",
           text: content.registryBody,
         }
       : null,
     sections.gallery && content.galleryTitle.trim()
-      ? { title: "Дитяча зона", text: content.galleryTitle }
+      ? { title: "Діти на нашому святі", text: content.galleryTitle }
       : null,
     sections.travel && content.travelBody.trim()
       ? {
-          title: content.travelTitle || "Контакти",
+          title: content.travelTitle || "Контакти організаторів",
           text: content.travelBody,
         }
       : null,
@@ -86,8 +99,6 @@ export function WeddingSite({
   const showCouple = sections.story;
   const showProposal =
     sections.story && Boolean(content.proposalBody?.trim());
-  const proposalImage =
-    gallery[1] || content.storyImageUrl || content.coupleImageUrl || FALLBACK_IMG;
 
   const theme = themeClass(templateId);
 
@@ -118,9 +129,10 @@ export function WeddingSite({
 
       {sections.schedule ? (
         <WsiteSchedule
-          title={content.scheduleTitle || "День нашого весілля"}
+          title={content.scheduleTitle || "Деталі нашого свята"}
           items={content.scheduleItems}
-          imageUrl={content.coupleImageUrl || storyMain}
+          imageUrl={scheduleImage}
+          dateLabel={content.dateLabel}
         />
       ) : null}
 
@@ -128,7 +140,7 @@ export function WeddingSite({
         <WsiteStory
           title={content.storyTitle || "Наша історія"}
           body={content.storyBody}
-          imageUrl={storyMain}
+          imageUrl={storyImage}
         />
       ) : null}
 
@@ -138,12 +150,12 @@ export function WeddingSite({
             {
               name: bride,
               bio: content.subheadline,
-              imageUrl: content.coupleImageUrl || storyMain,
+              imageUrl: brideImage,
             },
             {
               name: groom,
               bio: content.groomBio,
-              imageUrl: gallery[0] || gallery[1] || "/landing/feat-1.jpg",
+              imageUrl: groomImage,
             },
           ]}
         />
@@ -153,8 +165,8 @@ export function WeddingSite({
         <WsiteProposal
           title="Як відбулася пропозиція"
           body={content.proposalBody}
-          imageLeft={proposalImage}
-          imageRight={gallery[2] || gallery[0] || storyMain}
+          imageLeft={proposalLeft}
+          imageRight={proposalRight}
         />
       ) : null}
 
@@ -164,16 +176,16 @@ export function WeddingSite({
 
       {sections.rsvp ? (
         <WsiteRsvp
-          title={content.rsvpTitle || "Коли треба дати відповідь"}
+          title={content.rsvpTitle || "Підтвердіть свою присутність"}
           body={content.rsvpBody}
           href={safeHref(content.rsvpUrl, "#")}
         />
       ) : null}
 
       <WsiteClosing
-        title="Дуже чекаємо вас на нашому святі"
+        title="Дуже чекаємо вас на нашому святі!"
         names={`${bride} & ${groom}`}
-        imageUrl={gallery[1] || content.coupleImageUrl || storyMain}
+        imageUrl={closingImage}
       />
     </div>
   );

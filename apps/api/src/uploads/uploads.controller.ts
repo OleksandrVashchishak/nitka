@@ -17,7 +17,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import { UploadsService } from './uploads.service';
 
-const MAX_BYTES = 5 * 1024 * 1024;
+/** Client compresses to ≤500 KB; reject anything larger. */
+const MAX_BYTES = 500 * 1024;
 const ALLOWED = new Set([
   'image/jpeg',
   'image/png',
@@ -52,6 +53,9 @@ export class UploadsController {
     }
     if (!ALLOWED.has(file.mimetype)) {
       throw new BadRequestException('Дозволені лише JPEG, PNG, WebP, GIF');
+    }
+    if (file.size > MAX_BYTES) {
+      throw new BadRequestException('Фото має бути не більше 500 КБ');
     }
 
     return this.uploadsService.uploadImage({

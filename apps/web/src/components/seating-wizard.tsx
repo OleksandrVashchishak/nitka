@@ -11,14 +11,17 @@ import { IconMore } from "@/components/icon-more";
 import { RadioGroup, RadioOption } from "@/components/ui/radio";
 import { TextInput } from "@/components/ui/text-input";
 import type { Guest } from "@/lib/guests-api";
-import "@/app/seating-wizard.css";
+import { isChildGuest, parseCompanions } from "@/lib/guest-party";
+import "@/styles/seating/wizard.scss";
 
 export type SeatingFormatId =
-  | "presidium-round"
-  | "presidium-long"
-  | "presidium-mixed"
+  | "round"
+  | "long"
+  | "mixed"
   | "p-shape"
   | "t-shape";
+
+export type KidsTableShape = "round" | "long";
 
 export type SeatingTablesDraft = {
   hasPresidium: boolean;
@@ -29,7 +32,30 @@ export type SeatingTablesDraft = {
   longTableCount: string;
   longSeatsPerTable: string;
   hasKidsTable: boolean;
+  kidsTableCount: string;
+  kidsTableShape: KidsTableShape;
 };
+
+const LEGACY_FORMAT_MAP: Record<string, SeatingFormatId> = {
+  "presidium-round": "round",
+  "presidium-long": "long",
+  "presidium-mixed": "mixed",
+};
+
+export function normalizeSeatingFormat(id: unknown): SeatingFormatId {
+  if (typeof id !== "string") return "round";
+  if (id in LEGACY_FORMAT_MAP) return LEGACY_FORMAT_MAP[id]!;
+  if (
+    id === "round" ||
+    id === "long" ||
+    id === "mixed" ||
+    id === "p-shape" ||
+    id === "t-shape"
+  ) {
+    return id;
+  }
+  return "round";
+}
 
 export type SeatingGuestGroup = {
   id: string;
@@ -41,6 +67,8 @@ export type SeatingGuestAssign = string | "presidium" | "kids" | null;
 export type SeatingGuestsDraft = {
   groups: SeatingGuestGroup[];
   assignments: Record<string, SeatingGuestAssign>;
+  /** Locally unlinked companion keys (wizard / plan). */
+  detachedKeys: string[];
 };
 
 type WizardStep = 1 | 2 | 3;
@@ -63,19 +91,15 @@ const STEPS = [
 const GROUP_BADGE_COLORS = ["#4CAF7A", "#5B8DEF", "#C47A3A", "#7A6BB5"];
 
 function formatNeedsRound(format: SeatingFormatId) {
-  return format === "presidium-round" || format === "presidium-mixed";
+  return format === "round" || format === "mixed";
 }
 
 function formatNeedsLong(format: SeatingFormatId) {
-  return format === "presidium-long" || format === "presidium-mixed";
+  return format === "long" || format === "mixed";
 }
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function isChildGuest(guest: Guest) {
-  return (guest.notes ?? "").includes("[child]");
 }
 
 type FlatGuest = {
@@ -98,21 +122,23 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
       name: g.name,
       isPlusOne: false,
       linkedTo: null,
-      isChild: isChildGuest(g),
+      isChild: isChildGuest(g.notes),
       side: g.side,
     });
-    if (g.plusOne && g.plusOneName?.trim()) {
-      const plusKey = `${g.id}:plus`;
+    const companions = parseCompanions(g.notes, g).filter((c) =>
+      c.name.trim(),
+    );
+    companions.forEach((companion, index) => {
       rows.push({
-        key: plusKey,
+        key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
         guestId: g.id,
-        name: g.plusOneName.trim(),
+        name: companion.name.trim(),
         isPlusOne: true,
         linkedTo: key,
-        isChild: false,
+        isChild: companion.isChild,
         side: g.side,
       });
-    }
+    });
   }
   return rows;
 }
@@ -124,21 +150,9 @@ type FormatItem = {
 };
 
 const FORMATS: FormatItem[] = [
-  {
-    id: "presidium-round",
-    label: "Президіум + Круглі",
-    Icon: FormatIconPresidiumRound,
-  },
-  {
-    id: "presidium-long",
-    label: "Президіум + Довгі",
-    Icon: FormatIconPresidiumLong,
-  },
-  {
-    id: "presidium-mixed",
-    label: "Президіум + Довгі + Круглі",
-    Icon: FormatIconPresidiumMixed,
-  },
+  { id: "round", label: "Круглі столи", Icon: FormatIconRound },
+  { id: "long", label: "Довгі столи", Icon: FormatIconLong },
+  { id: "mixed", label: "Довгі + Круглі", Icon: FormatIconMixed },
   { id: "p-shape", label: "П-форма", Icon: FormatIconP },
   { id: "t-shape", label: "Т-форма", Icon: FormatIconT },
 ];
@@ -148,12 +162,15 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
 
   const [hasPresidium, setHasPresidium] = useState(true);
   const [presidiumSeats, setPresidiumSeats] = useState("6");
-  const [format, setFormat] = useState<SeatingFormatId>("presidium-round");
+  const [format, setFormat] = useState<SeatingFormatId>("round");
   const [roundTableCount, setRoundTableCount] = useState("");
   const [roundSeatsPerTable, setRoundSeatsPerTable] = useState("");
   const [longTableCount, setLongTableCount] = useState("");
   const [longSeatsPerTable, setLongSeatsPerTable] = useState("");
   const [hasKidsTable, setHasKidsTable] = useState(true);
+  const [kidsTableCount, setKidsTableCount] = useState("");
+  const [kidsTableShape, setKidsTableShape] =
+    useState<KidsTableShape>("round");
 
   const [groups, setGroups] = useState<SeatingGuestGroup[]>([
     { id: uid("grp"), name: "Друзі" },
@@ -162,6 +179,7 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
   const [assignments, setAssignments] = useState<
     Record<string, SeatingGuestAssign>
   >({});
+  const [detachedKeys, setDetachedKeys] = useState<Set<string>>(new Set());
   const [menuKey, setMenuKey] = useState<string | null>(null);
 
   const showRound = formatNeedsRound(format);
@@ -178,6 +196,8 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
       longTableCount,
       longSeatsPerTable,
       hasKidsTable,
+      kidsTableCount,
+      kidsTableShape,
     }),
     [
       hasPresidium,
@@ -188,6 +208,8 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
       longTableCount,
       longSeatsPerTable,
       hasKidsTable,
+      kidsTableCount,
+      kidsTableShape,
     ],
   );
 
@@ -233,14 +255,25 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
       const next = { ...prev, [key]: value };
       const row = flatGuests.find((g) => g.key === key);
       if (row && !row.isPlusOne) {
-        const plus = flatGuests.find((g) => g.linkedTo === key);
-        if (plus) next[plus.key] = value;
-      }
-      if (row?.linkedTo) {
-        // plus-one follows own select independently unless same — keep linked sync only parent→child
+        for (const plus of flatGuests.filter((g) => g.linkedTo === key)) {
+          if (detachedKeys.has(plus.key)) continue;
+          if (plus.isChild) continue;
+          if (prev[plus.key] === "kids") continue;
+          next[plus.key] = value;
+        }
       }
       return next;
     });
+  }
+
+  function detachGuest(keys: string | string[]) {
+    const list = Array.isArray(keys) ? keys : [keys];
+    setDetachedKeys((prev) => {
+      const next = new Set(prev);
+      for (const k of list) next.add(k);
+      return next;
+    });
+    setMenuKey(null);
   }
 
   function addGroup() {
@@ -280,7 +313,11 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
     if (step === 2) {
       onComplete?.({
         tables: tablesDraft,
-        guests: { groups, assignments },
+        guests: {
+          groups,
+          assignments,
+          detachedKeys: Array.from(detachedKeys),
+        },
       });
       return;
     }
@@ -339,6 +376,10 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
             setLongSeatsPerTable={setLongSeatsPerTable}
             hasKidsTable={hasKidsTable}
             setHasKidsTable={setHasKidsTable}
+            kidsTableCount={kidsTableCount}
+            setKidsTableCount={setKidsTableCount}
+            kidsTableShape={kidsTableShape}
+            setKidsTableShape={setKidsTableShape}
           />
         ) : null}
 
@@ -351,6 +392,8 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
             flatGuests={flatGuests}
             assignments={assignments}
             onAssign={setAssign}
+            detachedKeys={detachedKeys}
+            onDetach={detachGuest}
             hasPresidium={hasPresidium}
             hasKidsTable={hasKidsTable}
             menuKey={menuKey}
@@ -425,6 +468,10 @@ function StepTables({
   setLongSeatsPerTable,
   hasKidsTable,
   setHasKidsTable,
+  kidsTableCount,
+  setKidsTableCount,
+  kidsTableShape,
+  setKidsTableShape,
 }: {
   hasPresidium: boolean;
   setHasPresidium: (v: boolean) => void;
@@ -444,6 +491,10 @@ function StepTables({
   setLongSeatsPerTable: (v: string) => void;
   hasKidsTable: boolean;
   setHasKidsTable: (v: boolean) => void;
+  kidsTableCount: string;
+  setKidsTableCount: (v: string) => void;
+  kidsTableShape: KidsTableShape;
+  setKidsTableShape: (v: KidsTableShape) => void;
 }) {
   return (
     <div className="seat-wiz-stack">
@@ -579,6 +630,39 @@ function StepTables({
             Ні, діти сидітимуть з батьками
           </RadioOption>
         </RadioGroup>
+        {hasKidsTable ? (
+          <>
+            <TextInput
+              id="kids-count"
+              size="m"
+              className="seat-wiz-field"
+              label="Кількість дитячих столів"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              placeholder="Наприклад: 5"
+              value={kidsTableCount}
+              onChange={(e) => setKidsTableCount(e.target.value)}
+            />
+            <p className="seat-wiz-question seat-wiz-field">
+              Круглий чи довгий?
+            </p>
+            <RadioGroup>
+              <RadioOption
+                selected={kidsTableShape === "round"}
+                onSelect={() => setKidsTableShape("round")}
+              >
+                Круглий
+              </RadioOption>
+              <RadioOption
+                selected={kidsTableShape === "long"}
+                onSelect={() => setKidsTableShape("long")}
+              >
+                Довгий
+              </RadioOption>
+            </RadioGroup>
+          </>
+        ) : null}
       </section>
     </div>
   );
@@ -592,6 +676,8 @@ function StepGuests({
   flatGuests,
   assignments,
   onAssign,
+  detachedKeys,
+  onDetach,
   hasPresidium,
   hasKidsTable,
   menuKey,
@@ -604,6 +690,8 @@ function StepGuests({
   flatGuests: FlatGuest[];
   assignments: Record<string, SeatingGuestAssign>;
   onAssign: (key: string, value: SeatingGuestAssign) => void;
+  detachedKeys: Set<string>;
+  onDetach: (keys: string | string[]) => void;
   hasPresidium: boolean;
   hasKidsTable: boolean;
   menuKey: string | null;
@@ -662,7 +750,8 @@ function StepGuests({
         <h2 className="seat-wiz-card-title">Гості</h2>
         <p className="seat-wiz-card-lead">
           Об’єднайте гостей у групи або залиште без групи. Іконка{" "}
-          <LinkGlyph /> означає, що гості сидітимуть разом.
+          <LinkGlyph /> означає, що гості сидітимуть разом — роз’єднати можна
+          через меню ⋮.
         </p>
 
         <div className="seat-wiz-guest-list">
@@ -671,9 +760,31 @@ function StepGuests({
           ) : (
             flatGuests.map((row, index) => {
               const next = flatGuests[index + 1];
+              const linked =
+                Boolean(row.linkedTo) && !detachedKeys.has(row.key);
+              const clusterPrimaryKey = linked ? row.linkedTo! : row.key;
+              const nextInCluster = Boolean(
+                next &&
+                  next.linkedTo === clusterPrimaryKey &&
+                  !detachedKeys.has(next.key),
+              );
               const clusterStart =
-                row.linkedTo === null && next?.linkedTo === row.key;
-              const clusterMid = Boolean(row.linkedTo);
+                !row.linkedTo &&
+                Boolean(
+                  next &&
+                    next.linkedTo === row.key &&
+                    !detachedKeys.has(next.key),
+                );
+              const clusterMid = linked;
+              const clusterEnd =
+                (clusterStart || clusterMid) && !nextInCluster;
+              const canDetach =
+                linked ||
+                (!row.linkedTo &&
+                  flatGuests.some(
+                    (g) =>
+                      g.linkedTo === row.key && !detachedKeys.has(g.key),
+                  ));
               const assign = assignments[row.key] ?? null;
 
               return (
@@ -683,10 +794,18 @@ function StepGuests({
                     clusterStart || clusterMid ? " is-linked" : ""
                   }${clusterStart ? " is-cluster-start" : ""}${
                     clusterMid ? " is-cluster-mid" : ""
-                  }`}
+                  }${clusterEnd ? " is-cluster-end" : ""}`}
                 >
                   <div className="seat-wiz-guest-name">
-                    {clusterMid ? (
+                    {row.isChild ? (
+                      <span
+                        className="seat-wiz-child-ico"
+                        title="Дитина"
+                        aria-label="Дитина"
+                      >
+                        <ChildIcon />
+                      </span>
+                    ) : linked ? (
                       <span className="seat-wiz-link-ico" aria-hidden>
                         <LinkGlyph />
                       </span>
@@ -759,6 +878,29 @@ function StepGuests({
                           >
                             Без групи
                           </button>
+                          {canDetach ? (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              onClick={() => {
+                                if (linked) {
+                                  onDetach(row.key);
+                                  return;
+                                }
+                                onDetach(
+                                  flatGuests
+                                    .filter(
+                                      (g) =>
+                                        g.linkedTo === row.key &&
+                                        !detachedKeys.has(g.key),
+                                    )
+                                    .map((g) => g.key),
+                                );
+                              }}
+                            >
+                              Роз’єднати
+                            </button>
+                          ) : null}
                         </div>
                       ) : null}
                     </div>
@@ -786,40 +928,39 @@ function AssignControl({
   hasKidsTable: boolean;
   onChange: (v: SeatingGuestAssign) => void;
 }) {
+  let label = "Обрати групу";
+  let className = "seat-wiz-assign";
+  let style: { background?: string } | undefined;
+
   if (value === "presidium") {
-    return <span className="seat-wiz-badge seat-wiz-badge--presidium">Президіум</span>;
-  }
-  if (value === "kids") {
-    return (
-      <span className="seat-wiz-badge seat-wiz-badge--kids">дитячий стіл</span>
-    );
-  }
-  if (typeof value === "string") {
+    label = "Президіум";
+    className += " is-presidium";
+  } else if (value === "kids") {
+    label = "Дитячий стіл";
+    className += " is-kids";
+  } else if (typeof value === "string") {
     const group = groups.find((g) => g.id === value);
     if (group) {
-      const color =
-        GROUP_BADGE_COLORS[
-          Math.abs(hashStr(group.id)) % GROUP_BADGE_COLORS.length
-        ];
-      return (
-        <button
-          type="button"
-          className="seat-wiz-badge"
-          style={{ background: color }}
-          onClick={() => onChange(null)}
-          title="Змінити групу"
-        >
-          {group.name}
-        </button>
-      );
+      label = group.name;
+      className += " is-group";
+      style = {
+        background:
+          GROUP_BADGE_COLORS[
+            Math.abs(hashStr(group.id)) % GROUP_BADGE_COLORS.length
+          ],
+      };
     }
   }
 
+  const selectValue =
+    value === null || value === undefined ? "" : String(value);
+
   return (
-    <label className="seat-wiz-assign">
+    <label className={className} style={style}>
+      <span className="seat-wiz-assign-label">{label}</span>
       <span className="seat-wiz-sr">Обрати групу</span>
       <select
-        value=""
+        value={selectValue}
         onChange={(e) => {
           const v = e.target.value;
           if (!v) onChange(null);
@@ -926,6 +1067,20 @@ function LinkGlyph() {
   );
 }
 
+function ChildIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <circle cx="7" cy="4.2" r="2.1" stroke="currentColor" strokeWidth="1.3" />
+      <path
+        d="M3.2 12c.4-2.2 1.8-3.4 3.8-3.4s3.4 1.2 3.8 3.4"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function ChevronIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -940,56 +1095,299 @@ function ChevronIcon() {
   );
 }
 
-function FormatIconPresidiumRound() {
+/** Format picker icons — geometry from Figma Frame SVG (140×70 artboard). */
+
+function FormatIconRound() {
   return (
-    <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
-      <rect x="18" y="4" width="52" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="22" cy="36" r="9" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="44" cy="36" r="9" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="66" cy="36" r="9" stroke="currentColor" strokeWidth="1.5" />
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" aria-hidden>
+      <RoundTableIcon
+        cx={45.39}
+        cy={23.75}
+        r={7.6}
+        chairs={[
+          [43.69, 10.3],
+          [54.09, 16.3],
+          [54.09, 28.3],
+          [43.69, 34.3],
+          [33.3, 28.3],
+          [33.3, 16.3],
+        ]}
+      />
+      <RoundTableIcon
+        cx={95.39}
+        cy={20.75}
+        r={7.6}
+        chairs={[
+          [93.69, 7.3],
+          [104.09, 13.3],
+          [104.09, 25.3],
+          [93.69, 31.3],
+          [83.3, 25.3],
+          [83.3, 13.3],
+        ]}
+      />
+      <RoundTableIcon
+        cx={70.39}
+        cy={48.75}
+        r={7.6}
+        chairs={[
+          [68.69, 35.3],
+          [79.09, 41.3],
+          [79.09, 53.3],
+          [68.69, 59.3],
+          [58.3, 53.3],
+          [58.3, 41.3],
+        ]}
+      />
     </svg>
   );
 }
 
-function FormatIconPresidiumLong() {
+function FormatIconLong() {
+  const xs = [25.52, 37.75, 49.97, 62.19, 74.41, 86.63, 98.86, 111.08];
   return (
-    <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
-      <rect x="18" y="4" width="52" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="12" y="26" width="28" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="48" y="26" width="28" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="12" y="40" width="28" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="48" y="40" width="28" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" aria-hidden>
+      <LongTableIcon x={15.4} y={8.4} w={109.2} h={5.2} seatXs={xs} />
+      <LongTableIcon x={15.4} y={30.4} w={109.2} h={5.2} seatXs={xs} />
+      <LongTableIcon x={15.4} y={52.4} w={109.2} h={5.2} seatXs={xs} />
     </svg>
   );
 }
 
-function FormatIconPresidiumMixed() {
+function FormatIconMixed() {
+  const leftXs = [28.3, 37.3, 46.3, 55.3];
+  const rightXs = [81.3, 90.3, 99.3, 108.3];
   return (
-    <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
-      <rect x="18" y="4" width="52" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="8" y="28" width="24" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="48" cy="36" r="8" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="70" cy="36" r="8" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="8" y="42" width="24" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" aria-hidden>
+      <LongTableIcon x={21.4} y={12.9} w={44.2} h={4.2} seatXs={leftXs} />
+      <LongTableIcon x={74.4} y={12.9} w={44.2} h={4.2} seatXs={rightXs} />
+      <RoundTableIcon
+        cx={35}
+        cy={42}
+        r={6.6}
+        chairs={[
+          [33.3, 29.55],
+          [42.83, 35.05],
+          [42.83, 46.05],
+          [33.3, 51.55],
+          [23.78, 46.05],
+          [23.78, 35.05],
+        ]}
+      />
+      <RoundTableIcon
+        cx={70}
+        cy={48}
+        r={6.6}
+        chairs={[
+          [68.3, 35.55],
+          [77.83, 41.05],
+          [77.83, 52.05],
+          [68.3, 57.55],
+          [58.78, 52.05],
+          [58.78, 41.05],
+        ]}
+      />
+      <RoundTableIcon
+        cx={105}
+        cy={42}
+        r={6.6}
+        chairs={[
+          [103.3, 29.55],
+          [112.83, 35.05],
+          [112.83, 46.05],
+          [103.3, 51.55],
+          [93.78, 46.05],
+          [93.78, 35.05],
+        ]}
+      />
     </svg>
   );
 }
 
 function FormatIconP() {
+  const sideYsOuter = [20.3, 28.3, 36.3, 44.3, 52.3];
+  const sideYsInner = [28.3, 36.3, 44.3, 52.3];
+  const topXs = [50.3, 61.55, 72.8, 84.05];
   return (
-    <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
-      <rect x="14" y="8" width="10" height="40" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="24" y="8" width="50" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="64" y="8" width="10" height="40" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" aria-hidden>
+      <rect
+        x="45.4"
+        y="14.4"
+        width="48.2"
+        height="5.2"
+        rx="1.6"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      <rect
+        x="44.9"
+        y="14.4"
+        width="5.2"
+        height="47.2"
+        rx="1.1"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      <rect
+        x="88.9"
+        y="14.4"
+        width="5.2"
+        height="47.2"
+        rx="1.1"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      {topXs.map((x) => (
+        <ChairH key={`t-${x}`} x={x} y={9.3} />
+      ))}
+      {sideYsOuter.map((y) => (
+        <ChairV key={`lo-${y}`} x={39.3} y={y} />
+      ))}
+      {sideYsInner.map((y) => (
+        <ChairV key={`li-${y}`} x={52.8} y={y} />
+      ))}
+      {sideYsInner.map((y) => (
+        <ChairV key={`ri-${y}`} x={83.3} y={y} />
+      ))}
+      {sideYsOuter.map((y) => (
+        <ChairV key={`ro-${y}`} x={96.8} y={y} />
+      ))}
     </svg>
   );
 }
 
 function FormatIconT() {
+  const topXs = [32.3, 42.3, 53.3, 63.3, 74.3, 84.3, 95.3, 106.3];
+  const sideYs = [24.3, 32.3, 40.3, 48.3, 56.3];
   return (
-    <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
-      <rect x="14" y="10" width="60" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="39" y="20" width="10" height="26" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" aria-hidden>
+      <rect
+        x="28.4"
+        y="9.4"
+        width="86.2"
+        height="5.2"
+        rx="1.6"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      <rect
+        x="67.4"
+        y="18.4"
+        width="5.2"
+        height="47.2"
+        rx="1.1"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      {topXs.map((x) => (
+        <ChairH key={`t-${x}`} x={x} y={4.3} />
+      ))}
+      {sideYs.map((y) => (
+        <ChairV key={`l-${y}`} x={61.8} y={y} />
+      ))}
+      {sideYs.map((y) => (
+        <ChairV key={`r-${y}`} x={75.3} y={y} />
+      ))}
     </svg>
+  );
+}
+
+function ChairH({ x, y }: { x: number; y: number }) {
+  return (
+    <rect
+      x={x}
+      y={y}
+      width="3.4"
+      height="2.9"
+      rx="1.2"
+      fill="#fff"
+      stroke="currentColor"
+      strokeWidth="0.6"
+    />
+  );
+}
+
+function ChairV({ x, y }: { x: number; y: number }) {
+  return (
+    <rect
+      x={x}
+      y={y}
+      width="2.9"
+      height="3.4"
+      rx="1.2"
+      fill="#fff"
+      stroke="currentColor"
+      strokeWidth="0.6"
+    />
+  );
+}
+
+function RoundTableIcon({
+  cx,
+  cy,
+  r,
+  chairs,
+}: {
+  cx: number;
+  cy: number;
+  r: number;
+  chairs: [number, number][];
+}) {
+  return (
+    <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      {chairs.map(([x, y], i) => (
+        <ChairH key={i} x={x} y={y} />
+      ))}
+    </g>
+  );
+}
+
+function LongTableIcon({
+  x,
+  y,
+  w,
+  h,
+  seatXs,
+  gap = 2.7,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  seatXs: number[];
+  gap?: number;
+}) {
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx="1.1"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth="0.8"
+      />
+      {seatXs.map((sx) => (
+        <g key={sx}>
+          <ChairH x={sx} y={y - gap - 2.9} />
+          <ChairH x={sx} y={y + h + gap} />
+        </g>
+      ))}
+    </g>
   );
 }

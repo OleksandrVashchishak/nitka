@@ -27,7 +27,7 @@ import {
   type WebsiteMineResponse,
   type WeddingWebsite,
 } from "@/lib/website-api";
-import "@/app/website/styles/index.scss";
+import "@/styles/website/index.scss";
 
 const COVER_FALLBACK = "/landing/couple.jpg";
 

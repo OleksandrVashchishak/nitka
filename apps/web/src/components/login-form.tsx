@@ -10,7 +10,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { getErrorMessage, toast } from "@/lib/toast";
-import "@/app/login.css";
+import "@/styles/auth/login.scss";
 
 export function LoginForm() {
   const router = useRouter();

@@ -19,11 +19,14 @@ import {
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
+import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import {
   ResponsibleAvatar,
   ResponsibleAvatarDuo,
 } from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
@@ -46,7 +49,7 @@ import {
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
-import "../app/couple-cabinet.css";
+import "@/styles/cabinet/cabinet.scss";
 
 type StatusFilter = "all" | "paid" | "unpaid";
 type CategoryFilter =
@@ -107,8 +110,6 @@ const PAYERS: Array<{ id: Exclude<PayerFilter, "all">; label: string }> = [
   { id: "partner", label: "Наречений" },
   { id: "parents_owner", label: "Батьки нареченої" },
   { id: "parents_partner", label: "Батьки нареченого" },
-  { id: "unknown", label: "Ніхто" },
-  { id: "other", label: "Хтось інший" },
 ];
 
 const API_TO_UI: Record<string, Exclude<CategoryFilter, "all">> = {
@@ -313,8 +314,6 @@ function BudgetInner() {
   const [draftPayer, setDraftPayer] = useState<PayerFilter>("all");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMounted, setDrawerMounted] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
@@ -396,32 +395,6 @@ function BudgetInner() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen) {
-      setDrawerVisible(false);
-      const timer = window.setTimeout(() => setDrawerMounted(false), 320);
-      return () => window.clearTimeout(timer);
-    }
-    setDrawerMounted(true);
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setDrawerVisible(true));
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [drawerOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setDrawerOpen(false);
-        resetDrawer();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drawerOpen]);
 
   useEffect(() => {
     if (!menuOpenId) return;
@@ -551,6 +524,11 @@ function BudgetInner() {
     setVendorId("");
     setStatus("");
     setFormPayer("couple");
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    window.setTimeout(() => resetDrawer(), 320);
   }
 
   function openCreate() {
@@ -771,21 +749,32 @@ function BudgetInner() {
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
       {rows.length === 0 ? (
-        <div className="cabinet-guests-empty">
-          <div className="cabinet-guests-empty-glow" aria-hidden />
-          <BudgetEmptyArt />
-          <h2>Почнемо рахувати весільні витрати?</h2>
-          <p>
-            Додавайте заплановані та фактичні витрати. Ми автоматично покажемо
-            суму, допоможемо розбити платежі по категоріях та підкажемо статус
-            оплати.
-          </p>
-          <div className="cabinet-guests-empty-actions">
-            <Button type="button" tone="ink" size="m" className="cabinet-empty-cta" onClick={openCreate}>
+        <CabinetEmptyState
+          art={{
+            src: "/cabinet/empty/budget.png",
+            width: 280,
+            height: 200,
+          }}
+          title="Почнемо рахувати весільні витрати?"
+          description={
+            <p>
+              Додавайте заплановані та фактичні витрати. Ми автоматично покажемо
+              суму, допоможемо розбити платежі по категоріях та підкажемо статус
+              оплати.
+            </p>
+          }
+          actions={
+            <Button
+              type="button"
+              tone="ink"
+              size="m"
+              className="cabinet-empty-cta"
+              onClick={openCreate}
+            >
               Внести витрати
             </Button>
-          </div>
-        </div>
+          }
+        />
       ) : (
         <>
           <div className="cabinet-tasks-layout cabinet-budget-layout">
@@ -1242,227 +1231,155 @@ function BudgetInner() {
         </div>
       ) : null}
 
-      {drawerMounted ? (
-        <div
-          className={`cabinet-drawer-root${drawerVisible ? " is-open" : ""}`}
-        >
-          <button
-            type="button"
-            className="cabinet-drawer-backdrop"
-            aria-label="Закрити"
-            onClick={() => {
-              setDrawerOpen(false);
-              resetDrawer();
-            }}
+      <CabinetOverlay
+        open={drawerOpen}
+        onClose={closeDrawer}
+        title={editingId ? "Редагувати витрату" : "Внести витрату"}
+        variant="drawer"
+        width={430}
+        desktopPresentation="centered"
+        panelClassName="cabinet-budget-drawer"
+        asForm
+        onSubmit={onSave}
+        footer={
+          <>
+            <Button
+              type="button"
+              tone="ghost"
+              size="m"
+              className="cabinet-drawer-cancel"
+              onClick={closeDrawer}
+            >
+              Скасувати
+            </Button>
+            <Button
+              type="submit"
+              tone="ink"
+              size="m"
+              className="cabinet-budget-save"
+              disabled={busy}
+              loading={busy}
+              loadingText="…"
+            >
+              Зберегти
+            </Button>
+          </>
+        }
+      >
+        <TextInput
+          label={
+            <>
+              Що ви оплатили <em>*</em>
+            </>
+          }
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Наприклад: Пробна зачіска"
+          required
+        />
+
+        <div className="cabinet-budget-amount-row">
+          <TextInput
+            label={
+              <>
+                Сума <em>*</em>
+              </>
+            }
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Внесіть суму"
+            inputMode="decimal"
+            required
           />
-          <aside
-            className="cabinet-drawer cabinet-budget-drawer"
-            aria-label={editingId ? "Редагувати витрату" : "Внести витрату"}
+          <Select
+            label="Оберіть валюту"
+            value={formCurrency}
+            onChange={(e) => setFormCurrency(e.target.value as Currency)}
           >
-            <div className="cabinet-drawer-head">
-              <h2>{editingId ? "Редагувати витрату" : "Внести витрату"}</h2>
-              <button
-                type="button"
-                className="cabinet-drawer-close"
-                aria-label="Закрити"
-                onClick={() => {
-                  setDrawerOpen(false);
-                  resetDrawer();
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <form className="cabinet-drawer-form" onSubmit={onSave}>
-              <TextInput
-                label={
-                  <>
-                    Що ви оплатили <em>*</em>
-                  </>
-                }
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Наприклад: Пробна зачіска"
-                required
-              />
-
-              <div className="cabinet-budget-amount-row">
-                <TextInput
-                  label={
-                    <>
-                      Сума <em>*</em>
-                    </>
-                  }
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Внесіть суму"
-                  inputMode="decimal"
-                  required
-                />
-                <Select
-                  label="Оберіть валюту"
-                  value={formCurrency}
-                  onChange={(e) => setFormCurrency(e.target.value as Currency)}
-                >
-                  <option value="UAH">грн</option>
-                  <option value="USD">$ Долари</option>
-                </Select>
-              </div>
-
-              <Select
-                label="Оберіть категорію"
-                value={category}
-                onChange={(e) =>
-                  setCategory(
-                    e.target.value as Exclude<CategoryFilter, "all"> | "",
-                  )
-                }
-              >
-                <option value="">Обрати категорію</option>
-                {UI_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </Select>
-
-              {category === "vendors" ? (
-                <Select
-                  label={
-                    <>
-                      Оберіть підрядника <em>*</em>
-                    </>
-                  }
-                  value={vendorId}
-                  onChange={(e) => setVendorId(e.target.value)}
-                  required={category === "vendors"}
-                >
-                  <option value="">Обрати підрядника</option>
-                  {vendors.map((vendor) => (
-                    <option key={vendor.id} value={vendor.id}>
-                      {vendor.name}
-                    </option>
-                  ))}
-                </Select>
-              ) : null}
-
-              <Select
-                label={
-                  <>
-                    Статус <em>*</em>
-                  </>
-                }
-                value={status}
-                onChange={(e) =>
-                  setStatus(e.target.value as "planned" | "paid" | "")
-                }
-                required
-              >
-                <option value="">Обрати статус</option>
-                <option value="planned">Заплановано</option>
-                <option value="paid">Сплачено</option>
-              </Select>
-
-              <Select
-                label="Хто оплачує"
-                value={formPayer}
-                onChange={(e) => setFormPayer(e.target.value as MenuPayer)}
-              >
-                <option value="owner">{ownerName}</option>
-                <option value="partner">{partnerName}</option>
-                <option value="couple">Обоє</option>
-                <option value="parents_owner">
-                  {payerLabels.parents_owner}
-                </option>
-                <option value="parents_partner">
-                  {payerLabels.parents_partner}
-                </option>
-              </Select>
-
-              <div className="cabinet-drawer-actions">
-                <Button
-                  type="button"
-                  tone="ghost"
-                  size="m"
-                  className="cabinet-drawer-cancel"
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    resetDrawer();
-                  }}
-                >
-                  Скасувати
-                </Button>
-                <Button
-                  type="submit"
-                  tone="ink"
-                  size="m"
-                  className="cabinet-budget-save"
-                  disabled={busy}
-                  loading={busy}
-                  loadingText="…"
-                >
-                  Зберегти
-                </Button>
-              </div>
-            </form>
-          </aside>
+            <option value="UAH">грн</option>
+            <option value="USD">$ Долари</option>
+          </Select>
         </div>
-      ) : null}
 
-      {deleteTarget ? (
-        <div
-          className="cabinet-modal-root"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Видалити витрату"
+        <Select
+          label="Оберіть категорію"
+          value={category}
+          onChange={(e) =>
+            setCategory(
+              e.target.value as Exclude<CategoryFilter, "all"> | "",
+            )
+          }
         >
-          <button
-            type="button"
-            className="cabinet-modal-backdrop"
-            aria-label="Закрити"
-            onClick={() => setDeleteTarget(null)}
-          />
-          <div className="cabinet-modal cabinet-confirm-modal">
-            <div className="cabinet-modal-head">
-              <div>
-                <h2>Видалити витрату</h2>
-                <p>Ви впевнені, що хочете видалити цю витрату?</p>
-              </div>
-              <button
-                type="button"
-                className="cabinet-modal-close"
-                aria-label="Закрити"
-                onClick={() => setDeleteTarget(null)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="cabinet-modal-actions">
-              <Button
-                type="button"
-                tone="ghost"
-                size="m"
-                className="cabinet-drawer-cancel"
-                onClick={() => setDeleteTarget(null)}
-                disabled={busy}
-              >
-                Скасувати
-              </Button>
-              <Button
-                type="button"
-                tone="ink"
-                size="m"
-                className="cabinet-confirm-delete"
-                loading={busy}
-                loadingText="…"
-                onClick={() => void confirmDelete()}
-              >
-                Так, видалити
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+          <option value="">Обрати категорію</option>
+          {UI_CATEGORIES.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.label}
+            </option>
+          ))}
+        </Select>
+
+        {category === "vendors" ? (
+          <Select
+            label={
+              <>
+                Оберіть підрядника <em>*</em>
+              </>
+            }
+            value={vendorId}
+            onChange={(e) => setVendorId(e.target.value)}
+            required={category === "vendors"}
+          >
+            <option value="">Обрати підрядника</option>
+            {vendors.map((vendor) => (
+              <option key={vendor.id} value={vendor.id}>
+                {vendor.name}
+              </option>
+            ))}
+          </Select>
+        ) : null}
+
+        <Select
+          label={
+            <>
+              Статус <em>*</em>
+            </>
+          }
+          value={status}
+          onChange={(e) =>
+            setStatus(e.target.value as "planned" | "paid" | "")
+          }
+          required
+        >
+          <option value="">Обрати статус</option>
+          <option value="planned">Заплановано</option>
+          <option value="paid">Сплачено</option>
+        </Select>
+
+        <Select
+          label="Хто оплачує"
+          value={formPayer}
+          onChange={(e) => setFormPayer(e.target.value as MenuPayer)}
+        >
+          <option value="owner">{ownerName}</option>
+          <option value="partner">{partnerName}</option>
+          <option value="couple">Обоє</option>
+          <option value="parents_owner">
+            {payerLabels.parents_owner}
+          </option>
+          <option value="parents_partner">
+            {payerLabels.parents_partner}
+          </option>
+        </Select>
+      </CabinetOverlay>
+
+      <DeleteConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Видалити витрату"
+        description="Ви впевнені, що хочете видалити цю витрату?"
+        loading={busy}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
   );
 }
@@ -1495,20 +1412,6 @@ function FilterGroup({
         ))}
       </div>
     </div>
-  );
-}
-
-function BudgetEmptyArt() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      className="cabinet-guests-empty-art"
-      src="/cabinet/empty/budget.png"
-      alt=""
-      width={280}
-      height={200}
-      aria-hidden
-    />
   );
 }
 

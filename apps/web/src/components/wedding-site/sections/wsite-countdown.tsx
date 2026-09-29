@@ -71,7 +71,7 @@ export function WsiteCountdown({ target }: Props) {
         <div className="wsite-countdown__spark" aria-hidden>
           <SparkIcon />
         </div>
-        <h2 className="wsite-countdown__title">До нашого дня</h2>
+        <h2 className="wsite-countdown__title">До дня весілля</h2>
         <div className="wsite-countdown__grid">
           {items.map(([value, label]) => (
             <div key={label} className="wsite-countdown__item">

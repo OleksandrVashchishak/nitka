@@ -27,13 +27,15 @@ export function WsiteRsvp({
   title,
   body,
   href,
-  deadline = "До відповіді",
+  deadline,
 }: Props) {
   return (
     <section className="wsite-rsvp">
       <div className="wsite-rsvp__inner">
         <div className="wsite-rsvp__heading">
-          <p className="wsite-rsvp__eyebrow">{deadline}</p>
+          {deadline ? (
+            <p className="wsite-rsvp__eyebrow">{deadline}</p>
+          ) : null}
           <h2 className="wsite-rsvp__title">{title}</h2>
         </div>
         <div className="wsite-rsvp__spark" aria-hidden>
@@ -42,10 +44,7 @@ export function WsiteRsvp({
         {body ? <p className="wsite-rsvp__text">{body}</p> : null}
         <div className="wsite-rsvp__actions">
           <a className="wsite-rsvp__btn wsite-rsvp__btn--yes" href={href}>
-            Я буду
-          </a>
-          <a className="wsite-rsvp__btn wsite-rsvp__btn--no" href={href}>
-            Мене не буде
+            Підтвердити
           </a>
         </div>
       </div>

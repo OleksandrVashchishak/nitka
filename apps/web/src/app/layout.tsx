@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import "./button.css";
-import "./checkbox.css";
-import "./radio.css";
-import "./text-input.css";
-import "./select.css";
-import "./hero-artboard.css";
+import "@/styles/globals.scss";
+import "@/styles/ui/index.scss";
+
 import { AuthProvider } from "@/components/auth-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooterWrapper } from "@/components/site-footer";

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import type { Guest, RsvpStatus } from "@/lib/guests-api";
 import { updateGuest } from "@/lib/guests-api";
+import { isChildGuest, parseCompanions } from "@/lib/guest-party";
 import type {
   SeatingGuestAssign,
   SeatingGuestsDraft,
@@ -13,12 +14,42 @@ import {
   GuestSeatPopover,
   type GuestPopoverInfo,
 } from "@/components/seating-plan-popovers";
+import {
+  SeatingAddTableModal,
+  type SeatingAddTableResult,
+} from "@/components/seating-add-table-modal";
+import {
+  SeatingTableModal,
+  type SeatTableDraft,
+  type SeatTableKind,
+} from "@/components/seating-table-modal";
 import { IconMore } from "@/components/icon-more";
 import { Select } from "@/components/ui/select";
+import { SeatingChartEditor } from "@/components/seating-chart-editor";
+import { NameCardsDesign } from "@/components/name-cards-design";
+import {
+  saveSeatingPlan,
+  type SeatingPlanPayload,
+} from "@/lib/seating-api";
+import { shapedSeatPosition, defaultShapedSeatCount } from "@/lib/seat-layout";
 import { toast } from "@/lib/toast";
-import "@/app/seating-plan.css";
+import "@/styles/seating/plan.scss";
 
 const GROUP_COLORS = ["#8B7CC8", "#5B8DEF", "#4CAF7A", "#C47A3A", "#E07A9A"];
+const GRID = 24;
+/** Padding past the farthest table edge before canvas ends. */
+const CANVAS_PAD = 48;
+/** Seats stick out past the table body. */
+const SEAT_BLEED = 28;
+
+const TABLE_KIND_OPTIONS = [
+  ["round", "Круглий"],
+  ["long", "Довгий"],
+  ["presidium", "Президіум"],
+  ["kids", "Дитячий"],
+  ["t-shape", "Т-форма"],
+  ["p-shape", "П-форма"],
+] as const;
 
 type FlatGuest = {
   key: string;
@@ -39,11 +70,64 @@ type SeatSpot = {
 type PlanTable = {
   id: string;
   kind: "presidium" | "round" | "long" | "kids" | "t-shape" | "p-shape";
+  /** Visual layout for kids tables (round vs long). */
+  shape?: "round" | "long";
   label: string;
   x: number;
   y: number;
+  /** Degrees clockwise. */
+  rotation?: number;
   seats: SeatSpot[];
 };
+
+function snap(n: number) {
+  return Math.max(0, Math.round(n / GRID) * GRID);
+}
+
+function tableBodySize(table: PlanTable): { w: number; h: number } {
+  if (table.kind === "presidium") return { w: 320, h: 56 };
+  if (table.kind === "round") return { w: 120, h: 120 };
+  if (table.kind === "long") return { w: 280, h: 48 };
+  if (table.kind === "t-shape" || table.kind === "p-shape") {
+    return { w: 280, h: 200 };
+  }
+  if (table.shape === "long") return { w: 240, h: 48 };
+  return { w: 100, h: 100 };
+}
+
+/** Content box the canvas must cover (tables + seat bleed + pad). */
+function canvasContentSize(tables: PlanTable[]): { width: number; height: number } {
+  let maxRight = 0;
+  let maxBottom = 0;
+  for (const table of tables) {
+    const { w, h } = tableBodySize(table);
+    const rot = Math.abs(table.rotation ?? 0) % 180;
+    if (rot > 5 && rot < 175) {
+      const rad = (rot * Math.PI) / 180;
+      const bw = Math.abs(w * Math.cos(rad)) + Math.abs(h * Math.sin(rad));
+      const bh = Math.abs(w * Math.sin(rad)) + Math.abs(h * Math.cos(rad));
+      const cx = table.x + w / 2;
+      const cy = table.y + h / 2;
+      maxRight = Math.max(maxRight, cx + bw / 2 + SEAT_BLEED);
+      maxBottom = Math.max(maxBottom, cy + bh / 2 + SEAT_BLEED);
+    } else {
+      maxRight = Math.max(maxRight, table.x + w + SEAT_BLEED);
+      maxBottom = Math.max(maxBottom, table.y + h + SEAT_BLEED);
+    }
+  }
+  return {
+    width: Math.ceil(maxRight + CANVAS_PAD),
+    height: Math.ceil(maxBottom + CANVAS_PAD),
+  };
+}
+
+function defaultTableLabel(kind: PlanTable["kind"], numbered: number) {
+  if (kind === "presidium") return "Президіум";
+  if (kind === "kids") return "Дитячий стіл";
+  if (kind === "t-shape") return `Т-форма ${numbered}`;
+  if (kind === "p-shape") return `П-форма ${numbered}`;
+  return `Стіл ${numbered}`;
+}
 
 type Props = {
   weddingId: string;
@@ -52,6 +136,10 @@ type Props = {
     tables: SeatingTablesDraft;
     guests: SeatingGuestsDraft;
   };
+  initialPlan?: SeatingPlanPayload | null;
+  partnerOneName?: string;
+  partnerTwoName?: string;
+  weddingDate?: string | null;
   onEditGuests?: () => void;
   onGuestsRefresh?: () => Promise<void>;
 };
@@ -63,16 +151,12 @@ type PopoverState =
   | { kind: "list"; key: string }
   | null;
 
-function storageKey(weddingId: string) {
-  return `fata-seating-plan:v1:${weddingId}`;
-}
-
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function isChild(guest: Guest) {
-  return (guest.notes ?? "").includes("[child]");
+  return isChildGuest(guest.notes);
 }
 
 function initials(name: string) {
@@ -86,8 +170,9 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
   const rows: FlatGuest[] = [];
   for (const g of guests) {
     const mainKey = g.id;
-    const plusKey =
-      g.plusOne && g.plusOneName?.trim() ? `${g.id}:plus` : null;
+    const companions = parseCompanions(g.notes, g).filter((c) =>
+      c.name.trim(),
+    );
     rows.push({
       key: mainKey,
       guestId: g.id,
@@ -96,20 +181,20 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
       isChild: isChild(g),
       side: g.side,
       rsvpStatus: g.rsvpStatus,
-      linkedKey: plusKey,
+      linkedKey: companions[0] ? `${g.id}:plus` : null,
     });
-    if (plusKey && g.plusOneName?.trim()) {
+    companions.forEach((companion, index) => {
       rows.push({
-        key: plusKey,
+        key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
         guestId: g.id,
-        name: g.plusOneName.trim(),
+        name: companion.name.trim(),
         isPlusOne: true,
-        isChild: false,
+        isChild: companion.isChild,
         side: g.side,
-        rsvpStatus: g.rsvpStatus,
+        rsvpStatus: companion.rsvpStatus,
         linkedKey: mainKey,
       });
-    }
+    });
   }
   return rows;
 }
@@ -164,8 +249,8 @@ function buildTables(tables: SeatingTablesDraft): PlanTable[] {
   const roundCount = Math.max(0, Number.parseInt(tables.roundTableCount, 10) || 0);
   const roundSeats = Math.max(0, Number.parseInt(tables.roundSeatsPerTable, 10) || 10);
   const needsRound =
-    tables.format === "presidium-round" ||
-    tables.format === "presidium-mixed" ||
+    tables.format === "round" ||
+    tables.format === "mixed" ||
     roundCount > 0;
 
   if (needsRound) {
@@ -186,20 +271,15 @@ function buildTables(tables: SeatingTablesDraft): PlanTable[] {
   const longCount = Math.max(0, Number.parseInt(tables.longTableCount, 10) || 0);
   const longSeats = Math.max(0, Number.parseInt(tables.longSeatsPerTable, 10) || 18);
   const needsLong =
-    tables.format === "presidium-long" ||
-    tables.format === "presidium-mixed" ||
-    tables.format === "p-shape" ||
-    tables.format === "t-shape" ||
+    tables.format === "long" ||
+    tables.format === "mixed" ||
     longCount > 0;
 
   if (needsLong) {
     const n =
       longCount > 0
         ? longCount
-        : tables.format === "presidium-long" ||
-            tables.format === "presidium-mixed" ||
-            tables.format === "p-shape" ||
-            tables.format === "t-shape"
+        : tables.format === "long" || tables.format === "mixed"
           ? 2
           : 0;
     for (let i = 0; i < n; i += 1) {
@@ -215,15 +295,49 @@ function buildTables(tables: SeatingTablesDraft): PlanTable[] {
     if (n > 0) y += Math.ceil(n / 2) * 120 + 40;
   }
 
-  if (tables.hasKidsTable) {
+  if (tables.format === "p-shape") {
     result.push({
-      id: uid("kids"),
-      kind: "kids",
-      label: "Дитячий стіл",
-      x: 360,
+      id: uid("p"),
+      kind: "p-shape",
+      label: "П-форма",
+      x: 200,
       y,
-      seats: makeSeats(8),
+      seats: makeSeats(defaultShapedSeatCount("p-shape")),
     });
+    y += 260;
+  }
+
+  if (tables.format === "t-shape") {
+    result.push({
+      id: uid("t"),
+      kind: "t-shape",
+      label: "Т-форма",
+      x: 200,
+      y,
+      seats: makeSeats(defaultShapedSeatCount("t-shape")),
+    });
+    y += 260;
+  }
+
+  if (tables.hasKidsTable) {
+    const kidsCount = Math.max(
+      1,
+      Number.parseInt(tables.kidsTableCount, 10) || 1,
+    );
+    const kidsShape = tables.kidsTableShape === "long" ? "long" : "round";
+    const kidsSeats = 8;
+    for (let i = 0; i < kidsCount; i += 1) {
+      result.push({
+        id: uid("kids"),
+        kind: "kids",
+        shape: kidsShape,
+        label:
+          kidsCount === 1 ? "Дитячий стіл" : `Дитячий стіл ${i + 1}`,
+        x: 80 + (i % 4) * 200,
+        y: y + Math.floor(i / 4) * (kidsShape === "long" ? 120 : 160),
+        seats: makeSeats(kidsSeats),
+      });
+    }
   }
 
   // Relabel numbered tables sequentially
@@ -286,8 +400,15 @@ function seatPosition(
   kind: PlanTable["kind"],
   index: number,
   total: number,
+  shape?: "round" | "long",
 ): { left: string; top: string } {
-  if (kind === "round" || kind === "kids") {
+  if (kind === "t-shape" || kind === "p-shape") {
+    return shapedSeatPosition(kind, index, total);
+  }
+
+  const asRound =
+    kind === "round" || (kind === "kids" && shape !== "long");
+  if (asRound) {
     const angle = (Math.PI * 2 * index) / Math.max(total, 1) - Math.PI / 2;
     const r = kind === "kids" ? 52 : 62;
     return {
@@ -312,10 +433,35 @@ function seatPosition(
   return { left: `${10 + t * 80}%`, top: "100%" };
 }
 
+function TableShapeSilhouette({ kind }: { kind: PlanTable["kind"] }) {
+  if (kind === "t-shape") {
+    return (
+      <div className="seat-plan-shape" aria-hidden>
+        <span className="seat-plan-shape-top" />
+        <span className="seat-plan-shape-stem" />
+      </div>
+    );
+  }
+  if (kind === "p-shape") {
+    return (
+      <div className="seat-plan-shape" aria-hidden>
+        <span className="seat-plan-shape-top" />
+        <span className="seat-plan-shape-leg is-left" />
+        <span className="seat-plan-shape-leg is-right" />
+      </div>
+    );
+  }
+  return null;
+}
+
 export function SeatingPlan({
   weddingId,
   guests,
   draft,
+  initialPlan,
+  partnerOneName = "",
+  partnerTwoName = "",
+  weddingDate = null,
   onEditGuests,
   onGuestsRefresh,
 }: Props) {
@@ -335,50 +481,88 @@ export function SeatingPlan({
   const [sideFilter, setSideFilter] = useState<SideFilter>("all");
   const [tableFilter, setTableFilter] = useState("all");
   const [addOpen, setAddOpen] = useState(false);
+  const [addKind, setAddKind] = useState<SeatTableKind | null>(null);
   const [printOpen, setPrintOpen] = useState(false);
+  const [chartOpen, setChartOpen] = useState(false);
+  const [nameCardsOpen, setNameCardsOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(true);
   const [groupsOpen, setGroupsOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [popover, setPopover] = useState<PopoverState>(null);
-  const [detachedKeys, setDetachedKeys] = useState<Set<string>>(new Set());
+  const [detachedKeys, setDetachedKeys] = useState<Set<string>>(
+    () => new Set(draft.guests.detachedKeys ?? []),
+  );
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const addRef = useRef<HTMLDivElement>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const canvasWrapRef = useRef<HTMLDivElement>(null);
+  const [viewport, setViewport] = useState({ w: 0, h: 0 });
+  const dragRef = useRef<{
+    id: string;
+    startX: number;
+    startY: number;
+    origX: number;
+    origY: number;
+    moved: boolean;
+  } | null>(null);
   const [floatPop, setFloatPop] = useState<{
     top: number;
     left: number;
   } | null>(null);
 
+  const contentSize = useMemo(() => canvasContentSize(tables), [tables]);
+  const canvasStyle = useMemo(() => {
+    // Fill the visible wrap at minimum; grow only when tables need more room.
+    const barReserve = 52;
+    const minW = Math.max(viewport.w, 1);
+    const minH = Math.max(viewport.h - barReserve, 1);
+    return {
+      width: Math.max(contentSize.width, minW),
+      height: Math.max(contentSize.height, minH),
+    };
+  }, [contentSize, viewport]);
+
   useEffect(() => {
-    let fromStorage = false;
-    try {
-      const raw = localStorage.getItem(storageKey(weddingId));
-      if (raw) {
-        const parsed = JSON.parse(raw) as { tables: PlanTable[] };
-        if (parsed.tables?.length) {
-          setTables(parsed.tables);
-          fromStorage = true;
-        }
-      }
-    } catch {
-      /* ignore */
+    const el = canvasWrapRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const sync = () => {
+      setViewport({ w: el.clientWidth, h: el.clientHeight });
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    setDetachedKeys(new Set(draft.guests.detachedKeys ?? []));
+  }, [draft.guests.detachedKeys]);
+
+  useEffect(() => {
+    let fromStored = false;
+    if (initialPlan?.tables?.length) {
+      setTables(initialPlan.tables as PlanTable[]);
+      fromStored = true;
     }
-    if (!fromStorage) {
+    if (!fromStored) {
       setTables(autoSeat(buildTables(draft.tables), flat, draft.guests));
     }
     setHydrated(true);
-  }, [weddingId, draft, flat]);
+    // Only hydrate once per mount (key resets when plan cleared).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+  }, [weddingId]);
 
   useEffect(() => {
     if (!hydrated) return;
     const t = window.setTimeout(() => {
-      try {
-        localStorage.setItem(
-          storageKey(weddingId),
-          JSON.stringify({ tables, savedAt: Date.now() }),
-        );
-      } catch {
-        /* ignore */
-      }
-    }, 400);
+      void saveSeatingPlan({
+        tables: tables as SeatingPlanPayload["tables"],
+        savedAt: Date.now(),
+      }).catch(() => {
+        /* silent autosave */
+      });
+    }, 500);
     return () => window.clearTimeout(t);
   }, [tables, weddingId, hydrated]);
 
@@ -410,6 +594,7 @@ export function SeatingPlan({
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        if (editingTableId) return;
         setPopover(null);
         setFloatPop(null);
         setAddOpen(false);
@@ -418,7 +603,7 @@ export function SeatingPlan({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [editingTableId]);
 
   function openFloatPopover(
     kind: "seat" | "list",
@@ -427,7 +612,7 @@ export function SeatingPlan({
   ) {
     const rect = anchor.getBoundingClientRect();
     const width = 280;
-    const estimatedH = 240;
+    const estimatedH = kind === "list" ? 280 : 220;
     const left = Math.min(
       Math.max(12, rect.left),
       window.innerWidth - width - 12,
@@ -445,10 +630,7 @@ export function SeatingPlan({
     setFloatPop(null);
   }
 
-  const visibleFlat = useMemo(
-    () => flat.filter((g) => !detachedKeys.has(g.key)),
-    [flat, detachedKeys],
-  );
+  const visibleFlat = useMemo(() => flat, [flat]);
 
   const seatOfGuest = useMemo(() => {
     const m = new Map<string, { tableId: string; seatId: string }>();
@@ -532,7 +714,9 @@ export function SeatingPlan({
       .map((g) => ({ key: g.key, name: g.name }));
 
     const linked =
-      guest.linkedKey && !detachedKeys.has(guest.linkedKey)
+      guest.linkedKey &&
+      !detachedKeys.has(guest.key) &&
+      !detachedKeys.has(guest.linkedKey)
         ? guestMap.get(guest.linkedKey)
         : null;
 
@@ -540,7 +724,6 @@ export function SeatingPlan({
       key,
       guestId: guest.guestId,
       name: guest.name,
-      index: Math.max(1, visibleFlat.findIndex((g) => g.key === key) + 1),
       groupLabel: groupLabelFor(key),
       tableLabel: table?.label ?? null,
       rsvpStatus: guest.rsvpStatus,
@@ -608,49 +791,121 @@ export function SeatingPlan({
     }
   }
 
-  function addTable(kind: PlanTable["kind"]) {
-    const seats =
-      kind === "round"
-        ? 10
-        : kind === "kids"
-          ? 8
-          : kind === "presidium"
-            ? 6
-            : kind === "t-shape" || kind === "p-shape"
-              ? 20
-              : 16;
-    const labeledKinds = new Set(["round", "long", "t-shape", "p-shape"]);
-    const numbered =
-      tables.filter((t) => labeledKinds.has(t.kind)).length + 1;
-    const label =
-      kind === "presidium"
-        ? "Президіум"
-        : kind === "kids"
-          ? "Дитячий стіл"
-          : kind === "t-shape"
-            ? `Т-форма ${numbered}`
-            : kind === "p-shape"
-              ? `П-форма ${numbered}`
-              : `Стіл ${numbered}`;
-    setTables((prev) => [
-      ...prev,
-      {
-        id: uid(kind),
-        kind,
-        label,
-        x: 100 + (numbered % 3) * 200,
-        y: 480 + Math.floor(numbered / 3) * 40,
-        seats: makeSeats(seats),
-      },
-    ]);
+  function openAddTable(kind: SeatTableKind) {
     setAddOpen(false);
+    setAddKind(kind);
   }
+
+  function addTables({ kind, tableCount, seatsPerTable }: SeatingAddTableResult) {
+    const labeledKinds = new Set(["round", "long", "t-shape", "p-shape"]);
+    setTables((prev) => {
+      let numbered = prev.filter((t) => labeledKinds.has(t.kind)).length;
+      const next = [...prev];
+      for (let i = 0; i < tableCount; i += 1) {
+        numbered += 1;
+        next.push({
+          id: uid(kind),
+          kind,
+          shape: kind === "kids" ? "round" : undefined,
+          label: defaultTableLabel(kind, numbered),
+          x: snap(100 + (numbered % 3) * 200),
+          y: snap(480 + Math.floor(numbered / 3) * 40),
+          rotation: 0,
+          seats: makeSeats(seatsPerTable),
+        });
+      }
+      return next;
+    });
+    setAddKind(null);
+  }
+
+  function deleteTable(id: string) {
+    setTables((prev) => prev.filter((t) => t.id !== id));
+    setEditingTableId(null);
+    toast.success("Стіл видалено");
+  }
+
+  function saveTableDraft(next: SeatTableDraft) {
+    setTables((prev) =>
+      prev.map((t) =>
+        t.id === next.id
+          ? {
+              ...t,
+              kind: next.kind,
+              shape: next.shape,
+              label: next.label,
+              rotation: next.rotation,
+              seats: next.seats,
+            }
+          : t,
+      ),
+    );
+    setEditingTableId(null);
+  }
+
+  function onTablePointerDown(
+    event: PointerEvent<HTMLDivElement>,
+    table: PlanTable,
+  ) {
+    const target = event.target as Element;
+    if (target.closest(".seat-plan-seat, button, input")) {
+      return;
+    }
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = {
+      id: table.id,
+      startX: event.clientX,
+      startY: event.clientY,
+      origX: table.x,
+      origY: table.y,
+      moved: false,
+    };
+    setDraggingId(table.id);
+  }
+
+  function onTablePointerMove(event: PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+    const x = snap(drag.origX + dx);
+    const y = snap(drag.origY + dy);
+    setTables((prev) =>
+      prev.map((t) => (t.id === drag.id ? { ...t, x, y } : t)),
+    );
+  }
+
+  function onTablePointerUp(tableId: string) {
+    const drag = dragRef.current;
+    const wasClick = Boolean(drag && drag.id === tableId && !drag.moved);
+    dragRef.current = null;
+    setDraggingId(null);
+    if (wasClick) setEditingTableId(tableId);
+  }
+
+  const editingTable = editingTableId
+    ? tables.find((t) => t.id === editingTableId) ?? null
+    : null;
+
+  const modalGuests = useMemo(() => {
+    const m = new Map<string, { key: string; name: string; color: string }>();
+    for (const g of flat) {
+      const assign = draft.guests.assignments[g.key] ?? null;
+      m.set(g.key, {
+        key: g.key,
+        name: g.name,
+        color: colorForAssign(assign, draft.guests.groups),
+      });
+    }
+    return m;
+  }, [flat, draft.guests]);
 
   return (
     <div className="seat-plan">
       <div className="seat-plan-top">
         <div className="seat-plan-title-wrap">
-          <h1 className="seat-plan-title">План розсадки</h1>
+          <h1 className="seat-plan-title">Розсадка</h1>
           <span className="seat-plan-autosave">
             <span className="seat-plan-autosave-dot" aria-hidden />
             Авто-збереження
@@ -661,7 +916,11 @@ export function SeatingPlan({
           <button
             type="button"
             className="seat-plan-btn seat-plan-btn--ghost"
-            onClick={() => toast.info("PDF — скоро")}
+            onClick={() => {
+              setPrintOpen(false);
+              setAddOpen(false);
+              setChartOpen(true);
+            }}
           >
             Зберегти PDF
           </button>
@@ -689,7 +948,7 @@ export function SeatingPlan({
                   role="menuitem"
                   onClick={() => {
                     setPrintOpen(false);
-                    toast.info("Дизайн посадкової карти — скоро");
+                    setChartOpen(true);
                   }}
                 >
                   Дизайн посадкової карти
@@ -699,7 +958,7 @@ export function SeatingPlan({
                   role="menuitem"
                   onClick={() => {
                     setPrintOpen(false);
-                    toast.info("Дизайн іменних карток — скоро");
+                    setNameCardsOpen(true);
                   }}
                 >
                   Дизайн іменних карток
@@ -707,82 +966,26 @@ export function SeatingPlan({
               </div>
             ) : null}
           </div>
-
-          <div
-            className={`seat-plan-add-menu${addOpen ? " is-open" : ""}`}
-            ref={addRef}
-          >
-            <button
-              type="button"
-              className="seat-plan-btn seat-plan-btn--dark"
-              aria-expanded={addOpen}
-              onClick={() => {
-                setAddOpen((v) => !v);
-                setPrintOpen(false);
-              }}
-            >
-              <span className="seat-plan-add-plus" aria-hidden>
-                <AddPlusIcon />
-              </span>
-              Додати стіл
-              <ChevronDownIcon />
-            </button>
-            {addOpen ? (
-              <div className="seat-plan-add-dropdown" role="menu">
-                {(
-                  [
-                    ["round", "Круглий"],
-                    ["long", "Довгий"],
-                    ["presidium", "Президіум"],
-                    ["kids", "Дитячий"],
-                    ["t-shape", "Т-форма"],
-                    ["p-shape", "П-форма"],
-                  ] as const
-                ).map(([kind, label]) => (
-                  <button
-                    key={kind}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => addTable(kind)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <label className={`seat-plan-toggle${showNames ? " is-on" : ""}`}>
-            <input
-              type="checkbox"
-              checked={showNames}
-              onChange={(e) => setShowNames(e.target.checked)}
-            />
-            <span className="seat-plan-switch" aria-hidden />
-            Показати імена
-          </label>
         </div>
       </div>
 
       <div className="seat-plan-layout">
         <aside className="seat-plan-panel">
           <div className="seat-plan-panel-head">
-            <div>
-              <h2 className="seat-plan-panel-title">
-                Гості
-                <button
-                  type="button"
-                  className="seat-plan-icon-btn"
-                  aria-label="Редагувати групи"
-                  onClick={onEditGuests}
-                >
-                  <PencilIcon />
-                </button>
-              </h2>
-              <p className="seat-plan-panel-count">
+            <h2 className="seat-plan-panel-title">
+              Гості
+              <span className="seat-plan-panel-count">
                 {seatedCount} / {totalGuests} розсаджено
-              </p>
-            </div>
+              </span>
+              <button
+                type="button"
+                className="seat-plan-icon-btn"
+                aria-label="Редагувати групи"
+                onClick={onEditGuests}
+              >
+                <PencilIcon />
+              </button>
+            </h2>
           </div>
 
           <label className="seat-plan-search">
@@ -795,61 +998,89 @@ export function SeatingPlan({
             />
           </label>
 
-          <div className="seat-plan-filters">
-            <p className="seat-plan-filters-title">Фільтри</p>
-            <Select
-              size="xs"
-              value={seatFilter}
-              onChange={(e) => setSeatFilter(e.target.value as SeatFilter)}
-              aria-label="Посадка"
+          <div
+            className={`seat-plan-filters${filtersOpen ? " is-open" : ""}`}
+          >
+            <button
+              type="button"
+              className="seat-plan-filters-head"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen((v) => !v)}
             >
-              <option value="all">Посаджені і не посаджені</option>
-              <option value="seated">Лише посаджені</option>
-              <option value="unseated">Лише не посаджені</option>
-            </Select>
-            <Select
-              size="xs"
-              value={groupFilter}
-              onChange={(e) => setGroupFilter(e.target.value)}
-              aria-label="Група"
-            >
-              <option value="all">Усі групи</option>
-              {namedGroups.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-              {draft.tables.hasPresidium ? (
-                <option value="presidium">Президіум</option>
-              ) : null}
-              {draft.tables.hasKidsTable ? (
-                <option value="kids">Дитячий стіл</option>
-              ) : null}
-            </Select>
-            <Select
-              size="xs"
-              value={sideFilter}
-              onChange={(e) => setSideFilter(e.target.value as SideFilter)}
-              aria-label="Сторона"
-            >
-              <option value="all">Гості обох наречених</option>
-              <option value="BRIDE">Сторона нареченої</option>
-              <option value="GROOM">Сторона нареченого</option>
-              <option value="BOTH">Спільні</option>
-            </Select>
-            <Select
-              size="xs"
-              value={tableFilter}
-              onChange={(e) => setTableFilter(e.target.value)}
-              aria-label="Стіл"
-            >
-              <option value="all">Усі столи</option>
-              {tables.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
-                </option>
-              ))}
-            </Select>
+              <span className="seat-plan-filters-title">
+                <SlidersHorizontalIcon />
+                Фільтри
+              </span>
+              <span
+                className={`seat-plan-collapse-chevron${
+                  filtersOpen ? " is-open" : ""
+                }`}
+                aria-hidden
+              >
+                <CollapseChevronIcon />
+              </span>
+            </button>
+            {filtersOpen ? (
+              <div className="seat-plan-filters-body">
+                <Select
+                  size="xs"
+                  value={seatFilter}
+                  onChange={(e) =>
+                    setSeatFilter(e.target.value as SeatFilter)
+                  }
+                  aria-label="Посадка"
+                >
+                  <option value="all">Посаджені і не посаджені</option>
+                  <option value="seated">Лише посаджені</option>
+                  <option value="unseated">Лише не посаджені</option>
+                </Select>
+                <Select
+                  size="xs"
+                  value={groupFilter}
+                  onChange={(e) => setGroupFilter(e.target.value)}
+                  aria-label="Група"
+                >
+                  <option value="all">Усі групи</option>
+                  {namedGroups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                  {draft.tables.hasPresidium ? (
+                    <option value="presidium">Президіум</option>
+                  ) : null}
+                  {draft.tables.hasKidsTable ? (
+                    <option value="kids">Дитячий стіл</option>
+                  ) : null}
+                </Select>
+                <Select
+                  size="xs"
+                  value={sideFilter}
+                  onChange={(e) =>
+                    setSideFilter(e.target.value as SideFilter)
+                  }
+                  aria-label="Сторона"
+                >
+                  <option value="all">Гості обох наречених</option>
+                  <option value="BRIDE">Сторона нареченої</option>
+                  <option value="GROOM">Сторона нареченого</option>
+                  <option value="BOTH">Спільні</option>
+                </Select>
+                <Select
+                  size="xs"
+                  value={tableFilter}
+                  onChange={(e) => setTableFilter(e.target.value)}
+                  aria-label="Стіл"
+                >
+                  <option value="all">Усі столи</option>
+                  {tables.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            ) : null}
           </div>
 
           <div className="seat-plan-guest-scroll">
@@ -889,7 +1120,7 @@ export function SeatingPlan({
                           className="seat-plan-guest-check"
                           aria-label="Розсаджено"
                         >
-                          <CheckIcon />
+                          <SeatedStatusIcon />
                         </span>
                       ) : null}
                       {g.isPlusOne || assign === "presidium" ? (
@@ -898,6 +1129,14 @@ export function SeatingPlan({
                           title="Пов’язаний / президіум"
                         >
                           P
+                        </span>
+                      ) : null}
+                      {g.rsvpStatus === "PENDING" ? (
+                        <span
+                          className="seat-plan-guest-pending"
+                          aria-label="Ще немає відповіді"
+                        >
+                          <PendingStatusIcon />
                         </span>
                       ) : null}
                     </span>
@@ -928,10 +1167,18 @@ export function SeatingPlan({
             <button
               type="button"
               className="seat-plan-groups-head"
+              aria-expanded={groupsOpen}
               onClick={() => setGroupsOpen((v) => !v)}
             >
               Групи
-              <span aria-hidden>{groupsOpen ? "▴" : "▾"}</span>
+              <span
+                className={`seat-plan-collapse-chevron${
+                  groupsOpen ? " is-open" : ""
+                }`}
+                aria-hidden
+              >
+                <CollapseChevronIcon />
+              </span>
             </button>
             {groupsOpen ? (
               <div className="seat-plan-group-chips">
@@ -958,21 +1205,86 @@ export function SeatingPlan({
           </div>
         </aside>
 
-        <div className="seat-plan-canvas-wrap">
-          <div className="seat-plan-canvas">
+        <div className="seat-plan-canvas-wrap" ref={canvasWrapRef}>
+          <div className="seat-plan-canvas-bar">
+            <div
+              className={`seat-plan-add-menu${addOpen ? " is-open" : ""}`}
+              ref={addRef}
+            >
+              <button
+                type="button"
+                className="seat-plan-btn seat-plan-btn--dark"
+                aria-expanded={addOpen}
+                onClick={() => {
+                  setAddOpen((v) => !v);
+                  setPrintOpen(false);
+                }}
+              >
+                <span className="seat-plan-add-plus" aria-hidden>
+                  <AddPlusIcon />
+                </span>
+                Додати стіл
+                <ChevronDownIcon />
+              </button>
+              {addOpen ? (
+                <div className="seat-plan-add-dropdown" role="menu">
+                  {TABLE_KIND_OPTIONS.map(([kind, label]) => (
+                    <button
+                      key={kind}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => openAddTable(kind)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <label className={`seat-plan-toggle${showNames ? " is-on" : ""}`}>
+              <input
+                type="checkbox"
+                checked={showNames}
+                onChange={(e) => setShowNames(e.target.checked)}
+              />
+              <span className="seat-plan-switch" aria-hidden />
+              Показати імена
+            </label>
+          </div>
+
+          <div className="seat-plan-canvas" style={canvasStyle}>
             {tables.map((table) => (
               <div
                 key={table.id}
-                className={`seat-plan-table is-${table.kind}`}
-                style={{ left: table.x, top: table.y }}
+                className={`seat-plan-table is-${table.kind}${
+                  table.kind === "kids" && table.shape === "long"
+                    ? " is-kids-long"
+                    : ""
+                }${draggingId === table.id ? " is-dragging" : ""}`}
+                style={{
+                  left: table.x,
+                  top: table.y,
+                  transform: table.rotation
+                    ? `rotate(${table.rotation}deg)`
+                    : undefined,
+                }}
+                onPointerDown={(e) => onTablePointerDown(e, table)}
+                onPointerMove={onTablePointerMove}
+                onPointerUp={() => onTablePointerUp(table.id)}
+                onPointerCancel={() => onTablePointerUp(table.id)}
               >
-                <div className="seat-plan-table-label">
-                  {table.label}{" "}
-                  <span>
-                    {table.seats.filter((s) => s.guestKey).length}/{table.seats.length}
-                  </span>
-                </div>
                 <div className="seat-plan-table-body">
+                  <TableShapeSilhouette kind={table.kind} />
+                  <div className="seat-plan-table-label">
+                    <span className="seat-plan-table-label-name">
+                      {table.label}
+                    </span>
+                    <span className="seat-plan-table-label-count">
+                      {table.seats.filter((s) => s.guestKey).length}/
+                      {table.seats.length}
+                    </span>
+                  </div>
                   <div className="seat-plan-seats">
                     {table.seats.map((seat, index) => {
                       const guest = seat.guestKey
@@ -988,6 +1300,7 @@ export function SeatingPlan({
                         table.kind,
                         index,
                         table.seats.length,
+                        table.shape,
                       );
                       return (
                         <button
@@ -998,8 +1311,12 @@ export function SeatingPlan({
                             left: pos.left,
                             top: pos.top,
                             background: guest ? color : undefined,
+                            transform: table.rotation
+                              ? `translate(-50%, -50%) rotate(${-table.rotation}deg)`
+                              : undefined,
                           }}
                           title={guest?.name ?? "Порожнє місце"}
+                          onPointerDown={(e) => e.stopPropagation()}
                           onClick={(e) => {
                             if (selectedKey) {
                               assignToSeat(table.id, seat.id);
@@ -1033,6 +1350,33 @@ export function SeatingPlan({
           </div>
         </div>
       </div>
+
+      {addKind ? (
+        <SeatingAddTableModal
+          open
+          kind={addKind}
+          onClose={() => setAddKind(null)}
+          onAdd={addTables}
+        />
+      ) : null}
+
+      {editingTable ? (
+        <SeatingTableModal
+          open
+          table={{
+            id: editingTable.id,
+            kind: editingTable.kind,
+            shape: editingTable.shape,
+            label: editingTable.label,
+            rotation: editingTable.rotation ?? 0,
+            seats: editingTable.seats,
+          }}
+          guests={modalGuests}
+          onClose={() => setEditingTableId(null)}
+          onSave={saveTableDraft}
+          onDelete={deleteTable}
+        />
+      ) : null}
 
       {popover && activePopover && floatPop ? (
         <div
@@ -1081,6 +1425,24 @@ export function SeatingPlan({
           )}
         </div>
       ) : null}
+
+      {chartOpen ? (
+        <SeatingChartEditor
+          tables={tables}
+          guests={flat.map((g) => ({ key: g.key, name: g.name }))}
+          partnerOneName={partnerOneName}
+          partnerTwoName={partnerTwoName}
+          weddingDate={weddingDate}
+          onClose={() => setChartOpen(false)}
+        />
+      ) : null}
+
+      {nameCardsOpen ? (
+        <NameCardsDesign
+          names={flat.map((g) => g.name)}
+          onClose={() => setNameCardsOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -1088,8 +1450,12 @@ export function SeatingPlan({
 function SearchIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <circle cx="6" cy="6" r="4.25" stroke="#A8A8A8" strokeWidth="1.4" />
-      <path d="M9.2 9.2 12 12" stroke="#A8A8A8" strokeWidth="1.4" strokeLinecap="round" />
+      <path
+        d="M13.0001 13.0001L10.1068 10.1068M11.6667 6.33333C11.6667 9.27885 9.27885 11.6667 6.33333 11.6667C3.38781 11.6667 1 9.27885 1 6.33333C1 3.38781 3.38781 1 6.33333 1C9.27885 1 11.6667 3.38781 11.6667 6.33333Z"
+        stroke="#1A1A1A"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -1107,15 +1473,54 @@ function PencilIcon() {
   );
 }
 
-function CheckIcon() {
+function SlidersHorizontalIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <path
-        d="M3 7.2 5.6 9.8 11 4"
-        stroke="currentColor"
-        strokeWidth="1.6"
+        d="M6.66667 3.33333H2M8 12.6667H2M9.33333 2V4.66667M10.6667 11.3333V14M14 8H8M14 12.6667H10.6667M14 3.33333H9.33333M5.33333 6.66667V9.33333M5.33333 8H2"
+        stroke="#1A1A1A"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function CollapseChevronIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M2 5L8 11L14 5"
+        stroke="#ABABAB"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SeatedStatusIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+      <circle cx="6.5" cy="6.5" r="6" stroke="#3EA635" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8.77976 4.08567C9.00861 4.24021 9.06886 4.551 8.91433 4.77985L6.21332 8.77981C6.12592 8.90925 5.98306 8.9904 5.82713 8.9992C5.67119 9.008 5.5201 8.94343 5.4187 8.82465L4.11974 7.3032C3.94045 7.09318 3.96534 6.77759 4.17535 6.59829C4.38537 6.41899 4.70096 6.44389 4.88026 6.6539L5.75242 7.67546L8.08559 4.22024C8.24012 3.99139 8.55091 3.93114 8.77976 4.08567Z"
+        fill="#3EA635"
+      />
+    </svg>
+  );
+}
+
+function PendingStatusIcon() {
+  return (
+    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden>
+      <path
+        d="M7 4.4V8L9.4 9.2M13 8C13 11.3137 10.3137 14 7 14C3.68629 14 1 11.3137 1 8C1 4.68629 3.68629 2 7 2C10.3137 2 13 4.68629 13 8Z"
+        stroke="#EDAF44"
+        strokeLinecap="round"
       />
     </svg>
   );

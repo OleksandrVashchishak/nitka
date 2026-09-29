@@ -48,6 +48,9 @@ Windows service: `postgresql-x64-16`.
 
 Створити автоматично: `npm run local:setup`.
 
+Опційно для дебагу Render (логи / деплої з агента): `RENDER_API_KEY` у `apps/api/.env`.
+Ключ: [Account Settings → API Keys](https://dashboard.render.com/u/settings#api-keys). У git не комітити.
+
 ## npm scripts (корінь)
 
 | Script | Що робить |

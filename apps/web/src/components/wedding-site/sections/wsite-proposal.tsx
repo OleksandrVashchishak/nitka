@@ -13,7 +13,7 @@ export function WsiteProposal({
   body,
   imageLeft,
   imageRight,
-  eyebrow = "Наша мить",
+  eyebrow,
 }: Props) {
   const paragraphs = body.split(/\n+/).filter(Boolean);
   const primaryImage = imageLeft || imageRight;

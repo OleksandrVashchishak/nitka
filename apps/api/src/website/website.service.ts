@@ -157,34 +157,33 @@ function defaultContent(wedding: {
     storyBody:
       'Коротко розкажіть, як усе почалось — кілька теплих речень буде достатньо.',
     storyImageUrl: '',
-    scheduleTitle: 'Програма дня',
+    scheduleTitle: 'Деталі нашого свята',
     scheduleItems: [
       { time: '15:00', title: 'Церемонія', detail: 'Місце церемонії' },
       { time: '17:00', title: 'Банкет', detail: 'Локація святкування' },
     ],
     dressCodeTitle: 'Дрес-код',
     dressCodeBody: 'Елегантний / cocktail. Відтінки зелені та крему вітаються.',
-    galleryTitle: 'Фото',
+    galleryTitle: 'Буде няня та ігрова зона.',
     galleryImages: [],
     qaTitle: 'Q + A',
     qaItems: [
       {
-        question: 'Чи можна з дітьми?',
-        answer: 'Так, будемо раді бачити всю родину.',
+        question: 'Квіти',
+        answer: 'Додаткові деталі для гостей.',
       },
     ],
-    travelTitle: 'Як дістатися',
-    travelBody: 'Короткі підказки для гостей про дорогу та житло.',
+    travelTitle: 'Контакти організаторів',
+    travelBody: 'Телефон координатора: +380…',
     travelItems: [
       { title: 'Готель', detail: 'Назва готелю / адреса' },
       { title: 'Парковка', detail: 'Де зручно залишити авто' },
     ],
-    registryTitle: 'Registry',
+    registryTitle: 'Побажання щодо подарунків',
     registryBody: 'Якщо хочете зробити подарунок — ось кілька ідей.',
     registryItems: [{ title: 'Наша банка мрій', url: '', detail: '' }],
-    rsvpTitle: 'Будеш з нами?',
-    rsvpBody:
-      'Підтверди участь персональним посиланням на запрошення, яке ми надішлемо.',
+    rsvpTitle: 'Підтвердіть свою присутність',
+    rsvpBody: 'Будь ласка, підтвердіть участь до 1 червня.',
     rsvpUrl: '',
     footerNote: 'З любовʼю, ми',
     sections: { ...DEFAULT_SECTIONS },
@@ -201,6 +200,24 @@ function defaultContent(wedding: {
 function asStringArray(value: unknown, fallback: string[]) {
   if (!Array.isArray(value)) return fallback;
   return value.map((item) => String(item ?? '')).filter(Boolean);
+}
+
+/** Old shipped defaults → current template labels. */
+const TITLE_ALIASES: Record<string, string> = {
+  Registry: 'Побажання щодо подарунків',
+  'Що дарувати': 'Побажання щодо подарунків',
+  'Як дістатися': 'Контакти організаторів',
+  'Будеш з нами?': 'Підтвердіть свою присутність',
+  'Коли треба дати відповідь': 'Підтвердіть свою присутність',
+  'Програма дня': 'Деталі нашого свята',
+  'День нашого весілля': 'Деталі нашого свята',
+  'Чи можна з дітьми?': 'Квіти',
+};
+
+function canonicalTitle(value: unknown, fallback: string) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return fallback;
+  return TITLE_ALIASES[raw] ?? raw;
 }
 
 function asSections(value: unknown, fallback: WebsiteSections): WebsiteSections {
@@ -243,7 +260,7 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
           Boolean(item && typeof item === 'object'),
         )
         .map((item) => ({
-          question: String(item.question ?? ''),
+          question: canonicalTitle(item.question, 'Квіти'),
           answer: String(item.answer ?? ''),
         }))
     : fallback.qaItems;
@@ -272,6 +289,8 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
     : fallback.registryItems;
 
   const dateFormat = raw.dateFormat === 'en' ? 'en' : 'uk';
+  const galleryTitleRaw = String(raw.galleryTitle ?? fallback.galleryTitle);
+  const galleryTitle = galleryTitleRaw === 'Фото' ? '' : galleryTitleRaw;
 
   return {
     headline: String(raw.headline ?? fallback.headline),
@@ -285,23 +304,38 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
     storyTitle: String(raw.storyTitle ?? fallback.storyTitle),
     storyBody: String(raw.storyBody ?? fallback.storyBody),
     storyImageUrl: String(raw.storyImageUrl ?? fallback.storyImageUrl ?? ''),
-    scheduleTitle: String(raw.scheduleTitle ?? fallback.scheduleTitle),
+    scheduleTitle: canonicalTitle(
+      raw.scheduleTitle ?? fallback.scheduleTitle,
+      'Деталі нашого свята',
+    ),
     scheduleItems: scheduleItems.length ? scheduleItems : fallback.scheduleItems,
-    dressCodeTitle: String(raw.dressCodeTitle ?? fallback.dressCodeTitle),
+    dressCodeTitle: canonicalTitle(
+      raw.dressCodeTitle ?? fallback.dressCodeTitle,
+      'Дрес-код',
+    ),
     dressCodeBody: String(raw.dressCodeBody ?? fallback.dressCodeBody),
-    galleryTitle: String(raw.galleryTitle ?? fallback.galleryTitle),
+    galleryTitle,
     galleryImages: asStringArray(raw.galleryImages, fallback.galleryImages),
     qaTitle: String(raw.qaTitle ?? fallback.qaTitle),
     qaItems: qaItems.length ? qaItems : fallback.qaItems,
-    travelTitle: String(raw.travelTitle ?? fallback.travelTitle),
+    travelTitle: canonicalTitle(
+      raw.travelTitle ?? fallback.travelTitle,
+      'Контакти організаторів',
+    ),
     travelBody: String(raw.travelBody ?? fallback.travelBody),
     travelItems: travelItems.length ? travelItems : fallback.travelItems,
-    registryTitle: String(raw.registryTitle ?? fallback.registryTitle),
+    registryTitle: canonicalTitle(
+      raw.registryTitle ?? fallback.registryTitle,
+      'Побажання щодо подарунків',
+    ),
     registryBody: String(raw.registryBody ?? fallback.registryBody),
     registryItems: registryItems.length
       ? registryItems
       : fallback.registryItems,
-    rsvpTitle: String(raw.rsvpTitle ?? fallback.rsvpTitle),
+    rsvpTitle: canonicalTitle(
+      raw.rsvpTitle ?? fallback.rsvpTitle,
+      'Підтвердіть свою присутність',
+    ),
     rsvpBody: String(raw.rsvpBody ?? fallback.rsvpBody),
     rsvpUrl: String(raw.rsvpUrl ?? fallback.rsvpUrl ?? ''),
     footerNote: String(raw.footerNote ?? fallback.footerNote),

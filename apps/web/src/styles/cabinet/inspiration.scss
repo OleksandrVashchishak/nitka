@@ -1,0 +1,992 @@
+/* ——— Дошка натхнення ——— */
+
+.cabinet-inspiration-page {
+  .cabinet-tasks-title {
+    font-weight: 500;
+  }
+}
+
+.cabinet-inspiration-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.cabinet-inspiration-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.cabinet-inspiration-add-btn.fata-button {
+  gap: 8px;
+}
+
+.cabinet-inspiration-grid {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  column-gap: 48px;
+  row-gap: 40px;
+  margin-top: 24px;
+  justify-content: start;
+}
+
+.cabinet-inspiration-card {
+  width: 242px;
+}
+
+.cabinet-inspiration-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 242px;
+  height: 245px;
+  margin: 0;
+  padding: 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1.81px 7.22px 0 #0000000d;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #b0b0b0;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    color: #8a8a8a;
+  }
+}
+
+.cabinet-inspiration-collage {
+  display: grid;
+  grid-template-columns: 119px 119px;
+  gap: 4px;
+  width: 242px;
+}
+
+.cabinet-inspiration-collage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cabinet-inspiration-tile {
+  display: block;
+  width: 119px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3.61px;
+  background: #ececec;
+  object-fit: cover;
+  overflow: hidden;
+
+  &--tl {
+    height: 117px;
+    box-shadow: 0 1.81px 7.22px 0 #0000000d;
+  }
+
+  &--tr {
+    height: 153px;
+  }
+
+  &--bl {
+    height: 124px;
+  }
+
+  &--br {
+    width: 119px;
+    height: 88px;
+  }
+
+  &.is-empty {
+    box-shadow: none;
+  }
+}
+
+.cabinet-inspiration-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cabinet-inspiration-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cabinet-inspiration-meta-text {
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cabinet-inspiration-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 16px;
+  letter-spacing: 0;
+  color: #5b5252;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #1a1a1a;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.cabinet-inspiration-board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.cabinet-inspiration-board-title {
+  margin: 0;
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #1a1a1a;
+}
+
+.cabinet-inspiration-board-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.cabinet-inspiration-add-image-btn.fata-button {
+  gap: 8px;
+}
+
+.cabinet-inspiration-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cabinet-inspiration-photos {
+  column-count: 4;
+  column-gap: 12px;
+  margin-top: 24px;
+}
+
+.cabinet-inspiration-photo-btn {
+  display: block;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  break-inside: avoid;
+  text-align: left;
+}
+
+.cabinet-inspiration-photo {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 3.61px;
+  background: #ececec;
+  object-fit: cover;
+  box-shadow: 0 1.81px 7.22px 0 #0000000d;
+}
+
+.cabinet-inspiration-photos-empty {
+  margin: 40px 0 0;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #8a8a8a;
+}
+
+.cabinet-inspiration-viewer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(220px, 0.72fr);
+  gap: 12px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.cabinet-inspiration-viewer-main {
+  min-width: 0;
+}
+
+.cabinet-inspiration-viewer-hero {
+  display: block;
+  width: 100%;
+  max-height: min(620px, 70vh);
+  margin: 0;
+  border-radius: 3.61px;
+  background: #ececec;
+  object-fit: cover;
+  box-shadow: 0 1.81px 7.22px 0 #0000000d;
+}
+
+.cabinet-inspiration-viewer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cabinet-inspiration-viewer-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #1a1a1a;
+  cursor: pointer;
+
+  &:hover:not(.is-danger) {
+    opacity: 0.75;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.cabinet-inspiration-viewer-thumbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cabinet-inspiration-viewer-thumb {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3.61px;
+  background: #ececec;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 1;
+  box-shadow: 0 1.81px 7.22px 0 #0000000d;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.is-active {
+    outline: 2px solid #1a1a1a;
+    outline-offset: 1px;
+  }
+
+  &:hover:not(.is-active) {
+    opacity: 0.9;
+  }
+}
+
+.cabinet-inspiration-card-title {
+  margin: 0;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #1a1a1a;
+}
+
+.cabinet-inspiration-card-count {
+  margin: 6px 0 0;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 16px;
+  letter-spacing: 0;
+  color: #8a8a8a;
+}
+
+.cabinet-inspiration-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cabinet-inspiration-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #1a1a1a;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(26, 26, 26, 0.04);
+  }
+}
+
+.cabinet-inspiration-menu-wrap .cabinet-ctx-menu {
+  z-index: 20;
+  min-width: 180px;
+  width: max-content;
+}
+
+.cabinet-inspiration-mobile-top,
+.cabinet-inspiration-mobile-bar,
+.cabinet-inspiration-board-mobile-top {
+  display: none;
+}
+
+.cabinet-inspiration-pending-name {
+  display: none;
+}
+
+.cabinet-inspiration-pending-trash {
+  display: none;
+}
+
+.cabinet-inspiration-fab-btn {
+  display: none;
+}
+
+.cabinet-inspiration-modal-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.cabinet-inspiration-modal {
+  width: min(480px, 100%);
+  padding: 28px 28px 24px;
+  border-radius: 16px;
+
+  .cabinet-modal-head h2 {
+    font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1;
+    color: #1a1a1a;
+  }
+}
+
+.cabinet-inspiration-modal--name {
+  min-height: 420px;
+}
+
+.cabinet-inspiration-modal--add {
+  width: min(560px, 100%);
+  max-height: min(860px, calc(100vh - 48px));
+}
+
+.cabinet-inspiration-modal-actions {
+  margin-top: auto;
+  padding-top: 28px;
+  gap: 12px;
+}
+
+.cabinet-inspiration-modal-actions .cabinet-drawer-cancel {
+  border-color: #d5cece;
+}
+
+.cabinet-inspiration-modal-actions .cabinet-drawer-save.fata-button {
+  background: #000;
+  color: #f0febb;
+
+  &:hover:not(:disabled) {
+    background: #222;
+  }
+}
+
+.cabinet-inspiration-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 160px;
+  margin: 0;
+  padding: 24px;
+  border: 1px dashed #d2d2d2;
+  border-radius: 8px;
+  background: #fafafa;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover:not(:disabled),
+  &.is-dragging {
+    border-color: #1a1a1a;
+    background: #f5f5f5;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.cabinet-inspiration-pending {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cabinet-inspiration-pending-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ececec;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cabinet-inspiration-pending-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #fff;
+  color: #5b5252;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: #1a1a1a;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 1280px) {
+  .cabinet-inspiration-grid {
+    grid-template-columns: repeat(3, max-content);
+    column-gap: 40px;
+  }
+
+  .cabinet-inspiration-photos {
+    column-count: 3;
+  }
+
+  .cabinet-inspiration-viewer {
+    grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.7fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .cabinet-inspiration-grid {
+    grid-template-columns: repeat(2, max-content);
+    column-gap: 32px;
+    row-gap: 32px;
+  }
+
+  .cabinet-inspiration-photos {
+    column-count: 2;
+  }
+
+  .cabinet-inspiration-viewer {
+    grid-template-columns: 1fr;
+  }
+
+  .cabinet-inspiration-viewer-thumbs {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .cabinet-inspiration-page {
+    padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px));
+    background:
+      radial-gradient(
+        ellipse 120% 48% at 50% -8%,
+        rgb(255 214 204 / 0.45),
+        transparent 62%
+      ),
+      #f7f7f7;
+  }
+
+  .cabinet-inspiration-desktop-top {
+    display: none;
+  }
+
+  .cabinet-inspiration-mobile-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .cabinet-inspiration-mobile-back {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-left: -6px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #292d32;
+    cursor: pointer;
+  }
+
+  .cabinet-inspiration-mobile-title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: 0;
+    color: #1a1a1a;
+  }
+
+  .cabinet-inspiration-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 24px;
+    margin-top: 0;
+    justify-content: stretch;
+  }
+
+  .cabinet-inspiration-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cabinet-inspiration-upload {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 168.77 / 171;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  /* Masonry grid • Auto layout.svg — mobile collage proportions */
+  .cabinet-inspiration-collage {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 4.96px;
+  }
+
+  .cabinet-inspiration-tile {
+    width: 100%;
+    height: auto;
+    border-radius: 2.48px;
+
+    &--tl {
+      aspect-ratio: 81.8422 / 80.6022;
+      box-shadow: 0 1.24px 4.96px 0 #0000000d;
+    }
+
+    &--tr {
+      aspect-ratio: 81.8422 / 105.403;
+    }
+
+    &--bl {
+      aspect-ratio: 81.8422 / 85.4377;
+    }
+
+    &--br {
+      aspect-ratio: 81.9669 / 60.637;
+    }
+  }
+
+  .cabinet-inspiration-meta {
+    margin-top: 10px;
+  }
+
+  .cabinet-inspiration-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+  }
+
+  .cabinet-inspiration-card-count {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .cabinet-inspiration-mobile-bar {
+    display: block;
+    position: fixed;
+    right: 16px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    z-index: 44;
+  }
+
+  .cabinet-inspiration-mobile-add.fata-button {
+    width: 100%;
+    height: 52px;
+    border: 1px solid #000;
+    background: #fff;
+    color: #1a1a1a;
+
+    &:hover:not(:disabled) {
+      background: rgba(26, 26, 26, 0.04);
+    }
+  }
+
+  /* ——— Board detail (mobile) ——— */
+
+  .cabinet-inspiration-board-page,
+  .cabinet-inspiration-viewer-page {
+    .cabinet-inspiration-desktop-chrome {
+      display: none;
+    }
+  }
+
+  .cabinet-inspiration-board-mobile-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .cabinet-inspiration-board-mobile-title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-sans), Montserrat, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: 0;
+    color: #1a1a1a;
+  }
+
+  .cabinet-inspiration-fab-btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .cabinet-inspiration-fab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: #1a1a1a;
+  }
+
+  .cabinet-inspiration-fab-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: #f0febb;
+  }
+
+  .cabinet-inspiration-board-page .cabinet-inspiration-menu-wrap {
+    margin-top: 0;
+  }
+
+  .cabinet-inspiration-photos {
+    column-count: 2;
+    column-gap: 10px;
+    margin-top: 0;
+  }
+
+  .cabinet-inspiration-photo {
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  .cabinet-inspiration-photo-btn {
+    margin-bottom: 10px;
+  }
+
+  /* ——— Photo viewer (mobile) ——— */
+
+  .cabinet-inspiration-viewer-page {
+    .cabinet-inspiration-back {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+  }
+
+  .cabinet-inspiration-viewer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 0;
+  }
+
+  .cabinet-inspiration-viewer-hero {
+    max-height: none;
+    aspect-ratio: 16 / 10;
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  .cabinet-inspiration-viewer-actions {
+    margin-top: 12px;
+  }
+
+  .cabinet-inspiration-viewer-action {
+    font-weight: 600;
+    color: #5b5252;
+  }
+
+  .cabinet-inspiration-viewer-thumbs {
+    display: block;
+    column-count: 2;
+    column-gap: 10px;
+  }
+
+  .cabinet-inspiration-viewer-thumb {
+    width: 100%;
+    margin: 0 0 10px;
+    border-radius: 10px;
+    box-shadow: none;
+    break-inside: avoid;
+
+    &:nth-child(4n + 1) {
+      aspect-ratio: 81.8422 / 80.6022;
+    }
+
+    &:nth-child(4n + 2) {
+      aspect-ratio: 81.8422 / 105.403;
+    }
+
+    &:nth-child(4n + 3) {
+      aspect-ratio: 81.8422 / 85.4377;
+    }
+
+    &:nth-child(4n + 4) {
+      aspect-ratio: 81.9669 / 60.637;
+    }
+
+    &.is-active {
+      display: none;
+    }
+  }
+
+  /* ——— Modals (mobile full-screen) ——— */
+
+  .cabinet-modal-root:has(.cabinet-inspiration-modal) {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+  }
+
+  .cabinet-inspiration-modal {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    align-self: stretch;
+
+    .cabinet-modal-head {
+      flex: none;
+      margin: 0;
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid #ececec;
+    }
+
+    .cabinet-modal-head h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+  }
+
+  .cabinet-inspiration-modal--name {
+    min-height: 0;
+  }
+
+  .cabinet-inspiration-modal-body {
+    flex: 1;
+    gap: 16px;
+    padding: 20px 16px;
+    overflow: auto;
+  }
+
+  .cabinet-inspiration-modal-actions {
+    flex: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 0;
+    padding: 16px;
+    border-top: 1px solid #ececec;
+  }
+
+  .cabinet-inspiration-modal-actions .cabinet-drawer-cancel,
+  .cabinet-inspiration-modal-actions .cabinet-drawer-save {
+    width: 100%;
+  }
+
+  .cabinet-inspiration-dropzone {
+    min-height: 140px;
+  }
+
+  .cabinet-inspiration-pending {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cabinet-inspiration-pending-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    aspect-ratio: auto;
+    min-height: 64px;
+    padding: 8px 12px 8px 8px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    overflow: visible;
+
+    img {
+      flex: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+    }
+  }
+
+  .cabinet-inspiration-pending-name {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--font-sans), Montserrat, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #1a1a1a;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cabinet-inspiration-pending-remove {
+    position: static;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    box-shadow: none;
+    color: #ff4200;
+  }
+
+  .cabinet-inspiration-pending-x {
+    display: none;
+  }
+
+  .cabinet-inspiration-pending-trash {
+    display: block;
+  }
+}
+
+@media (max-width: 400px) {
+  .cabinet-inspiration-grid {
+    column-gap: 12px;
+  }
+}

@@ -4,6 +4,7 @@ import { PageLoader } from "@/components/ui-loader";
 import { useEffect, useState } from "react";
 import { getMyWedding, type Wedding } from "@/lib/dashboard-api";
 import { CoupleOverview } from "@/components/couple-overview";
+import { CouplePostWeddingOverview } from "@/components/couple-post-wedding-overview";
 import { RequireAuth } from "@/components/require-auth";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
@@ -69,35 +70,44 @@ function CoupleDashboardInner() {
       ) : null}
 
       {wedding ? (
-        <CoupleOverview
-          wedding={wedding}
-          greetingName={partnerOneName.split(" ")[0] || "там"}
-          partnerName={partnerTwoName.split(" ")[0]}
-          partnerInitials={partnerInitials}
-          daysLeft={left}
-          onTaskChange={(updated) =>
-            setWedding((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    tasks: prev.tasks.map((t) =>
-                      t.id === updated.id ? updated : t,
-                    ),
-                  }
-                : prev,
-            )
-          }
-          onTaskRemove={(taskId) =>
-            setWedding((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    tasks: prev.tasks.filter((t) => t.id !== taskId),
-                  }
-                : prev,
-            )
-          }
-        />
+        left < 0 ? (
+          <CouplePostWeddingOverview
+            wedding={wedding}
+            partnerOneFirst={partnerOneName.split(" ")[0] || ""}
+            partnerTwoFirst={partnerTwoName.split(" ")[0] || ""}
+            partnerInitials={partnerInitials}
+          />
+        ) : (
+          <CoupleOverview
+            wedding={wedding}
+            greetingName={partnerOneName.split(" ")[0] || "там"}
+            partnerName={partnerTwoName.split(" ")[0]}
+            partnerInitials={partnerInitials}
+            daysLeft={left}
+            onTaskChange={(updated) =>
+              setWedding((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      tasks: prev.tasks.map((t) =>
+                        t.id === updated.id ? updated : t,
+                      ),
+                    }
+                  : prev,
+              )
+            }
+            onTaskRemove={(taskId) =>
+              setWedding((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      tasks: prev.tasks.filter((t) => t.id !== taskId),
+                    }
+                  : prev,
+              )
+            }
+          />
+        )
       ) : (
         <section className="px-5 py-16 md:px-10">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">

@@ -105,6 +105,8 @@ model Wedding {
   guestsUndecided Boolean  @default(false) @map("guests_undecided")
   dayPlan         Json?    @map("day_plan")
   vendorPlan      Json?    @map("vendor_plan")
+  seatingDraft    Json?    @map("seating_draft")
+  seatingPlan     Json?    @map("seating_plan")
 
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   members     WeddingMember[]

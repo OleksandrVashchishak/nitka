@@ -12,6 +12,7 @@ import {
   ImportGuestsDto,
   UpdateGuestDto,
 } from './dto/guest.dto';
+import { countYesCompanions } from './guest-party';
 
 @Injectable()
 export class GuestsService {
@@ -30,6 +31,7 @@ export class GuestsService {
       rsvpStatus: RsvpStatus;
       plusOne: boolean;
       plusOneAttending: boolean | null;
+      notes: string | null;
     }>,
   ) {
     const yes = guests.filter((g) => g.rsvpStatus === 'YES').length;
@@ -37,9 +39,9 @@ export class GuestsService {
     const maybe = guests.filter((g) => g.rsvpStatus === 'MAYBE').length;
     const pending = guests.filter((g) => g.rsvpStatus === 'PENDING').length;
     const headcount = guests.reduce((sum, g) => {
-      if (g.rsvpStatus !== 'YES') return sum;
-      const plus = g.plusOne && g.plusOneAttending === true ? 1 : 0;
-      return sum + 1 + plus;
+      const primary = g.rsvpStatus === 'YES' ? 1 : 0;
+      const plus = countYesCompanions(g.notes, g);
+      return sum + primary + plus;
     }, 0);
 
     return {

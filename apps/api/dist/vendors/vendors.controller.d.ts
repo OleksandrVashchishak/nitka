@@ -8,10 +8,10 @@ export declare class VendorsController {
         manual: {
             name: string;
             id: string;
-            createdAt: Date;
             userId: string;
             city: string;
             website: string | null;
+            createdAt: Date;
             updatedAt: Date;
             phone: string | null;
             notes: string | null;
@@ -27,10 +27,10 @@ export declare class VendorsController {
     createExternal(user: AuthUser, dto: CreateExternalVendorDto): Promise<{
         name: string;
         id: string;
-        createdAt: Date;
         userId: string;
         city: string;
         website: string | null;
+        createdAt: Date;
         updatedAt: Date;
         phone: string | null;
         notes: string | null;
@@ -41,10 +41,10 @@ export declare class VendorsController {
     updateExternal(user: AuthUser, id: string, dto: UpdateExternalVendorDto): Promise<{
         name: string;
         id: string;
-        createdAt: Date;
         userId: string;
         city: string;
         website: string | null;
+        createdAt: Date;
         updatedAt: Date;
         phone: string | null;
         notes: string | null;

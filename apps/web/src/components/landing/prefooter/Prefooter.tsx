@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { setupPrefooterOrbit } from "./prefooter-orbit";
 import { MOBILE_SHOT_IDS, SHOTS } from "./shots";
-import "./prefooter.scss";
+import "@/styles/landing/prefooter.scss";
 
 const ORBIT_MQ =
   "(min-width: 1024px) and (prefers-reduced-motion: no-preference)";
