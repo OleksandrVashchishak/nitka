@@ -2,8 +2,9 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
+import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
 import {
   CabinetContextMenu,
   CabinetContextMenuItem,
@@ -154,14 +155,7 @@ function MyVendorsInner() {
       .catch(() => undefined);
   }, [user?.name]);
 
-  useEffect(() => {
-    if (!menuOpenId) return;
-    function onDoc() {
-      setMenuOpenId(null);
-    }
-    document.addEventListener("click", onDoc);
-    return () => document.removeEventListener("click", onDoc);
-  }, [menuOpenId]);
+  useMenuOutsideClose(Boolean(menuOpenId), () => setMenuOpenId(null));
 
   const booked = useMemo(
     () => manual.filter((v) => v.stage === "CHOSEN"),
@@ -352,24 +346,20 @@ function MyVendorsInner() {
 
   return (
     <div className="cabinet-tasks-page cabinet-vendors-page">
-      <div className="cabinet-tasks-top">
-        <h1 className="cabinet-tasks-title">Підрядники</h1>
-        <div className="cabinet-tasks-top-actions">
-          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={partnerInitials} />
-          </div>
-        </div>
-      </div>
+      <CabinetPageHeader
+        title="Підрядники"
+        summary={summary}
+        initials={partnerInitials}
+      />
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
       {isEmpty ? (
         <CabinetEmptyState
           art={{
-            src: "/cabinet/empty/vendors.png",
-            width: 360,
-            height: 200,
+            src: "/cabinet/empty/vendors.svg",
+            width: 310,
+            height: 202,
             className: "cabinet-vendors-empty-art",
           }}
           title="Внесіть своїх підрядників"
@@ -551,27 +541,12 @@ function MyVendorsInner() {
         panelClassName="cabinet-vendors-plan-modal"
         footerClassName="cabinet-modal-actions cabinet-vendors-modal-actions"
         footer={
-          <>
-            <Button
-              type="button"
-              tone="ghost"
-              size="m"
-              className="cabinet-drawer-cancel"
-              onClick={() => setPlanModalOpen(false)}
-            >
-              Скасувати
-            </Button>
-            <Button
-              type="button"
-              tone="ink"
-              size="m"
-              className="cabinet-drawer-save"
-              disabled={saving}
-              onClick={() => void savePlan()}
-            >
-              Зберегти
-            </Button>
-          </>
+          <CabinetFormActions
+            onCancel={() => setPlanModalOpen(false)}
+            saveType="button"
+            onSave={() => void savePlan()}
+            saveDisabled={saving}
+          />
         }
       >
         <ul className="cabinet-vendors-plan-list">
@@ -617,27 +592,11 @@ function MyVendorsInner() {
         asForm
         onSubmit={onSubmit}
         footer={
-          <>
-            <Button
-              type="button"
-              tone="ghost"
-              size="m"
-              className="cabinet-drawer-cancel"
-              onClick={() => setFormModalOpen(false)}
-            >
-              Скасувати
-            </Button>
-            <Button
-              type="submit"
-              tone="ink"
-              size="m"
-              className="cabinet-drawer-save"
-              loading={saving}
-              loadingText="Зберігаємо…"
-            >
-              Зберегти
-            </Button>
-          </>
+          <CabinetFormActions
+            onCancel={() => setFormModalOpen(false)}
+            saveLoading={saving}
+            saveLoadingText="Зберігаємо…"
+          />
         }
       >
         <Select

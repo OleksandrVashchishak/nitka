@@ -9,14 +9,21 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
+import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
 import {
   CabinetContextMenu,
   CabinetContextMenuItem,
   CabinetActionItem,
 } from "@/components/cabinet-context-menu";
-import { IconClose } from "@/components/cabinet-task-icons";
+import { IconClose } from "@/components/icon-close";
+import {
+  IconBackArrow,
+  IconInspirationFab,
+  IconPlus,
+  IconShareNodes,
+} from "@/components/inspiration-icons";
 import { IconDayPlanBack, IconDayPlanPlus } from "@/components/day-plan/day-plan-icons";
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
@@ -55,66 +62,6 @@ function newBoardId() {
   return `board-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function IconPlus({ size = 16 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden
-    >
-      <path
-        d="M8 3.333v9.334M3.333 8h9.334"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-/** Arrow 1.svg — back link. */
-function IconBackArrow() {
-  return (
-    <svg
-      width="11"
-      height="8"
-      viewBox="0 0 11 8"
-      fill="none"
-      aria-hidden
-    >
-      <path
-        d="M0.146446 3.32809C-0.0488157 3.52335 -0.0488157 3.83993 0.146446 4.03519L3.32843 7.21717C3.52369 7.41244 3.84027 7.41244 4.03553 7.21717C4.2308 7.02191 4.2308 6.70533 4.03553 6.51007L1.20711 3.68164L4.03553 0.853214C4.2308 0.657951 4.2308 0.341369 4.03553 0.146107C3.84027 -0.0491555 3.52369 -0.0491555 3.32843 0.146107L0.146446 3.32809ZM10.5 3.68164V3.18164L0.5 3.18164V3.68164V4.18164L10.5 4.18164V3.68164Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-/** Network share — «Поширити». */
-function IconShareNodes({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 18 18"
-      fill="none"
-      aria-hidden
-    >
-      <circle cx="13.5" cy="3.75" r="2.25" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="4.5" cy="9" r="2.25" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="13.5" cy="14.25" r="2.25" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M6.45 8.1 11.55 4.65M6.45 9.9l5.1 3.45"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function BoardCollage({ images }: { images: string[] }) {
   function tile(slot: (typeof TILE_SLOTS)[number], src: string | undefined) {
     if (src) {
@@ -145,24 +92,6 @@ function BoardCollage({ images }: { images: string[] }) {
         {tile("br", images[3])}
       </div>
     </div>
-  );
-}
-
-/** Black circle + gold plus — mobile board FAB. */
-function IconAddFab() {
-  return (
-    <span className="cabinet-inspiration-fab" aria-hidden>
-      <span className="cabinet-inspiration-fab-dot">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path
-            d="M6 2.5v7M2.5 6h7"
-            stroke="#1a1a1a"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      </span>
-    </span>
   );
 }
 
@@ -206,25 +135,7 @@ function BoardNameModal({
       asForm
       onSubmit={submit}
       footer={
-        <>
-          <Button
-            type="button"
-            tone="ghost"
-            size="m"
-            className="cabinet-drawer-cancel"
-            onClick={requestClose}
-          >
-            Скасувати
-          </Button>
-          <Button
-            type="submit"
-            tone="black"
-            size="m"
-            className="cabinet-drawer-save"
-          >
-            Зберегти
-          </Button>
-        </>
+        <CabinetFormActions onCancel={requestClose} saveTone="black" />
       }
     >
       <TextInput
@@ -336,29 +247,14 @@ function AddImagesModal({
       asForm
       onSubmit={(e) => void submit(e)}
       footer={
-        <>
-          <Button
-            type="button"
-            tone="ghost"
-            size="m"
-            className="cabinet-drawer-cancel"
-            onClick={requestClose}
-            disabled={saving}
-          >
-            Скасувати
-          </Button>
-          <Button
-            type="submit"
-            tone="black"
-            size="m"
-            className="cabinet-drawer-save"
-            loading={saving}
-            loadingText="Зберігаємо…"
-            disabled={!pending.length}
-          >
-            Зберегти
-          </Button>
-        </>
+        <CabinetFormActions
+          onCancel={requestClose}
+          cancelDisabled={saving}
+          saveTone="black"
+          saveLoading={saving}
+          saveLoadingText="Зберігаємо…"
+          saveDisabled={!pending.length}
+        />
       }
     >
       <Select
@@ -500,49 +396,6 @@ function useInspirationSession() {
   };
 }
 
-function useMenuOutsideClose(
-  menuOpen: boolean,
-  onClose: () => void,
-  wrapClass: string,
-) {
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onPointerDown(event: MouseEvent) {
-      const target = event.target as HTMLElement | null;
-      if (!target?.closest(wrapClass)) onClose();
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    window.addEventListener("mousedown", onPointerDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onPointerDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen, onClose, wrapClass]);
-}
-
-function InspirationTopBar({
-  summary,
-  partnerInitials,
-}: {
-  summary: NotificationsSummary | null;
-  partnerInitials: string;
-}) {
-  return (
-    <div className="cabinet-tasks-top">
-      <h1 className="cabinet-tasks-title">Дошка натхнення</h1>
-      <div className="cabinet-inspiration-top-actions">
-        <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-          <CabinetNotificationsBell summary={summary} />
-          <CabinetProfileMenu initials={partnerInitials} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function InspirationListInner() {
   const router = useRouter();
   const { loading, boards, summary, partnerInitials, persist } =
@@ -649,9 +502,10 @@ function InspirationListInner() {
   return (
     <div className="cabinet-tasks-page cabinet-inspiration-page">
       <div className="cabinet-inspiration-desktop-top">
-        <InspirationTopBar
+        <CabinetPageHeader
+          title="Дошка натхнення"
           summary={summary}
-          partnerInitials={partnerInitials}
+          initials={partnerInitials}
         />
         <div className="cabinet-inspiration-toolbar">{addBtn()}</div>
       </div>
@@ -920,9 +774,10 @@ function InspirationBoardInner() {
     return (
       <div className="cabinet-tasks-page cabinet-inspiration-page cabinet-inspiration-viewer-page">
         <div className="cabinet-inspiration-desktop-chrome">
-          <InspirationTopBar
+          <CabinetPageHeader
+            title="Дошка натхнення"
             summary={summary}
-            partnerInitials={partnerInitials}
+            initials={partnerInitials}
           />
         </div>
 
@@ -997,9 +852,10 @@ function InspirationBoardInner() {
   return (
     <div className="cabinet-tasks-page cabinet-inspiration-page cabinet-inspiration-board-page">
       <div className="cabinet-inspiration-desktop-chrome">
-        <InspirationTopBar
+        <CabinetPageHeader
+          title="Дошка натхнення"
           summary={summary}
-          partnerInitials={partnerInitials}
+          initials={partnerInitials}
         />
 
         <Link href="/inspiration" className="cabinet-inspiration-back">
@@ -1074,7 +930,7 @@ function InspirationBoardInner() {
           aria-label="Додати зображення"
           onClick={() => setAddModal(true)}
         >
-          <IconAddFab />
+          <IconInspirationFab />
         </button>
         <div className="cabinet-ctx-menu-wrap cabinet-inspiration-menu-wrap">
           <button

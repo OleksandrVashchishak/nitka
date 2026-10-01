@@ -153,6 +153,20 @@ export function createPartnerInvite() {
 
 
 
+export function removePartner() {
+
+  return apiFetch<Wedding>("/api/weddings/me/partner", {
+
+    method: "DELETE",
+
+    silent: true,
+
+  });
+
+}
+
+
+
 export async function getPartnerInvitePreview(token: string) {
 
   const api =

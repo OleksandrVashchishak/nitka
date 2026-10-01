@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
-import { IconClose } from "@/components/cabinet-task-icons";
+import { IconClose } from "@/components/icon-close";
 import "@/styles/shell/mobile-menu.scss";
 
 export const FATA_NAV = [

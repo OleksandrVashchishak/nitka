@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
-import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
 import {
@@ -54,26 +54,10 @@ export function DayPlanEventModal({ mode, initial, onClose, onSave }: Props) {
       asForm
       onSubmit={submit}
       footer={
-        <>
-          <Button
-            type="button"
-            tone="ghost"
-            size="m"
-            className="cabinet-drawer-cancel"
-            onClick={requestClose}
-          >
-            Скасувати
-          </Button>
-          <Button
-            type="submit"
-            tone="ink"
-            size="m"
-            className="cabinet-drawer-save"
-            disabled={!title.trim() || !time}
-          >
-            Зберегти
-          </Button>
-        </>
+        <CabinetFormActions
+          onCancel={requestClose}
+          saveDisabled={!title.trim() || !time}
+        />
       }
     >
       <TextInput

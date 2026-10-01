@@ -102,6 +102,21 @@ export class AuthService {
     return { ok: true };
   }
 
+  async deleteAccount(userId: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) {
+      throw new BadRequestException('Невірний пароль');
+    }
+
+    await this.prisma.user.delete({ where: { id: userId } });
+    return { ok: true };
+  }
+
   async me(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -117,6 +132,38 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     return user;
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) {
+      throw new BadRequestException('Невірний поточний пароль');
+    }
+
+    if (currentPassword === newPassword) {
+      throw new BadRequestException(
+        'Новий пароль має відрізнятися від поточного',
+      );
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: await bcrypt.hash(newPassword, 10),
+      },
+    });
+
+    // Перевипускаємо токени — інші сесії з старим refresh відваляться
+    return this.issueTokens(user);
   }
 
   private resolveRegisterRole(role?: Role): Role {

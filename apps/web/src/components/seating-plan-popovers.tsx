@@ -1,5 +1,6 @@
 "use client";
 
+import { IconClose } from "@/components/icon-close";
 import type { RsvpStatus } from "@/lib/guests-api";
 
 export type GuestPopoverInfo = {
@@ -61,24 +62,43 @@ export function GuestListPopover({
   onSetRsvp,
   onLeaveUnseated,
   onDetach,
+  onSeatElsewhere,
   onClose,
+  variant = "float",
 }: {
   info: GuestPopoverInfo;
   onSetRsvp: (status: RsvpStatus) => void;
   onLeaveUnseated: () => void;
   onDetach: (() => void) | null;
+  onSeatElsewhere?: () => void;
   onClose: () => void;
+  variant?: "float" | "sheet";
 }) {
+  const isSheet = variant === "sheet";
+
   return (
-    <div className="seat-pop" role="dialog" aria-label={info.name}>
-      <GuestPopHeader info={info} />
+    <div
+      className={`seat-pop${isSheet ? " seat-pop--sheet" : ""}`}
+      role="dialog"
+      aria-label={info.name}
+    >
+      <GuestPopHeader info={info} onClose={isSheet ? onClose : undefined} />
       <div className="seat-pop-actions">
-        <button type="button" onClick={() => onSetRsvp("YES")}>
-          Змінити статус на “Прийде”
-        </button>
-        <button type="button" onClick={() => onSetRsvp("NO")}>
-          Змінити статус на “Не прийде”
-        </button>
+        {info.rsvpStatus !== "MAYBE" ? (
+          <button type="button" onClick={() => onSetRsvp("MAYBE")}>
+            Змінити статус на «Можливо прийде»
+          </button>
+        ) : null}
+        {info.rsvpStatus !== "NO" ? (
+          <button type="button" onClick={() => onSetRsvp("NO")}>
+            Змінити статус на «Не прийде»
+          </button>
+        ) : null}
+        {info.rsvpStatus !== "YES" ? (
+          <button type="button" onClick={() => onSetRsvp("YES")}>
+            Змінити статус на «Прийде»
+          </button>
+        ) : null}
         {info.tableLabel ? (
           <button type="button" onClick={onLeaveUnseated}>
             Залишити поки що без місця
@@ -89,22 +109,47 @@ export function GuestListPopover({
             Від’єднати від {info.linkedName}
           </button>
         ) : null}
+        {onSeatElsewhere ? (
+          <button type="button" onClick={onSeatElsewhere}>
+            Посадити за інший стіл
+          </button>
+        ) : null}
       </div>
       <GuestPopFooter status={info.rsvpStatus} />
-      <button
-        type="button"
-        className="seat-pop-dismiss"
-        aria-label="Закрити"
-        onClick={onClose}
-      />
+      {!isSheet ? (
+        <button
+          type="button"
+          className="seat-pop-dismiss"
+          aria-label="Закрити"
+          onClick={onClose}
+        />
+      ) : null}
     </div>
   );
 }
 
-function GuestPopHeader({ info }: { info: GuestPopoverInfo }) {
+function GuestPopHeader({
+  info,
+  onClose,
+}: {
+  info: GuestPopoverInfo;
+  onClose?: () => void;
+}) {
   return (
     <div className="seat-pop-head">
-      <p className="seat-pop-name">{info.name}</p>
+      <div className="seat-pop-head-row">
+        <p className="seat-pop-name">{info.name}</p>
+        {onClose ? (
+          <button
+            type="button"
+            className="seat-pop-close"
+            aria-label="Закрити"
+            onClick={onClose}
+          >
+            <IconClose size={18} />
+          </button>
+        ) : null}
+      </div>
       <div className="seat-pop-meta">
         <span>{info.groupLabel || "Без групи"}</span>
         <span>{info.tableLabel || "Без столу"}</span>
@@ -116,9 +161,24 @@ function GuestPopHeader({ info }: { info: GuestPopoverInfo }) {
 function GuestPopFooter({ status }: { status: RsvpStatus }) {
   return (
     <div className="seat-pop-footer">
-      <ClockIcon />
+      {status === "YES" ? <RsvpYesIcon /> : <ClockIcon />}
       <span>{rsvpFooterLabel(status)}</span>
     </div>
+  );
+}
+
+function RsvpYesIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <circle cx="8" cy="8" r="8" fill="#4CAF7A" />
+      <path
+        d="M4.8 8.2 6.9 10.2 11.2 5.8"
+        stroke="#fff"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

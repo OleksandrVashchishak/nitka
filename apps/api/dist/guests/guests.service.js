@@ -113,7 +113,8 @@ let GuestsService = class GuestsService {
             throw new common_1.NotFoundException('Гостя не знайдено');
         }
         const nextStatus = dto.rsvpStatus ?? guest.rsvpStatus;
-        return this.prisma.guest.update({
+        const statusChanged = dto.rsvpStatus !== undefined && dto.rsvpStatus !== guest.rsvpStatus;
+        const updated = await this.prisma.guest.update({
             where: { id: guestId },
             data: {
                 ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
@@ -143,6 +144,26 @@ let GuestsService = class GuestsService {
                 respondedAt: nextStatus === 'PENDING' ? null : (guest.respondedAt ?? new Date()),
             },
         });
+        if (statusChanged && nextStatus !== 'PENDING') {
+            const verb = nextStatus === 'YES'
+                ? 'підтвердив(ла) участь'
+                : nextStatus === 'NO'
+                    ? 'відхилив(ла) запрошення'
+                    : nextStatus === 'MAYBE'
+                        ? 'відповів(ла): можливо'
+                        : 'відповів(ла) на запрошення';
+            void this.notifications.notifyWeddingMembers(wedding.id, {
+                title: 'Нова відповідь гостя',
+                body: `${updated.name} ${verb}`,
+                data: { type: 'guest_rsvp', guestId: updated.id },
+                type: 'guest_rsvp',
+                email: {
+                    ctaLabel: 'Список гостей',
+                    ctaPath: '/guests',
+                },
+            }, userId);
+        }
+        return updated;
     }
     async remove(userId, guestId) {
         const wedding = await this.getWeddingForUser(userId);

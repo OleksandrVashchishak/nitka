@@ -1,5 +1,6 @@
 import { AuthUser } from '../auth/current-user.decorator';
 import { RegisterPushDto } from './dto/register-push.dto';
+import { UpdateNotificationPrefsDto } from './dto/update-prefs.dto';
 import { NotificationsService } from './notifications.service';
 export declare class NotificationsController {
     private readonly notifications;
@@ -24,4 +25,6 @@ export declare class NotificationsController {
         feed: import("./notifications.service").NotificationFeedItem[];
         moreHref: string;
     }>;
+    getPrefs(user: AuthUser): Promise<import("./notifications.service").NotificationPrefs>;
+    updatePrefs(user: AuthUser, dto: UpdateNotificationPrefsDto): Promise<import("./notifications.service").NotificationPrefs>;
 }

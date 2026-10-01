@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
-import {
-  IconClose,
-  IconFilters,
-  IconQuickAdd,
-} from "@/components/cabinet-task-icons";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { IconQuickAdd } from "@/components/cabinet-task-icons";
+import { IconButton } from "@/components/ui/icon-button";
+import { CabinetFiltersSheet } from "@/components/cabinet-filters-sheet";
+import { CabinetMobileFiltersBar } from "@/components/cabinet-mobile-filters-bar";
+import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
+import { usePagedVisible } from "@/hooks/use-paged-visible";
+import { CabinetShowMore } from "@/components/cabinet-show-more";
 import {
   CabinetContextMenu,
   CabinetContextMenuDivider,
@@ -27,6 +28,8 @@ import {
 } from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
+import { CabinetFilterGroup } from "@/components/cabinet-filter-group";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
@@ -84,7 +87,6 @@ type BudgetRow = BudgetItem & {
   amount: number;
 };
 
-const PAGE_SIZE = 12;
 /**
  * TODO(fx): replace hardcoded USD_RATE with shared weekly NBU rate (same as API budget sync).
  * Free endpoint (no key):
@@ -303,12 +305,9 @@ function BudgetInner() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const [payerFilter, setPayerFilter] = useState<PayerFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("recent");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BudgetRow | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filtersVisible, setFiltersVisible] = useState(false);
-  const [filtersMounted, setFiltersMounted] = useState(false);
   const [draftStatus, setDraftStatus] = useState<StatusFilter>("all");
   const [draftCategory, setDraftCategory] = useState<CategoryFilter>("all");
   const [draftPayer, setDraftPayer] = useState<PayerFilter>("all");
@@ -367,56 +366,14 @@ function BudgetInner() {
   }, [user?.name]);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [statusFilter, categoryFilter, payerFilter, sortMode]);
-
-  useEffect(() => {
-    if (!filtersOpen) {
-      setFiltersVisible(false);
-      const timer = window.setTimeout(() => setFiltersMounted(false), 320);
-      return () => window.clearTimeout(timer);
-    }
+    if (!filtersOpen) return;
     setDraftStatus(statusFilter);
     setDraftCategory(categoryFilter);
     setDraftPayer(payerFilter);
-    setFiltersMounted(true);
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setFiltersVisible(true));
-    });
-    return () => window.cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersOpen]);
 
-  useEffect(() => {
-    if (!filtersOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setFiltersOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!menuOpenId) return;
-    function onDocClick(event: MouseEvent) {
-      const target = event.target;
-      if (
-        !(target instanceof Element) ||
-        !target.closest(".cabinet-ctx-menu-wrap")
-      ) {
-        setMenuOpenId(null);
-      }
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setMenuOpenId(null);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpenId]);
+  useMenuOutsideClose(Boolean(menuOpenId), () => setMenuOpenId(null));
 
   const rows: BudgetRow[] = useMemo(() => {
     if (!data) return [];
@@ -480,7 +437,9 @@ function BudgetInner() {
     });
   }, [rows, statusFilter, categoryFilter, payerFilter, sortMode]);
 
-  const visible = filtered.slice(0, visibleCount);
+  const { visible, hasMore, showMore } = usePagedVisible(filtered, {
+    resetDeps: [statusFilter, categoryFilter, payerFilter, sortMode],
+  });
 
   const activeFilterCount = [
     statusFilter !== "all",
@@ -681,9 +640,7 @@ function BudgetInner() {
   if (needWedding || !data) {
     return (
       <div className="cabinet-tasks-page">
-        <div className="cabinet-tasks-top">
-          <h1 className="cabinet-tasks-title">Бюджет</h1>
-        </div>
+        <CabinetPageHeader title="Бюджет" />
         <div className="cabinet-panel" style={{ marginTop: 24 }}>
           <p style={{ margin: 0, color: "#666" }}>
             Спочатку збережи дату весілля в огляді — тоді відкриється бюджет.
@@ -699,10 +656,12 @@ function BudgetInner() {
 
   return (
     <div className="cabinet-tasks-page cabinet-budget-page">
-      <div className="cabinet-tasks-top">
-        <h1 className="cabinet-tasks-title">Бюджет</h1>
-        <div className="cabinet-tasks-top-actions">
-          {rows.length > 0 ? (
+      <CabinetPageHeader
+        title="Бюджет"
+        summary={summary}
+        initials={partnerInitials}
+        actions={
+          rows.length > 0 ? (
             <>
               <div className="cabinet-budget-currency-chip">
                 <Select
@@ -716,35 +675,31 @@ function BudgetInner() {
                   <option value="USD">USD</option>
                 </Select>
               </div>
-              <button
-                type="button"
-                className="cabinet-tasks-quick-add"
+              <IconButton
+                variant="quick-add"
                 aria-label="Внести витрату"
+                icon={<IconQuickAdd />}
                 onClick={openCreate}
-              >
-                <IconQuickAdd />
-              </button>
+              />
             </>
-          ) : null}
-          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-            {rows.length > 0 ? (
-              <Select
-                className="cabinet-tasks-sort cabinet-budget-currency-desktop"
-                size="m"
-                shape="pill"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value as Currency)}
-                aria-label="Валюта"
-              >
-                <option value="UAH">Показувати витрати в UAH</option>
-                <option value="USD">Показувати витрати в USD</option>
-              </Select>
-            ) : null}
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={partnerInitials} />
-          </div>
-        </div>
-      </div>
+          ) : null
+        }
+        endActions={
+          rows.length > 0 ? (
+            <Select
+              className="cabinet-tasks-sort cabinet-budget-currency-desktop"
+              size="m"
+              shape="pill"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value as Currency)}
+              aria-label="Валюта"
+            >
+              <option value="UAH">Показувати витрати в UAH</option>
+              <option value="USD">Показувати витрати в USD</option>
+            </Select>
+          ) : null
+        }
+      />
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
@@ -779,7 +734,7 @@ function BudgetInner() {
         <>
           <div className="cabinet-tasks-layout cabinet-budget-layout">
             <aside className="cabinet-tasks-filters">
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Статус"
                 items={[
                   {
@@ -801,7 +756,7 @@ function BudgetInner() {
                 active={statusFilter}
                 onChange={(id) => setStatusFilter(id as StatusFilter)}
               />
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Категорія"
                 items={[
                   {
@@ -818,7 +773,7 @@ function BudgetInner() {
                 active={categoryFilter}
                 onChange={(id) => setCategoryFilter(id as CategoryFilter)}
               />
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Хто оплачує"
                 items={[
                   {
@@ -863,34 +818,19 @@ function BudgetInner() {
                 </article>
               </div>
 
-              <div className="cabinet-tasks-mobile-bar cabinet-budget-mobile-bar">
-                <button
-                  type="button"
-                  className={`cabinet-tasks-chip${filtersActive ? " is-active" : ""}`}
-                  onClick={() => setFiltersOpen(true)}
-                >
-                  <IconFilters size={14} />
-                  Фільтри
-                  {filtersActive ? (
-                    <span className="cabinet-tasks-chip-badge">
-                      {activeFilterCount}
-                    </span>
-                  ) : null}
-                </button>
-                <div className="cabinet-tasks-chip cabinet-tasks-chip--select">
-                  <Select
-                    tone="ghost"
-                    size="s"
-                    value={sortMode}
-                    onChange={(e) => setSortMode(e.target.value as SortMode)}
-                    aria-label="Сортування"
-                  >
-                    <option value="recent">Недавно додані зверху</option>
-                    <option value="amount">За сумою</option>
-                    <option value="alpha">За алфавітом</option>
-                  </Select>
-                </div>
-              </div>
+              <CabinetMobileFiltersBar
+                className="cabinet-budget-mobile-bar"
+                onOpenFilters={() => setFiltersOpen(true)}
+                filtersActive={filtersActive}
+                activeFilterCount={activeFilterCount}
+                sortValue={sortMode}
+                onSortChange={(value) => setSortMode(value as SortMode)}
+                sortOptions={[
+                  { value: "recent", label: "Недавно додані зверху" },
+                  { value: "amount", label: "За сумою" },
+                  { value: "alpha", label: "За алфавітом" },
+                ]}
+              />
 
               <section className="cabinet-budget-list-panel">
                 <div className="cabinet-tasks-list-head">
@@ -923,9 +863,10 @@ function BudgetInner() {
                 </div>
 
                 {visible.length === 0 ? (
-                  <p className="cabinet-tasks-empty">
-                    Немає витрат у цьому фільтрі.
-                  </p>
+                  <CabinetEmptyState
+                    variant="soft"
+                    description="Немає витрат у цьому фільтрі."
+                  />
                 ) : (
                   <div className="cabinet-budget-table">
                     <div className="cabinet-budget-table-head">
@@ -979,19 +920,17 @@ function BudgetInner() {
                               />
                             </span>
                             <div className="cabinet-ctx-menu-wrap">
-                              <button
-                                type="button"
-                                className="cabinet-task-menu"
+                              <IconButton
+                                variant="ghost"
                                 aria-label="Меню витрати"
                                 aria-expanded={menuOpenId === item.id}
+                                icon={<IconMore />}
                                 onClick={() =>
                                   setMenuOpenId((id) =>
                                     id === item.id ? null : item.id,
                                   )
                                 }
-                              >
-                                <IconMore />
-                              </button>
+                              />
                               {menuOpenId === item.id ? (
                                 <CabinetContextMenu>
                                   <CabinetContextMenuItem
@@ -1109,127 +1048,76 @@ function BudgetInner() {
                   </div>
                 )}
 
-                {filtered.length > visibleCount ? (
-                  <button
-                    type="button"
-                    className="cabinet-panel-link cabinet-tasks-more"
-                    onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
-                  >
-                    Показати більше
-                  </button>
-                ) : null}
+                <CabinetShowMore hasMore={hasMore} onShowMore={showMore} />
               </section>
             </div>
           </div>
         </>
       )}
 
-      {filtersMounted ? (
-        <div
-          className={`cabinet-tasks-filters-sheet${
-            filtersVisible ? " is-open" : ""
-          }`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Фільтри"
-        >
-          <button
-            type="button"
-            className="cabinet-tasks-filters-sheet__backdrop"
-            aria-label="Закрити фільтри"
-            onClick={() => setFiltersOpen(false)}
-          />
-          <div className="cabinet-tasks-filters-sheet__panel">
-            <div className="cabinet-tasks-filters-sheet__head">
-              <h2 className="cabinet-tasks-filters-sheet__title">Фільтри</h2>
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__close"
-                aria-label="Закрити"
-                onClick={() => setFiltersOpen(false)}
-              >
-                <IconClose size={18} />
-              </button>
-            </div>
-
-            <div className="cabinet-tasks-filters-sheet__body">
-              <FilterGroup
-                title="Статус"
-                items={[
-                  {
-                    id: "all",
-                    label: "Всі",
-                    count: formatMoney(counts.status.all, currency),
-                  },
-                  {
-                    id: "paid",
-                    label: "Сплачено",
-                    count: formatMoney(counts.status.paid, currency),
-                  },
-                  {
-                    id: "unpaid",
-                    label: "Ще до сплати",
-                    count: formatMoney(counts.status.unpaid, currency),
-                  },
-                ]}
-                active={draftStatus}
-                onChange={(id) => setDraftStatus(id as StatusFilter)}
-              />
-              <FilterGroup
-                title="Категорія"
-                items={[
-                  {
-                    id: "all",
-                    label: "Всі",
-                    count: formatMoney(counts.categories.all, currency),
-                  },
-                  ...UI_CATEGORIES.map((c) => ({
-                    id: c.id,
-                    label: c.label,
-                    count: formatMoney(counts.categories[c.id], currency),
-                  })),
-                ]}
-                active={draftCategory}
-                onChange={(id) => setDraftCategory(id as CategoryFilter)}
-              />
-              <FilterGroup
-                title="Хто оплачує"
-                items={[
-                  {
-                    id: "all",
-                    label: "Усі",
-                    count: formatMoney(counts.payers.all, currency),
-                  },
-                  ...PAYERS.map((p) => ({
-                    id: p.id,
-                    label: payerLabels[p.id],
-                    count: formatMoney(counts.payers[p.id], currency),
-                  })),
-                ]}
-                active={draftPayer}
-                onChange={(id) => setDraftPayer(id as PayerFilter)}
-              />
-            </div>
-
-            <div className="cabinet-tasks-filters-sheet__foot">
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__apply"
-                onClick={applyDraftFilters}
-              >
-                Застосувати
-              </button>
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__reset"
-                onClick={resetDraftFilters}
-              >
-                Скинути фільтри
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <CabinetFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={applyDraftFilters}
+        onReset={resetDraftFilters}
+      >
+        <CabinetFilterGroup
+          title="Статус"
+          items={[
+            {
+              id: "all",
+              label: "Всі",
+              count: formatMoney(counts.status.all, currency),
+            },
+            {
+              id: "paid",
+              label: "Сплачено",
+              count: formatMoney(counts.status.paid, currency),
+            },
+            {
+              id: "unpaid",
+              label: "Ще до сплати",
+              count: formatMoney(counts.status.unpaid, currency),
+            },
+          ]}
+          active={draftStatus}
+          onChange={(id) => setDraftStatus(id as StatusFilter)}
+        />
+        <CabinetFilterGroup
+          title="Категорія"
+          items={[
+            {
+              id: "all",
+              label: "Всі",
+              count: formatMoney(counts.categories.all, currency),
+            },
+            ...UI_CATEGORIES.map((c) => ({
+              id: c.id,
+              label: c.label,
+              count: formatMoney(counts.categories[c.id], currency),
+            })),
+          ]}
+          active={draftCategory}
+          onChange={(id) => setDraftCategory(id as CategoryFilter)}
+        />
+        <CabinetFilterGroup
+          title="Хто оплачує"
+          items={[
+            {
+              id: "all",
+              label: "Усі",
+              count: formatMoney(counts.payers.all, currency),
+            },
+            ...PAYERS.map((p) => ({
+              id: p.id,
+              label: payerLabels[p.id],
+              count: formatMoney(counts.payers[p.id], currency),
+            })),
+          ]}
+          active={draftPayer}
+          onChange={(id) => setDraftPayer(id as PayerFilter)}
+        />
+      </CabinetFiltersSheet>
 
       <CabinetOverlay
         open={drawerOpen}
@@ -1242,28 +1130,12 @@ function BudgetInner() {
         asForm
         onSubmit={onSave}
         footer={
-          <>
-            <Button
-              type="button"
-              tone="ghost"
-              size="m"
-              className="cabinet-drawer-cancel"
-              onClick={closeDrawer}
-            >
-              Скасувати
-            </Button>
-            <Button
-              type="submit"
-              tone="ink"
-              size="m"
-              className="cabinet-budget-save"
-              disabled={busy}
-              loading={busy}
-              loadingText="…"
-            >
-              Зберегти
-            </Button>
-          </>
+          <CabinetFormActions
+            onCancel={closeDrawer}
+            saveDisabled={busy}
+            saveLoading={busy}
+            saveLoadingText="…"
+          />
         }
       >
         <TextInput
@@ -1380,37 +1252,6 @@ function BudgetInner() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => void confirmDelete()}
       />
-    </div>
-  );
-}
-
-function FilterGroup({
-  title,
-  items,
-  active,
-  onChange,
-}: {
-  title: string;
-  items: Array<{ id: string; label: string; count: string | number }>;
-  active: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <div className="cabinet-filter-group">
-      <p className="cabinet-filter-title">{title}</p>
-      <div className="cabinet-filter-list">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`cabinet-filter-item${active === item.id ? " is-active" : ""}`}
-            onClick={() => onChange(item.id)}
-          >
-            <span>{item.label}</span>
-            <span className="cabinet-filter-count">{item.count}</span>
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

@@ -16,7 +16,9 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const current_user_decorator_1 = require("./current-user.decorator");
+const change_password_dto_1 = require("./dto/change-password.dto");
 const check_email_dto_1 = require("./dto/check-email.dto");
+const delete_account_dto_1 = require("./dto/delete-account.dto");
 const login_dto_1 = require("./dto/login.dto");
 const refresh_dto_1 = require("./dto/refresh.dto");
 const register_dto_1 = require("./dto/register.dto");
@@ -42,6 +44,12 @@ let AuthController = class AuthController {
     }
     me(user) {
         return this.authService.me(user.id);
+    }
+    changePassword(user, dto) {
+        return this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
+    }
+    deleteAccount(user, dto) {
+        return this.authService.deleteAccount(user.id, dto.password);
     }
 };
 exports.AuthController = AuthController;
@@ -89,6 +97,24 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "me", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('change-password'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, change_password_dto_1.ChangePasswordDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "changePassword", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Delete)('account'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, delete_account_dto_1.DeleteAccountDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "deleteAccount", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

@@ -630,10 +630,10 @@ export function RegisterForm() {
                         return next;
                       });
                     }}
-                    className={`h-[46px] shrink-0 rounded-[40px] px-5 text-[14px] ${
+                    className={`h-[46px] shrink-0 cursor-pointer rounded-[40px] border px-5 text-[14px] transition-all duration-150 ease-out hover:border-[#61040f]/50 active:scale-[0.97] ${
                       cityUndecided
-                        ? "border border-[#61040f] bg-[#F0FEBB]"
-                        : "border border-[#EBE5D4] bg-[#FFFDF7]"
+                        ? "border-[#61040f] bg-[#F0FEBB] hover:bg-[#e8f9a8]"
+                        : "border-[#EBE5D4] bg-[#FFFDF7] hover:bg-[#F7F3E8]"
                     }`}
                   >
                     Ще не знаємо
@@ -797,10 +797,10 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`h-9 rounded-[40px] border px-4 py-2.5 text-[14px] leading-none ${
+      className={`h-9 cursor-pointer rounded-[40px] border px-4 py-2.5 text-[14px] leading-none transition-all duration-150 ease-out hover:border-[#61040f]/50 active:scale-[0.97] ${
         selected
-          ? "border-[#61040f] bg-[#F0FEBB]"
-          : "border-[#EBE5D4] bg-[#FFFDF7]"
+          ? "border-[#61040f] bg-[#F0FEBB] hover:bg-[#e8f9a8]"
+          : "border-[#EBE5D4] bg-[#FFFDF7] hover:bg-[#F7F3E8]"
       }`}
     >
       {children}

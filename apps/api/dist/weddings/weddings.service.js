@@ -15,6 +15,7 @@ const client_1 = require("@prisma/client");
 const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("./wedding-access");
+const day_plan_defaults_1 = require("../day-plan/day-plan.defaults");
 const DEFAULT_TASKS = [
     { title: 'Побудувати список завдань', categorySlug: 'starter-plan' },
     { title: 'Додати гостей', categorySlug: 'starter-guests' },
@@ -195,6 +196,7 @@ let WeddingsService = class WeddingsService {
                     title: 'Партнер оновив весілля',
                     body: 'Змінилися деталі — глянь у кабінеті',
                     data: { type: 'wedding_update' },
+                    type: 'partner_changes',
                 }, userId);
             }
             return this.getMine(userId);
@@ -212,6 +214,7 @@ let WeddingsService = class WeddingsService {
                 planningStage: dto.planningStage ?? 'EXPLORING',
                 cityUndecided: dto.cityUndecided ?? false,
                 guestsUndecided: dto.guestsUndecided ?? false,
+                dayPlan: (0, day_plan_defaults_1.cloneDefaultDayPlan)(),
                 tasks: {
                     create: DEFAULT_TASKS.map((task, index) => ({
                         title: task.title,
@@ -290,6 +293,28 @@ let WeddingsService = class WeddingsService {
                 ? partners.join(' & ')
                 : invite.wedding.user.name,
         };
+    }
+    async removePartner(userId) {
+        const { wedding } = await (0, wedding_access_1.requireWeddingOwner)(this.prisma, userId);
+        const partner = await this.prisma.weddingMember.findFirst({
+            where: {
+                weddingId: wedding.id,
+                role: client_1.WeddingMemberRole.PARTNER,
+            },
+        });
+        if (!partner) {
+            throw new common_1.NotFoundException('Партнера не знайдено');
+        }
+        await this.prisma.$transaction([
+            this.prisma.weddingMember.delete({ where: { id: partner.id } }),
+            this.prisma.weddingInvite.deleteMany({
+                where: {
+                    weddingId: wedding.id,
+                    acceptedAt: null,
+                },
+            }),
+        ]);
+        return this.getMine(userId);
     }
     async acceptPartnerInvite(userId, token) {
         const invite = await this.prisma.weddingInvite.findUnique({

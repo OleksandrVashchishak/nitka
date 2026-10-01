@@ -23,8 +23,11 @@ import {
   type SeatTableDraft,
   type SeatTableKind,
 } from "@/components/seating-table-modal";
+import { CabinetFilterGroup } from "@/components/cabinet-filter-group";
+import { CabinetFiltersSheet } from "@/components/cabinet-filters-sheet";
 import { IconMore } from "@/components/icon-more";
 import { Select } from "@/components/ui/select";
+import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { SeatingChartEditor } from "@/components/seating-chart-editor";
 import { NameCardsDesign } from "@/components/name-cards-design";
 import {
@@ -34,6 +37,12 @@ import {
 import { shapedSeatPosition, defaultShapedSeatCount } from "@/lib/seat-layout";
 import { toast } from "@/lib/toast";
 import "@/styles/seating/plan.scss";
+
+type MobileTab = "map" | "guests" | "tables";
+
+function firstName(value: string) {
+  return value.trim().split(/\s+/)[0] || "";
+}
 
 const GROUP_COLORS = ["#8B7CC8", "#5B8DEF", "#4CAF7A", "#C47A3A", "#E07A9A"];
 const GRID = 24;
@@ -486,6 +495,7 @@ export function SeatingPlan({
   const [chartOpen, setChartOpen] = useState(false);
   const [nameCardsOpen, setNameCardsOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [groupsOpen, setGroupsOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [popover, setPopover] = useState<PopoverState>(null);
@@ -494,6 +504,16 @@ export function SeatingPlan({
   );
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
+  const [seatPick, setSeatPick] = useState<{
+    tableId: string;
+    seatId: string;
+  } | null>(null);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("guests");
+  const [isMobile, setIsMobile] = useState(false);
+  const [draftSeatFilter, setDraftSeatFilter] = useState<SeatFilter>("all");
+  const [draftGroupFilter, setDraftGroupFilter] = useState("all");
+  const [draftSideFilter, setDraftSideFilter] = useState<SideFilter>("all");
+  const [draftTableFilter, setDraftTableFilter] = useState("all");
   const addRef = useRef<HTMLDivElement>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
@@ -540,6 +560,25 @@ export function SeatingPlan({
   }, [draft.guests.detachedKeys]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileFiltersOpen) return;
+    setDraftSeatFilter(seatFilter);
+    setDraftGroupFilter(groupFilter);
+    setDraftSideFilter(sideFilter);
+    setDraftTableFilter(tableFilter);
+    // Sync draft only when opening the sheet.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileFiltersOpen]);
+
+  useEffect(() => {
     let fromStored = false;
     if (initialPlan?.tables?.length) {
       setTables(initialPlan.tables as PlanTable[]);
@@ -569,7 +608,10 @@ export function SeatingPlan({
   useEffect(() => {
     function onDoc(event: MouseEvent) {
       const target = event.target as Node;
-      if (addOpen && addRef.current && !addRef.current.contains(target)) {
+      if (
+        addOpen &&
+        !(target as Element).closest?.(".seat-plan-add-menu")
+      ) {
         setAddOpen(false);
       }
       if (printOpen && printRef.current && !printRef.current.contains(target)) {
@@ -685,6 +727,130 @@ export function SeatingPlan({
   ]);
 
   const namedGroups = draft.guests.groups.filter((g) => g.name.trim());
+  const partnerOneShort = firstName(partnerOneName) || "нареченої";
+  const partnerTwoShort = firstName(partnerTwoName) || "нареченого";
+
+  const filterCounts = useMemo(() => {
+    const seat = { all: 0, seated: 0, unseated: 0 };
+    const side = { all: 0, BRIDE: 0, GROOM: 0, BOTH: 0 };
+    const group: Record<string, number> = { all: 0 };
+    for (const g of namedGroups) group[g.id] = 0;
+    if (draft.tables.hasPresidium) group.presidium = 0;
+    if (draft.tables.hasKidsTable) group.kids = 0;
+    const table: Record<string, number> = { all: 0 };
+    for (const t of tables) table[t.id] = 0;
+
+    for (const g of visibleFlat) {
+      const seated = seatOfGuest.has(g.key);
+      seat.all += 1;
+      if (seated) seat.seated += 1;
+      else seat.unseated += 1;
+
+      side.all += 1;
+      if (g.side === "BRIDE") side.BRIDE += 1;
+      else if (g.side === "GROOM") side.GROOM += 1;
+      else if (g.side === "BOTH") side.BOTH += 1;
+
+      const assign = draft.guests.assignments[g.key] ?? null;
+      group.all += 1;
+      if (typeof assign === "string" && assign in group) {
+        group[assign] = (group[assign] ?? 0) + 1;
+      }
+
+      table.all += 1;
+      const info = seatOfGuest.get(g.key);
+      if (info && info.tableId in table) {
+        table[info.tableId] = (table[info.tableId] ?? 0) + 1;
+      }
+    }
+    return { seat, side, group, table };
+  }, [
+    visibleFlat,
+    seatOfGuest,
+    namedGroups,
+    tables,
+    draft.guests.assignments,
+    draft.tables.hasPresidium,
+    draft.tables.hasKidsTable,
+  ]);
+
+  const activeFilterChips = useMemo(() => {
+    const chips: Array<{ id: string; label: string; onClear: () => void }> = [];
+    if (seatFilter === "seated") {
+      chips.push({
+        id: "seat-seated",
+        label: "Посаджені",
+        onClear: () => setSeatFilter("all"),
+      });
+    } else if (seatFilter === "unseated") {
+      chips.push({
+        id: "seat-unseated",
+        label: "Не посаджені",
+        onClear: () => setSeatFilter("all"),
+      });
+    }
+    if (groupFilter !== "all") {
+      const label =
+        groupFilter === "presidium"
+          ? "Президіум"
+          : groupFilter === "kids"
+            ? "Дитячий стіл"
+            : namedGroups.find((g) => g.id === groupFilter)?.name || "Група";
+      chips.push({
+        id: `group-${groupFilter}`,
+        label,
+        onClear: () => setGroupFilter("all"),
+      });
+    }
+    if (sideFilter === "BRIDE") {
+      chips.push({
+        id: "side-bride",
+        label: `Гості ${partnerOneShort}`,
+        onClear: () => setSideFilter("all"),
+      });
+    } else if (sideFilter === "GROOM") {
+      chips.push({
+        id: "side-groom",
+        label: `Гості ${partnerTwoShort}`,
+        onClear: () => setSideFilter("all"),
+      });
+    }
+    if (tableFilter !== "all") {
+      const t = tables.find((x) => x.id === tableFilter);
+      chips.push({
+        id: `table-${tableFilter}`,
+        label: t?.label || "Стіл",
+        onClear: () => setTableFilter("all"),
+      });
+    }
+    return chips;
+  }, [
+    seatFilter,
+    groupFilter,
+    sideFilter,
+    tableFilter,
+    namedGroups,
+    tables,
+    partnerOneShort,
+    partnerTwoShort,
+  ]);
+
+  const filtersActive = activeFilterChips.length > 0;
+
+  function applyMobileFilters() {
+    setSeatFilter(draftSeatFilter);
+    setGroupFilter(draftGroupFilter);
+    setSideFilter(draftSideFilter);
+    setTableFilter(draftTableFilter);
+    setMobileFiltersOpen(false);
+  }
+
+  function resetMobileFilters() {
+    setDraftSeatFilter("all");
+    setDraftGroupFilter("all");
+    setDraftSideFilter("all");
+    setDraftTableFilter("all");
+  }
 
   function groupLabelFor(key: string) {
     const assign = draft.guests.assignments[key] ?? null;
@@ -735,8 +901,12 @@ export function SeatingPlan({
 
   const activePopover = popover ? buildPopoverInfo(popover.key) : null;
 
-  function assignToSeat(tableId: string, seatId: string) {
-    if (!selectedKey) {
+  function assignToSeat(
+    tableId: string,
+    seatId: string,
+    guestKey: string | null = selectedKey,
+  ) {
+    if (!guestKey) {
       toast.info("Оберіть гостя зліва");
       return;
     }
@@ -744,9 +914,9 @@ export function SeatingPlan({
       prev.map((table) => ({
         ...table,
         seats: table.seats.map((seat) => {
-          if (seat.guestKey === selectedKey) return { ...seat, guestKey: null };
+          if (seat.guestKey === guestKey) return { ...seat, guestKey: null };
           if (table.id === tableId && seat.id === seatId) {
-            return { ...seat, guestKey: selectedKey };
+            return { ...seat, guestKey };
           }
           return seat;
         }),
@@ -902,10 +1072,12 @@ export function SeatingPlan({
   }, [flat, draft.guests]);
 
   return (
-    <div className="seat-plan">
+    <div className={`seat-plan is-tab-${mobileTab}`}>
       <div className="seat-plan-top">
         <div className="seat-plan-title-wrap">
-          <h1 className="seat-plan-title">Розсадка</h1>
+          <h1 className="seat-plan-title">
+            {mobileTab === "map" ? "План розсадки" : "Розсадка"}
+          </h1>
           <span className="seat-plan-autosave">
             <span className="seat-plan-autosave-dot" aria-hidden />
             Авто-збереження
@@ -922,7 +1094,12 @@ export function SeatingPlan({
               setChartOpen(true);
             }}
           >
-            Зберегти PDF
+            <span className="seat-plan-btn-label seat-plan-btn-label--full">
+              Зберегти PDF
+            </span>
+            <span className="seat-plan-btn-label seat-plan-btn-label--short">
+              PDF
+            </span>
           </button>
 
           <div
@@ -938,7 +1115,12 @@ export function SeatingPlan({
                 setAddOpen(false);
               }}
             >
-              Дизайн для друку
+              <span className="seat-plan-btn-label seat-plan-btn-label--full">
+                Дизайн для друку
+              </span>
+              <span className="seat-plan-btn-label seat-plan-btn-label--short">
+                Дизайн
+              </span>
               <ChevronDownIcon />
             </button>
             {printOpen ? (
@@ -969,6 +1151,27 @@ export function SeatingPlan({
         </div>
       </div>
 
+      <nav className="seat-plan-mobile-tabs" aria-label="Розділи розсадки">
+        {(
+          [
+            ["map", "Карта розсадки"],
+            ["guests", "Список гостей"],
+            ["tables", "Столи"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={`seat-plan-mobile-tab${
+              mobileTab === id ? " is-active" : ""
+            }`}
+            onClick={() => setMobileTab(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
       <div className="seat-plan-layout">
         <aside className="seat-plan-panel">
           <div className="seat-plan-panel-head">
@@ -988,15 +1191,66 @@ export function SeatingPlan({
             </h2>
           </div>
 
-          <label className="seat-plan-search">
-            <SearchIcon />
-            <input
-              type="search"
-              placeholder="Пошук гостей"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </label>
+          <div className="seat-plan-toolbar">
+            <label className="seat-plan-search">
+              <SearchIcon />
+              <input
+                type="search"
+                placeholder="Пошук гостей"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              className={`seat-plan-filters-btn${
+                filtersActive ? " is-active" : ""
+              }`}
+              onClick={() => setMobileFiltersOpen(true)}
+            >
+              <SlidersHorizontalIcon />
+              Фільтри
+            </button>
+            <button
+              type="button"
+              className="seat-plan-filters-btn seat-plan-groups-btn"
+              aria-label="Редагувати групи"
+              onClick={onEditGuests}
+            >
+              <PencilIcon />
+            </button>
+          </div>
+
+          {activeFilterChips.length > 0 ? (
+            <div className="seat-plan-active-chips">
+              {activeFilterChips.map((chip) => (
+                <button
+                  key={chip.id}
+                  type="button"
+                  className="seat-plan-active-chip"
+                  onClick={chip.onClear}
+                >
+                  {chip.id.startsWith("group-") ? (
+                    <span
+                      className="seat-plan-chip-dot"
+                      style={{
+                        background:
+                          GROUP_COLORS[
+                            Math.max(
+                              0,
+                              namedGroups.findIndex(
+                                (g) => g.id === groupFilter,
+                              ),
+                            ) % GROUP_COLORS.length
+                          ],
+                      }}
+                    />
+                  ) : null}
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           <div
             className={`seat-plan-filters${filtersOpen ? " is-open" : ""}`}
@@ -1084,7 +1338,7 @@ export function SeatingPlan({
           </div>
 
           <div className="seat-plan-guest-scroll">
-            {filteredGuests.map((g) => {
+            {filteredGuests.map((g, index) => {
               const seated = seatOfGuest.has(g.key);
               const assign = draft.guests.assignments[g.key] ?? null;
               const color = colorForAssign(assign, draft.guests.groups);
@@ -1105,13 +1359,22 @@ export function SeatingPlan({
                     onClick={() => {
                       setSelectedKey(g.key);
                       closePopover();
+                      if (isMobile) setMobileTab("map");
                     }}
                   >
                     <span
-                      className={`seat-plan-guest-avatar${seated ? "" : " is-empty"}`}
+                      className={`seat-plan-guest-avatar${
+                        seated ? "" : " is-empty"
+                      } seat-plan-guest-avatar--index`}
                       style={seated ? { background: color } : undefined}
+                      data-index={index + 1}
                     >
-                      {seated ? initials(g.name) : ""}
+                      <span className="seat-plan-guest-avatar-initials">
+                        {seated ? initials(g.name) : ""}
+                      </span>
+                      <span className="seat-plan-guest-avatar-num">
+                        {index + 1}
+                      </span>
                     </span>
                     <span className="seat-plan-guest-name">{g.name}</span>
                     <span className="seat-plan-guest-meta">
@@ -1151,6 +1414,11 @@ export function SeatingPlan({
                       setSelectedKey(g.key);
                       if (open) {
                         closePopover();
+                        return;
+                      }
+                      if (isMobile) {
+                        setPopover({ kind: "list", key: g.key });
+                        setFloatPop(null);
                         return;
                       }
                       openFloatPopover("list", g.key, e.currentTarget);
@@ -1253,6 +1521,7 @@ export function SeatingPlan({
             </label>
           </div>
 
+          <div className="seat-plan-canvas-scroll">
           <div className="seat-plan-canvas" style={canvasStyle}>
             {tables.map((table) => (
               <div
@@ -1331,6 +1600,13 @@ export function SeatingPlan({
                               );
                               return;
                             }
+                            if (isMobile) {
+                              setSeatPick({
+                                tableId: table.id,
+                                seatId: seat.id,
+                              });
+                              return;
+                            }
                             toast.info("Оберіть гостя зліва");
                           }}
                         >
@@ -1348,7 +1624,83 @@ export function SeatingPlan({
               </div>
             ))}
           </div>
+          </div>
         </div>
+      </div>
+
+      <div className="seat-plan-tables-mobile">
+        <div
+          className={`seat-plan-add-menu seat-plan-tables-add${
+            addOpen ? " is-open" : ""
+          }`}
+        >
+          <button
+            type="button"
+            className="seat-plan-btn seat-plan-btn--dark seat-plan-tables-add-btn"
+            aria-expanded={addOpen}
+            onClick={() => {
+              setAddOpen((v) => !v);
+              setPrintOpen(false);
+            }}
+          >
+            <span className="seat-plan-add-plus" aria-hidden>
+              <AddPlusIcon />
+            </span>
+            Додати стіл
+            <ChevronDownIcon />
+          </button>
+          {addOpen ? (
+            <div className="seat-plan-add-dropdown" role="menu">
+              {TABLE_KIND_OPTIONS.map(([kind, label]) => (
+                <button
+                  key={kind}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => openAddTable(kind)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <ul className="seat-plan-tables-list">
+          {tables.map((table) => {
+            const filled = table.seats.filter((s) => s.guestKey).length;
+            const shape = tableListShape(table);
+            return (
+              <li key={table.id}>
+                <button
+                  type="button"
+                  className="seat-plan-tables-item"
+                  onClick={() => {
+                    setEditingTableId(table.id);
+                  }}
+                >
+                  <span className="seat-plan-tables-item-name">
+                    {table.label}
+                  </span>
+                  <span className="seat-plan-tables-item-count">
+                    {filled}/{table.seats.length}
+                  </span>
+                  {shape ? (
+                    <span
+                      className={`seat-plan-tables-shape is-${shape}`}
+                      aria-hidden
+                    />
+                  ) : null}
+                  <span className="seat-plan-tables-chevron" aria-hidden>
+                    <ChevronRightIcon />
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {tables.length === 0 ? (
+          <p className="seat-plan-tables-empty">Столів ще немає.</p>
+        ) : null}
       </div>
 
       {addKind ? (
@@ -1425,6 +1777,280 @@ export function SeatingPlan({
           )}
         </div>
       ) : null}
+
+      {popover?.kind === "list" && activePopover && isMobile && !floatPop ? (
+        <div className="seat-plan-sheet">
+          <button
+            type="button"
+            className="seat-plan-sheet__backdrop"
+            aria-label="Закрити"
+            onClick={closePopover}
+          />
+          <div className="seat-plan-sheet__panel">
+            <GuestListPopover
+              variant="sheet"
+              info={activePopover}
+              onSetRsvp={(status) => {
+                void setRsvp(activePopover.guestId, status);
+                closePopover();
+              }}
+              onLeaveUnseated={() => {
+                freeGuest(activePopover.key);
+                closePopover();
+              }}
+              onDetach={
+                activePopover.linkedName
+                  ? () => {
+                      const guest = guestMap.get(activePopover.key);
+                      if (!guest?.linkedKey) return;
+                      setDetachedKeys((prev) => {
+                        const next = new Set(prev);
+                        next.add(
+                          guest.isPlusOne
+                            ? activePopover.key
+                            : guest.linkedKey!,
+                        );
+                        return next;
+                      });
+                      freeGuest(
+                        guest.isPlusOne
+                          ? activePopover.key
+                          : guest.linkedKey!,
+                      );
+                      toast.success("Від’єднано");
+                      closePopover();
+                    }
+                  : null
+              }
+              onSeatElsewhere={() => {
+                setSelectedKey(activePopover.key);
+                setMobileTab("map");
+                closePopover();
+                toast.info("Оберіть місце на карті");
+              }}
+              onClose={closePopover}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {seatPick ? (
+        <CabinetOverlay
+          open
+          onClose={() => setSeatPick(null)}
+          title="Посадити"
+          variant="modal"
+          mobileVariant="fullscreen"
+          panelClassName="seat-pick-modal"
+          bodyClassName="seat-pick-modal-body"
+        >
+          <div className="seat-pick-toolbar">
+            <label className="seat-plan-search seat-pick-search">
+              <SearchIcon />
+              <input
+                type="search"
+                placeholder="Пошук гостей"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              className={`seat-plan-filters-btn seat-pick-filters-btn${
+                filtersActive ? " is-active" : ""
+              }`}
+              onClick={() => setMobileFiltersOpen(true)}
+            >
+              <SlidersHorizontalIcon />
+              Фільтри
+            </button>
+          </div>
+
+          <div className="seat-pick-list">
+            {filteredGuests.map((g, index) => {
+              const seated = seatOfGuest.has(g.key);
+              const next = filteredGuests[index + 1];
+              const linked =
+                Boolean(g.linkedKey) && !detachedKeys.has(g.key);
+              const clusterPrimaryKey = linked ? g.linkedKey! : g.key;
+              const nextInCluster = Boolean(
+                next &&
+                  next.linkedKey === clusterPrimaryKey &&
+                  !detachedKeys.has(next.key),
+              );
+              const clusterStart =
+                !g.linkedKey &&
+                Boolean(
+                  next &&
+                    next.linkedKey === g.key &&
+                    !detachedKeys.has(next.key),
+                );
+              const clusterMid = linked;
+              const clusterEnd =
+                (clusterStart || clusterMid) && !nextInCluster;
+              const sideLetter =
+                g.name.trim().charAt(0).toUpperCase() || "·";
+
+              return (
+                <div
+                  key={g.key}
+                  className={`seat-pick-row-wrap${
+                    clusterStart || clusterMid ? " is-linked" : ""
+                  }${clusterStart ? " is-cluster-start" : ""}${
+                    clusterMid ? " is-cluster-mid" : ""
+                  }${clusterEnd ? " is-cluster-end" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="seat-pick-row"
+                    onClick={() => {
+                      if (!seatPick) return;
+                      assignToSeat(seatPick.tableId, seatPick.seatId, g.key);
+                      setSelectedKey(g.key);
+                      setSeatPick(null);
+                      closePopover();
+                    }}
+                  >
+                    <span
+                      className={`seat-pick-avatar${
+                        seated ? "" : " is-empty"
+                      }`}
+                    >
+                      {seated ? initials(g.name) : ""}
+                    </span>
+                    <span className="seat-pick-name">{g.name}</span>
+                    <span className="seat-pick-meta">
+                      {g.rsvpStatus === "YES" ? (
+                        <span
+                          className="seat-plan-guest-check"
+                          aria-label="Підтверджено"
+                        >
+                          <SeatedStatusIcon />
+                        </span>
+                      ) : g.rsvpStatus === "PENDING" ? (
+                        <span
+                          className="seat-plan-guest-pending"
+                          aria-label="Ще немає відповіді"
+                        >
+                          <PendingStatusIcon />
+                        </span>
+                      ) : null}
+                      <span className="seat-pick-side" aria-hidden>
+                        {sideLetter}
+                      </span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="seat-plan-icon-btn seat-pick-more"
+                    aria-label="Дії з гостем"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedKey(g.key);
+                      setPopover({ kind: "list", key: g.key });
+                      setFloatPop(null);
+                      setSeatPick(null);
+                    }}
+                  >
+                    <IconMore size={14} />
+                  </button>
+                </div>
+              );
+            })}
+            {filteredGuests.length === 0 ? (
+              <p className="seat-pick-empty">Гостей не знайдено.</p>
+            ) : null}
+          </div>
+        </CabinetOverlay>
+      ) : null}
+
+      <CabinetFiltersSheet
+        open={mobileFiltersOpen}
+        onClose={() => setMobileFiltersOpen(false)}
+        onApply={applyMobileFilters}
+        onReset={resetMobileFilters}
+      >
+        <CabinetFilterGroup
+          title="Посадка"
+          items={[
+            { id: "all", label: "Всі", count: filterCounts.seat.all },
+            {
+              id: "seated",
+              label: "Посаджені",
+              count: filterCounts.seat.seated,
+            },
+            {
+              id: "unseated",
+              label: "Не посаджені",
+              count: filterCounts.seat.unseated,
+            },
+          ]}
+          active={draftSeatFilter}
+          onChange={(id) => setDraftSeatFilter(id as SeatFilter)}
+        />
+        <CabinetFilterGroup
+          title="Групи"
+          items={[
+            { id: "all", label: "Всі", count: filterCounts.group.all },
+            ...namedGroups.map((g) => ({
+              id: g.id,
+              label: g.name,
+              count: filterCounts.group[g.id] ?? 0,
+            })),
+            ...(draft.tables.hasPresidium
+              ? [
+                  {
+                    id: "presidium",
+                    label: "Президіум",
+                    count: filterCounts.group.presidium ?? 0,
+                  },
+                ]
+              : []),
+            ...(draft.tables.hasKidsTable
+              ? [
+                  {
+                    id: "kids",
+                    label: "Дитячий стіл",
+                    count: filterCounts.group.kids ?? 0,
+                  },
+                ]
+              : []),
+          ]}
+          active={draftGroupFilter}
+          onChange={setDraftGroupFilter}
+        />
+        <CabinetFilterGroup
+          title="Гості"
+          items={[
+            { id: "all", label: "Усі", count: filterCounts.side.all },
+            {
+              id: "BRIDE",
+              label: `Гості ${partnerOneShort}`,
+              count: filterCounts.side.BRIDE,
+            },
+            {
+              id: "GROOM",
+              label: `Гості ${partnerTwoShort}`,
+              count: filterCounts.side.GROOM,
+            },
+          ]}
+          active={draftSideFilter}
+          onChange={(id) => setDraftSideFilter(id as SideFilter)}
+        />
+        <CabinetFilterGroup
+          title="Столи"
+          items={[
+            { id: "all", label: "Усі", count: filterCounts.table.all },
+            ...tables.map((t, i) => ({
+              id: t.id,
+              label: t.label || String(i + 1),
+              count: filterCounts.table[t.id] ?? 0,
+            })),
+          ]}
+          active={draftTableFilter}
+          onChange={setDraftTableFilter}
+        />
+      </CabinetFiltersSheet>
 
       {chartOpen ? (
         <SeatingChartEditor
@@ -1521,6 +2147,27 @@ function PendingStatusIcon() {
         d="M7 4.4V8L9.4 9.2M13 8C13 11.3137 10.3137 14 7 14C3.68629 14 1 11.3137 1 8C1 4.68629 3.68629 2 7 2C10.3137 2 13 4.68629 13 8Z"
         stroke="#EDAF44"
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function tableListShape(table: PlanTable): "round" | "long" | null {
+  if (table.kind === "presidium") return null;
+  if (table.kind === "round") return "round";
+  if (table.kind === "kids" && table.shape !== "long") return "round";
+  return "long";
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M6 3.5 10.5 8 6 12.5"
+        stroke="#ABABAB"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
-import {
-  IconCalendar,
-  IconClose,
-  IconFilters,
-  IconQuickAdd,
-} from "@/components/cabinet-task-icons";
+import { IconQuickAdd } from "@/components/cabinet-task-icons";
+import { IconClose } from "@/components/icon-close";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { CabinetMobileFiltersBar } from "@/components/cabinet-mobile-filters-bar";
+import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
+import { usePagedVisible } from "@/hooks/use-paged-visible";
+import { CabinetShowMore } from "@/components/cabinet-show-more";
+import { IconButton } from "@/components/ui/icon-button";
+import { DateInput } from "@/components/ui/date-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   CabinetContextMenu,
@@ -32,6 +34,9 @@ import { PartnerInviteBanner } from "@/components/partner-invite-banner";
 import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
+import { CabinetFilterGroup } from "@/components/cabinet-filter-group";
+import { CabinetFiltersSheet } from "@/components/cabinet-filters-sheet";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
@@ -107,7 +112,6 @@ const DEFAULT_FILTERS = {
   who: "all" as WhoFilter,
 };
 
-const PAGE_SIZE = 12;
 const TASK_WHO_VALUES: TaskWho[] = [
   "owner",
   "partner",
@@ -251,13 +255,10 @@ function ChecklistInner() {
   const [dueFilter, setDueFilter] = useState<DueFilter>("all");
   const [whoFilter, setWhoFilter] = useState<WhoFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("urgent");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [draftStatus, setDraftStatus] = useState<StatusFilter>("all");
   const [draftType, setDraftType] = useState<TypeFilter>("all");
   const [draftDue, setDraftDue] = useState<DueFilter>("all");
-  const [filtersVisible, setFiltersVisible] = useState(false);
-  const [filtersMounted, setFiltersMounted] = useState(false);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -315,15 +316,7 @@ function ChecklistInner() {
   }, [searchParams]);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [statusFilter, typeFilter, dueFilter, whoFilter, sortMode]);
-
-  useEffect(() => {
-    if (!filtersOpen) {
-      setFiltersVisible(false);
-      const timer = window.setTimeout(() => setFiltersMounted(false), 320);
-      return () => window.clearTimeout(timer);
-    }
+    if (!filtersOpen) return;
 
     setDraftStatus(statusFilter);
     setDraftType(
@@ -336,45 +329,11 @@ function ChecklistInner() {
     setDraftDue(
       dueFilter === "soon" || dueFilter === "nodate" ? "all" : dueFilter,
     );
-    setFiltersMounted(true);
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setFiltersVisible(true));
-    });
-    return () => window.cancelAnimationFrame(id);
     // Sync draft only when opening the sheet.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersOpen]);
 
-  useEffect(() => {
-    if (!filtersOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setFiltersOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!menuOpenId) return;
-    function onDocClick(event: MouseEvent) {
-      const target = event.target;
-      if (
-        !(target instanceof Element) ||
-        !target.closest(".cabinet-ctx-menu-wrap")
-      ) {
-        setMenuOpenId(null);
-      }
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setMenuOpenId(null);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpenId]);
+  useMenuOutsideClose(Boolean(menuOpenId), () => setMenuOpenId(null));
 
   const fallbackNames = (user?.name ?? "")
     .split(/\s+(?:і|&|\+)\s+/i)
@@ -554,7 +513,9 @@ function ChecklistInner() {
     setWhoFilter(DEFAULT_FILTERS.who);
   }
 
-  const visible = filtered.slice(0, visibleCount);
+  const { visible, hasMore, showMore } = usePagedVisible(filtered, {
+    resetDeps: [statusFilter, typeFilter, dueFilter, whoFilter, sortMode],
+  });
   const doneCount = counts.status.done;
   const totalCount = counts.status.all;
   const remaining = totalCount - doneCount;
@@ -849,17 +810,16 @@ function ChecklistInner() {
   if (!wedding) {
     return (
       <div className="cabinet-tasks-page">
-        <div className="cabinet-tasks-top">
-          <h1 className="cabinet-tasks-title">Завдання</h1>
-        </div>
-        <div className="cabinet-tasks-empty-state">
-          <p className="cabinet-tasks-empty">
-            Спочатку збережи дату весілля в огляді — тоді відкриється список задач.
-          </p>
-          <Link href="/dashboard" className="cabinet-tasks-empty-link">
-            До огляду
-          </Link>
-        </div>
+        <CabinetPageHeader title="Завдання" />
+        <CabinetEmptyState
+          variant="soft"
+          description="Спочатку збережи дату весілля в огляді — тоді відкриється список задач."
+          actions={
+            <Link href="/dashboard" className="cabinet-empty-soft-link">
+              До огляду
+            </Link>
+          }
+        />
         {error ? <p className="cabinet-tasks-error">{error}</p> : null}
       </div>
     );
@@ -867,23 +827,19 @@ function ChecklistInner() {
 
   return (
     <div className="cabinet-tasks-page">
-      <div className="cabinet-tasks-top">
-        <h1 className="cabinet-tasks-title">Завдання</h1>
-        <div className="cabinet-tasks-top-actions">
-          <button
-            type="button"
-            className="cabinet-tasks-quick-add"
+      <CabinetPageHeader
+        title="Завдання"
+        summary={summary}
+        initials={partnerInitials}
+        actions={
+          <IconButton
+            variant="quick-add"
             aria-label="Додати завдання"
+            icon={<IconQuickAdd />}
             onClick={openCreate}
-          >
-            <IconQuickAdd />
-          </button>
-          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={partnerInitials} />
-          </div>
-        </div>
-      </div>
+          />
+        }
+      />
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
@@ -906,33 +862,21 @@ function ChecklistInner() {
         </div>
       </article>
 
-      <div className="cabinet-tasks-mobile-bar">
-        <button
-          type="button"
-          className={`cabinet-tasks-chip${filtersActive ? " is-active" : ""}`}
-          onClick={() => setFiltersOpen(true)}
-        >
-          <IconFilters size={14} />
-          Фільтри
-        </button>
-        <div className="cabinet-tasks-chip cabinet-tasks-chip--select">
-          <Select
-            tone="ghost"
-            size="s"
-            value={sortMode}
-            onChange={(e) => setSortMode(e.target.value as SortMode)}
-            aria-label="Сортування"
-          >
-            <option value="urgent">Термінові зверху</option>
-            <option value="date">За датою</option>
-            <option value="alpha">За алфавітом</option>
-          </Select>
-        </div>
-      </div>
+      <CabinetMobileFiltersBar
+        onOpenFilters={() => setFiltersOpen(true)}
+        filtersActive={filtersActive}
+        sortValue={sortMode}
+        onSortChange={(value) => setSortMode(value as SortMode)}
+        sortOptions={[
+          { value: "urgent", label: "Термінові зверху" },
+          { value: "date", label: "За датою" },
+          { value: "alpha", label: "За алфавітом" },
+        ]}
+      />
 
       <div className="cabinet-tasks-layout">
         <aside className="cabinet-tasks-filters">
-          <FilterGroup
+          <CabinetFilterGroup
             title="Статус"
             items={[
               { id: "all", label: "Всі", count: counts.status.all },
@@ -942,7 +886,7 @@ function ChecklistInner() {
             active={statusFilter}
             onChange={(id) => setStatusFilter(id as StatusFilter)}
           />
-          <FilterGroup
+          <CabinetFilterGroup
             title="Тип завдання"
             items={TYPE_OPTIONS.map((opt) => ({
               id: opt.id,
@@ -952,7 +896,7 @@ function ChecklistInner() {
             active={typeFilter}
             onChange={(id) => setTypeFilter(id as TypeFilter)}
           />
-          <FilterGroup
+          <CabinetFilterGroup
             title="За терміном"
             items={[
               { id: "all", label: "Всі", count: counts.due.all },
@@ -967,7 +911,7 @@ function ChecklistInner() {
             active={dueFilter}
             onChange={(id) => setDueFilter(id as DueFilter)}
           />
-          <FilterGroup
+          <CabinetFilterGroup
             title="Чиє завдання"
             items={[
               { id: "all", label: "Всі", count: counts.who.all },
@@ -1018,39 +962,42 @@ function ChecklistInner() {
           ) : null}
 
           {visible.length === 0 ? (
-            <div className="cabinet-tasks-empty-state">
-              <p className="cabinet-tasks-empty">
-                {rows.length === 0
+            <CabinetEmptyState
+              variant="soft"
+              description={
+                rows.length === 0
                   ? "Поки немає завдань. Додай перше або запусти розумне планування."
-                  : "Немає задач у цьому фільтрі."}
-              </p>
-              {rows.length === 0 ? (
-                <div className="cabinet-tasks-empty-actions">
+                  : "Немає задач у цьому фільтрі."
+              }
+              actions={
+                rows.length === 0 ? (
+                  <>
+                    <button
+                      type="button"
+                      className="cabinet-empty-soft-primary"
+                      onClick={openCreate}
+                    >
+                      Додати завдання
+                    </button>
+                    <button
+                      type="button"
+                      className="cabinet-empty-soft-link"
+                      onClick={() => setWizardOpen(true)}
+                    >
+                      Розумне планування
+                    </button>
+                  </>
+                ) : filtersActive ? (
                   <button
                     type="button"
-                    className="cabinet-tasks-empty-primary"
-                    onClick={openCreate}
+                    className="cabinet-empty-soft-link"
+                    onClick={resetAllFilters}
                   >
-                    Додати завдання
+                    Скинути фільтри
                   </button>
-                  <button
-                    type="button"
-                    className="cabinet-tasks-empty-link"
-                    onClick={() => setWizardOpen(true)}
-                  >
-                    Розумне планування
-                  </button>
-                </div>
-              ) : filtersActive ? (
-                <button
-                  type="button"
-                  className="cabinet-tasks-empty-link"
-                  onClick={resetAllFilters}
-                >
-                  Скинути фільтри
-                </button>
-              ) : null}
-            </div>
+                ) : undefined
+              }
+            />
           ) : (
             <ul className="cabinet-task-list">
               {visible.map((task) => {
@@ -1091,19 +1038,17 @@ function ChecklistInner() {
                             partnerName={partnerShort}
                           />
                           <div className="cabinet-ctx-menu-wrap">
-                            <button
-                              type="button"
-                              className="cabinet-task-menu"
+                            <IconButton
+                              variant="ghost"
                               aria-label="Меню завдання"
                               aria-expanded={menuOpenId === task.id}
+                              icon={<IconMore />}
                               onClick={() =>
                                 setMenuOpenId((id) =>
                                   id === task.id ? null : task.id,
                                 )
                               }
-                            >
-                              <IconMore />
-                            </button>
+                            />
                             {menuOpenId === task.id ? (
                               <CabinetContextMenu>
                                 <CabinetContextMenuItem
@@ -1222,114 +1167,63 @@ function ChecklistInner() {
             </aside>
           ) : null}
 
-          {filtered.length > visibleCount ? (
-            <button
-              type="button"
-              className="cabinet-panel-link cabinet-tasks-more"
-              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
-            >
-              Показати більше
-            </button>
-          ) : null}
+          <CabinetShowMore hasMore={hasMore} onShowMore={showMore} />
         </section>
       </div>
 
-      {filtersMounted ? (
-        <div
-          className={`cabinet-tasks-filters-sheet${
-            filtersVisible ? " is-open" : ""
-          }`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Фільтри"
-        >
-          <button
-            type="button"
-            className="cabinet-tasks-filters-sheet__backdrop"
-            aria-label="Закрити фільтри"
-            onClick={() => setFiltersOpen(false)}
-          />
-          <div className="cabinet-tasks-filters-sheet__panel">
-            <div className="cabinet-tasks-filters-sheet__head">
-              <h2 className="cabinet-tasks-filters-sheet__title">Фільтри</h2>
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__close"
-                aria-label="Закрити"
-                onClick={() => setFiltersOpen(false)}
-              >
-                <IconClose size={18} />
-              </button>
-            </div>
-
-            <div className="cabinet-tasks-filters-sheet__body">
-              <FilterGroup
-                title="Статус"
-                items={[
-                  { id: "all", label: "Всі", count: counts.status.all },
-                  {
-                    id: "open",
-                    label: "Не виконано",
-                    count: counts.status.open,
-                  },
-                  {
-                    id: "done",
-                    label: "Виконано",
-                    count: counts.status.done,
-                  },
-                ]}
-                active={draftStatus}
-                onChange={(id) => setDraftStatus(id as StatusFilter)}
-              />
-              <FilterGroup
-                title="Тип завдання"
-                items={MOBILE_TYPE_OPTIONS.map((opt) => ({
-                  id: opt.id,
-                  label: opt.label,
-                  count: counts.types[opt.id],
-                }))}
-                active={draftType}
-                onChange={(id) => setDraftType(id as TypeFilter)}
-              />
-              <FilterGroup
-                title="За терміном"
-                items={[
-                  { id: "all", label: "Усі", count: counts.due.all },
-                  {
-                    id: "overdue",
-                    label: "Прострочені",
-                    count: counts.due.overdue,
-                  },
-                  {
-                    id: "week",
-                    label: "Цього тижня",
-                    count: counts.due.week,
-                  },
-                ]}
-                active={draftDue}
-                onChange={(id) => setDraftDue(id as DueFilter)}
-              />
-            </div>
-
-            <div className="cabinet-tasks-filters-sheet__foot">
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__apply"
-                onClick={applyDraftFilters}
-              >
-                Застосувати
-              </button>
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__reset"
-                onClick={resetDraftFilters}
-              >
-                Скинути фільтри
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <CabinetFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={applyDraftFilters}
+        onReset={resetDraftFilters}
+      >
+        <CabinetFilterGroup
+          title="Статус"
+          items={[
+            { id: "all", label: "Всі", count: counts.status.all },
+            {
+              id: "open",
+              label: "Не виконано",
+              count: counts.status.open,
+            },
+            {
+              id: "done",
+              label: "Виконано",
+              count: counts.status.done,
+            },
+          ]}
+          active={draftStatus}
+          onChange={(id) => setDraftStatus(id as StatusFilter)}
+        />
+        <CabinetFilterGroup
+          title="Тип завдання"
+          items={MOBILE_TYPE_OPTIONS.map((opt) => ({
+            id: opt.id,
+            label: opt.label,
+            count: counts.types[opt.id],
+          }))}
+          active={draftType}
+          onChange={(id) => setDraftType(id as TypeFilter)}
+        />
+        <CabinetFilterGroup
+          title="За терміном"
+          items={[
+            { id: "all", label: "Усі", count: counts.due.all },
+            {
+              id: "overdue",
+              label: "Прострочені",
+              count: counts.due.overdue,
+            },
+            {
+              id: "week",
+              label: "Цього тижня",
+              count: counts.due.week,
+            },
+          ]}
+          active={draftDue}
+          onChange={(id) => setDraftDue(id as DueFilter)}
+        />
+      </CabinetFiltersSheet>
 
       {wizardOpen ? (
         <SmartPlanningWizard
@@ -1349,28 +1243,13 @@ function ChecklistInner() {
         asForm
         onSubmit={onSaveTask}
         footer={
-          <>
-            <Button
-              type="button"
-              tone="ghost"
-              size="m"
-              className="cabinet-drawer-cancel"
-              onClick={closeDrawer}
-            >
-              Скасувати
-            </Button>
-            <Button
-              type="submit"
-              tone="black"
-              size="m"
-              className="cabinet-drawer-save"
-              disabled={adding || !newTitle.trim()}
-              loading={adding}
-              loadingText="…"
-            >
-              Зберегти
-            </Button>
-          </>
+          <CabinetFormActions
+            onCancel={closeDrawer}
+            saveTone="black"
+            saveDisabled={adding || !newTitle.trim()}
+            saveLoading={adding}
+            saveLoadingText="…"
+          />
         }
       >
         <TextInput
@@ -1385,28 +1264,12 @@ function ChecklistInner() {
               !wedding.tasks.find((t) => t.id === editingId)?.isCustom,
           )}
         />
-        <label className="cabinet-drawer-field">
-          <span>Дедлайн</span>
-          <div
-            className={`cabinet-tasks-date${newDue ? " has-value" : ""}`}
-          >
-            <input
-              type="date"
-              value={newDue}
-              onChange={(e) => setNewDue(e.target.value)}
-              aria-label="Дедлайн"
-            />
-            {!newDue ? (
-              <span className="cabinet-tasks-date__placeholder" aria-hidden>
-                Оберіть дату
-              </span>
-            ) : null}
-            <IconCalendar
-              size={18}
-              className="cabinet-tasks-date__icon"
-            />
-          </div>
-        </label>
+        <DateInput
+          label="Дедлайн"
+          value={newDue}
+          onChange={(e) => setNewDue(e.target.value)}
+          placeholder="Оберіть дату"
+        />
         {!editingId ? (
           <Select
             label="Тип завдання"
@@ -1466,37 +1329,6 @@ function ChecklistInner() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => void confirmDelete()}
       />
-    </div>
-  );
-}
-
-function FilterGroup({
-  title,
-  items,
-  active,
-  onChange,
-}: {
-  title: string;
-  items: Array<{ id: string; label: string; count: number }>;
-  active: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <div className="cabinet-filter-group">
-      <p className="cabinet-filter-title">{title}</p>
-      <div className="cabinet-filter-list">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`cabinet-filter-item${active === item.id ? " is-active" : ""}`}
-            onClick={() => onChange(item.id)}
-          >
-            <span>{item.label}</span>
-            <span className="cabinet-filter-count">{item.count}</span>
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

@@ -43,12 +43,25 @@ export declare class AuthService {
     logout(userId: string): Promise<{
         ok: boolean;
     }>;
+    deleteAccount(userId: string, password: string): Promise<{
+        ok: boolean;
+    }>;
     me(userId: string): Promise<{
-        name: string;
-        id: string;
         email: string;
+        name: string;
         role: import(".prisma/client").$Enums.Role;
+        id: string;
         createdAt: Date;
+    }>;
+    changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{
+        accessToken: string;
+        refreshToken: string;
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            role: import(".prisma/client").$Enums.Role;
+        };
     }>;
     private resolveRegisterRole;
     private get refreshSecret();

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { CabinetActionItem } from "@/components/cabinet-context-menu";
 import { IconTrash } from "@/components/icon-trash";
-import { Button } from "@/components/ui/button";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { shapedSeatPosition } from "@/lib/seat-layout";
 
@@ -207,19 +207,13 @@ export function SeatingTableModal({
       panelClassName="seat-table-modal"
       footerClassName="cabinet-modal-actions seat-table-modal-footer"
       footer={
-        <>
-          <Button type="button" tone="ghost" size="m" onClick={onClose}>
-            Скасувати
-          </Button>
-          <Button
-            type="button"
-            tone="ink"
-            size="m"
-            onClick={() => onSave(draft)}
-          >
-            Зберегти
-          </Button>
-        </>
+        <CabinetFormActions
+          onCancel={onClose}
+          saveType="button"
+          onSave={() => onSave(draft)}
+          cancelClassName=""
+          saveClassName=""
+        />
       }
     >
       <div className={`seat-table-modal-preview${previewMod}`}>

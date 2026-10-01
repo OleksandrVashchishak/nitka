@@ -1,0 +1,57 @@
+.fata-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #1a1a1a;
+  cursor: pointer;
+  line-height: 0;
+  flex-shrink: 0;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &--ghost {
+    color: #7f8791;
+  }
+
+  &--xs {
+    width: 20px;
+    height: 20px;
+  }
+
+  &--s {
+    width: 24px;
+    height: 24px;
+  }
+
+  &--m {
+    width: 32px;
+    height: 32px;
+  }
+
+  &--l {
+    width: 36px;
+    height: 36px;
+  }
+
+  &--xl {
+    width: 40px;
+    height: 40px;
+  }
+
+  &--quick-add {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .fata-icon-button--quick-add {
+    display: inline-flex;
+  }
+}

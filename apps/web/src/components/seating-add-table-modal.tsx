@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { TextInput } from "@/components/ui/text-input";
 import type { SeatTableKind } from "@/components/seating-table-modal";
@@ -73,26 +73,11 @@ export function SeatingAddTableModal({
       asForm
       onSubmit={submit}
       footer={
-        <>
-          <Button
-            type="button"
-            tone="ghost"
-            size="m"
-            className="cabinet-drawer-cancel"
-            onClick={onClose}
-          >
-            Скасувати
-          </Button>
-          <Button
-            type="submit"
-            tone="ink"
-            size="m"
-            className="cabinet-drawer-save"
-            disabled={!canSubmit}
-          >
-            Додати
-          </Button>
-        </>
+        <CabinetFormActions
+          onCancel={onClose}
+          saveLabel="Додати"
+          saveDisabled={!canSubmit}
+        />
       }
     >
       <TextInput

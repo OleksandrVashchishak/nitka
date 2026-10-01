@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { DayPlanEventModal } from "@/components/day-plan/day-plan-event-modal";
 import {
   IconDayPlanBack,
@@ -20,9 +19,9 @@ import { useAuthStore } from "@/lib/auth-store";
 import { getMyWedding } from "@/lib/dashboard-api";
 import {
   formatDayPlanDate,
-  loadDayPlan,
   loadDayPlanShare,
-  saveDayPlan,
+  loadDayPlanWithMigration,
+  saveDayPlanRemote,
   saveDayPlanShare,
   sortDayPlanEvents,
   type DayPlanEvent,
@@ -69,7 +68,7 @@ function DayPlanInner() {
         }
         setWeddingId(wedding.id);
         setWeddingDate(wedding.date);
-        setEvents(loadDayPlan(wedding.id));
+        setEvents(await loadDayPlanWithMigration(wedding.id));
 
         const partners = [wedding.partnerOneName, wedding.partnerTwoName]
           .map((name) => ({ name: name?.trim() || "" }))
@@ -99,7 +98,7 @@ function DayPlanInner() {
   function persist(next: DayPlanEvent[]) {
     const sorted = sortDayPlanEvents(next);
     setEvents(sorted);
-    if (weddingId) saveDayPlan(weddingId, sorted);
+    if (weddingId) void saveDayPlanRemote(weddingId, sorted);
   }
 
   function persistShare(next: DayPlanSharePerson[]) {
@@ -166,15 +165,12 @@ function DayPlanInner() {
 
   return (
     <div className="cabinet-tasks-page cabinet-day-plan-page">
-      <div className="cabinet-tasks-top cabinet-day-plan-desktop-top">
-        <h1 className="cabinet-tasks-title">План дня</h1>
-        <div className="cabinet-tasks-top-actions">
-          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={partnerInitials} />
-          </div>
-        </div>
-      </div>
+      <CabinetPageHeader
+        title="План дня"
+        summary={summary}
+        initials={partnerInitials}
+        className="cabinet-day-plan-desktop-top"
+      />
 
       <div className="cabinet-day-plan-mobile-top">
         <button

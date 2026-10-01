@@ -1,13 +1,14 @@
 "use client";
 
-import { PageLoader } from "@/components/ui-loader";
-import { useEffect, useState } from "react";
-import { getMyWedding, type Wedding } from "@/lib/dashboard-api";
+import { useCallback, useEffect, useState } from "react";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { CoupleOverview } from "@/components/couple-overview";
 import { CouplePostWeddingOverview } from "@/components/couple-post-wedding-overview";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
+import { PageLoader } from "@/components/ui-loader";
 import { useAuthStore } from "@/lib/auth-store";
-import { toast } from "@/lib/toast";
+import { getMyWedding, type Wedding } from "@/lib/dashboard-api";
 
 function daysUntil(dateIso: string) {
   const target = new Date(dateIso);
@@ -25,35 +26,81 @@ function CoupleDashboardInner() {
   const user = useAuthStore((s) => s.user);
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const data = await getMyWedding();
+      setWedding(data);
+    } catch {
+      setWedding(null);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    void (async () => {
-      try {
-        const data = await getMyWedding();
-        setWedding(data);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Помилка завантаження";
-        setError(message);
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    void load();
+  }, [load]);
 
   if (loading) {
     return <PageLoader label="Завантажуємо кабінет…" />;
   }
 
-  const left = wedding ? daysUntil(wedding.date) : 0;
+  if (error) {
+    return (
+      <CabinetEmptyState
+        title="Проблеми на сервері"
+        description={
+          <p>Зараз кабінет недоступний. Почекай трохи і спробуй ще раз.</p>
+        }
+        actions={
+          <Button
+            type="button"
+            tone="ink"
+            size="m"
+            className="cabinet-empty-cta"
+            onClick={() => void load()}
+          >
+            Спробувати ще
+          </Button>
+        }
+      />
+    );
+  }
+
+  if (!wedding) {
+    return (
+      <CabinetEmptyState
+        title="Кабінет ще порожній"
+        description={
+          <p>Як тільки зʼявиться весілля — тут відкриється огляд.</p>
+        }
+        actions={
+          <Button
+            type="button"
+            tone="ink"
+            size="m"
+            className="cabinet-empty-cta"
+            onClick={() => void load()}
+          >
+            Оновити
+          </Button>
+        }
+      />
+    );
+  }
+
+  const left = daysUntil(wedding.date);
   const fallbackNames = (user?.name ?? "")
     .split(/\s+(?:і|&|\+)\s+/i)
     .map((name) => name.trim());
   const partnerOneName =
-    wedding?.partnerOneName || fallbackNames[0] || user?.name || "";
-  const partnerTwoName = wedding?.partnerTwoName || fallbackNames[1] || "";
+    wedding.partnerOneName || fallbackNames[0] || user?.name || "";
+  const partnerTwoName = wedding.partnerTwoName || fallbackNames[1] || "";
   const oneInitial = partnerOneName.trim().charAt(0).toUpperCase();
   const twoInitial = partnerTwoName.trim().charAt(0).toUpperCase();
   const partnerInitials =
@@ -61,67 +108,47 @@ function CoupleDashboardInner() {
       ? `${oneInitial}&${twoInitial}`
       : oneInitial || twoInitial || "П";
 
-  return (
-    <>
-      {error ? (
-        <p className="mx-5 mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:mx-10">
-          {error}
-        </p>
-      ) : null}
+  if (left < 0) {
+    return (
+      <CouplePostWeddingOverview
+        wedding={wedding}
+        partnerOneFirst={partnerOneName.split(" ")[0] || ""}
+        partnerTwoFirst={partnerTwoName.split(" ")[0] || ""}
+        partnerInitials={partnerInitials}
+      />
+    );
+  }
 
-      {wedding ? (
-        left < 0 ? (
-          <CouplePostWeddingOverview
-            wedding={wedding}
-            partnerOneFirst={partnerOneName.split(" ")[0] || ""}
-            partnerTwoFirst={partnerTwoName.split(" ")[0] || ""}
-            partnerInitials={partnerInitials}
-          />
-        ) : (
-          <CoupleOverview
-            wedding={wedding}
-            greetingName={partnerOneName.split(" ")[0] || "там"}
-            partnerName={partnerTwoName.split(" ")[0]}
-            partnerInitials={partnerInitials}
-            daysLeft={left}
-            onTaskChange={(updated) =>
-              setWedding((prev) =>
-                prev
-                  ? {
-                      ...prev,
-                      tasks: prev.tasks.map((t) =>
-                        t.id === updated.id ? updated : t,
-                      ),
-                    }
-                  : prev,
-              )
-            }
-            onTaskRemove={(taskId) =>
-              setWedding((prev) =>
-                prev
-                  ? {
-                      ...prev,
-                      tasks: prev.tasks.filter((t) => t.id !== taskId),
-                    }
-                  : prev,
-              )
-            }
-          />
+  return (
+    <CoupleOverview
+      wedding={wedding}
+      greetingName={partnerOneName.split(" ")[0] || "там"}
+      partnerName={partnerTwoName.split(" ")[0]}
+      partnerInitials={partnerInitials}
+      daysLeft={left}
+      onTaskChange={(updated) =>
+        setWedding((prev) =>
+          prev
+            ? {
+                ...prev,
+                tasks: prev.tasks.map((t) =>
+                  t.id === updated.id ? updated : t,
+                ),
+              }
+            : prev,
         )
-      ) : (
-        <section className="px-5 py-16 md:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-deep">
-            Початок
-          </p>
-          <h2 className="mt-2 font-[family-name:var(--font-script)] text-4xl italic text-ink">
-            Збережи дату — відкриємо кабінет
-          </h2>
-          <p className="mt-2 max-w-xl text-sm text-ink-soft">
-            Пройди онбординг при реєстрації — після цього тут зʼявиться кабінет.
-          </p>
-        </section>
-      )}
-    </>
+      }
+      onTaskRemove={(taskId) =>
+        setWedding((prev) =>
+          prev
+            ? {
+                ...prev,
+                tasks: prev.tasks.filter((t) => t.id !== taskId),
+              }
+            : prev,
+        )
+      }
+    />
   );
 }
 

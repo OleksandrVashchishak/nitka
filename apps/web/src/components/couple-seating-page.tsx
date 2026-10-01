@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { Button } from "@/components/ui/button";
@@ -142,9 +141,7 @@ function SeatingInner() {
   if (!data) {
     return (
       <div className="cabinet-tasks-page">
-        <div className="cabinet-tasks-top">
-          <h1 className="cabinet-tasks-title">Розсадка</h1>
-        </div>
+        <CabinetPageHeader title="Розсадка" />
         <div className="cabinet-panel" style={{ marginTop: 24 }}>
           <p style={{ margin: 0, color: "#666" }}>
             Спочатку збережи дату весілля в огляді — тоді відкриється розсадка.
@@ -210,15 +207,11 @@ function SeatingInner() {
 
   return (
     <div className="cabinet-tasks-page">
-      <div className="cabinet-tasks-top">
-        <h1 className="cabinet-tasks-title">Розсадка</h1>
-        <div className="cabinet-tasks-top-actions">
-          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={partnerInitials} />
-          </div>
-        </div>
-      </div>
+      <CabinetPageHeader
+        title="Розсадка"
+        summary={summary}
+        initials={partnerInitials}
+      />
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 

@@ -1,16 +1,26 @@
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { EmailService } from '../email/email.service';
 import { PrismaService } from '../prisma/prisma.service';
+export type NotifyEventType = 'guest_rsvp' | 'upcoming_payments' | 'task_due' | 'partner_changes';
 export type NotifyPayload = {
     title: string;
     body: string;
     data?: Record<string, string>;
+    type?: NotifyEventType;
     email?: {
         subject?: string;
         body?: string;
         ctaLabel?: string;
         ctaPath?: string;
     };
+};
+export type NotificationPrefs = {
+    guestRsvp: boolean;
+    upcomingPayments: boolean;
+    taskDeadlines: boolean;
+    partnerChanges: boolean;
+    push: boolean;
+    email: boolean;
 };
 export type NotificationSummaryItem = {
     key: string;
@@ -38,6 +48,10 @@ export declare class NotificationsService implements OnModuleInit, OnModuleDestr
     registerDevice(userId: string, token: string, platform?: string): Promise<{
         ok: boolean;
     }>;
+    getPrefs(userId: string): Promise<NotificationPrefs>;
+    updatePrefs(userId: string, patch: Partial<NotificationPrefs>): Promise<NotificationPrefs>;
+    private mapPrefs;
+    private allowsEventType;
     unregisterDevice(userId: string, token: string): Promise<{
         ok: boolean;
     }>;

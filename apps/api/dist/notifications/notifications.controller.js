@@ -19,6 +19,7 @@ const current_user_decorator_1 = require("../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const register_push_dto_1 = require("./dto/register-push.dto");
+const update_prefs_dto_1 = require("./dto/update-prefs.dto");
 const notifications_service_1 = require("./notifications.service");
 let NotificationsController = class NotificationsController {
     constructor(notifications) {
@@ -39,6 +40,12 @@ let NotificationsController = class NotificationsController {
     }
     summary(user) {
         return this.notifications.getSummary(user);
+    }
+    getPrefs(user) {
+        return this.notifications.getPrefs(user.id);
+    }
+    updatePrefs(user, dto) {
+        return this.notifications.updatePrefs(user.id, dto);
     }
 };
 exports.NotificationsController = NotificationsController;
@@ -78,6 +85,25 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "summary", null);
+__decorate([
+    (0, common_1.Get)('prefs'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "getPrefs", null);
+__decorate([
+    (0, common_1.Patch)('prefs'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_prefs_dto_1.UpdateNotificationPrefsDto]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "updatePrefs", null);
 exports.NotificationsController = NotificationsController = __decorate([
     (0, common_1.Controller)('notifications'),
     __metadata("design:paramtypes", [notifications_service_1.NotificationsService])

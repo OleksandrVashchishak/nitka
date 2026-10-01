@@ -15,6 +15,7 @@ import {
   requireWeddingOwner,
   resolveWeddingForUser,
 } from './wedding-access';
+import { cloneDefaultDayPlan } from '../day-plan/day-plan.defaults';
 
 /** Стартові задачі для нових акаунтів (розумне планування додає решту). */
 const DEFAULT_TASKS = [
@@ -234,6 +235,7 @@ export class WeddingsService {
             title: 'Партнер оновив весілля',
             body: 'Змінилися деталі — глянь у кабінеті',
             data: { type: 'wedding_update' },
+            type: 'partner_changes',
           },
           userId,
         );
@@ -255,6 +257,7 @@ export class WeddingsService {
         planningStage: dto.planningStage ?? 'EXPLORING',
         cityUndecided: dto.cityUndecided ?? false,
         guestsUndecided: dto.guestsUndecided ?? false,
+        dayPlan: cloneDefaultDayPlan(),
         tasks: {
           create: DEFAULT_TASKS.map((task, index) => ({
             title: task.title,
@@ -343,6 +346,32 @@ export class WeddingsService {
           ? partners.join(' & ')
           : invite.wedding.user.name,
     };
+  }
+
+  async removePartner(userId: string) {
+    const { wedding } = await requireWeddingOwner(this.prisma, userId);
+
+    const partner = await this.prisma.weddingMember.findFirst({
+      where: {
+        weddingId: wedding.id,
+        role: WeddingMemberRole.PARTNER,
+      },
+    });
+    if (!partner) {
+      throw new NotFoundException('Партнера не знайдено');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.weddingMember.delete({ where: { id: partner.id } }),
+      this.prisma.weddingInvite.deleteMany({
+        where: {
+          weddingId: wedding.id,
+          acceptedAt: null,
+        },
+      }),
+    ]);
+
+    return this.getMine(userId);
   }
 
   async acceptPartnerInvite(userId: string, token: string) {

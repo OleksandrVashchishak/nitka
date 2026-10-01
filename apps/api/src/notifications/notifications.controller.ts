@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Headers,
+  Patch,
   Post,
   UnauthorizedException,
   UseGuards,
@@ -13,6 +14,7 @@ import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import { RegisterPushDto } from './dto/register-push.dto';
+import { UpdateNotificationPrefsDto } from './dto/update-prefs.dto';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
@@ -58,5 +60,22 @@ export class NotificationsController {
   @Roles(Role.COUPLE)
   summary(@CurrentUser() user: AuthUser) {
     return this.notifications.getSummary(user);
+  }
+
+  @Get('prefs')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE)
+  getPrefs(@CurrentUser() user: AuthUser) {
+    return this.notifications.getPrefs(user.id);
+  }
+
+  @Patch('prefs')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE)
+  updatePrefs(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdateNotificationPrefsDto,
+  ) {
+    return this.notifications.updatePrefs(user.id, dto);
   }
 }

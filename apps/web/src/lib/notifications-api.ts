@@ -34,6 +34,26 @@ export function getNotificationsSummary() {
   });
 }
 
+export type NotificationPrefs = {
+  guestRsvp: boolean;
+  upcomingPayments: boolean;
+  taskDeadlines: boolean;
+  partnerChanges: boolean;
+  push: boolean;
+  email: boolean;
+};
+
+export function getNotificationPrefs() {
+  return apiFetch<NotificationPrefs>("/api/notifications/prefs");
+}
+
+export function updateNotificationPrefs(patch: Partial<NotificationPrefs>) {
+  return apiFetch<NotificationPrefs>("/api/notifications/prefs", {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+}
+
 export function formatNotifyRelativeTime(iso: string, now = Date.now()) {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "";

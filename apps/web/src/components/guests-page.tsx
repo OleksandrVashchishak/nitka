@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
-import {
-  IconClose,
-  IconFilters,
-  IconQuickAdd,
-} from "@/components/cabinet-task-icons";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { IconQuickAdd } from "@/components/cabinet-task-icons";
+import { IconButton } from "@/components/ui/icon-button";
+import { CabinetFilterGroup } from "@/components/cabinet-filter-group";
+import { CabinetFiltersSheet } from "@/components/cabinet-filters-sheet";
+import { CabinetMobileFiltersBar } from "@/components/cabinet-mobile-filters-bar";
+import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
+import { usePagedVisible } from "@/hooks/use-paged-visible";
+import { CabinetShowMore } from "@/components/cabinet-show-more";
 import {
   CabinetContextMenu,
   CabinetContextMenuDivider,
@@ -27,6 +29,8 @@ import {
 } from "@/components/responsible-avatar";
 import { RequireAuth } from "@/components/require-auth";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
+import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
@@ -70,7 +74,52 @@ type SortMode = "recent" | "alpha" | "rsvp";
 
 type CompanionDraft = GuestCompanion & { key: string };
 
-const PAGE_SIZE = 12;
+const SHOW_TEST_TOOLS = process.env.NODE_ENV === "development";
+
+const RANDOM_FIRST_NAMES = [
+  "Олена",
+  "Андрій",
+  "Марія",
+  "Іван",
+  "Софія",
+  "Дмитро",
+  "Анна",
+  "Олександр",
+  "Катерина",
+  "Максим",
+  "Юлія",
+  "Тарас",
+  "Наталія",
+  "Богдан",
+  "Ірина",
+];
+const RANDOM_LAST_NAMES = [
+  "Коваленко",
+  "Шевченко",
+  "Бондаренко",
+  "Ткаченко",
+  "Мельник",
+  "Кравченко",
+  "Олійник",
+  "Шевчук",
+  "Поліщук",
+  "Лисенко",
+];
+const RANDOM_SIDES: GuestSide[] = ["BRIDE", "GROOM", "BOTH"];
+
+function pickRandom<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)]!;
+}
+
+function makeRandomGuests(count: number) {
+  return Array.from({ length: count }, () => ({
+    name: `${pickRandom(RANDOM_FIRST_NAMES)} ${pickRandom(RANDOM_LAST_NAMES)}`,
+    side: pickRandom(RANDOM_SIDES),
+    phone: `+380${String(50 + Math.floor(Math.random() * 50)).padStart(2, "0")}${String(
+      Math.floor(Math.random() * 10_000_000),
+    ).padStart(7, "0")}`,
+  }));
+}
 
 const INVITE_METHODS: Array<{ id: InviteMethod; label: string }> = [
   { id: "phone", label: "Телефоном" },
@@ -147,10 +196,7 @@ function GuestsInner() {
   const [rsvpFilter, setRsvpFilter] = useState<RsvpFilter>("all");
   const [ageFilter, setAgeFilter] = useState<AgeFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("recent");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filtersVisible, setFiltersVisible] = useState(false);
-  const [filtersMounted, setFiltersMounted] = useState(false);
   const [draftSide, setDraftSide] = useState<SideFilter>("all");
   const [draftInvite, setDraftInvite] = useState<InviteFilter>("all");
   const [draftRsvp, setDraftRsvp] = useState<RsvpFilter>("all");
@@ -207,59 +253,16 @@ function GuestsInner() {
   }, [user?.name]);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
-
-  useEffect(() => {
-    if (!filtersOpen) {
-      setFiltersVisible(false);
-      const timer = window.setTimeout(() => setFiltersMounted(false), 320);
-      return () => window.clearTimeout(timer);
-    }
-
+    if (!filtersOpen) return;
     setDraftSide(sideFilter);
     setDraftInvite(inviteFilter);
     setDraftRsvp(rsvpFilter);
     setDraftAge(ageFilter);
-    setFiltersMounted(true);
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setFiltersVisible(true));
-    });
-    return () => window.cancelAnimationFrame(id);
     // Sync draft only when opening the sheet.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersOpen]);
 
-  useEffect(() => {
-    if (!filtersOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setFiltersOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!menuOpenId) return;
-    function onDocClick(event: MouseEvent) {
-      const target = event.target;
-      if (
-        !(target instanceof Element) ||
-        !target.closest(".cabinet-ctx-menu-wrap")
-      ) {
-        setMenuOpenId(null);
-      }
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setMenuOpenId(null);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpenId]);
+  useMenuOutsideClose(Boolean(menuOpenId), () => setMenuOpenId(null));
 
   const guests = data?.guests ?? [];
 
@@ -316,7 +319,9 @@ function GuestsInner() {
     });
   }, [guests, sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
 
-  const visible = filtered.slice(0, visibleCount);
+  const { visible, hasMore, showMore } = usePagedVisible(filtered, {
+    resetDeps: [sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode],
+  });
 
   const activeFilterCount = [
     sideFilter !== "all",
@@ -604,6 +609,22 @@ function GuestsInner() {
     }
   }
 
+  async function onAddRandomGuests() {
+    setBusy(true);
+    try {
+      const rows = makeRandomGuests(10);
+      await importGuests(rows);
+      await load();
+      toast.success("Тест", "Додано 10 гостей");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Не вдалося додати тестових гостей",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (loading) {
     return <PageLoader label="Завантажуємо гостей…" />;
   }
@@ -611,9 +632,7 @@ function GuestsInner() {
   if (!data) {
     return (
       <div className="cabinet-tasks-page">
-        <div className="cabinet-tasks-top">
-          <h1 className="cabinet-tasks-title">Гості</h1>
-        </div>
+        <CabinetPageHeader title="Гості" />
         <div className="cabinet-panel" style={{ marginTop: 24 }}>
           <p style={{ margin: 0, color: "#666" }}>
             Спочатку збережи дату весілля в огляді — тоді відкриється список гостей.
@@ -629,33 +648,31 @@ function GuestsInner() {
 
   return (
     <div className="cabinet-tasks-page">
-      <div className="cabinet-tasks-top">
-        <h1 className="cabinet-tasks-title">
-          Гості
-          {guests.length > 0 ? (
-            <span className="cabinet-guests-title-count">
-              {" "}
-              ({filtered.length})
-            </span>
-          ) : null}
-        </h1>
-        <div className="cabinet-tasks-top-actions">
-          {guests.length > 0 ? (
-            <button
-              type="button"
-              className="cabinet-tasks-quick-add"
+      <CabinetPageHeader
+        title={
+          <>
+            Гості
+            {guests.length > 0 ? (
+              <span className="cabinet-guests-title-count">
+                {" "}
+                ({filtered.length})
+              </span>
+            ) : null}
+          </>
+        }
+        summary={summary}
+        initials={partnerInitials}
+        actions={
+          guests.length > 0 ? (
+            <IconButton
+              variant="quick-add"
               aria-label="Додати гостя"
+              icon={<IconQuickAdd />}
               onClick={openCreate}
-            >
-              <IconQuickAdd />
-            </button>
-          ) : null}
-          <div className="cabinet-overview-actions cabinet-tasks-desktop-actions">
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={partnerInitials} />
-          </div>
-        </div>
-      </div>
+            />
+          ) : null
+        }
+      />
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
@@ -697,6 +714,18 @@ function GuestsInner() {
               >
                 Імпорт CSV
               </Button>
+              {SHOW_TEST_TOOLS ? (
+                <Button
+                  type="button"
+                  tone="ghost"
+                  size="m"
+                  className="cabinet-guests-import-btn"
+                  onClick={() => void onAddRandomGuests()}
+                  disabled={busy}
+                >
+                  10 рандомних гостей
+                </Button>
+              ) : null}
             </>
           }
         >
@@ -714,38 +743,22 @@ function GuestsInner() {
         </CabinetEmptyState>
       ) : (
         <>
-          <div className="cabinet-tasks-mobile-bar">
-            <button
-              type="button"
-              className={`cabinet-tasks-chip${filtersActive ? " is-active" : ""}`}
-              onClick={() => setFiltersOpen(true)}
-            >
-              <IconFilters size={14} />
-              Фільтри
-              {filtersActive ? (
-                <span className="cabinet-tasks-chip-badge">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-            </button>
-            <div className="cabinet-tasks-chip cabinet-tasks-chip--select">
-              <Select
-                tone="ghost"
-                size="s"
-                value={sortMode}
-                onChange={(e) => setSortMode(e.target.value as SortMode)}
-                aria-label="Сортування"
-              >
-                <option value="recent">Недавно додані</option>
-                <option value="alpha">За алфавітом</option>
-                <option value="rsvp">За відповіддю</option>
-              </Select>
-            </div>
-          </div>
+          <CabinetMobileFiltersBar
+            onOpenFilters={() => setFiltersOpen(true)}
+            filtersActive={filtersActive}
+            activeFilterCount={activeFilterCount}
+            sortValue={sortMode}
+            onSortChange={(value) => setSortMode(value as SortMode)}
+            sortOptions={[
+              { value: "recent", label: "Недавно додані" },
+              { value: "alpha", label: "За алфавітом" },
+              { value: "rsvp", label: "За відповіддю" },
+            ]}
+          />
 
           <div className="cabinet-tasks-layout">
             <aside className="cabinet-tasks-filters">
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Чиї гості"
                 items={[
                   { id: "all", label: "Всі", count: counts.side.all },
@@ -763,7 +776,7 @@ function GuestsInner() {
                 active={sideFilter}
                 onChange={(id) => setSideFilter(id as SideFilter)}
               />
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Статус запрошення"
                 items={[
                   { id: "all", label: "Всі", count: counts.invite.all },
@@ -781,7 +794,7 @@ function GuestsInner() {
                 active={inviteFilter}
                 onChange={(id) => setInviteFilter(id as InviteFilter)}
               />
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Результат запрошення"
                 items={[
                   { id: "all", label: "Усі", count: counts.rsvp.all },
@@ -801,7 +814,7 @@ function GuestsInner() {
                 active={rsvpFilter}
                 onChange={(id) => setRsvpFilter(id as RsvpFilter)}
               />
-              <FilterGroup
+              <CabinetFilterGroup
                 title="Вік"
                 items={[
                   { id: "all", label: "Усі", count: counts.age.all },
@@ -822,6 +835,18 @@ function GuestsInner() {
                   </span>
                 </h2>
                 <div className="cabinet-tasks-list-actions">
+                  {SHOW_TEST_TOOLS ? (
+                    <Button
+                      type="button"
+                      tone="ghost"
+                      size="m"
+                      className="cabinet-guests-import-btn"
+                      onClick={() => void onAddRandomGuests()}
+                      disabled={busy}
+                    >
+                      10 рандомних гостей
+                    </Button>
+                  ) : null}
                   <Select
                     className="cabinet-tasks-sort"
                     size="m"
@@ -869,9 +894,10 @@ function GuestsInner() {
               </div>
 
               {visible.length === 0 ? (
-                <p className="cabinet-tasks-empty">
-                  Немає гостей у цьому фільтрі.
-                </p>
+                <CabinetEmptyState
+                  variant="soft"
+                  description="Немає гостей у цьому фільтрі."
+                />
               ) : (
                 <ul className="cabinet-guests-list">
                   {visible.map((guest) => {
@@ -926,19 +952,17 @@ function GuestsInner() {
                             />
                           )}
                           <div className="cabinet-ctx-menu-wrap">
-                            <button
-                              type="button"
-                              className="cabinet-task-menu"
+                            <IconButton
+                              variant="ghost"
                               aria-label="Меню гостя"
                               aria-expanded={menuOpenId === guest.id}
+                              icon={<IconMore />}
                               onClick={() =>
                                 setMenuOpenId((id) =>
                                   id === guest.id ? null : guest.id,
                                 )
                               }
-                            >
-                              <IconMore />
-                            </button>
+                            />
                             {menuOpenId === guest.id ? (
                               <CabinetContextMenu>
                                 <CabinetContextMenuItem
@@ -1012,136 +1036,85 @@ function GuestsInner() {
                 </ul>
               )}
 
-              {filtered.length > visibleCount ? (
-                <button
-                  type="button"
-                  className="cabinet-panel-link cabinet-tasks-more"
-                  onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
-                >
-                  Показати більше
-                </button>
-              ) : null}
+              <CabinetShowMore hasMore={hasMore} onShowMore={showMore} />
             </section>
           </div>
         </>
       )}
 
-      {filtersMounted ? (
-        <div
-          className={`cabinet-tasks-filters-sheet${
-            filtersVisible ? " is-open" : ""
-          }`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Фільтри"
-        >
-          <button
-            type="button"
-            className="cabinet-tasks-filters-sheet__backdrop"
-            aria-label="Закрити фільтри"
-            onClick={() => setFiltersOpen(false)}
-          />
-          <div className="cabinet-tasks-filters-sheet__panel">
-            <div className="cabinet-tasks-filters-sheet__head">
-              <h2 className="cabinet-tasks-filters-sheet__title">Фільтри</h2>
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__close"
-                aria-label="Закрити"
-                onClick={() => setFiltersOpen(false)}
-              >
-                <IconClose size={18} />
-              </button>
-            </div>
-
-            <div className="cabinet-tasks-filters-sheet__body">
-              <FilterGroup
-                title="Чиї гості"
-                items={[
-                  { id: "all", label: "Всі", count: counts.side.all },
-                  {
-                    id: "BRIDE",
-                    label: "Гості нареченої",
-                    count: counts.side.BRIDE,
-                  },
-                  {
-                    id: "GROOM",
-                    label: "Гості нареченого",
-                    count: counts.side.GROOM,
-                  },
-                ]}
-                active={draftSide}
-                onChange={(id) => setDraftSide(id as SideFilter)}
-              />
-              <FilterGroup
-                title="Статус запрошення"
-                items={[
-                  { id: "all", label: "Всі", count: counts.invite.all },
-                  {
-                    id: "not_invited",
-                    label: "Не запрошені",
-                    count: counts.invite.not_invited,
-                  },
-                  {
-                    id: "invited",
-                    label: "Запрошені",
-                    count: counts.invite.invited,
-                  },
-                ]}
-                active={draftInvite}
-                onChange={(id) => setDraftInvite(id as InviteFilter)}
-              />
-              <FilterGroup
-                title="Результат запрошення"
-                items={[
-                  { id: "all", label: "Усі", count: counts.rsvp.all },
-                  { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
-                  { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
-                  {
-                    id: "MAYBE",
-                    label: "Можливо прийдуть",
-                    count: counts.rsvp.MAYBE,
-                  },
-                  {
-                    id: "PENDING",
-                    label: "Ще не відповіли",
-                    count: counts.rsvp.PENDING,
-                  },
-                ]}
-                active={draftRsvp}
-                onChange={(id) => setDraftRsvp(id as RsvpFilter)}
-              />
-              <FilterGroup
-                title="Вік"
-                items={[
-                  { id: "all", label: "Усі", count: counts.age.all },
-                  { id: "adult", label: "Дорослі", count: counts.age.adult },
-                  { id: "child", label: "Діти", count: counts.age.child },
-                ]}
-                active={draftAge}
-                onChange={(id) => setDraftAge(id as AgeFilter)}
-              />
-            </div>
-
-            <div className="cabinet-tasks-filters-sheet__foot">
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__apply"
-                onClick={applyDraftFilters}
-              >
-                Застосувати
-              </button>
-              <button
-                type="button"
-                className="cabinet-tasks-filters-sheet__reset"
-                onClick={resetDraftFilters}
-              >
-                Скинути фільтри
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <CabinetFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={applyDraftFilters}
+        onReset={resetDraftFilters}
+      >
+        <CabinetFilterGroup
+          title="Чиї гості"
+          items={[
+            { id: "all", label: "Всі", count: counts.side.all },
+            {
+              id: "BRIDE",
+              label: "Гості нареченої",
+              count: counts.side.BRIDE,
+            },
+            {
+              id: "GROOM",
+              label: "Гості нареченого",
+              count: counts.side.GROOM,
+            },
+          ]}
+          active={draftSide}
+          onChange={(id) => setDraftSide(id as SideFilter)}
+        />
+        <CabinetFilterGroup
+          title="Статус запрошення"
+          items={[
+            { id: "all", label: "Всі", count: counts.invite.all },
+            {
+              id: "not_invited",
+              label: "Не запрошені",
+              count: counts.invite.not_invited,
+            },
+            {
+              id: "invited",
+              label: "Запрошені",
+              count: counts.invite.invited,
+            },
+          ]}
+          active={draftInvite}
+          onChange={(id) => setDraftInvite(id as InviteFilter)}
+        />
+        <CabinetFilterGroup
+          title="Результат запрошення"
+          items={[
+            { id: "all", label: "Усі", count: counts.rsvp.all },
+            { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
+            { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
+            {
+              id: "MAYBE",
+              label: "Можливо прийдуть",
+              count: counts.rsvp.MAYBE,
+            },
+            {
+              id: "PENDING",
+              label: "Ще не відповіли",
+              count: counts.rsvp.PENDING,
+            },
+          ]}
+          active={draftRsvp}
+          onChange={(id) => setDraftRsvp(id as RsvpFilter)}
+        />
+        <CabinetFilterGroup
+          title="Вік"
+          items={[
+            { id: "all", label: "Усі", count: counts.age.all },
+            { id: "adult", label: "Дорослі", count: counts.age.adult },
+            { id: "child", label: "Діти", count: counts.age.child },
+          ]}
+          active={draftAge}
+          onChange={(id) => setDraftAge(id as AgeFilter)}
+        />
+      </CabinetFiltersSheet>
 
       <CabinetOverlay
         open={drawerOpen}
@@ -1152,28 +1125,13 @@ function GuestsInner() {
         asForm
         onSubmit={onSave}
         footer={
-          <>
-            <Button
-              type="button"
-              tone="ghost"
-              size="m"
-              className="cabinet-drawer-cancel"
-              onClick={closeDrawer}
-            >
-              Скасувати
-            </Button>
-            <Button
-              type="submit"
-              tone="black"
-              size="m"
-              className="cabinet-drawer-save"
-              disabled={busy || name.trim().length < 2}
-              loading={busy}
-              loadingText="…"
-            >
-              Зберегти
-            </Button>
-          </>
+          <CabinetFormActions
+            onCancel={closeDrawer}
+            saveTone="black"
+            saveDisabled={busy || name.trim().length < 2}
+            saveLoading={busy}
+            saveLoadingText="…"
+          />
         }
       >
               <div className="cabinet-guests-party">
@@ -1331,27 +1289,28 @@ function GuestsInner() {
 
               <div className="cabinet-guests-invite-box">
                 <p className="cabinet-filter-title">Запрошення</p>
-                <p className="cabinet-drawer-field-label">Спосіб запрошення</p>
-                <div className="cabinet-guests-methods">
-                  {INVITE_METHODS.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={`cabinet-guests-method${
-                        method === item.id ? " is-active" : ""
-                      }`}
-                      onClick={() => {
-                        setMethod(item.id);
-                        if (item.id === "meet") {
-                          setInviteStatus("invited");
-                          setRsvpStatus("YES");
-                        }
-                      }}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
+                <Field label="Спосіб запрошення">
+                  <div className="cabinet-guests-methods">
+                    {INVITE_METHODS.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={`cabinet-guests-method${
+                          method === item.id ? " is-active" : ""
+                        }`}
+                        onClick={() => {
+                          setMethod(item.id);
+                          if (item.id === "meet") {
+                            setInviteStatus("invited");
+                            setRsvpStatus("YES");
+                          }
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
                 <TextInput
                   label={contactLabel(method)}
                   value={phone}
@@ -1371,21 +1330,19 @@ function GuestsInner() {
                   <option value="invited">Запрошено</option>
                 </Select>
 
-                <div className="cabinet-guests-rsvp-list">
-                  <p className="cabinet-drawer-field-label">
-                    Результат запрошення
-                  </p>
-                  <div className="cabinet-guests-rsvp-row">
-                    <span className="cabinet-guests-rsvp-name">
-                      {name.trim() || "Основний гість"}
-                    </span>
-                    <Select
-                      value={rsvpStatus}
-                      aria-label={`Результат: ${name.trim() || "основний гість"}`}
-                      onChange={(e) =>
-                        setRsvpStatus(e.target.value as RsvpStatus)
-                      }
-                    >
+                <Field label="Результат запрошення">
+                  <div className="cabinet-guests-rsvp-list">
+                    <div className="cabinet-guests-rsvp-row">
+                      <span className="cabinet-guests-rsvp-name">
+                        {name.trim() || "Основний гість"}
+                      </span>
+                      <Select
+                        value={rsvpStatus}
+                        aria-label={`Результат: ${name.trim() || "основний гість"}`}
+                        onChange={(e) =>
+                          setRsvpStatus(e.target.value as RsvpStatus)
+                        }
+                      >
                       <option value="YES">? Прийде</option>
                       <option value="MAYBE">0 Можливо прийде</option>
                       <option value="NO">? Не прийде</option>
@@ -1415,7 +1372,8 @@ function GuestsInner() {
                       </Select>
                     </div>
                   ))}
-                </div>
+                  </div>
+                </Field>
               </div>
       </CabinetOverlay>
 
@@ -1431,37 +1389,6 @@ function GuestsInner() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => void confirmDelete()}
       />
-    </div>
-  );
-}
-
-function FilterGroup({
-  title,
-  items,
-  active,
-  onChange,
-}: {
-  title: string;
-  items: Array<{ id: string; label: string; count: number }>;
-  active: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <div className="cabinet-filter-group">
-      <p className="cabinet-filter-title">{title}</p>
-      <div className="cabinet-filter-list">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`cabinet-filter-item${active === item.id ? " is-active" : ""}`}
-            onClick={() => onChange(item.id)}
-          >
-            <span>{item.label}</span>
-            <span className="cabinet-filter-count">{item.count}</span>
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

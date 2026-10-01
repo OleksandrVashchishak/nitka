@@ -16,10 +16,18 @@ type ExpoPushMessage = {
   sound?: 'default';
 };
 
+export type NotifyEventType =
+  | 'guest_rsvp'
+  | 'upcoming_payments'
+  | 'task_due'
+  | 'partner_changes';
+
 export type NotifyPayload = {
   title: string;
   body: string;
   data?: Record<string, string>;
+  /** Тип події для фільтра префів юзера. */
+  type?: NotifyEventType;
   /** Додаткові поля для email (якщо немає — візьмемо title/body). */
   email?: {
     subject?: string;
@@ -27,6 +35,15 @@ export type NotifyPayload = {
     ctaLabel?: string;
     ctaPath?: string;
   };
+};
+
+export type NotificationPrefs = {
+  guestRsvp: boolean;
+  upcomingPayments: boolean;
+  taskDeadlines: boolean;
+  partnerChanges: boolean;
+  push: boolean;
+  email: boolean;
 };
 
 export type NotificationSummaryItem = {
@@ -117,6 +134,86 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     });
 
     return { ok: true };
+  }
+
+  async getPrefs(userId: string): Promise<NotificationPrefs> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        notifGuestRsvp: true,
+        notifUpcomingPayments: true,
+        notifTaskDeadlines: true,
+        notifPartnerChanges: true,
+        notifPush: true,
+        notifEmail: true,
+      },
+    });
+    return this.mapPrefs(user);
+  }
+
+  async updatePrefs(
+    userId: string,
+    patch: Partial<NotificationPrefs>,
+  ): Promise<NotificationPrefs> {
+    const data: Record<string, boolean> = {};
+    if (patch.guestRsvp !== undefined) data.notifGuestRsvp = patch.guestRsvp;
+    if (patch.upcomingPayments !== undefined) {
+      data.notifUpcomingPayments = patch.upcomingPayments;
+    }
+    if (patch.taskDeadlines !== undefined) {
+      data.notifTaskDeadlines = patch.taskDeadlines;
+    }
+    if (patch.partnerChanges !== undefined) {
+      data.notifPartnerChanges = patch.partnerChanges;
+    }
+    if (patch.push !== undefined) data.notifPush = patch.push;
+    if (patch.email !== undefined) data.notifEmail = patch.email;
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        notifGuestRsvp: true,
+        notifUpcomingPayments: true,
+        notifTaskDeadlines: true,
+        notifPartnerChanges: true,
+        notifPush: true,
+        notifEmail: true,
+      },
+    });
+    return this.mapPrefs(user);
+  }
+
+  private mapPrefs(
+    user: {
+      notifGuestRsvp: boolean;
+      notifUpcomingPayments: boolean;
+      notifTaskDeadlines: boolean;
+      notifPartnerChanges: boolean;
+      notifPush: boolean;
+      notifEmail: boolean;
+    } | null,
+  ): NotificationPrefs {
+    return {
+      guestRsvp: user?.notifGuestRsvp ?? true,
+      upcomingPayments: user?.notifUpcomingPayments ?? false,
+      taskDeadlines: user?.notifTaskDeadlines ?? false,
+      partnerChanges: user?.notifPartnerChanges ?? false,
+      push: user?.notifPush ?? true,
+      email: user?.notifEmail ?? true,
+    };
+  }
+
+  private allowsEventType(
+    prefs: NotificationPrefs,
+    type?: NotifyEventType,
+  ): boolean {
+    if (!type) return true;
+    if (type === 'guest_rsvp') return prefs.guestRsvp;
+    if (type === 'upcoming_payments') return prefs.upcomingPayments;
+    if (type === 'task_due') return prefs.taskDeadlines;
+    if (type === 'partner_changes') return prefs.partnerChanges;
+    return true;
   }
 
   async unregisterDevice(userId: string, token: string) {
@@ -300,9 +397,16 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async notifyUser(userId: string, payload: NotifyPayload) {
+    const prefs = await this.getPrefs(userId);
+    if (!this.allowsEventType(prefs, payload.type)) {
+      return { sent: 0, emailed: 0 };
+    }
+
     const [pushResult, emailResult] = await Promise.all([
-      this.sendPush(userId, payload),
-      this.sendEmail(userId, payload),
+      prefs.push ? this.sendPush(userId, payload) : Promise.resolve({ sent: 0 }),
+      prefs.email
+        ? this.sendEmail(userId, payload)
+        : Promise.resolve({ emailed: 0 }),
     ]);
     return { sent: pushResult.sent, emailed: emailResult.emailed };
   }
@@ -371,6 +475,7 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
         title: isToday ? 'Дедлайн сьогодні' : 'Дедлайн завтра',
         body: `${task.title} · до ${dueDay}`,
         data: { type: 'task_due', taskId: task.id },
+        type: 'task_due',
         email: {
           ctaLabel: 'Відкрити чекліст',
           ctaPath: '/checklist',

@@ -31,6 +31,8 @@ import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
 import { PartnerInviteBanner } from "@/components/partner-invite-banner";
+import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   ResponsibleAvatar,
   ResponsibleAvatarDuo,
@@ -180,27 +182,7 @@ export function CoupleOverview({
     }
   }, [wedding.id]);
 
-  useEffect(() => {
-    if (!menuOpenId) return;
-    function onDocClick(event: MouseEvent) {
-      const target = event.target;
-      if (
-        !(target instanceof Element) ||
-        !target.closest(".cabinet-ctx-menu-wrap")
-      ) {
-        setMenuOpenId(null);
-      }
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setMenuOpenId(null);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpenId]);
+  useMenuOutsideClose(Boolean(menuOpenId), () => setMenuOpenId(null));
 
   useEffect(() => {
     let cancelled = false;
@@ -551,19 +533,17 @@ export function CoupleOverview({
                           partnerName={partnerName}
                         />
                         <div className="cabinet-ctx-menu-wrap">
-                          <button
-                            type="button"
-                            className="cabinet-task-menu"
+                          <IconButton
+                            variant="ghost"
                             aria-label="Меню завдання"
                             aria-expanded={menuOpenId === task.id}
+                            icon={<IconMore />}
                             onClick={() =>
                               setMenuOpenId((id) =>
                                 id === task.id ? null : task.id,
                               )
                             }
-                          >
-                            <IconMore />
-                          </button>
+                          />
                           {menuOpenId === task.id ? (
                             <CabinetContextMenu>
                               <CabinetContextMenuItem

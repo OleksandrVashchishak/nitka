@@ -15,6 +15,7 @@ import { InvitationsModule } from './invitations/invitations.module';
 import { EmailModule } from './email/email.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { SeatingModule } from './seating/seating.module';
+import { DayPlanModule } from './day-plan/day-plan.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SeatingModule } from './seating/seating.module';
     WebsiteModule,
     InvitationsModule,
     SeatingModule,
+    DayPlanModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],

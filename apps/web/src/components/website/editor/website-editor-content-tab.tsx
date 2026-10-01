@@ -2,13 +2,14 @@
 
 import { useState, type ReactNode } from "react";
 import {
-  IconCalendar,
   IconChevron,
-  IconTrash,
   WebsiteToggle,
 } from "@/components/website/editor/website-editor-toggle";
+import { IconCalendar } from "@/components/icon-calendar";
+import { IconTrash } from "@/components/icon-trash";
 import { WebsiteImageField } from "@/components/website/editor/website-image-field";
 import { TextInput } from "@/components/ui/text-input";
+import { Textarea } from "@/components/ui/textarea";
 import type {
   WebsiteContent,
   WebsiteScheduleItem,
@@ -159,7 +160,7 @@ export function WebsiteEditorContentTab({
               value={content.dateLabel}
               onChange={(e) => patch({ dateLabel: e.target.value })}
               placeholder="25.08.27"
-              endAdornment={<IconCalendar />}
+              endAdornment={<IconCalendar size={14} />}
             />
             <WebsiteImageField
               label="Головне фото"
@@ -198,7 +199,7 @@ export function WebsiteEditorContentTab({
                   aria-label={`Видалити подію ${index + 1}`}
                   onClick={() => removeEvent(index)}
                 >
-                  <IconTrash />
+                  <IconTrash size={14} />
                 </button>
               </div>
               <div className="we-blocks__event-grid">
@@ -255,8 +256,9 @@ export function WebsiteEditorContentTab({
               checked={sections.story}
               onCheckedChange={(v) => patchSections({ story: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.storyBody}
                 onChange={(e) => patch({ storyBody: e.target.value })}
                 placeholder="Наприклад: Ми познайомились…"
@@ -282,8 +284,9 @@ export function WebsiteEditorContentTab({
                 }
               }}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.subheadline.trim()}
                 onChange={(e) => patch({ subheadline: e.target.value })}
                 placeholder="Наприклад: трохи про наречену…"
@@ -302,8 +305,9 @@ export function WebsiteEditorContentTab({
                 }
               }}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.groomBio.trim()}
                 onChange={(e) => patch({ groomBio: e.target.value })}
                 placeholder="Наприклад: трохи про нареченого…"
@@ -329,8 +333,9 @@ export function WebsiteEditorContentTab({
                 }
               }}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.proposalBody.trim()}
                 onChange={(e) => patch({ proposalBody: e.target.value })}
                 placeholder="Наприклад: як відбулася пропозиція…"
@@ -362,8 +367,9 @@ export function WebsiteEditorContentTab({
               checked={sections.registry}
               onCheckedChange={(v) => patchSections({ registry: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.registryBody}
                 onChange={(e) => patch({ registryBody: e.target.value })}
                 placeholder="Наприклад: не приносьте квіти…"
@@ -374,8 +380,9 @@ export function WebsiteEditorContentTab({
               checked={sections.dressCode}
               onCheckedChange={(v) => patchSections({ dressCode: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.dressCodeBody}
                 onChange={(e) => patch({ dressCodeBody: e.target.value })}
                 placeholder="Наприклад: приходьте в світлому"
@@ -386,8 +393,9 @@ export function WebsiteEditorContentTab({
               checked={sections.travel}
               onCheckedChange={(v) => patchSections({ travel: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.travelBody}
                 onChange={(e) => patch({ travelBody: e.target.value })}
                 placeholder="Наприклад: телефон координатора…"
@@ -398,8 +406,9 @@ export function WebsiteEditorContentTab({
               checked={sections.gallery}
               onCheckedChange={(v) => patchSections({ gallery: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.galleryTitle}
                 onChange={(e) => patch({ galleryTitle: e.target.value })}
                 placeholder="Наприклад: буде няня та ігрова зона…"
@@ -410,8 +419,9 @@ export function WebsiteEditorContentTab({
               checked={sections.rsvp}
               onCheckedChange={(v) => patchSections({ rsvp: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.rsvpBody}
                 onChange={(e) => patch({ rsvpBody: e.target.value })}
                 placeholder="Наприклад: будь ласка, до 1 червня…"
@@ -422,8 +432,9 @@ export function WebsiteEditorContentTab({
               checked={sections.qa}
               onCheckedChange={(v) => patchSections({ qa: v })}
             >
-              <textarea
-                className="we-blocks__textarea"
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
                 value={content.qaItems[0]?.answer ?? ""}
                 onChange={(e) =>
                   patch({

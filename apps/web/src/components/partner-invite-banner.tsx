@@ -1,6 +1,6 @@
 "use client";
 
-import { IconClose } from "@/components/cabinet-task-icons";
+import { IconClose } from "@/components/icon-close";
 import { Button } from "@/components/ui/button";
 
 type Props = {

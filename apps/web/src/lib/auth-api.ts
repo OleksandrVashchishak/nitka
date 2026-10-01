@@ -86,6 +86,38 @@ export async function logoutRequest(accessToken: string) {
   });
 }
 
+export async function changePasswordRequest(
+  accessToken: string,
+  input: { currentPassword: string; newPassword: string },
+): Promise<AuthResponse> {
+  const res = await fetch(`${API_URL}/api/auth/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
+export async function deleteAccountRequest(
+  accessToken: string,
+  input: { password: string },
+): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/api/auth/account`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
 export async function refreshRequest(
   refreshToken: string,
 ): Promise<AuthResponse> {

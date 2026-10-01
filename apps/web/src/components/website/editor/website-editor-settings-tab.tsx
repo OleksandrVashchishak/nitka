@@ -8,6 +8,7 @@ import {
   IconPencil,
 } from "@/components/website/website-icons";
 import { TextInput } from "@/components/ui/text-input";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   slug: string;
@@ -88,8 +89,9 @@ export function WebsiteEditorSettingsTab({
 
         <label className="we-settings__field">
           <span className="we-settings__label">Опис вебсайту</span>
-          <textarea
-            className="we-settings__textarea"
+          <Textarea
+            plain
+            inputClassName="we-settings__textarea"
             value={shareDescription}
             onChange={(e) => onDescriptionChange(e.target.value)}
             placeholder="Запрошуємо на наше весілля 25.07.27"

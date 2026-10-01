@@ -345,6 +345,7 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
           onClick={headerBack}
         >
           <BackIcon />
+          <span className="seat-wiz-back-label">Назад</span>
         </button>
         <BrandLogo className="seat-wiz-logo" />
       </header>
@@ -412,7 +413,9 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
         </button>
         <button
           type="button"
-          className="seat-wiz-btn seat-wiz-btn--primary seat-wiz-btn--wide"
+          className={`seat-wiz-btn seat-wiz-btn--primary seat-wiz-btn--wide${
+            step === 2 ? " seat-wiz-btn--lime-text" : ""
+          }`}
           onClick={footerRight}
         >
           {step === 1 ? "Далі" : "Розсадити автоматично"}

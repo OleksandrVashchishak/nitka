@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
-import { Button } from "@/components/ui/button";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { TextInput } from "@/components/ui/text-input";
 import type { Guest } from "@/lib/guests-api";
@@ -192,18 +192,18 @@ export function SeatingGroupsModal({
       title="Редагувати групи"
       variant="modal"
       width={960}
-      mobileVariant="center"
+      mobileVariant="fullscreen"
       panelClassName="seat-groups-modal"
       footerClassName="cabinet-modal-actions seat-groups-modal-footer"
       footer={
-        <>
-          <Button type="button" tone="ghost" size="m" onClick={onClose}>
-            Скасувати
-          </Button>
-          <Button type="button" tone="ink" size="m" onClick={handleSave}>
-            Додати
-          </Button>
-        </>
+        <CabinetFormActions
+          onCancel={onClose}
+          saveType="button"
+          onSave={handleSave}
+          saveLabel="Зберегти"
+          cancelClassName="seat-groups-modal-cancel"
+          saveClassName="seat-groups-modal-save"
+        />
       }
     >
         <div className="seat-groups-modal-grid">

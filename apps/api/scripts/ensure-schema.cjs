@@ -236,6 +236,14 @@ END $$`,
     DROP TYPE "Role_old";
   END IF;
 END $$`,
+
+  // --- Notification preferences on users ---
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_guest_rsvp BOOLEAN NOT NULL DEFAULT true`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_upcoming_payments BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_task_deadlines BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_partner_changes BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_push BOOLEAN NOT NULL DEFAULT true`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_email BOOLEAN NOT NULL DEFAULT true`,
 ];
 
 async function main() {

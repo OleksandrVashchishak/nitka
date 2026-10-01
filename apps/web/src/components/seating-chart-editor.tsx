@@ -36,6 +36,20 @@ function BackIcon() {
   );
 }
 
+function ViewChevronIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path
+        d="M5 3.5 9 7l-4 3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function SeatingChartEditor({
   tables,
   guests,
@@ -46,6 +60,7 @@ export function SeatingChartEditor({
 }: Props) {
   const [designId, setDesignId] =
     useState<SeatingChartDesignId>("modern");
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const scaleWrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -66,6 +81,8 @@ export function SeatingChartEditor({
       }),
     [tables, guestsByKey, partnerOneName, partnerTwoName, weddingDate],
   );
+
+  const activeDesign = SEATING_CHART_DESIGNS.find((d) => d.id === designId);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -93,19 +110,25 @@ export function SeatingChartEditor({
       ro.disconnect();
       window.removeEventListener("resize", fit);
     };
-  }, []);
+  }, [mobilePreviewOpen]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        if (mobilePreviewOpen) {
+          setMobilePreviewOpen(false);
+          return;
+        }
+        onClose();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, mobilePreviewOpen]);
 
   function savePdf() {
     if (designId !== "modern") {
-      toast.info("Цей дизайн ще в роботі — обери «Сучасний»");
+      toast.info("Цей дизайн ще в роботі — обери «Вишуканий»");
       return;
     }
     const seated =
@@ -125,9 +148,26 @@ export function SeatingChartEditor({
     window.setTimeout(() => window.print(), 50);
   }
 
+  function renderSheet(id: SeatingChartDesignId) {
+    if (id === "modern") {
+      return <SeatingChartModern data={data} />;
+    }
+    return (
+      <div className="seat-chart-sheet seat-chart-sheet--placeholder">
+        <p>
+          Дизайн «
+          {SEATING_CHART_DESIGNS.find((d) => d.id === id)?.name}» скоро
+          з’явиться
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
-      className="seat-chart-editor"
+      className={`seat-chart-editor${
+        mobilePreviewOpen ? " is-mobile-preview" : ""
+      }`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="seat-chart-editor-title"
@@ -137,8 +177,14 @@ export function SeatingChartEditor({
           <button
             type="button"
             className="seat-chart-editor__back"
-            aria-label="Назад"
-            onClick={onClose}
+            aria-label={mobilePreviewOpen ? "Назад до дизайнів" : "Назад"}
+            onClick={() => {
+              if (mobilePreviewOpen) {
+                setMobilePreviewOpen(false);
+                return;
+              }
+              onClose();
+            }}
           >
             <BackIcon />
           </button>
@@ -151,7 +197,7 @@ export function SeatingChartEditor({
         </div>
         <button
           type="button"
-          className="seat-chart-editor__pdf"
+          className="seat-chart-editor__pdf seat-chart-editor__pdf--header"
           onClick={savePdf}
         >
           Зберегти PDF
@@ -159,44 +205,76 @@ export function SeatingChartEditor({
       </header>
 
       <div className="seat-chart-editor__body">
-        <aside className="seat-chart-editor__aside" aria-labelledby="seat-chart-editor-title">
+        <aside
+          className="seat-chart-editor__aside"
+          aria-labelledby="seat-chart-editor-title"
+        >
           <h1 id="seat-chart-editor-title" className="seat-chart-editor__title">
             Оберіть дизайн
           </h1>
+          <p className="seat-chart-editor__lead">
+            Оберіть вигляд вашої посадкової карти.
+          </p>
           <div className="seat-chart-editor__list" role="list">
             {SEATING_CHART_DESIGNS.map((option) => {
               const active = option.id === designId;
               const soon = "soon" in option && option.soon;
               return (
-                <button
+                <div
                   key={option.id}
-                  type="button"
                   role="listitem"
                   className={`seat-chart-editor__card${
                     active ? " is-active" : ""
                   }`}
-                  aria-pressed={active}
-                  onClick={() => {
-                    setDesignId(option.id);
-                    if (soon) {
-                      toast.info("Цей дизайн з’явиться скоро");
-                    }
-                  }}
                 >
-                  <div className="seat-chart-editor__card-head">
-                    <p className="seat-chart-editor__card-name">{option.name}</p>
-                    {active ? (
-                      <span className="seat-chart-editor__badge">Обраний</span>
-                    ) : soon ? (
-                      <span className="seat-chart-editor__badge seat-chart-editor__badge--soon">
-                        Скоро
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="seat-chart-editor__card-desc">
-                    {option.description}
-                  </p>
-                </button>
+                  <button
+                    type="button"
+                    className="seat-chart-editor__card-main"
+                    aria-pressed={active}
+                    onClick={() => {
+                      setDesignId(option.id);
+                      if (soon) {
+                        toast.info("Цей дизайн з’явиться скоро");
+                      }
+                    }}
+                  >
+                    <div className="seat-chart-editor__thumb" aria-hidden>
+                      <div className="seat-chart-editor__thumb-scale">
+                        {renderSheet(option.id)}
+                      </div>
+                    </div>
+                    <div className="seat-chart-editor__card-meta">
+                      <div className="seat-chart-editor__card-head">
+                        <p className="seat-chart-editor__card-name">
+                          {option.name}
+                        </p>
+                        {active ? (
+                          <span className="seat-chart-editor__badge">
+                            Обраний
+                          </span>
+                        ) : soon ? (
+                          <span className="seat-chart-editor__badge seat-chart-editor__badge--soon">
+                            Скоро
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="seat-chart-editor__card-desc">
+                        {option.description}
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    className="seat-chart-editor__view"
+                    onClick={() => {
+                      setDesignId(option.id);
+                      setMobilePreviewOpen(true);
+                    }}
+                  >
+                    Подивитись
+                    <ViewChevronIcon />
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -216,16 +294,25 @@ export function SeatingChartEditor({
                 transform: `scale(${scale})`,
               }}
             >
-              {designId === "modern" ? (
-                <SeatingChartModern data={data} />
-              ) : (
-                <div className="seat-chart-sheet seat-chart-sheet--placeholder">
-                  <p>Дизайн «{SEATING_CHART_DESIGNS.find((d) => d.id === designId)?.name}» скоро з’явиться</p>
-                </div>
-              )}
+              {renderSheet(designId)}
             </div>
           </div>
+          {mobilePreviewOpen && activeDesign ? (
+            <p className="seat-chart-editor__preview-caption">
+              {activeDesign.name}
+            </p>
+          ) : null}
         </div>
+      </div>
+
+      <div className="seat-chart-editor__footer">
+        <button
+          type="button"
+          className="seat-chart-editor__pdf seat-chart-editor__pdf--footer"
+          onClick={savePdf}
+        >
+          Зберегти PDF
+        </button>
       </div>
     </div>
   );

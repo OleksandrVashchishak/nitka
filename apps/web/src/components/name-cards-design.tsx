@@ -32,6 +32,20 @@ function BackIcon() {
   );
 }
 
+function ViewChevronIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path
+        d="M5 3.5 9 7l-4 3.5"
+        stroke="#ABABAB"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function NameCardSheet({
   names,
   designId,
@@ -63,8 +77,35 @@ function NameCardSheet({
   );
 }
 
+function NameCardThumb({
+  name,
+  designId,
+}: {
+  name: string;
+  designId: NameCardDesignId;
+}) {
+  if (designId !== "simple") {
+    return (
+      <div className="name-cards-editor__thumb-placeholder">
+        Дизайн «
+        {NAME_CARD_DESIGNS.find((d) => d.id === designId)?.name}» скоро
+      </div>
+    );
+  }
+
+  return (
+    <div className="name-cards-editor__thumb-card name-cards-editor__thumb-card--simple">
+      <span className="name-cards-editor__thumb-rule" aria-hidden />
+      <span className="name-cards-editor__thumb-name">
+        {(name || "Марія Левченко").toUpperCase()}
+      </span>
+    </div>
+  );
+}
+
 export function NameCardsDesign({ names, onClose }: Props) {
   const [designId, setDesignId] = useState<NameCardDesignId>("simple");
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const hasRealGuests = names.length > 0;
 
   const previewNames = useMemo(
@@ -77,6 +118,7 @@ export function NameCardsDesign({ names, onClose }: Props) {
   const extraLabel = extraPagesLabel(Math.max(0, pages.length - 1));
   const activeDesign = NAME_CARD_DESIGNS.find((d) => d.id === designId);
   const isSimple = designId === "simple";
+  const thumbName = previewNames[0] ?? "Марія Левченко";
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -88,11 +130,17 @@ export function NameCardsDesign({ names, onClose }: Props) {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        if (mobilePreviewOpen) {
+          setMobilePreviewOpen(false);
+          return;
+        }
+        onClose();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, mobilePreviewOpen]);
 
   function savePdf() {
     if (!isSimple) {
@@ -114,7 +162,9 @@ export function NameCardsDesign({ names, onClose }: Props) {
 
   return (
     <div
-      className="name-cards-editor"
+      className={`name-cards-editor${
+        mobilePreviewOpen ? " is-mobile-preview" : ""
+      }`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="name-cards-editor-title"
@@ -124,8 +174,14 @@ export function NameCardsDesign({ names, onClose }: Props) {
           <button
             type="button"
             className="name-cards-editor__back"
-            aria-label="Назад"
-            onClick={onClose}
+            aria-label={mobilePreviewOpen ? "Назад до дизайнів" : "Назад"}
+            onClick={() => {
+              if (mobilePreviewOpen) {
+                setMobilePreviewOpen(false);
+                return;
+              }
+              onClose();
+            }}
           >
             <BackIcon />
           </button>
@@ -138,7 +194,7 @@ export function NameCardsDesign({ names, onClose }: Props) {
         </div>
         <button
           type="button"
-          className="name-cards-editor__pdf"
+          className="name-cards-editor__pdf name-cards-editor__pdf--header"
           onClick={savePdf}
         >
           Зберегти PDF
@@ -161,37 +217,59 @@ export function NameCardsDesign({ names, onClose }: Props) {
               const active = option.id === designId;
               const soon = "soon" in option && option.soon;
               return (
-                <button
+                <div
                   key={option.id}
-                  type="button"
                   role="listitem"
                   className={`name-cards-editor__card${
                     active ? " is-active" : ""
                   }`}
-                  aria-pressed={active}
-                  onClick={() => {
-                    setDesignId(option.id);
-                    if (soon) {
-                      toast.info("Цей дизайн з’явиться скоро");
-                    }
-                  }}
                 >
-                  <div className="name-cards-editor__card-head">
-                    <p className="name-cards-editor__card-name">
-                      {option.name}
-                    </p>
-                    {active ? (
-                      <span className="name-cards-editor__badge">Обраний</span>
-                    ) : soon ? (
-                      <span className="name-cards-editor__badge name-cards-editor__badge--soon">
-                        Скоро
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="name-cards-editor__card-desc">
-                    {option.description}
-                  </p>
-                </button>
+                  <button
+                    type="button"
+                    className="name-cards-editor__card-main"
+                    aria-pressed={active}
+                    onClick={() => {
+                      setDesignId(option.id);
+                      if (soon) {
+                        toast.info("Цей дизайн з’явиться скоро");
+                      }
+                    }}
+                  >
+                    <div className="name-cards-editor__thumb" aria-hidden>
+                      <NameCardThumb name={thumbName} designId={option.id} />
+                    </div>
+                    <div className="name-cards-editor__card-meta">
+                      <div className="name-cards-editor__card-head">
+                        <p className="name-cards-editor__card-name">
+                          {option.name}
+                        </p>
+                        {active ? (
+                          <span className="name-cards-editor__badge">
+                            Обраний
+                          </span>
+                        ) : soon ? (
+                          <span className="name-cards-editor__badge name-cards-editor__badge--soon">
+                            Скоро
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="name-cards-editor__card-desc">
+                        {option.description}
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    className="name-cards-editor__view"
+                    onClick={() => {
+                      setDesignId(option.id);
+                      setMobilePreviewOpen(true);
+                    }}
+                  >
+                    <span>Подивитись</span>
+                    <ViewChevronIcon />
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -204,9 +282,7 @@ export function NameCardsDesign({ names, onClose }: Props) {
               <NameCardSheet names={firstPage} designId={designId} />
             ) : (
               <div className="name-cards-sheet name-cards-sheet--placeholder">
-                <p>
-                  Дизайн «{activeDesign?.name}» скоро з’явиться
-                </p>
+                <p>Дизайн «{activeDesign?.name}» скоро з’явиться</p>
               </div>
             )}
           </div>
@@ -214,6 +290,16 @@ export function NameCardsDesign({ names, onClose }: Props) {
             <p className="name-cards-editor__more">{extraLabel}</p>
           ) : null}
         </div>
+      </div>
+
+      <div className="name-cards-editor__footer">
+        <button
+          type="button"
+          className="name-cards-editor__pdf name-cards-editor__pdf--footer"
+          onClick={savePdf}
+        >
+          Зберегти PDF
+        </button>
       </div>
 
       <div className="name-cards-print" aria-hidden>

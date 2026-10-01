@@ -46,6 +46,9 @@ let WeddingsController = class WeddingsController {
     createPartnerInvite(user) {
         return this.weddingsService.createPartnerInvite(user.id);
     }
+    removePartner(user) {
+        return this.weddingsService.removePartner(user.id);
+    }
     acceptPartnerInvite(user, token) {
         return this.weddingsService.acceptPartnerInvite(user.id, token);
     }
@@ -105,6 +108,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], WeddingsController.prototype, "createPartnerInvite", null);
+__decorate([
+    (0, common_1.Delete)('me/partner'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], WeddingsController.prototype, "removePartner", null);
 __decorate([
     (0, common_1.Post)('partner-invite/:token/accept'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

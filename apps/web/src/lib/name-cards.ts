@@ -42,11 +42,11 @@ export const NAME_CARDS_PER_PAGE = 8;
 
 /** Demo names for empty guest list preview (matches Figma). */
 export const NAME_CARD_DEMO_NAMES = [
+  "Марія Левченко",
   "Анна Грищенко",
   "Іван Петров",
   "Олена Ткаченко",
   "Сергій Шевченко",
-  "Марія Коваленко",
   "Андрій Бондаренко",
   "Катерина Мельник",
   "Дмитро Кравченко",

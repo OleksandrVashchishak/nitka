@@ -84,6 +84,74 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         });
         return { ok: true };
     }
+    async getPrefs(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                notifGuestRsvp: true,
+                notifUpcomingPayments: true,
+                notifTaskDeadlines: true,
+                notifPartnerChanges: true,
+                notifPush: true,
+                notifEmail: true,
+            },
+        });
+        return this.mapPrefs(user);
+    }
+    async updatePrefs(userId, patch) {
+        const data = {};
+        if (patch.guestRsvp !== undefined)
+            data.notifGuestRsvp = patch.guestRsvp;
+        if (patch.upcomingPayments !== undefined) {
+            data.notifUpcomingPayments = patch.upcomingPayments;
+        }
+        if (patch.taskDeadlines !== undefined) {
+            data.notifTaskDeadlines = patch.taskDeadlines;
+        }
+        if (patch.partnerChanges !== undefined) {
+            data.notifPartnerChanges = patch.partnerChanges;
+        }
+        if (patch.push !== undefined)
+            data.notifPush = patch.push;
+        if (patch.email !== undefined)
+            data.notifEmail = patch.email;
+        const user = await this.prisma.user.update({
+            where: { id: userId },
+            data,
+            select: {
+                notifGuestRsvp: true,
+                notifUpcomingPayments: true,
+                notifTaskDeadlines: true,
+                notifPartnerChanges: true,
+                notifPush: true,
+                notifEmail: true,
+            },
+        });
+        return this.mapPrefs(user);
+    }
+    mapPrefs(user) {
+        return {
+            guestRsvp: user?.notifGuestRsvp ?? true,
+            upcomingPayments: user?.notifUpcomingPayments ?? false,
+            taskDeadlines: user?.notifTaskDeadlines ?? false,
+            partnerChanges: user?.notifPartnerChanges ?? false,
+            push: user?.notifPush ?? true,
+            email: user?.notifEmail ?? true,
+        };
+    }
+    allowsEventType(prefs, type) {
+        if (!type)
+            return true;
+        if (type === 'guest_rsvp')
+            return prefs.guestRsvp;
+        if (type === 'upcoming_payments')
+            return prefs.upcomingPayments;
+        if (type === 'task_due')
+            return prefs.taskDeadlines;
+        if (type === 'partner_changes')
+            return prefs.partnerChanges;
+        return true;
+    }
     async unregisterDevice(userId, token) {
         await this.prisma.pushDevice.deleteMany({
             where: { userId, token: token.trim() },
@@ -230,9 +298,15 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         return feed.slice(0, 12);
     }
     async notifyUser(userId, payload) {
+        const prefs = await this.getPrefs(userId);
+        if (!this.allowsEventType(prefs, payload.type)) {
+            return { sent: 0, emailed: 0 };
+        }
         const [pushResult, emailResult] = await Promise.all([
-            this.sendPush(userId, payload),
-            this.sendEmail(userId, payload),
+            prefs.push ? this.sendPush(userId, payload) : Promise.resolve({ sent: 0 }),
+            prefs.email
+                ? this.sendEmail(userId, payload)
+                : Promise.resolve({ emailed: 0 }),
         ]);
         return { sent: pushResult.sent, emailed: emailResult.emailed };
     }
@@ -286,6 +360,7 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
                 title: isToday ? 'Дедлайн сьогодні' : 'Дедлайн завтра',
                 body: `${task.title} · до ${dueDay}`,
                 data: { type: 'task_due', taskId: task.id },
+                type: 'task_due',
                 email: {
                     ctaLabel: 'Відкрити чекліст',
                     ctaPath: '/checklist',

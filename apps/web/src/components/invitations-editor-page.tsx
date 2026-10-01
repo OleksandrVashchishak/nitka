@@ -2,16 +2,12 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { DashboardNav } from "@/components/dashboard-nav";
-import {
-  CabinetHeader,
-  CoupleCabinetFrame,
-  cabCard,
-} from "@/components/couple-cabinet-ui";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { InvitationCard } from "@/components/invitation-card";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { PageLoader } from "@/components/ui-loader";
 import { uploadFile } from "@/lib/client-api";
 import { INVITATION_THEMES } from "@/lib/invitation-themes";
@@ -23,6 +19,7 @@ import {
   type InvitationMineResponse,
 } from "@/lib/invitations-api";
 import { getErrorMessage, toast } from "@/lib/toast";
+import "@/styles/cabinet/cabinet.scss";
 
 const fieldClass =
   "w-full border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-sage";
@@ -163,33 +160,39 @@ function InvitationsEditorInner() {
   }
 
   return (
-    <>
+    <div className="cabinet-tasks-page">
       <div className="no-print">
-        <DashboardNav variant="COUPLE" />
-      </div>
-
-      <div className="no-print flex flex-wrap items-end justify-between gap-4">
-        <CabinetHeader
+        <CabinetPageHeader
           title="Запрошення"
-          description="Обери стиль і текст листівки. Роздача й статус гостей — у розділі Гості."
+          actions={
+            <>
+              <Button href="/guests" tone="outline" size="s">
+                До гостей
+              </Button>
+              <Button
+                type="button"
+                tone="outline"
+                size="s"
+                onClick={printInvitation}
+              >
+                Друк / PDF
+              </Button>
+              <Button
+                type="button"
+                tone="black"
+                size="s"
+                loading={saving}
+                onClick={() => void onSave()}
+              >
+                Зберегти
+              </Button>
+            </>
+          }
         />
-        <div className="flex flex-wrap gap-2">
-          <Button href="/guests" tone="outline" size="s">
-            До гостей
-          </Button>
-          <Button type="button" tone="outline" size="s" onClick={printInvitation}>
-            Друк / PDF
-          </Button>
-          <Button
-            type="button"
-            tone="black"
-            size="s"
-            loading={saving}
-            onClick={() => void onSave()}
-          >
-            Зберегти
-          </Button>
-        </div>
+        <p className="mt-2 max-w-xl text-[15px] leading-6 text-[#5c574e]">
+          Обери стиль і текст листівки. Роздача й статус гостей — у розділі
+          Гості.
+        </p>
       </div>
 
       <div className="invitations-editor-layout mt-8 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
@@ -197,7 +200,7 @@ function InvitationsEditorInner() {
           onSubmit={(e) => void onSave(e)}
           className="no-print order-2 min-w-0 space-y-6 lg:order-1"
         >
-          <section className={`${cabCard} p-4 sm:p-5`}>
+          <section className="cabinet-panel">
             <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
               Темплейт
             </p>
@@ -256,11 +259,12 @@ function InvitationsEditorInner() {
             </label>
             <label className="block">
               <span className="mb-1 block text-sm text-ink-soft">Текст</span>
-              <textarea
+              <Textarea
+                plain
                 rows={3}
                 value={content.body}
                 onChange={(e) => patch("body", e.target.value)}
-                className={fieldClass}
+                inputClassName={fieldClass}
               />
             </label>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -310,11 +314,12 @@ function InvitationsEditorInner() {
               <span className="mb-1 block text-sm text-ink-soft">
                 Нотатка про підтвердження
               </span>
-              <textarea
+              <Textarea
+                plain
                 rows={2}
                 value={content.rsvpNote}
                 onChange={(e) => patch("rsvpNote", e.target.value)}
-                className={fieldClass}
+                inputClassName={fieldClass}
               />
             </label>
             <CoverField
@@ -379,9 +384,7 @@ function InvitationsEditorInner() {
             <InvitationCard
               templateId={templateId}
               content={content}
-              guestName={
-                printGuestName.trim() || undefined
-              }
+              guestName={printGuestName.trim() || undefined}
               websiteUrl={data.website?.url ?? null}
               hideWebsiteLinkOnPrint
             />
@@ -391,16 +394,14 @@ function InvitationsEditorInner() {
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
 export function InvitationsEditorPage() {
   return (
     <RequireAuth roles={["COUPLE"]}>
-      <CoupleCabinetFrame>
-        <InvitationsEditorInner />
-      </CoupleCabinetFrame>
+      <InvitationsEditorInner />
     </RequireAuth>
   );
 }

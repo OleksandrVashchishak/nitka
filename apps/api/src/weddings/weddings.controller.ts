@@ -65,6 +65,13 @@ export class WeddingsController {
     return this.weddingsService.createPartnerInvite(user.id);
   }
 
+  @Delete('me/partner')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE)
+  removePartner(@CurrentUser() user: AuthUser) {
+    return this.weddingsService.removePartner(user.id);
+  }
+
   @Post('partner-invite/:token/accept')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.COUPLE)

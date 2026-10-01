@@ -123,9 +123,8 @@ export function buildSeatingChartData(input: {
 export const SEATING_CHART_DESIGNS = [
   {
     id: "modern",
-    name: "Сучасний",
-    description:
-      "Сучасна композиція з акцентною типографікою та чіткими полями.",
+    name: "Вишуканий",
+    description: "Елегантна типографія з круглими зображеннями",
   },
   {
     id: "minimal",

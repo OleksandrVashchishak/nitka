@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { IconClose } from "@/components/cabinet-task-icons";
+import { IconClose } from "@/components/icon-close";
 import { useToastStore, type ToastTone } from "@/lib/toast";
 
 const TONE_STYLES: Record<

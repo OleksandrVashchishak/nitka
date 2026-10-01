@@ -122,6 +122,18 @@ let AuthService = class AuthService {
         });
         return { ok: true };
     }
+    async deleteAccount(userId, password) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.UnauthorizedException();
+        }
+        const ok = await bcrypt.compare(password, user.password);
+        if (!ok) {
+            throw new common_1.BadRequestException('Невірний пароль');
+        }
+        await this.prisma.user.delete({ where: { id: userId } });
+        return { ok: true };
+    }
     async me(userId) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
@@ -137,6 +149,26 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException();
         }
         return user;
+    }
+    async changePassword(userId, currentPassword, newPassword) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.UnauthorizedException();
+        }
+        const ok = await bcrypt.compare(currentPassword, user.password);
+        if (!ok) {
+            throw new common_1.BadRequestException('Невірний поточний пароль');
+        }
+        if (currentPassword === newPassword) {
+            throw new common_1.BadRequestException('Новий пароль має відрізнятися від поточного');
+        }
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                password: await bcrypt.hash(newPassword, 10),
+            },
+        });
+        return this.issueTokens(user);
     }
     resolveRegisterRole(role) {
         if (!role || role === client_1.Role.GUEST || role === client_1.Role.COUPLE) {

@@ -10,7 +10,8 @@ import {
   type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
-import { IconClose } from "@/components/cabinet-task-icons";
+import { IconClose } from "@/components/icon-close";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   OVERLAY_EXIT_MS,
   useOverlayPresence,
@@ -229,16 +230,14 @@ export function CabinetOverlay({
     const head = (
       <div className="cabinet-drawer-head">
         <h2 id={titleId}>{title}</h2>
-        <button
+        <IconButton
           ref={closeBtnRef}
-          type="button"
-          className="cabinet-drawer-close"
           aria-label="Закрити"
+          variant="close"
+          icon={<IconClose />}
           onClick={onClose}
           disabled={closeDisabled}
-        >
-          <IconClose />
-        </button>
+        />
       </div>
     );
 
@@ -280,16 +279,15 @@ export function CabinetOverlay({
           <h2 className="cabinet-confirm-modal__title" id={titleId}>
             {title}
           </h2>
-          <button
+          <IconButton
             ref={closeBtnRef}
-            type="button"
-            className="cabinet-modal-close"
             aria-label="Закрити"
+            variant="close"
+            size="m"
+            icon={<IconClose />}
             onClick={onClose}
             disabled={closeDisabled}
-          >
-            <IconClose />
-          </button>
+          />
         </div>
         {children}
         {footerEl}
@@ -306,16 +304,15 @@ export function CabinetOverlay({
           <h2 id={titleId}>{title}</h2>
           {subtitleEl}
         </div>
-        <button
+        <IconButton
           ref={closeBtnRef}
-          type="button"
-          className="cabinet-modal-close"
           aria-label="Закрити"
+          variant="close"
+          size="m"
+          icon={<IconClose />}
           onClick={onClose}
           disabled={closeDisabled}
-        >
-          <IconClose />
-        </button>
+        />
       </div>
     );
 

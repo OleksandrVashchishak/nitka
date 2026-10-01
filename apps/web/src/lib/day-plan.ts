@@ -1,3 +1,5 @@
+import { apiFetch } from "@/lib/client-api";
+
 export type DayPlanEvent = {
   id: string;
   title: string;
@@ -26,6 +28,7 @@ export const DAY_PLAN_DURATION_OPTIONS = [
   15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300, 360,
 ] as const;
 
+/** Стартовий розклад (як у Figma). Використовується як fallback / seed. */
 export const DEFAULT_DAY_PLAN: DayPlanEvent[] = [
   { id: "demo-1", title: "Пробудження і душ", time: "08:00", durationMin: 45 },
   { id: "demo-2", title: "Сніданок", time: "08:45", durationMin: 30 },
@@ -84,34 +87,40 @@ export function formatDayPlanShareText(
   return lines.join("\n");
 }
 
-export function loadDayPlan(weddingId: string): DayPlanEvent[] {
+function isDayPlanEvent(value: unknown): value is DayPlanEvent {
+  if (!value || typeof value !== "object") return false;
+  const e = value as Record<string, unknown>;
+  return (
+    typeof e.id === "string" &&
+    typeof e.title === "string" &&
+    typeof e.time === "string" &&
+    typeof e.durationMin === "number"
+  );
+}
+
+function normalizeEvents(raw: unknown): DayPlanEvent[] | null {
+  if (!Array.isArray(raw)) return null;
+  return sortDayPlanEvents(raw.filter(isDayPlanEvent));
+}
+
+/** Sync read from localStorage (legacy). Does not seed. */
+function readLocalDayPlan(weddingId: string): DayPlanEvent[] | null {
   try {
-    const key = dayPlanStorageKey(weddingId);
-    const raw = localStorage.getItem(key);
-    if (!raw) {
-      const seed = DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
-      localStorage.setItem(key, JSON.stringify(seed));
-      return seed;
-    }
-    const parsed = JSON.parse(raw) as DayPlanEvent[];
-    if (!Array.isArray(parsed)) {
-      const seed = DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
-      localStorage.setItem(key, JSON.stringify(seed));
-      return seed;
-    }
-    return sortDayPlanEvents(
-      parsed.filter(
-        (e) =>
-          e &&
-          typeof e.id === "string" &&
-          typeof e.title === "string" &&
-          typeof e.time === "string" &&
-          typeof e.durationMin === "number",
-      ),
-    );
+    const raw = localStorage.getItem(dayPlanStorageKey(weddingId));
+    if (!raw) return null;
+    return normalizeEvents(JSON.parse(raw));
   } catch {
-    return DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
+    return null;
   }
+}
+
+/** Sync read from localStorage (legacy / offline fallback). Seeds defaults if empty. */
+export function loadDayPlan(weddingId: string): DayPlanEvent[] {
+  const local = readLocalDayPlan(weddingId);
+  if (local) return local;
+  const seed = DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
+  saveDayPlan(weddingId, seed);
+  return seed;
 }
 
 export function saveDayPlan(weddingId: string, events: DayPlanEvent[]) {
@@ -122,6 +131,84 @@ export function saveDayPlan(weddingId: string, events: DayPlanEvent[]) {
     );
   } catch {
     /* ignore */
+  }
+}
+
+function clearLocalDayPlan(weddingId: string) {
+  try {
+    localStorage.removeItem(dayPlanStorageKey(weddingId));
+  } catch {
+    /* ignore */
+  }
+}
+
+type DayPlanMineResponse = {
+  weddingId: string;
+  events: DayPlanEvent[] | null;
+};
+
+export async function fetchDayPlan(): Promise<DayPlanMineResponse> {
+  return apiFetch<DayPlanMineResponse>("/api/day-plan", { silent: true });
+}
+
+export async function persistDayPlan(events: DayPlanEvent[]) {
+  return apiFetch<DayPlanMineResponse>("/api/day-plan", {
+    method: "PUT",
+    body: JSON.stringify({ events: sortDayPlanEvents(events) }),
+    silent: true,
+  });
+}
+
+/**
+ * Load day plan from API.
+ * If DB empty but browser has old localStorage — migrate once.
+ * If both empty — seed DEFAULT_DAY_PLAN and persist.
+ */
+export async function loadDayPlanWithMigration(
+  weddingId: string,
+): Promise<DayPlanEvent[]> {
+  let remoteEvents: DayPlanEvent[] | null = null;
+
+  try {
+    const remote = await fetchDayPlan();
+    if (remote && "events" in remote) {
+      remoteEvents =
+        remote.events === null ? null : normalizeEvents(remote.events);
+    }
+  } catch {
+    /* fall through */
+  }
+
+  if (remoteEvents !== null) {
+    clearLocalDayPlan(weddingId);
+    return remoteEvents;
+  }
+
+  const local = readLocalDayPlan(weddingId);
+  const next = local?.length
+    ? local
+    : DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
+
+  try {
+    await persistDayPlan(next);
+    clearLocalDayPlan(weddingId);
+  } catch {
+    saveDayPlan(weddingId, next);
+  }
+
+  return sortDayPlanEvents(next);
+}
+
+export async function saveDayPlanRemote(
+  weddingId: string,
+  events: DayPlanEvent[],
+) {
+  const sorted = sortDayPlanEvents(events);
+  try {
+    await persistDayPlan(sorted);
+    clearLocalDayPlan(weddingId);
+  } catch {
+    saveDayPlan(weddingId, sorted);
   }
 }
 

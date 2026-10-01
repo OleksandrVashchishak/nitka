@@ -39,8 +39,9 @@ function along(count: number, index: number): number {
   return index / (count - 1);
 }
 
+/** `n` is already on a 0–100 percentage scale (not 0–1). */
 function pct(n: number): string {
-  return `${Math.round(n * 1000) / 10}%`;
+  return `${Math.round(n * 10) / 10}%`;
 }
 
 /** T: top bar seats + stem left/right. Body ~280×200. Weights 8+5+5. */
