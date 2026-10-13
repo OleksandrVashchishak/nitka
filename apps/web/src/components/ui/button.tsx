@@ -5,6 +5,7 @@ import {
   forwardRef,
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
+  type PointerEvent,
   type ReactNode,
   type Ref,
 } from "react";
@@ -63,6 +64,35 @@ function buttonClassName({
     .join(" ");
 }
 
+/** Ant Design–style outward wave on click. */
+function playButtonWave(target: HTMLElement) {
+  if (typeof window === "undefined") return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const wave = document.createElement("span");
+  wave.className = "fata-button-wave";
+  wave.setAttribute("aria-hidden", "true");
+  target.appendChild(wave);
+
+  const cleanup = () => {
+    wave.removeEventListener("animationend", cleanup);
+    wave.remove();
+  };
+  wave.addEventListener("animationend", cleanup);
+}
+
+function withWavePointerDown<T extends HTMLElement>(
+  disabled: boolean | undefined,
+  onPointerDown?: (event: PointerEvent<T>) => void,
+) {
+  return (event: PointerEvent<T>) => {
+    if (!disabled && event.button === 0) {
+      playButtonWave(event.currentTarget);
+    }
+    onPointerDown?.(event);
+  };
+}
+
 export const Button = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   ButtonProps
@@ -87,6 +117,7 @@ export const Button = forwardRef<
       className: _className,
       children: _children,
       href,
+      onPointerDown,
       ...linkRest
     } = props;
 
@@ -98,6 +129,7 @@ export const Button = forwardRef<
         aria-disabled={loading || undefined}
         tabIndex={loading ? -1 : undefined}
         {...linkRest}
+        onPointerDown={withWavePointerDown(loading, onPointerDown)}
       >
         {content}
       </Link>
@@ -114,16 +146,20 @@ export const Button = forwardRef<
     children: _children,
     type = "button",
     disabled,
+    onPointerDown,
     ...buttonRest
   } = props;
+
+  const isDisabled = Boolean(disabled || loading);
 
   return (
     <button
       type={type}
       className={classes}
       ref={ref as Ref<HTMLButtonElement>}
-      disabled={disabled || loading}
+      disabled={isDisabled}
       {...buttonRest}
+      onPointerDown={withWavePointerDown(isDisabled, onPointerDown)}
     >
       {content}
     </button>

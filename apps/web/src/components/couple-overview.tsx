@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getBudget } from "@/lib/budget-api";
 import {
   createPartnerInvite,
@@ -64,6 +64,8 @@ function daysWord(n: number) {
 }
 
 const USD_RATE = 41;
+/** Скільки тримати щойно виконане завдання в списку огляду, щоб було видно чек. */
+const DONE_LINGER_MS = 1500;
 
 function formatMoneyUsd(uah: number) {
   const usd = Math.round(uah / USD_RATE);
@@ -167,7 +169,21 @@ export function CoupleOverview({
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<WeddingTask | null>(null);
   const [deleting, setDeleting] = useState(false);
+  /** Щойно виконані — лишаються в топ-списку, поки не знімемо linger. */
+  const [lingeringDoneIds, setLingeringDoneIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const lingerTimersRef = useRef<Map<string, number>>(new Map());
   const router = useRouter();
+
+  useEffect(() => {
+    return () => {
+      for (const id of lingerTimersRef.current.values()) {
+        window.clearTimeout(id);
+      }
+      lingerTimersRef.current.clear();
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -238,19 +254,26 @@ export function CoupleOverview({
 
   const tasks = useMemo(() => {
     return [...wedding.tasks]
-      .map((task) => ({
-        task,
-        due: taskDue(task, wedding.date),
-        done: task.status === "DONE",
-      }))
+      .map((task) => {
+        const lingering = lingeringDoneIds.has(task.id);
+        const statusDone = task.status === "DONE";
+        return {
+          task,
+          due: taskDue(task, wedding.date),
+          // Linger дає галочку одразу, ще до відповіді API.
+          done: statusDone || lingering,
+          // Закриті без linger — вже можна ховати з топ-списку.
+          settledDone: statusDone && !lingering,
+        };
+      })
+      .filter(({ settledDone }) => !settledDone)
       .sort((a, b) => {
-        if (a.done !== b.done) return a.done ? 1 : -1;
         const ad = a.due ?? "9999-99-99";
         const bd = b.due ?? "9999-99-99";
         return ad.localeCompare(bd);
       })
       .slice(0, 7);
-  }, [wedding.tasks, wedding.date]);
+  }, [wedding.tasks, wedding.date, lingeringDoneIds]);
 
   const { filled: vendorFilled, total: vendorPlanTotal } =
     vendorPlanProgress(pipeline);
@@ -276,13 +299,57 @@ export function CoupleOverview({
         : "вже відбулось";
   const photo = wedding.couplePhotoUrl || "/landing/couple.jpg";
 
+  function clearLinger(taskId: string) {
+    const existing = lingerTimersRef.current.get(taskId);
+    if (existing != null) {
+      window.clearTimeout(existing);
+      lingerTimersRef.current.delete(taskId);
+    }
+    setLingeringDoneIds((prev) => {
+      if (!prev.has(taskId)) return prev;
+      const next = new Set(prev);
+      next.delete(taskId);
+      return next;
+    });
+  }
+
+  function scheduleLingerClear(taskId: string) {
+    const existing = lingerTimersRef.current.get(taskId);
+    if (existing != null) window.clearTimeout(existing);
+    const timer = window.setTimeout(() => {
+      lingerTimersRef.current.delete(taskId);
+      setLingeringDoneIds((prev) => {
+        if (!prev.has(taskId)) return prev;
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      });
+    }, DONE_LINGER_MS);
+    lingerTimersRef.current.set(taskId, timer);
+  }
+
   async function onToggleTask(task: WeddingTask, isDone: boolean) {
+    const markingDone = !isDone;
+    if (markingDone) {
+      // Спочатку linger, щоб після DONE рядок не випав з топ-7 одразу.
+      setLingeringDoneIds((prev) => {
+        if (prev.has(task.id)) return prev;
+        const next = new Set(prev);
+        next.add(task.id);
+        return next;
+      });
+    } else {
+      clearLinger(task.id);
+    }
+
     try {
       const updated = await updateTask(task.id, {
-        status: isDone ? "TODO" : "DONE",
+        status: markingDone ? "DONE" : "TODO",
       });
       onTaskChange(updated);
+      if (markingDone) scheduleLingerClear(task.id);
     } catch (err) {
+      clearLinger(task.id);
       toast.error(err instanceof Error ? err.message : "Не оновлено задачу");
     }
   }

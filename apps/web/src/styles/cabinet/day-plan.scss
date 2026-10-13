@@ -1,0 +1,101 @@
+@keyframes day-plan-part-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cabinet-day-plan-timeline {
+  gap: 0;
+}
+
+.cabinet-day-plan-row-shell {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 1;
+  transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &.is-visible {
+    grid-template-rows: 1fr;
+  }
+
+  &.is-exiting {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.22s ease;
+    pointer-events: none;
+  }
+}
+
+.cabinet-day-plan-row-shell-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.cabinet-day-plan-row-shell .cabinet-day-plan-row {
+  padding-bottom: 14px;
+}
+
+.cabinet-day-plan-row-shell:not(.is-visible):not(.is-exiting) {
+  .cabinet-day-plan-time,
+  .cabinet-day-plan-marker,
+  .cabinet-day-plan-card {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.cabinet-day-plan-row-shell.is-visible:not(.is-exiting) {
+  .cabinet-day-plan-time,
+  .cabinet-day-plan-marker,
+  .cabinet-day-plan-card {
+    animation: day-plan-part-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .cabinet-day-plan-time {
+    animation-delay: calc(var(--row-i, 0) * 55ms);
+  }
+
+  .cabinet-day-plan-marker {
+    animation-delay: calc(var(--row-i, 0) * 55ms + 45ms);
+  }
+
+  .cabinet-day-plan-card {
+    animation-delay: calc(var(--row-i, 0) * 55ms + 90ms);
+  }
+}
+
+@media (max-width: 767px) {
+  .cabinet-day-plan-row-shell .cabinet-day-plan-row {
+    padding-bottom: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cabinet-day-plan-row-shell {
+    grid-template-rows: 1fr;
+    transition: none;
+
+    &.is-exiting {
+      opacity: 0;
+      transition: none;
+    }
+  }
+
+  .cabinet-day-plan-row-shell:not(.is-visible):not(.is-exiting),
+  .cabinet-day-plan-row-shell.is-visible:not(.is-exiting) {
+    .cabinet-day-plan-time,
+    .cabinet-day-plan-marker,
+    .cabinet-day-plan-card {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+}

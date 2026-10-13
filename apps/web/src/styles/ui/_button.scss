@@ -1,7 +1,17 @@
-/* Shared CTA button — sizes + tones. Hover/focus live here once. */
+/* Shared CTA button — sizes + tones. Hover/focus/wave live here once. */
+
+@keyframes fata-button-wave-effect {
+  to {
+    box-shadow: 0 0 0 6px var(--fata-button-wave-color);
+    opacity: 0;
+  }
+}
 
 .fata-button {
+  --fata-button-wave-color: rgba(26, 26, 26, 0.35);
+
   box-sizing: border-box;
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -17,10 +27,11 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  overflow: visible;
   transition:
-    background 0.4s ease,
-    border-color 0.4s ease,
-    color 0.4s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
     opacity 0.2s ease;
 
   &:disabled {
@@ -63,11 +74,16 @@
      Double class beats `.fata-site-header a { color: inherit }` (0,1,1). */
 
   &.fata-button--light {
+    --fata-button-wave-color: rgba(97, 4, 15, 0.45);
     background: #f0febb;
     color: #61040f;
 
     &:hover:not(:disabled) {
       background: #e5f5a3;
+    }
+
+    &:active:not(:disabled) {
+      background: #d9eb8a;
     }
 
     &:focus-visible {
@@ -77,11 +93,16 @@
   }
 
   &.fata-button--dark {
+    --fata-button-wave-color: rgba(240, 254, 187, 0.55);
     background: #61040f;
     color: #fff;
 
     &:hover:not(:disabled) {
       background: #4a030c;
+    }
+
+    &:active:not(:disabled) {
+      background: #3a0209;
     }
 
     &:focus-visible {
@@ -93,6 +114,7 @@
 
   /* Header «Увійти»: wine + lime text/border */
   &.fata-button--brand {
+    --fata-button-wave-color: rgba(240, 254, 187, 0.55);
     border: 1px solid #f0febb;
     background: #61040f;
     color: #f0febb;
@@ -100,6 +122,11 @@
     &:hover:not(:disabled) {
       background: #4a0310;
       border-color: #4a0310;
+    }
+
+    &:active:not(:disabled) {
+      background: #3a0209;
+      border-color: #3a0209;
     }
 
     &:focus-visible {
@@ -110,6 +137,7 @@
 
   /* Google / secondary on light surfaces */
   &.fata-button--outline {
+    --fata-button-wave-color: rgba(26, 26, 26, 0.35);
     border: 1px solid #ebe5d4;
     background: #fff;
     font-family: var(--font-sans), sans-serif;
@@ -121,6 +149,11 @@
       border-color: rgba(26, 26, 26, 0.25);
     }
 
+    &:active:not(:disabled) {
+      background: #f7f5ef;
+      border-color: rgba(26, 26, 26, 0.35);
+    }
+
     &:focus-visible {
       border-color: #1b1b19;
       outline: none;
@@ -129,12 +162,17 @@
 
   /* «Назад» on onboarding */
   &.fata-button--ghost {
+    --fata-button-wave-color: rgba(26, 26, 26, 0.35);
     border: 1px solid #000;
     background: transparent;
     color: #1a1a1a;
 
     &:hover:not(:disabled) {
       background: rgba(26, 26, 26, 0.04);
+    }
+
+    &:active:not(:disabled) {
+      background: rgba(26, 26, 26, 0.08);
     }
 
     &:focus-visible {
@@ -144,11 +182,16 @@
   }
 
   &.fata-button--black {
+    --fata-button-wave-color: rgba(255, 255, 255, 0.45);
     background: #000;
     color: #fff;
 
     &:hover:not(:disabled) {
       background: #222;
+    }
+
+    &:active:not(:disabled) {
+      background: #111;
     }
 
     &:focus-visible {
@@ -159,11 +202,16 @@
 
   /* Cabinet primary: ink + lime text */
   &.fata-button--ink {
+    --fata-button-wave-color: rgba(240, 254, 187, 0.55);
     background: #1a1a1a;
     color: #f0febb;
 
     &:hover:not(:disabled) {
       background: #000;
+    }
+
+    &:active:not(:disabled) {
+      background: #0a0a0a;
     }
 
     &:focus-visible {
@@ -173,6 +221,7 @@
   }
 
   &.fata-button--accent {
+    --fata-button-wave-color: rgba(26, 26, 26, 0.35);
     background: #ff4200;
     color: #1a1a1a;
 
@@ -180,9 +229,36 @@
       background: #e63b00;
     }
 
+    &:active:not(:disabled) {
+      background: #cc3400;
+    }
+
     &:focus-visible {
       outline: 2px solid #f0febb;
       outline-offset: 3px;
     }
+  }
+}
+
+/* Ant Design–style click wave (created in JS on pointerdown). */
+.fata-button-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 0 0 0 var(--fata-button-wave-color);
+  opacity: 0.35;
+  animation: fata-button-wave-effect 0.4s cubic-bezier(0.08, 0.82, 0.17, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fata-button {
+    transition: none;
+  }
+
+  .fata-button-wave {
+    display: none;
+    animation: none;
   }
 }

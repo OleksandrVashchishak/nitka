@@ -33,6 +33,7 @@ import {
 } from "@/lib/notifications-api";
 import { toast } from "@/lib/toast";
 import "@/styles/cabinet/cabinet.scss";
+import "@/styles/cabinet/day-plan.scss";
 
 function newEventId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
