@@ -10,12 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpsertWeddingInvitationDto = void 0;
-const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpsertWeddingInvitationDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { templateId: { required: false, type: () => String, minLength: 2, maxLength: 40 }, content: { required: false, type: () => Object } };
-    }
 }
 exports.UpsertWeddingInvitationDto = UpsertWeddingInvitationDto;
 __decorate([

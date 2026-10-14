@@ -38,6 +38,10 @@ services:
         value: https://nitka-api.onrender.com
       - key: WEB_APP_URL
         value: https://nitka-web.onrender.com
+      - key: SUPERADMIN_EMAIL
+        sync: false
+      - key: SUPERADMIN_PASSWORD
+        sync: false
       # Optional email (set in Render dashboard):
       # EMAIL_FROM, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
       # Optional Cloudinary: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET

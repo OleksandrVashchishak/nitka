@@ -1,0 +1,119 @@
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.admin-stat-card {
+  padding: 16px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-line);
+  border-radius: 10px;
+}
+
+.admin-stat-card__label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--admin-muted);
+}
+
+.admin-stat-card__value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.admin-section {
+  margin-bottom: 28px;
+}
+
+.admin-section h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.admin-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-feature-chip {
+  padding: 12px 14px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-line);
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.admin-feature-chip span {
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.admin-feature-chip strong {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .admin-stats-grid,
+  .admin-feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-line);
+  border-radius: 10px;
+}
+
+.admin-funnel__row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-funnel__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.admin-funnel__meta strong {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-funnel__track {
+  height: 10px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  overflow: hidden;
+}
+
+.admin-funnel__bar {
+  height: 100%;
+  border-radius: 999px;
+  background: #18181b;
+  min-width: 4px;
+}
+
+@media (max-width: 600px) {
+  .admin-stats-grid,
+  .admin-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}

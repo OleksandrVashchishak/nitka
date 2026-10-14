@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateTaskDto = exports.TASK_ASSIGNEES = void 0;
-const openapi = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
 exports.TASK_ASSIGNEES = [
@@ -21,9 +20,6 @@ exports.TASK_ASSIGNEES = [
     'other',
 ];
 class UpdateTaskDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { status: { required: false, type: () => Object }, dueDate: { required: false, type: () => String, nullable: true }, title: { required: false, type: () => String, minLength: 2 }, assignee: { required: false, type: () => Object, nullable: true, enum: exports.TASK_ASSIGNEES } };
-    }
 }
 exports.UpdateTaskDto = UpdateTaskDto;
 __decorate([

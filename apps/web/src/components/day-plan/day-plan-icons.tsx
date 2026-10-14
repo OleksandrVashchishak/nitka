@@ -120,6 +120,27 @@ export function IconDayPlanPlus({ size = 20, className }: Props) {
   );
 }
 
+/** Drag handle — 6 dots for reordering. */
+export function IconDayPlanGrip({ size = 16, className }: Props) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <circle cx="5.5" cy="3.5" r="1.25" fill="currentColor" />
+      <circle cx="10.5" cy="3.5" r="1.25" fill="currentColor" />
+      <circle cx="5.5" cy="8" r="1.25" fill="currentColor" />
+      <circle cx="10.5" cy="8" r="1.25" fill="currentColor" />
+      <circle cx="5.5" cy="12.5" r="1.25" fill="currentColor" />
+      <circle cx="10.5" cy="12.5" r="1.25" fill="currentColor" />
+    </svg>
+  );
+}
+
 /** Share nodes — Figma mobile «Поділитися». */
 export function IconDayPlanShare({ size = 18, className }: Props) {
   return (

@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model AdminUserNote
+ * 
+ */
+export type AdminUserNote = $Result.DefaultSelection<Prisma.$AdminUserNotePayload>
+/**
  * Model PushDevice
  * 
  */
@@ -33,6 +38,16 @@ export type ExternalVendor = $Result.DefaultSelection<Prisma.$ExternalVendorPayl
  * 
  */
 export type Wedding = $Result.DefaultSelection<Prisma.$WeddingPayload>
+/**
+ * Model DayPlanShare
+ * 
+ */
+export type DayPlanShare = $Result.DefaultSelection<Prisma.$DayPlanSharePayload>
+/**
+ * Model DayPlanShareGrant
+ * 
+ */
+export type DayPlanShareGrant = $Result.DefaultSelection<Prisma.$DayPlanShareGrantPayload>
 /**
  * Model WeddingWebsite
  * 
@@ -122,6 +137,14 @@ export const VendorPipelineStage: {
 export type VendorPipelineStage = (typeof VendorPipelineStage)[keyof typeof VendorPipelineStage]
 
 
+export const DayPlanShareAccess: {
+  VIEW: 'VIEW',
+  EDIT: 'EDIT'
+};
+
+export type DayPlanShareAccess = (typeof DayPlanShareAccess)[keyof typeof DayPlanShareAccess]
+
+
 export const WeddingMemberRole: {
   OWNER: 'OWNER',
   PARTNER: 'PARTNER'
@@ -173,6 +196,10 @@ export const GuestSide: typeof $Enums.GuestSide
 export type VendorPipelineStage = $Enums.VendorPipelineStage
 
 export const VendorPipelineStage: typeof $Enums.VendorPipelineStage
+
+export type DayPlanShareAccess = $Enums.DayPlanShareAccess
+
+export const DayPlanShareAccess: typeof $Enums.DayPlanShareAccess
 
 export type WeddingMemberRole = $Enums.WeddingMemberRole
 
@@ -319,6 +346,16 @@ export class PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.adminUserNote`: Exposes CRUD operations for the **AdminUserNote** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdminUserNotes
+    * const adminUserNotes = await prisma.adminUserNote.findMany()
+    * ```
+    */
+  get adminUserNote(): Prisma.AdminUserNoteDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.pushDevice`: Exposes CRUD operations for the **PushDevice** model.
     * Example usage:
     * ```ts
@@ -347,6 +384,26 @@ export class PrismaClient<
     * ```
     */
   get wedding(): Prisma.WeddingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dayPlanShare`: Exposes CRUD operations for the **DayPlanShare** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DayPlanShares
+    * const dayPlanShares = await prisma.dayPlanShare.findMany()
+    * ```
+    */
+  get dayPlanShare(): Prisma.DayPlanShareDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dayPlanShareGrant`: Exposes CRUD operations for the **DayPlanShareGrant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DayPlanShareGrants
+    * const dayPlanShareGrants = await prisma.dayPlanShareGrant.findMany()
+    * ```
+    */
+  get dayPlanShareGrant(): Prisma.DayPlanShareGrantDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.weddingWebsite`: Exposes CRUD operations for the **WeddingWebsite** model.
@@ -879,9 +936,12 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    AdminUserNote: 'AdminUserNote',
     PushDevice: 'PushDevice',
     ExternalVendor: 'ExternalVendor',
     Wedding: 'Wedding',
+    DayPlanShare: 'DayPlanShare',
+    DayPlanShareGrant: 'DayPlanShareGrant',
     WeddingWebsite: 'WeddingWebsite',
     WeddingInvitation: 'WeddingInvitation',
     WeddingMember: 'WeddingMember',
@@ -909,7 +969,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "pushDevice" | "externalVendor" | "wedding" | "weddingWebsite" | "weddingInvitation" | "weddingMember" | "weddingInvite" | "task" | "guest" | "budgetItem" | "contentTopic" | "contentPost"
+      modelProps: "user" | "adminUserNote" | "pushDevice" | "externalVendor" | "wedding" | "dayPlanShare" | "dayPlanShareGrant" | "weddingWebsite" | "weddingInvitation" | "weddingMember" | "weddingInvite" | "task" | "guest" | "budgetItem" | "contentTopic" | "contentPost"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -984,6 +1044,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      AdminUserNote: {
+        payload: Prisma.$AdminUserNotePayload<ExtArgs>
+        fields: Prisma.AdminUserNoteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdminUserNoteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdminUserNoteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>
+          }
+          findFirst: {
+            args: Prisma.AdminUserNoteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdminUserNoteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>
+          }
+          findMany: {
+            args: Prisma.AdminUserNoteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>[]
+          }
+          create: {
+            args: Prisma.AdminUserNoteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>
+          }
+          createMany: {
+            args: Prisma.AdminUserNoteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdminUserNoteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>[]
+          }
+          delete: {
+            args: Prisma.AdminUserNoteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>
+          }
+          update: {
+            args: Prisma.AdminUserNoteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>
+          }
+          deleteMany: {
+            args: Prisma.AdminUserNoteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdminUserNoteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdminUserNoteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>[]
+          }
+          upsert: {
+            args: Prisma.AdminUserNoteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminUserNotePayload>
+          }
+          aggregate: {
+            args: Prisma.AdminUserNoteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminUserNote>
+          }
+          groupBy: {
+            args: Prisma.AdminUserNoteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminUserNoteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdminUserNoteCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminUserNoteCountAggregateOutputType> | number
           }
         }
       }
@@ -1206,6 +1340,154 @@ export namespace Prisma {
           count: {
             args: Prisma.WeddingCountArgs<ExtArgs>
             result: $Utils.Optional<WeddingCountAggregateOutputType> | number
+          }
+        }
+      }
+      DayPlanShare: {
+        payload: Prisma.$DayPlanSharePayload<ExtArgs>
+        fields: Prisma.DayPlanShareFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DayPlanShareFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DayPlanShareFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>
+          }
+          findFirst: {
+            args: Prisma.DayPlanShareFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DayPlanShareFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>
+          }
+          findMany: {
+            args: Prisma.DayPlanShareFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>[]
+          }
+          create: {
+            args: Prisma.DayPlanShareCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>
+          }
+          createMany: {
+            args: Prisma.DayPlanShareCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DayPlanShareCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>[]
+          }
+          delete: {
+            args: Prisma.DayPlanShareDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>
+          }
+          update: {
+            args: Prisma.DayPlanShareUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>
+          }
+          deleteMany: {
+            args: Prisma.DayPlanShareDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DayPlanShareUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DayPlanShareUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>[]
+          }
+          upsert: {
+            args: Prisma.DayPlanShareUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanSharePayload>
+          }
+          aggregate: {
+            args: Prisma.DayPlanShareAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDayPlanShare>
+          }
+          groupBy: {
+            args: Prisma.DayPlanShareGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DayPlanShareGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DayPlanShareCountArgs<ExtArgs>
+            result: $Utils.Optional<DayPlanShareCountAggregateOutputType> | number
+          }
+        }
+      }
+      DayPlanShareGrant: {
+        payload: Prisma.$DayPlanShareGrantPayload<ExtArgs>
+        fields: Prisma.DayPlanShareGrantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DayPlanShareGrantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DayPlanShareGrantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>
+          }
+          findFirst: {
+            args: Prisma.DayPlanShareGrantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DayPlanShareGrantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>
+          }
+          findMany: {
+            args: Prisma.DayPlanShareGrantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>[]
+          }
+          create: {
+            args: Prisma.DayPlanShareGrantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>
+          }
+          createMany: {
+            args: Prisma.DayPlanShareGrantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DayPlanShareGrantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>[]
+          }
+          delete: {
+            args: Prisma.DayPlanShareGrantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>
+          }
+          update: {
+            args: Prisma.DayPlanShareGrantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>
+          }
+          deleteMany: {
+            args: Prisma.DayPlanShareGrantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DayPlanShareGrantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DayPlanShareGrantUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>[]
+          }
+          upsert: {
+            args: Prisma.DayPlanShareGrantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DayPlanShareGrantPayload>
+          }
+          aggregate: {
+            args: Prisma.DayPlanShareGrantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDayPlanShareGrant>
+          }
+          groupBy: {
+            args: Prisma.DayPlanShareGrantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DayPlanShareGrantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DayPlanShareGrantCountArgs<ExtArgs>
+            result: $Utils.Optional<DayPlanShareGrantCountAggregateOutputType> | number
           }
         }
       }
@@ -1972,9 +2254,12 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    adminUserNote?: AdminUserNoteOmit
     pushDevice?: PushDeviceOmit
     externalVendor?: ExternalVendorOmit
     wedding?: WeddingOmit
+    dayPlanShare?: DayPlanShareOmit
+    dayPlanShareGrant?: DayPlanShareGrantOmit
     weddingWebsite?: WeddingWebsiteOmit
     weddingInvitation?: WeddingInvitationOmit
     weddingMember?: WeddingMemberOmit
@@ -2067,12 +2352,16 @@ export namespace Prisma {
     externalVendors: number
     contentPosts: number
     pushDevices: number
+    adminNotes: number
+    dayPlanShareGrants: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     externalVendors?: boolean | UserCountOutputTypeCountExternalVendorsArgs
     contentPosts?: boolean | UserCountOutputTypeCountContentPostsArgs
     pushDevices?: boolean | UserCountOutputTypeCountPushDevicesArgs
+    adminNotes?: boolean | UserCountOutputTypeCountAdminNotesArgs
+    dayPlanShareGrants?: boolean | UserCountOutputTypeCountDayPlanShareGrantsArgs
   }
 
   // Custom InputTypes
@@ -2105,6 +2394,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountPushDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PushDeviceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAdminNotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminUserNoteWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDayPlanShareGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DayPlanShareGrantWhereInput
   }
 
 
@@ -2176,6 +2479,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type DayPlanShareCountOutputType
+   */
+
+  export type DayPlanShareCountOutputType = {
+    grants: number
+  }
+
+  export type DayPlanShareCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    grants?: boolean | DayPlanShareCountOutputTypeCountGrantsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DayPlanShareCountOutputType without action
+   */
+  export type DayPlanShareCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareCountOutputType
+     */
+    select?: DayPlanShareCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DayPlanShareCountOutputType without action
+   */
+  export type DayPlanShareCountOutputTypeCountGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DayPlanShareGrantWhereInput
+  }
+
+
+  /**
    * Count Type ContentTopicCountOutputType
    */
 
@@ -2228,7 +2562,14 @@ export namespace Prisma {
     role: $Enums.Role | null
     blocked: boolean | null
     refreshTokenHash: string | null
+    notifGuestRsvp: boolean | null
+    notifUpcomingPayments: boolean | null
+    notifTaskDeadlines: boolean | null
+    notifPartnerChanges: boolean | null
+    notifPush: boolean | null
+    notifEmail: boolean | null
     createdAt: Date | null
+    lastLoginAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -2239,7 +2580,14 @@ export namespace Prisma {
     role: $Enums.Role | null
     blocked: boolean | null
     refreshTokenHash: string | null
+    notifGuestRsvp: boolean | null
+    notifUpcomingPayments: boolean | null
+    notifTaskDeadlines: boolean | null
+    notifPartnerChanges: boolean | null
+    notifPush: boolean | null
+    notifEmail: boolean | null
     createdAt: Date | null
+    lastLoginAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -2250,7 +2598,14 @@ export namespace Prisma {
     role: number
     blocked: number
     refreshTokenHash: number
+    notifGuestRsvp: number
+    notifUpcomingPayments: number
+    notifTaskDeadlines: number
+    notifPartnerChanges: number
+    notifPush: number
+    notifEmail: number
     createdAt: number
+    lastLoginAt: number
     _all: number
   }
 
@@ -2263,7 +2618,14 @@ export namespace Prisma {
     role?: true
     blocked?: true
     refreshTokenHash?: true
+    notifGuestRsvp?: true
+    notifUpcomingPayments?: true
+    notifTaskDeadlines?: true
+    notifPartnerChanges?: true
+    notifPush?: true
+    notifEmail?: true
     createdAt?: true
+    lastLoginAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2274,7 +2636,14 @@ export namespace Prisma {
     role?: true
     blocked?: true
     refreshTokenHash?: true
+    notifGuestRsvp?: true
+    notifUpcomingPayments?: true
+    notifTaskDeadlines?: true
+    notifPartnerChanges?: true
+    notifPush?: true
+    notifEmail?: true
     createdAt?: true
+    lastLoginAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2285,7 +2654,14 @@ export namespace Prisma {
     role?: true
     blocked?: true
     refreshTokenHash?: true
+    notifGuestRsvp?: true
+    notifUpcomingPayments?: true
+    notifTaskDeadlines?: true
+    notifPartnerChanges?: true
+    notifPush?: true
+    notifEmail?: true
     createdAt?: true
+    lastLoginAt?: true
     _all?: true
   }
 
@@ -2369,7 +2745,14 @@ export namespace Prisma {
     role: $Enums.Role
     blocked: boolean
     refreshTokenHash: string | null
+    notifGuestRsvp: boolean
+    notifUpcomingPayments: boolean
+    notifTaskDeadlines: boolean
+    notifPartnerChanges: boolean
+    notifPush: boolean
+    notifEmail: boolean
     createdAt: Date
+    lastLoginAt: Date | null
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2397,12 +2780,21 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: boolean
+    lastLoginAt?: boolean
     wedding?: boolean | User$weddingArgs<ExtArgs>
     weddingMember?: boolean | User$weddingMemberArgs<ExtArgs>
     externalVendors?: boolean | User$externalVendorsArgs<ExtArgs>
     contentPosts?: boolean | User$contentPostsArgs<ExtArgs>
     pushDevices?: boolean | User$pushDevicesArgs<ExtArgs>
+    adminNotes?: boolean | User$adminNotesArgs<ExtArgs>
+    dayPlanShareGrants?: boolean | User$dayPlanShareGrantsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2414,7 +2806,14 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: boolean
+    lastLoginAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2425,7 +2824,14 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: boolean
+    lastLoginAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2436,16 +2842,25 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: boolean
+    lastLoginAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "blocked" | "refreshTokenHash" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "blocked" | "refreshTokenHash" | "notifGuestRsvp" | "notifUpcomingPayments" | "notifTaskDeadlines" | "notifPartnerChanges" | "notifPush" | "notifEmail" | "createdAt" | "lastLoginAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | User$weddingArgs<ExtArgs>
     weddingMember?: boolean | User$weddingMemberArgs<ExtArgs>
     externalVendors?: boolean | User$externalVendorsArgs<ExtArgs>
     contentPosts?: boolean | User$contentPostsArgs<ExtArgs>
     pushDevices?: boolean | User$pushDevicesArgs<ExtArgs>
+    adminNotes?: boolean | User$adminNotesArgs<ExtArgs>
+    dayPlanShareGrants?: boolean | User$dayPlanShareGrantsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2459,6 +2874,8 @@ export namespace Prisma {
       externalVendors: Prisma.$ExternalVendorPayload<ExtArgs>[]
       contentPosts: Prisma.$ContentPostPayload<ExtArgs>[]
       pushDevices: Prisma.$PushDevicePayload<ExtArgs>[]
+      adminNotes: Prisma.$AdminUserNotePayload<ExtArgs>[]
+      dayPlanShareGrants: Prisma.$DayPlanShareGrantPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2468,7 +2885,14 @@ export namespace Prisma {
       role: $Enums.Role
       blocked: boolean
       refreshTokenHash: string | null
+      notifGuestRsvp: boolean
+      notifUpcomingPayments: boolean
+      notifTaskDeadlines: boolean
+      notifPartnerChanges: boolean
+      notifPush: boolean
+      notifEmail: boolean
       createdAt: Date
+      lastLoginAt: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2868,6 +3292,8 @@ export namespace Prisma {
     externalVendors<T extends User$externalVendorsArgs<ExtArgs> = {}>(args?: Subset<T, User$externalVendorsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalVendorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contentPosts<T extends User$contentPostsArgs<ExtArgs> = {}>(args?: Subset<T, User$contentPostsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContentPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pushDevices<T extends User$pushDevicesArgs<ExtArgs> = {}>(args?: Subset<T, User$pushDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminNotes<T extends User$adminNotesArgs<ExtArgs> = {}>(args?: Subset<T, User$adminNotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    dayPlanShareGrants<T extends User$dayPlanShareGrantsArgs<ExtArgs> = {}>(args?: Subset<T, User$dayPlanShareGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2904,7 +3330,14 @@ export namespace Prisma {
     readonly role: FieldRef<"User", 'Role'>
     readonly blocked: FieldRef<"User", 'Boolean'>
     readonly refreshTokenHash: FieldRef<"User", 'String'>
+    readonly notifGuestRsvp: FieldRef<"User", 'Boolean'>
+    readonly notifUpcomingPayments: FieldRef<"User", 'Boolean'>
+    readonly notifTaskDeadlines: FieldRef<"User", 'Boolean'>
+    readonly notifPartnerChanges: FieldRef<"User", 'Boolean'>
+    readonly notifPush: FieldRef<"User", 'Boolean'>
+    readonly notifEmail: FieldRef<"User", 'Boolean'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly lastLoginAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -3403,6 +3836,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.adminNotes
+   */
+  export type User$adminNotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    where?: AdminUserNoteWhereInput
+    orderBy?: AdminUserNoteOrderByWithRelationInput | AdminUserNoteOrderByWithRelationInput[]
+    cursor?: AdminUserNoteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminUserNoteScalarFieldEnum | AdminUserNoteScalarFieldEnum[]
+  }
+
+  /**
+   * User.dayPlanShareGrants
+   */
+  export type User$dayPlanShareGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    where?: DayPlanShareGrantWhereInput
+    orderBy?: DayPlanShareGrantOrderByWithRelationInput | DayPlanShareGrantOrderByWithRelationInput[]
+    cursor?: DayPlanShareGrantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DayPlanShareGrantScalarFieldEnum | DayPlanShareGrantScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3418,6 +3899,1064 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AdminUserNote
+   */
+
+  export type AggregateAdminUserNote = {
+    _count: AdminUserNoteCountAggregateOutputType | null
+    _min: AdminUserNoteMinAggregateOutputType | null
+    _max: AdminUserNoteMaxAggregateOutputType | null
+  }
+
+  export type AdminUserNoteMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    body: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdminUserNoteMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    body: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdminUserNoteCountAggregateOutputType = {
+    id: number
+    userId: number
+    body: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AdminUserNoteMinAggregateInputType = {
+    id?: true
+    userId?: true
+    body?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdminUserNoteMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    body?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdminUserNoteCountAggregateInputType = {
+    id?: true
+    userId?: true
+    body?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AdminUserNoteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminUserNote to aggregate.
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminUserNotes to fetch.
+     */
+    orderBy?: AdminUserNoteOrderByWithRelationInput | AdminUserNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdminUserNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminUserNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminUserNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdminUserNotes
+    **/
+    _count?: true | AdminUserNoteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdminUserNoteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdminUserNoteMaxAggregateInputType
+  }
+
+  export type GetAdminUserNoteAggregateType<T extends AdminUserNoteAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminUserNote]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdminUserNote[P]>
+      : GetScalarType<T[P], AggregateAdminUserNote[P]>
+  }
+
+
+
+
+  export type AdminUserNoteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminUserNoteWhereInput
+    orderBy?: AdminUserNoteOrderByWithAggregationInput | AdminUserNoteOrderByWithAggregationInput[]
+    by: AdminUserNoteScalarFieldEnum[] | AdminUserNoteScalarFieldEnum
+    having?: AdminUserNoteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdminUserNoteCountAggregateInputType | true
+    _min?: AdminUserNoteMinAggregateInputType
+    _max?: AdminUserNoteMaxAggregateInputType
+  }
+
+  export type AdminUserNoteGroupByOutputType = {
+    id: string
+    userId: string
+    body: string
+    createdAt: Date
+    updatedAt: Date
+    _count: AdminUserNoteCountAggregateOutputType | null
+    _min: AdminUserNoteMinAggregateOutputType | null
+    _max: AdminUserNoteMaxAggregateOutputType | null
+  }
+
+  type GetAdminUserNoteGroupByPayload<T extends AdminUserNoteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdminUserNoteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdminUserNoteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdminUserNoteGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminUserNoteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdminUserNoteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    body?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminUserNote"]>
+
+  export type AdminUserNoteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    body?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminUserNote"]>
+
+  export type AdminUserNoteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    body?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminUserNote"]>
+
+  export type AdminUserNoteSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    body?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AdminUserNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "body" | "createdAt" | "updatedAt", ExtArgs["result"]["adminUserNote"]>
+  export type AdminUserNoteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AdminUserNoteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AdminUserNoteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AdminUserNotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminUserNote"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      body: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["adminUserNote"]>
+    composites: {}
+  }
+
+  type AdminUserNoteGetPayload<S extends boolean | null | undefined | AdminUserNoteDefaultArgs> = $Result.GetResult<Prisma.$AdminUserNotePayload, S>
+
+  type AdminUserNoteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdminUserNoteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdminUserNoteCountAggregateInputType | true
+    }
+
+  export interface AdminUserNoteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminUserNote'], meta: { name: 'AdminUserNote' } }
+    /**
+     * Find zero or one AdminUserNote that matches the filter.
+     * @param {AdminUserNoteFindUniqueArgs} args - Arguments to find a AdminUserNote
+     * @example
+     * // Get one AdminUserNote
+     * const adminUserNote = await prisma.adminUserNote.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdminUserNoteFindUniqueArgs>(args: SelectSubset<T, AdminUserNoteFindUniqueArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdminUserNote that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdminUserNoteFindUniqueOrThrowArgs} args - Arguments to find a AdminUserNote
+     * @example
+     * // Get one AdminUserNote
+     * const adminUserNote = await prisma.adminUserNote.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdminUserNoteFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminUserNoteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminUserNote that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteFindFirstArgs} args - Arguments to find a AdminUserNote
+     * @example
+     * // Get one AdminUserNote
+     * const adminUserNote = await prisma.adminUserNote.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdminUserNoteFindFirstArgs>(args?: SelectSubset<T, AdminUserNoteFindFirstArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminUserNote that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteFindFirstOrThrowArgs} args - Arguments to find a AdminUserNote
+     * @example
+     * // Get one AdminUserNote
+     * const adminUserNote = await prisma.adminUserNote.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdminUserNoteFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminUserNoteFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdminUserNotes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdminUserNotes
+     * const adminUserNotes = await prisma.adminUserNote.findMany()
+     * 
+     * // Get first 10 AdminUserNotes
+     * const adminUserNotes = await prisma.adminUserNote.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const adminUserNoteWithIdOnly = await prisma.adminUserNote.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdminUserNoteFindManyArgs>(args?: SelectSubset<T, AdminUserNoteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdminUserNote.
+     * @param {AdminUserNoteCreateArgs} args - Arguments to create a AdminUserNote.
+     * @example
+     * // Create one AdminUserNote
+     * const AdminUserNote = await prisma.adminUserNote.create({
+     *   data: {
+     *     // ... data to create a AdminUserNote
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdminUserNoteCreateArgs>(args: SelectSubset<T, AdminUserNoteCreateArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdminUserNotes.
+     * @param {AdminUserNoteCreateManyArgs} args - Arguments to create many AdminUserNotes.
+     * @example
+     * // Create many AdminUserNotes
+     * const adminUserNote = await prisma.adminUserNote.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdminUserNoteCreateManyArgs>(args?: SelectSubset<T, AdminUserNoteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdminUserNotes and returns the data saved in the database.
+     * @param {AdminUserNoteCreateManyAndReturnArgs} args - Arguments to create many AdminUserNotes.
+     * @example
+     * // Create many AdminUserNotes
+     * const adminUserNote = await prisma.adminUserNote.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdminUserNotes and only return the `id`
+     * const adminUserNoteWithIdOnly = await prisma.adminUserNote.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdminUserNoteCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminUserNoteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdminUserNote.
+     * @param {AdminUserNoteDeleteArgs} args - Arguments to delete one AdminUserNote.
+     * @example
+     * // Delete one AdminUserNote
+     * const AdminUserNote = await prisma.adminUserNote.delete({
+     *   where: {
+     *     // ... filter to delete one AdminUserNote
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdminUserNoteDeleteArgs>(args: SelectSubset<T, AdminUserNoteDeleteArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdminUserNote.
+     * @param {AdminUserNoteUpdateArgs} args - Arguments to update one AdminUserNote.
+     * @example
+     * // Update one AdminUserNote
+     * const adminUserNote = await prisma.adminUserNote.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdminUserNoteUpdateArgs>(args: SelectSubset<T, AdminUserNoteUpdateArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdminUserNotes.
+     * @param {AdminUserNoteDeleteManyArgs} args - Arguments to filter AdminUserNotes to delete.
+     * @example
+     * // Delete a few AdminUserNotes
+     * const { count } = await prisma.adminUserNote.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdminUserNoteDeleteManyArgs>(args?: SelectSubset<T, AdminUserNoteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminUserNotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdminUserNotes
+     * const adminUserNote = await prisma.adminUserNote.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdminUserNoteUpdateManyArgs>(args: SelectSubset<T, AdminUserNoteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminUserNotes and returns the data updated in the database.
+     * @param {AdminUserNoteUpdateManyAndReturnArgs} args - Arguments to update many AdminUserNotes.
+     * @example
+     * // Update many AdminUserNotes
+     * const adminUserNote = await prisma.adminUserNote.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdminUserNotes and only return the `id`
+     * const adminUserNoteWithIdOnly = await prisma.adminUserNote.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdminUserNoteUpdateManyAndReturnArgs>(args: SelectSubset<T, AdminUserNoteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdminUserNote.
+     * @param {AdminUserNoteUpsertArgs} args - Arguments to update or create a AdminUserNote.
+     * @example
+     * // Update or create a AdminUserNote
+     * const adminUserNote = await prisma.adminUserNote.upsert({
+     *   create: {
+     *     // ... data to create a AdminUserNote
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdminUserNote we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdminUserNoteUpsertArgs>(args: SelectSubset<T, AdminUserNoteUpsertArgs<ExtArgs>>): Prisma__AdminUserNoteClient<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdminUserNotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteCountArgs} args - Arguments to filter AdminUserNotes to count.
+     * @example
+     * // Count the number of AdminUserNotes
+     * const count = await prisma.adminUserNote.count({
+     *   where: {
+     *     // ... the filter for the AdminUserNotes we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdminUserNoteCountArgs>(
+      args?: Subset<T, AdminUserNoteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdminUserNoteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdminUserNote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdminUserNoteAggregateArgs>(args: Subset<T, AdminUserNoteAggregateArgs>): Prisma.PrismaPromise<GetAdminUserNoteAggregateType<T>>
+
+    /**
+     * Group by AdminUserNote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminUserNoteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdminUserNoteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdminUserNoteGroupByArgs['orderBy'] }
+        : { orderBy?: AdminUserNoteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdminUserNoteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminUserNoteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdminUserNote model
+   */
+  readonly fields: AdminUserNoteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdminUserNote.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdminUserNoteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdminUserNote model
+   */
+  interface AdminUserNoteFieldRefs {
+    readonly id: FieldRef<"AdminUserNote", 'String'>
+    readonly userId: FieldRef<"AdminUserNote", 'String'>
+    readonly body: FieldRef<"AdminUserNote", 'String'>
+    readonly createdAt: FieldRef<"AdminUserNote", 'DateTime'>
+    readonly updatedAt: FieldRef<"AdminUserNote", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdminUserNote findUnique
+   */
+  export type AdminUserNoteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminUserNote to fetch.
+     */
+    where: AdminUserNoteWhereUniqueInput
+  }
+
+  /**
+   * AdminUserNote findUniqueOrThrow
+   */
+  export type AdminUserNoteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminUserNote to fetch.
+     */
+    where: AdminUserNoteWhereUniqueInput
+  }
+
+  /**
+   * AdminUserNote findFirst
+   */
+  export type AdminUserNoteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminUserNote to fetch.
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminUserNotes to fetch.
+     */
+    orderBy?: AdminUserNoteOrderByWithRelationInput | AdminUserNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminUserNotes.
+     */
+    cursor?: AdminUserNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminUserNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminUserNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminUserNotes.
+     */
+    distinct?: AdminUserNoteScalarFieldEnum | AdminUserNoteScalarFieldEnum[]
+  }
+
+  /**
+   * AdminUserNote findFirstOrThrow
+   */
+  export type AdminUserNoteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminUserNote to fetch.
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminUserNotes to fetch.
+     */
+    orderBy?: AdminUserNoteOrderByWithRelationInput | AdminUserNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminUserNotes.
+     */
+    cursor?: AdminUserNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminUserNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminUserNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminUserNotes.
+     */
+    distinct?: AdminUserNoteScalarFieldEnum | AdminUserNoteScalarFieldEnum[]
+  }
+
+  /**
+   * AdminUserNote findMany
+   */
+  export type AdminUserNoteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminUserNotes to fetch.
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminUserNotes to fetch.
+     */
+    orderBy?: AdminUserNoteOrderByWithRelationInput | AdminUserNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdminUserNotes.
+     */
+    cursor?: AdminUserNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminUserNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminUserNotes.
+     */
+    skip?: number
+    distinct?: AdminUserNoteScalarFieldEnum | AdminUserNoteScalarFieldEnum[]
+  }
+
+  /**
+   * AdminUserNote create
+   */
+  export type AdminUserNoteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdminUserNote.
+     */
+    data: XOR<AdminUserNoteCreateInput, AdminUserNoteUncheckedCreateInput>
+  }
+
+  /**
+   * AdminUserNote createMany
+   */
+  export type AdminUserNoteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdminUserNotes.
+     */
+    data: AdminUserNoteCreateManyInput | AdminUserNoteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminUserNote createManyAndReturn
+   */
+  export type AdminUserNoteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdminUserNotes.
+     */
+    data: AdminUserNoteCreateManyInput | AdminUserNoteCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminUserNote update
+   */
+  export type AdminUserNoteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdminUserNote.
+     */
+    data: XOR<AdminUserNoteUpdateInput, AdminUserNoteUncheckedUpdateInput>
+    /**
+     * Choose, which AdminUserNote to update.
+     */
+    where: AdminUserNoteWhereUniqueInput
+  }
+
+  /**
+   * AdminUserNote updateMany
+   */
+  export type AdminUserNoteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdminUserNotes.
+     */
+    data: XOR<AdminUserNoteUpdateManyMutationInput, AdminUserNoteUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminUserNotes to update
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * Limit how many AdminUserNotes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminUserNote updateManyAndReturn
+   */
+  export type AdminUserNoteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * The data used to update AdminUserNotes.
+     */
+    data: XOR<AdminUserNoteUpdateManyMutationInput, AdminUserNoteUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminUserNotes to update
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * Limit how many AdminUserNotes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminUserNote upsert
+   */
+  export type AdminUserNoteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdminUserNote to update in case it exists.
+     */
+    where: AdminUserNoteWhereUniqueInput
+    /**
+     * In case the AdminUserNote found by the `where` argument doesn't exist, create a new AdminUserNote with this data.
+     */
+    create: XOR<AdminUserNoteCreateInput, AdminUserNoteUncheckedCreateInput>
+    /**
+     * In case the AdminUserNote was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdminUserNoteUpdateInput, AdminUserNoteUncheckedUpdateInput>
+  }
+
+  /**
+   * AdminUserNote delete
+   */
+  export type AdminUserNoteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
+    /**
+     * Filter which AdminUserNote to delete.
+     */
+    where: AdminUserNoteWhereUniqueInput
+  }
+
+  /**
+   * AdminUserNote deleteMany
+   */
+  export type AdminUserNoteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminUserNotes to delete
+     */
+    where?: AdminUserNoteWhereInput
+    /**
+     * Limit how many AdminUserNotes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminUserNote without action
+   */
+  export type AdminUserNoteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminUserNote
+     */
+    select?: AdminUserNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminUserNote
+     */
+    omit?: AdminUserNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminUserNoteInclude<ExtArgs> | null
   }
 
 
@@ -5980,6 +7519,7 @@ export namespace Prisma {
     budgetItems?: boolean | Wedding$budgetItemsArgs<ExtArgs>
     website?: boolean | Wedding$websiteArgs<ExtArgs>
     invitation?: boolean | Wedding$invitationArgs<ExtArgs>
+    dayPlanShare?: boolean | Wedding$dayPlanShareArgs<ExtArgs>
     _count?: boolean | WeddingCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wedding"]>
 
@@ -6052,6 +7592,7 @@ export namespace Prisma {
     budgetItems?: boolean | Wedding$budgetItemsArgs<ExtArgs>
     website?: boolean | Wedding$websiteArgs<ExtArgs>
     invitation?: boolean | Wedding$invitationArgs<ExtArgs>
+    dayPlanShare?: boolean | Wedding$dayPlanShareArgs<ExtArgs>
     _count?: boolean | WeddingCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WeddingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6072,6 +7613,7 @@ export namespace Prisma {
       budgetItems: Prisma.$BudgetItemPayload<ExtArgs>[]
       website: Prisma.$WeddingWebsitePayload<ExtArgs> | null
       invitation: Prisma.$WeddingInvitationPayload<ExtArgs> | null
+      dayPlanShare: Prisma.$DayPlanSharePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6492,6 +8034,7 @@ export namespace Prisma {
     budgetItems<T extends Wedding$budgetItemsArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$budgetItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     website<T extends Wedding$websiteArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$websiteArgs<ExtArgs>>): Prisma__WeddingWebsiteClient<$Result.GetResult<Prisma.$WeddingWebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     invitation<T extends Wedding$invitationArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$invitationArgs<ExtArgs>>): Prisma__WeddingInvitationClient<$Result.GetResult<Prisma.$WeddingInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    dayPlanShare<T extends Wedding$dayPlanShareArgs<ExtArgs> = {}>(args?: Subset<T, Wedding$dayPlanShareArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7091,6 +8634,25 @@ export namespace Prisma {
   }
 
   /**
+   * Wedding.dayPlanShare
+   */
+  export type Wedding$dayPlanShareArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    where?: DayPlanShareWhereInput
+  }
+
+  /**
    * Wedding without action
    */
   export type WeddingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7106,6 +8668,2231 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WeddingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DayPlanShare
+   */
+
+  export type AggregateDayPlanShare = {
+    _count: DayPlanShareCountAggregateOutputType | null
+    _min: DayPlanShareMinAggregateOutputType | null
+    _max: DayPlanShareMaxAggregateOutputType | null
+  }
+
+  export type DayPlanShareMinAggregateOutputType = {
+    id: string | null
+    weddingId: string | null
+    token: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DayPlanShareMaxAggregateOutputType = {
+    id: string | null
+    weddingId: string | null
+    token: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DayPlanShareCountAggregateOutputType = {
+    id: number
+    weddingId: number
+    token: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DayPlanShareMinAggregateInputType = {
+    id?: true
+    weddingId?: true
+    token?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DayPlanShareMaxAggregateInputType = {
+    id?: true
+    weddingId?: true
+    token?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DayPlanShareCountAggregateInputType = {
+    id?: true
+    weddingId?: true
+    token?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DayPlanShareAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DayPlanShare to aggregate.
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShares to fetch.
+     */
+    orderBy?: DayPlanShareOrderByWithRelationInput | DayPlanShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DayPlanShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShares.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DayPlanShares
+    **/
+    _count?: true | DayPlanShareCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DayPlanShareMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DayPlanShareMaxAggregateInputType
+  }
+
+  export type GetDayPlanShareAggregateType<T extends DayPlanShareAggregateArgs> = {
+        [P in keyof T & keyof AggregateDayPlanShare]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDayPlanShare[P]>
+      : GetScalarType<T[P], AggregateDayPlanShare[P]>
+  }
+
+
+
+
+  export type DayPlanShareGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DayPlanShareWhereInput
+    orderBy?: DayPlanShareOrderByWithAggregationInput | DayPlanShareOrderByWithAggregationInput[]
+    by: DayPlanShareScalarFieldEnum[] | DayPlanShareScalarFieldEnum
+    having?: DayPlanShareScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DayPlanShareCountAggregateInputType | true
+    _min?: DayPlanShareMinAggregateInputType
+    _max?: DayPlanShareMaxAggregateInputType
+  }
+
+  export type DayPlanShareGroupByOutputType = {
+    id: string
+    weddingId: string
+    token: string
+    createdAt: Date
+    updatedAt: Date
+    _count: DayPlanShareCountAggregateOutputType | null
+    _min: DayPlanShareMinAggregateOutputType | null
+    _max: DayPlanShareMaxAggregateOutputType | null
+  }
+
+  type GetDayPlanShareGroupByPayload<T extends DayPlanShareGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DayPlanShareGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DayPlanShareGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DayPlanShareGroupByOutputType[P]>
+            : GetScalarType<T[P], DayPlanShareGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DayPlanShareSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    token?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    grants?: boolean | DayPlanShare$grantsArgs<ExtArgs>
+    _count?: boolean | DayPlanShareCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dayPlanShare"]>
+
+  export type DayPlanShareSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    token?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dayPlanShare"]>
+
+  export type DayPlanShareSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weddingId?: boolean
+    token?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dayPlanShare"]>
+
+  export type DayPlanShareSelectScalar = {
+    id?: boolean
+    weddingId?: boolean
+    token?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DayPlanShareOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "token" | "createdAt" | "updatedAt", ExtArgs["result"]["dayPlanShare"]>
+  export type DayPlanShareInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+    grants?: boolean | DayPlanShare$grantsArgs<ExtArgs>
+    _count?: boolean | DayPlanShareCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DayPlanShareIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+  export type DayPlanShareIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wedding?: boolean | WeddingDefaultArgs<ExtArgs>
+  }
+
+  export type $DayPlanSharePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DayPlanShare"
+    objects: {
+      wedding: Prisma.$WeddingPayload<ExtArgs>
+      grants: Prisma.$DayPlanShareGrantPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      weddingId: string
+      token: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["dayPlanShare"]>
+    composites: {}
+  }
+
+  type DayPlanShareGetPayload<S extends boolean | null | undefined | DayPlanShareDefaultArgs> = $Result.GetResult<Prisma.$DayPlanSharePayload, S>
+
+  type DayPlanShareCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DayPlanShareFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DayPlanShareCountAggregateInputType | true
+    }
+
+  export interface DayPlanShareDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DayPlanShare'], meta: { name: 'DayPlanShare' } }
+    /**
+     * Find zero or one DayPlanShare that matches the filter.
+     * @param {DayPlanShareFindUniqueArgs} args - Arguments to find a DayPlanShare
+     * @example
+     * // Get one DayPlanShare
+     * const dayPlanShare = await prisma.dayPlanShare.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DayPlanShareFindUniqueArgs>(args: SelectSubset<T, DayPlanShareFindUniqueArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DayPlanShare that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DayPlanShareFindUniqueOrThrowArgs} args - Arguments to find a DayPlanShare
+     * @example
+     * // Get one DayPlanShare
+     * const dayPlanShare = await prisma.dayPlanShare.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DayPlanShareFindUniqueOrThrowArgs>(args: SelectSubset<T, DayPlanShareFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DayPlanShare that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareFindFirstArgs} args - Arguments to find a DayPlanShare
+     * @example
+     * // Get one DayPlanShare
+     * const dayPlanShare = await prisma.dayPlanShare.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DayPlanShareFindFirstArgs>(args?: SelectSubset<T, DayPlanShareFindFirstArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DayPlanShare that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareFindFirstOrThrowArgs} args - Arguments to find a DayPlanShare
+     * @example
+     * // Get one DayPlanShare
+     * const dayPlanShare = await prisma.dayPlanShare.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DayPlanShareFindFirstOrThrowArgs>(args?: SelectSubset<T, DayPlanShareFindFirstOrThrowArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DayPlanShares that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DayPlanShares
+     * const dayPlanShares = await prisma.dayPlanShare.findMany()
+     * 
+     * // Get first 10 DayPlanShares
+     * const dayPlanShares = await prisma.dayPlanShare.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dayPlanShareWithIdOnly = await prisma.dayPlanShare.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DayPlanShareFindManyArgs>(args?: SelectSubset<T, DayPlanShareFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DayPlanShare.
+     * @param {DayPlanShareCreateArgs} args - Arguments to create a DayPlanShare.
+     * @example
+     * // Create one DayPlanShare
+     * const DayPlanShare = await prisma.dayPlanShare.create({
+     *   data: {
+     *     // ... data to create a DayPlanShare
+     *   }
+     * })
+     * 
+     */
+    create<T extends DayPlanShareCreateArgs>(args: SelectSubset<T, DayPlanShareCreateArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DayPlanShares.
+     * @param {DayPlanShareCreateManyArgs} args - Arguments to create many DayPlanShares.
+     * @example
+     * // Create many DayPlanShares
+     * const dayPlanShare = await prisma.dayPlanShare.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DayPlanShareCreateManyArgs>(args?: SelectSubset<T, DayPlanShareCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DayPlanShares and returns the data saved in the database.
+     * @param {DayPlanShareCreateManyAndReturnArgs} args - Arguments to create many DayPlanShares.
+     * @example
+     * // Create many DayPlanShares
+     * const dayPlanShare = await prisma.dayPlanShare.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DayPlanShares and only return the `id`
+     * const dayPlanShareWithIdOnly = await prisma.dayPlanShare.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DayPlanShareCreateManyAndReturnArgs>(args?: SelectSubset<T, DayPlanShareCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DayPlanShare.
+     * @param {DayPlanShareDeleteArgs} args - Arguments to delete one DayPlanShare.
+     * @example
+     * // Delete one DayPlanShare
+     * const DayPlanShare = await prisma.dayPlanShare.delete({
+     *   where: {
+     *     // ... filter to delete one DayPlanShare
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DayPlanShareDeleteArgs>(args: SelectSubset<T, DayPlanShareDeleteArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DayPlanShare.
+     * @param {DayPlanShareUpdateArgs} args - Arguments to update one DayPlanShare.
+     * @example
+     * // Update one DayPlanShare
+     * const dayPlanShare = await prisma.dayPlanShare.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DayPlanShareUpdateArgs>(args: SelectSubset<T, DayPlanShareUpdateArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DayPlanShares.
+     * @param {DayPlanShareDeleteManyArgs} args - Arguments to filter DayPlanShares to delete.
+     * @example
+     * // Delete a few DayPlanShares
+     * const { count } = await prisma.dayPlanShare.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DayPlanShareDeleteManyArgs>(args?: SelectSubset<T, DayPlanShareDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DayPlanShares.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DayPlanShares
+     * const dayPlanShare = await prisma.dayPlanShare.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DayPlanShareUpdateManyArgs>(args: SelectSubset<T, DayPlanShareUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DayPlanShares and returns the data updated in the database.
+     * @param {DayPlanShareUpdateManyAndReturnArgs} args - Arguments to update many DayPlanShares.
+     * @example
+     * // Update many DayPlanShares
+     * const dayPlanShare = await prisma.dayPlanShare.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DayPlanShares and only return the `id`
+     * const dayPlanShareWithIdOnly = await prisma.dayPlanShare.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DayPlanShareUpdateManyAndReturnArgs>(args: SelectSubset<T, DayPlanShareUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DayPlanShare.
+     * @param {DayPlanShareUpsertArgs} args - Arguments to update or create a DayPlanShare.
+     * @example
+     * // Update or create a DayPlanShare
+     * const dayPlanShare = await prisma.dayPlanShare.upsert({
+     *   create: {
+     *     // ... data to create a DayPlanShare
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DayPlanShare we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DayPlanShareUpsertArgs>(args: SelectSubset<T, DayPlanShareUpsertArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DayPlanShares.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareCountArgs} args - Arguments to filter DayPlanShares to count.
+     * @example
+     * // Count the number of DayPlanShares
+     * const count = await prisma.dayPlanShare.count({
+     *   where: {
+     *     // ... the filter for the DayPlanShares we want to count
+     *   }
+     * })
+    **/
+    count<T extends DayPlanShareCountArgs>(
+      args?: Subset<T, DayPlanShareCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DayPlanShareCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DayPlanShare.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DayPlanShareAggregateArgs>(args: Subset<T, DayPlanShareAggregateArgs>): Prisma.PrismaPromise<GetDayPlanShareAggregateType<T>>
+
+    /**
+     * Group by DayPlanShare.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DayPlanShareGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DayPlanShareGroupByArgs['orderBy'] }
+        : { orderBy?: DayPlanShareGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DayPlanShareGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDayPlanShareGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DayPlanShare model
+   */
+  readonly fields: DayPlanShareFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DayPlanShare.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DayPlanShareClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    wedding<T extends WeddingDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WeddingDefaultArgs<ExtArgs>>): Prisma__WeddingClient<$Result.GetResult<Prisma.$WeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    grants<T extends DayPlanShare$grantsArgs<ExtArgs> = {}>(args?: Subset<T, DayPlanShare$grantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DayPlanShare model
+   */
+  interface DayPlanShareFieldRefs {
+    readonly id: FieldRef<"DayPlanShare", 'String'>
+    readonly weddingId: FieldRef<"DayPlanShare", 'String'>
+    readonly token: FieldRef<"DayPlanShare", 'String'>
+    readonly createdAt: FieldRef<"DayPlanShare", 'DateTime'>
+    readonly updatedAt: FieldRef<"DayPlanShare", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DayPlanShare findUnique
+   */
+  export type DayPlanShareFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShare to fetch.
+     */
+    where: DayPlanShareWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShare findUniqueOrThrow
+   */
+  export type DayPlanShareFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShare to fetch.
+     */
+    where: DayPlanShareWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShare findFirst
+   */
+  export type DayPlanShareFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShare to fetch.
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShares to fetch.
+     */
+    orderBy?: DayPlanShareOrderByWithRelationInput | DayPlanShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DayPlanShares.
+     */
+    cursor?: DayPlanShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShares.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DayPlanShares.
+     */
+    distinct?: DayPlanShareScalarFieldEnum | DayPlanShareScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShare findFirstOrThrow
+   */
+  export type DayPlanShareFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShare to fetch.
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShares to fetch.
+     */
+    orderBy?: DayPlanShareOrderByWithRelationInput | DayPlanShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DayPlanShares.
+     */
+    cursor?: DayPlanShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShares.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DayPlanShares.
+     */
+    distinct?: DayPlanShareScalarFieldEnum | DayPlanShareScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShare findMany
+   */
+  export type DayPlanShareFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShares to fetch.
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShares to fetch.
+     */
+    orderBy?: DayPlanShareOrderByWithRelationInput | DayPlanShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DayPlanShares.
+     */
+    cursor?: DayPlanShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShares.
+     */
+    skip?: number
+    distinct?: DayPlanShareScalarFieldEnum | DayPlanShareScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShare create
+   */
+  export type DayPlanShareCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DayPlanShare.
+     */
+    data: XOR<DayPlanShareCreateInput, DayPlanShareUncheckedCreateInput>
+  }
+
+  /**
+   * DayPlanShare createMany
+   */
+  export type DayPlanShareCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DayPlanShares.
+     */
+    data: DayPlanShareCreateManyInput | DayPlanShareCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DayPlanShare createManyAndReturn
+   */
+  export type DayPlanShareCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * The data used to create many DayPlanShares.
+     */
+    data: DayPlanShareCreateManyInput | DayPlanShareCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DayPlanShare update
+   */
+  export type DayPlanShareUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DayPlanShare.
+     */
+    data: XOR<DayPlanShareUpdateInput, DayPlanShareUncheckedUpdateInput>
+    /**
+     * Choose, which DayPlanShare to update.
+     */
+    where: DayPlanShareWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShare updateMany
+   */
+  export type DayPlanShareUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DayPlanShares.
+     */
+    data: XOR<DayPlanShareUpdateManyMutationInput, DayPlanShareUncheckedUpdateManyInput>
+    /**
+     * Filter which DayPlanShares to update
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * Limit how many DayPlanShares to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DayPlanShare updateManyAndReturn
+   */
+  export type DayPlanShareUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * The data used to update DayPlanShares.
+     */
+    data: XOR<DayPlanShareUpdateManyMutationInput, DayPlanShareUncheckedUpdateManyInput>
+    /**
+     * Filter which DayPlanShares to update
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * Limit how many DayPlanShares to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DayPlanShare upsert
+   */
+  export type DayPlanShareUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DayPlanShare to update in case it exists.
+     */
+    where: DayPlanShareWhereUniqueInput
+    /**
+     * In case the DayPlanShare found by the `where` argument doesn't exist, create a new DayPlanShare with this data.
+     */
+    create: XOR<DayPlanShareCreateInput, DayPlanShareUncheckedCreateInput>
+    /**
+     * In case the DayPlanShare was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DayPlanShareUpdateInput, DayPlanShareUncheckedUpdateInput>
+  }
+
+  /**
+   * DayPlanShare delete
+   */
+  export type DayPlanShareDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+    /**
+     * Filter which DayPlanShare to delete.
+     */
+    where: DayPlanShareWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShare deleteMany
+   */
+  export type DayPlanShareDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DayPlanShares to delete
+     */
+    where?: DayPlanShareWhereInput
+    /**
+     * Limit how many DayPlanShares to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DayPlanShare.grants
+   */
+  export type DayPlanShare$grantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    where?: DayPlanShareGrantWhereInput
+    orderBy?: DayPlanShareGrantOrderByWithRelationInput | DayPlanShareGrantOrderByWithRelationInput[]
+    cursor?: DayPlanShareGrantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DayPlanShareGrantScalarFieldEnum | DayPlanShareGrantScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShare without action
+   */
+  export type DayPlanShareDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShare
+     */
+    select?: DayPlanShareSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShare
+     */
+    omit?: DayPlanShareOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DayPlanShareGrant
+   */
+
+  export type AggregateDayPlanShareGrant = {
+    _count: DayPlanShareGrantCountAggregateOutputType | null
+    _min: DayPlanShareGrantMinAggregateOutputType | null
+    _max: DayPlanShareGrantMaxAggregateOutputType | null
+  }
+
+  export type DayPlanShareGrantMinAggregateOutputType = {
+    id: string | null
+    shareId: string | null
+    email: string | null
+    name: string | null
+    access: $Enums.DayPlanShareAccess | null
+    userId: string | null
+    inviteToken: string | null
+    acceptedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type DayPlanShareGrantMaxAggregateOutputType = {
+    id: string | null
+    shareId: string | null
+    email: string | null
+    name: string | null
+    access: $Enums.DayPlanShareAccess | null
+    userId: string | null
+    inviteToken: string | null
+    acceptedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type DayPlanShareGrantCountAggregateOutputType = {
+    id: number
+    shareId: number
+    email: number
+    name: number
+    access: number
+    userId: number
+    inviteToken: number
+    acceptedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type DayPlanShareGrantMinAggregateInputType = {
+    id?: true
+    shareId?: true
+    email?: true
+    name?: true
+    access?: true
+    userId?: true
+    inviteToken?: true
+    acceptedAt?: true
+    createdAt?: true
+  }
+
+  export type DayPlanShareGrantMaxAggregateInputType = {
+    id?: true
+    shareId?: true
+    email?: true
+    name?: true
+    access?: true
+    userId?: true
+    inviteToken?: true
+    acceptedAt?: true
+    createdAt?: true
+  }
+
+  export type DayPlanShareGrantCountAggregateInputType = {
+    id?: true
+    shareId?: true
+    email?: true
+    name?: true
+    access?: true
+    userId?: true
+    inviteToken?: true
+    acceptedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type DayPlanShareGrantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DayPlanShareGrant to aggregate.
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShareGrants to fetch.
+     */
+    orderBy?: DayPlanShareGrantOrderByWithRelationInput | DayPlanShareGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DayPlanShareGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShareGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShareGrants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DayPlanShareGrants
+    **/
+    _count?: true | DayPlanShareGrantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DayPlanShareGrantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DayPlanShareGrantMaxAggregateInputType
+  }
+
+  export type GetDayPlanShareGrantAggregateType<T extends DayPlanShareGrantAggregateArgs> = {
+        [P in keyof T & keyof AggregateDayPlanShareGrant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDayPlanShareGrant[P]>
+      : GetScalarType<T[P], AggregateDayPlanShareGrant[P]>
+  }
+
+
+
+
+  export type DayPlanShareGrantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DayPlanShareGrantWhereInput
+    orderBy?: DayPlanShareGrantOrderByWithAggregationInput | DayPlanShareGrantOrderByWithAggregationInput[]
+    by: DayPlanShareGrantScalarFieldEnum[] | DayPlanShareGrantScalarFieldEnum
+    having?: DayPlanShareGrantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DayPlanShareGrantCountAggregateInputType | true
+    _min?: DayPlanShareGrantMinAggregateInputType
+    _max?: DayPlanShareGrantMaxAggregateInputType
+  }
+
+  export type DayPlanShareGrantGroupByOutputType = {
+    id: string
+    shareId: string
+    email: string
+    name: string
+    access: $Enums.DayPlanShareAccess
+    userId: string | null
+    inviteToken: string
+    acceptedAt: Date | null
+    createdAt: Date
+    _count: DayPlanShareGrantCountAggregateOutputType | null
+    _min: DayPlanShareGrantMinAggregateOutputType | null
+    _max: DayPlanShareGrantMaxAggregateOutputType | null
+  }
+
+  type GetDayPlanShareGrantGroupByPayload<T extends DayPlanShareGrantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DayPlanShareGrantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DayPlanShareGrantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DayPlanShareGrantGroupByOutputType[P]>
+            : GetScalarType<T[P], DayPlanShareGrantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DayPlanShareGrantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shareId?: boolean
+    email?: boolean
+    name?: boolean
+    access?: boolean
+    userId?: boolean
+    inviteToken?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    share?: boolean | DayPlanShareDefaultArgs<ExtArgs>
+    user?: boolean | DayPlanShareGrant$userArgs<ExtArgs>
+  }, ExtArgs["result"]["dayPlanShareGrant"]>
+
+  export type DayPlanShareGrantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shareId?: boolean
+    email?: boolean
+    name?: boolean
+    access?: boolean
+    userId?: boolean
+    inviteToken?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    share?: boolean | DayPlanShareDefaultArgs<ExtArgs>
+    user?: boolean | DayPlanShareGrant$userArgs<ExtArgs>
+  }, ExtArgs["result"]["dayPlanShareGrant"]>
+
+  export type DayPlanShareGrantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shareId?: boolean
+    email?: boolean
+    name?: boolean
+    access?: boolean
+    userId?: boolean
+    inviteToken?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    share?: boolean | DayPlanShareDefaultArgs<ExtArgs>
+    user?: boolean | DayPlanShareGrant$userArgs<ExtArgs>
+  }, ExtArgs["result"]["dayPlanShareGrant"]>
+
+  export type DayPlanShareGrantSelectScalar = {
+    id?: boolean
+    shareId?: boolean
+    email?: boolean
+    name?: boolean
+    access?: boolean
+    userId?: boolean
+    inviteToken?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type DayPlanShareGrantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shareId" | "email" | "name" | "access" | "userId" | "inviteToken" | "acceptedAt" | "createdAt", ExtArgs["result"]["dayPlanShareGrant"]>
+  export type DayPlanShareGrantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    share?: boolean | DayPlanShareDefaultArgs<ExtArgs>
+    user?: boolean | DayPlanShareGrant$userArgs<ExtArgs>
+  }
+  export type DayPlanShareGrantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    share?: boolean | DayPlanShareDefaultArgs<ExtArgs>
+    user?: boolean | DayPlanShareGrant$userArgs<ExtArgs>
+  }
+  export type DayPlanShareGrantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    share?: boolean | DayPlanShareDefaultArgs<ExtArgs>
+    user?: boolean | DayPlanShareGrant$userArgs<ExtArgs>
+  }
+
+  export type $DayPlanShareGrantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DayPlanShareGrant"
+    objects: {
+      share: Prisma.$DayPlanSharePayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      shareId: string
+      email: string
+      name: string
+      access: $Enums.DayPlanShareAccess
+      userId: string | null
+      inviteToken: string
+      acceptedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["dayPlanShareGrant"]>
+    composites: {}
+  }
+
+  type DayPlanShareGrantGetPayload<S extends boolean | null | undefined | DayPlanShareGrantDefaultArgs> = $Result.GetResult<Prisma.$DayPlanShareGrantPayload, S>
+
+  type DayPlanShareGrantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DayPlanShareGrantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DayPlanShareGrantCountAggregateInputType | true
+    }
+
+  export interface DayPlanShareGrantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DayPlanShareGrant'], meta: { name: 'DayPlanShareGrant' } }
+    /**
+     * Find zero or one DayPlanShareGrant that matches the filter.
+     * @param {DayPlanShareGrantFindUniqueArgs} args - Arguments to find a DayPlanShareGrant
+     * @example
+     * // Get one DayPlanShareGrant
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DayPlanShareGrantFindUniqueArgs>(args: SelectSubset<T, DayPlanShareGrantFindUniqueArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DayPlanShareGrant that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DayPlanShareGrantFindUniqueOrThrowArgs} args - Arguments to find a DayPlanShareGrant
+     * @example
+     * // Get one DayPlanShareGrant
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DayPlanShareGrantFindUniqueOrThrowArgs>(args: SelectSubset<T, DayPlanShareGrantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DayPlanShareGrant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantFindFirstArgs} args - Arguments to find a DayPlanShareGrant
+     * @example
+     * // Get one DayPlanShareGrant
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DayPlanShareGrantFindFirstArgs>(args?: SelectSubset<T, DayPlanShareGrantFindFirstArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DayPlanShareGrant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantFindFirstOrThrowArgs} args - Arguments to find a DayPlanShareGrant
+     * @example
+     * // Get one DayPlanShareGrant
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DayPlanShareGrantFindFirstOrThrowArgs>(args?: SelectSubset<T, DayPlanShareGrantFindFirstOrThrowArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DayPlanShareGrants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DayPlanShareGrants
+     * const dayPlanShareGrants = await prisma.dayPlanShareGrant.findMany()
+     * 
+     * // Get first 10 DayPlanShareGrants
+     * const dayPlanShareGrants = await prisma.dayPlanShareGrant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dayPlanShareGrantWithIdOnly = await prisma.dayPlanShareGrant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DayPlanShareGrantFindManyArgs>(args?: SelectSubset<T, DayPlanShareGrantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DayPlanShareGrant.
+     * @param {DayPlanShareGrantCreateArgs} args - Arguments to create a DayPlanShareGrant.
+     * @example
+     * // Create one DayPlanShareGrant
+     * const DayPlanShareGrant = await prisma.dayPlanShareGrant.create({
+     *   data: {
+     *     // ... data to create a DayPlanShareGrant
+     *   }
+     * })
+     * 
+     */
+    create<T extends DayPlanShareGrantCreateArgs>(args: SelectSubset<T, DayPlanShareGrantCreateArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DayPlanShareGrants.
+     * @param {DayPlanShareGrantCreateManyArgs} args - Arguments to create many DayPlanShareGrants.
+     * @example
+     * // Create many DayPlanShareGrants
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DayPlanShareGrantCreateManyArgs>(args?: SelectSubset<T, DayPlanShareGrantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DayPlanShareGrants and returns the data saved in the database.
+     * @param {DayPlanShareGrantCreateManyAndReturnArgs} args - Arguments to create many DayPlanShareGrants.
+     * @example
+     * // Create many DayPlanShareGrants
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DayPlanShareGrants and only return the `id`
+     * const dayPlanShareGrantWithIdOnly = await prisma.dayPlanShareGrant.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DayPlanShareGrantCreateManyAndReturnArgs>(args?: SelectSubset<T, DayPlanShareGrantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DayPlanShareGrant.
+     * @param {DayPlanShareGrantDeleteArgs} args - Arguments to delete one DayPlanShareGrant.
+     * @example
+     * // Delete one DayPlanShareGrant
+     * const DayPlanShareGrant = await prisma.dayPlanShareGrant.delete({
+     *   where: {
+     *     // ... filter to delete one DayPlanShareGrant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DayPlanShareGrantDeleteArgs>(args: SelectSubset<T, DayPlanShareGrantDeleteArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DayPlanShareGrant.
+     * @param {DayPlanShareGrantUpdateArgs} args - Arguments to update one DayPlanShareGrant.
+     * @example
+     * // Update one DayPlanShareGrant
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DayPlanShareGrantUpdateArgs>(args: SelectSubset<T, DayPlanShareGrantUpdateArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DayPlanShareGrants.
+     * @param {DayPlanShareGrantDeleteManyArgs} args - Arguments to filter DayPlanShareGrants to delete.
+     * @example
+     * // Delete a few DayPlanShareGrants
+     * const { count } = await prisma.dayPlanShareGrant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DayPlanShareGrantDeleteManyArgs>(args?: SelectSubset<T, DayPlanShareGrantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DayPlanShareGrants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DayPlanShareGrants
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DayPlanShareGrantUpdateManyArgs>(args: SelectSubset<T, DayPlanShareGrantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DayPlanShareGrants and returns the data updated in the database.
+     * @param {DayPlanShareGrantUpdateManyAndReturnArgs} args - Arguments to update many DayPlanShareGrants.
+     * @example
+     * // Update many DayPlanShareGrants
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DayPlanShareGrants and only return the `id`
+     * const dayPlanShareGrantWithIdOnly = await prisma.dayPlanShareGrant.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DayPlanShareGrantUpdateManyAndReturnArgs>(args: SelectSubset<T, DayPlanShareGrantUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DayPlanShareGrant.
+     * @param {DayPlanShareGrantUpsertArgs} args - Arguments to update or create a DayPlanShareGrant.
+     * @example
+     * // Update or create a DayPlanShareGrant
+     * const dayPlanShareGrant = await prisma.dayPlanShareGrant.upsert({
+     *   create: {
+     *     // ... data to create a DayPlanShareGrant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DayPlanShareGrant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DayPlanShareGrantUpsertArgs>(args: SelectSubset<T, DayPlanShareGrantUpsertArgs<ExtArgs>>): Prisma__DayPlanShareGrantClient<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DayPlanShareGrants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantCountArgs} args - Arguments to filter DayPlanShareGrants to count.
+     * @example
+     * // Count the number of DayPlanShareGrants
+     * const count = await prisma.dayPlanShareGrant.count({
+     *   where: {
+     *     // ... the filter for the DayPlanShareGrants we want to count
+     *   }
+     * })
+    **/
+    count<T extends DayPlanShareGrantCountArgs>(
+      args?: Subset<T, DayPlanShareGrantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DayPlanShareGrantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DayPlanShareGrant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DayPlanShareGrantAggregateArgs>(args: Subset<T, DayPlanShareGrantAggregateArgs>): Prisma.PrismaPromise<GetDayPlanShareGrantAggregateType<T>>
+
+    /**
+     * Group by DayPlanShareGrant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DayPlanShareGrantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DayPlanShareGrantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DayPlanShareGrantGroupByArgs['orderBy'] }
+        : { orderBy?: DayPlanShareGrantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DayPlanShareGrantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDayPlanShareGrantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DayPlanShareGrant model
+   */
+  readonly fields: DayPlanShareGrantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DayPlanShareGrant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DayPlanShareGrantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    share<T extends DayPlanShareDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DayPlanShareDefaultArgs<ExtArgs>>): Prisma__DayPlanShareClient<$Result.GetResult<Prisma.$DayPlanSharePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends DayPlanShareGrant$userArgs<ExtArgs> = {}>(args?: Subset<T, DayPlanShareGrant$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DayPlanShareGrant model
+   */
+  interface DayPlanShareGrantFieldRefs {
+    readonly id: FieldRef<"DayPlanShareGrant", 'String'>
+    readonly shareId: FieldRef<"DayPlanShareGrant", 'String'>
+    readonly email: FieldRef<"DayPlanShareGrant", 'String'>
+    readonly name: FieldRef<"DayPlanShareGrant", 'String'>
+    readonly access: FieldRef<"DayPlanShareGrant", 'DayPlanShareAccess'>
+    readonly userId: FieldRef<"DayPlanShareGrant", 'String'>
+    readonly inviteToken: FieldRef<"DayPlanShareGrant", 'String'>
+    readonly acceptedAt: FieldRef<"DayPlanShareGrant", 'DateTime'>
+    readonly createdAt: FieldRef<"DayPlanShareGrant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DayPlanShareGrant findUnique
+   */
+  export type DayPlanShareGrantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShareGrant to fetch.
+     */
+    where: DayPlanShareGrantWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShareGrant findUniqueOrThrow
+   */
+  export type DayPlanShareGrantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShareGrant to fetch.
+     */
+    where: DayPlanShareGrantWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShareGrant findFirst
+   */
+  export type DayPlanShareGrantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShareGrant to fetch.
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShareGrants to fetch.
+     */
+    orderBy?: DayPlanShareGrantOrderByWithRelationInput | DayPlanShareGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DayPlanShareGrants.
+     */
+    cursor?: DayPlanShareGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShareGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShareGrants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DayPlanShareGrants.
+     */
+    distinct?: DayPlanShareGrantScalarFieldEnum | DayPlanShareGrantScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShareGrant findFirstOrThrow
+   */
+  export type DayPlanShareGrantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShareGrant to fetch.
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShareGrants to fetch.
+     */
+    orderBy?: DayPlanShareGrantOrderByWithRelationInput | DayPlanShareGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DayPlanShareGrants.
+     */
+    cursor?: DayPlanShareGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShareGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShareGrants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DayPlanShareGrants.
+     */
+    distinct?: DayPlanShareGrantScalarFieldEnum | DayPlanShareGrantScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShareGrant findMany
+   */
+  export type DayPlanShareGrantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which DayPlanShareGrants to fetch.
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DayPlanShareGrants to fetch.
+     */
+    orderBy?: DayPlanShareGrantOrderByWithRelationInput | DayPlanShareGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DayPlanShareGrants.
+     */
+    cursor?: DayPlanShareGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DayPlanShareGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DayPlanShareGrants.
+     */
+    skip?: number
+    distinct?: DayPlanShareGrantScalarFieldEnum | DayPlanShareGrantScalarFieldEnum[]
+  }
+
+  /**
+   * DayPlanShareGrant create
+   */
+  export type DayPlanShareGrantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DayPlanShareGrant.
+     */
+    data: XOR<DayPlanShareGrantCreateInput, DayPlanShareGrantUncheckedCreateInput>
+  }
+
+  /**
+   * DayPlanShareGrant createMany
+   */
+  export type DayPlanShareGrantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DayPlanShareGrants.
+     */
+    data: DayPlanShareGrantCreateManyInput | DayPlanShareGrantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DayPlanShareGrant createManyAndReturn
+   */
+  export type DayPlanShareGrantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * The data used to create many DayPlanShareGrants.
+     */
+    data: DayPlanShareGrantCreateManyInput | DayPlanShareGrantCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DayPlanShareGrant update
+   */
+  export type DayPlanShareGrantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DayPlanShareGrant.
+     */
+    data: XOR<DayPlanShareGrantUpdateInput, DayPlanShareGrantUncheckedUpdateInput>
+    /**
+     * Choose, which DayPlanShareGrant to update.
+     */
+    where: DayPlanShareGrantWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShareGrant updateMany
+   */
+  export type DayPlanShareGrantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DayPlanShareGrants.
+     */
+    data: XOR<DayPlanShareGrantUpdateManyMutationInput, DayPlanShareGrantUncheckedUpdateManyInput>
+    /**
+     * Filter which DayPlanShareGrants to update
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * Limit how many DayPlanShareGrants to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DayPlanShareGrant updateManyAndReturn
+   */
+  export type DayPlanShareGrantUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * The data used to update DayPlanShareGrants.
+     */
+    data: XOR<DayPlanShareGrantUpdateManyMutationInput, DayPlanShareGrantUncheckedUpdateManyInput>
+    /**
+     * Filter which DayPlanShareGrants to update
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * Limit how many DayPlanShareGrants to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DayPlanShareGrant upsert
+   */
+  export type DayPlanShareGrantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DayPlanShareGrant to update in case it exists.
+     */
+    where: DayPlanShareGrantWhereUniqueInput
+    /**
+     * In case the DayPlanShareGrant found by the `where` argument doesn't exist, create a new DayPlanShareGrant with this data.
+     */
+    create: XOR<DayPlanShareGrantCreateInput, DayPlanShareGrantUncheckedCreateInput>
+    /**
+     * In case the DayPlanShareGrant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DayPlanShareGrantUpdateInput, DayPlanShareGrantUncheckedUpdateInput>
+  }
+
+  /**
+   * DayPlanShareGrant delete
+   */
+  export type DayPlanShareGrantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
+    /**
+     * Filter which DayPlanShareGrant to delete.
+     */
+    where: DayPlanShareGrantWhereUniqueInput
+  }
+
+  /**
+   * DayPlanShareGrant deleteMany
+   */
+  export type DayPlanShareGrantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DayPlanShareGrants to delete
+     */
+    where?: DayPlanShareGrantWhereInput
+    /**
+     * Limit how many DayPlanShareGrants to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DayPlanShareGrant.user
+   */
+  export type DayPlanShareGrant$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * DayPlanShareGrant without action
+   */
+  export type DayPlanShareGrantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DayPlanShareGrant
+     */
+    select?: DayPlanShareGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DayPlanShareGrant
+     */
+    omit?: DayPlanShareGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DayPlanShareGrantInclude<ExtArgs> | null
   }
 
 
@@ -17380,10 +21167,28 @@ export namespace Prisma {
     role: 'role',
     blocked: 'blocked',
     refreshTokenHash: 'refreshTokenHash',
-    createdAt: 'createdAt'
+    notifGuestRsvp: 'notifGuestRsvp',
+    notifUpcomingPayments: 'notifUpcomingPayments',
+    notifTaskDeadlines: 'notifTaskDeadlines',
+    notifPartnerChanges: 'notifPartnerChanges',
+    notifPush: 'notifPush',
+    notifEmail: 'notifEmail',
+    createdAt: 'createdAt',
+    lastLoginAt: 'lastLoginAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const AdminUserNoteScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    body: 'body',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AdminUserNoteScalarFieldEnum = (typeof AdminUserNoteScalarFieldEnum)[keyof typeof AdminUserNoteScalarFieldEnum]
 
 
   export const PushDeviceScalarFieldEnum: {
@@ -17436,6 +21241,32 @@ export namespace Prisma {
   };
 
   export type WeddingScalarFieldEnum = (typeof WeddingScalarFieldEnum)[keyof typeof WeddingScalarFieldEnum]
+
+
+  export const DayPlanShareScalarFieldEnum: {
+    id: 'id',
+    weddingId: 'weddingId',
+    token: 'token',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DayPlanShareScalarFieldEnum = (typeof DayPlanShareScalarFieldEnum)[keyof typeof DayPlanShareScalarFieldEnum]
+
+
+  export const DayPlanShareGrantScalarFieldEnum: {
+    id: 'id',
+    shareId: 'shareId',
+    email: 'email',
+    name: 'name',
+    access: 'access',
+    userId: 'userId',
+    inviteToken: 'inviteToken',
+    acceptedAt: 'acceptedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type DayPlanShareGrantScalarFieldEnum = (typeof DayPlanShareGrantScalarFieldEnum)[keyof typeof DayPlanShareGrantScalarFieldEnum]
 
 
   export const WeddingWebsiteScalarFieldEnum: {
@@ -17725,6 +21556,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'DayPlanShareAccess'
+   */
+  export type EnumDayPlanShareAccessFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayPlanShareAccess'>
+    
+
+
+  /**
+   * Reference to a field of type 'DayPlanShareAccess[]'
+   */
+  export type ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayPlanShareAccess[]'>
+    
+
+
+  /**
    * Reference to a field of type 'WeddingMemberRole'
    */
   export type EnumWeddingMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WeddingMemberRole'>
@@ -17836,12 +21681,21 @@ export namespace Prisma {
     role?: EnumRoleFilter<"User"> | $Enums.Role
     blocked?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
+    notifGuestRsvp?: BoolFilter<"User"> | boolean
+    notifUpcomingPayments?: BoolFilter<"User"> | boolean
+    notifTaskDeadlines?: BoolFilter<"User"> | boolean
+    notifPartnerChanges?: BoolFilter<"User"> | boolean
+    notifPush?: BoolFilter<"User"> | boolean
+    notifEmail?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
+    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     wedding?: XOR<WeddingNullableScalarRelationFilter, WeddingWhereInput> | null
     weddingMember?: XOR<WeddingMemberNullableScalarRelationFilter, WeddingMemberWhereInput> | null
     externalVendors?: ExternalVendorListRelationFilter
     contentPosts?: ContentPostListRelationFilter
     pushDevices?: PushDeviceListRelationFilter
+    adminNotes?: AdminUserNoteListRelationFilter
+    dayPlanShareGrants?: DayPlanShareGrantListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -17852,12 +21706,21 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrderInput | SortOrder
+    notifGuestRsvp?: SortOrder
+    notifUpcomingPayments?: SortOrder
+    notifTaskDeadlines?: SortOrder
+    notifPartnerChanges?: SortOrder
+    notifPush?: SortOrder
+    notifEmail?: SortOrder
     createdAt?: SortOrder
+    lastLoginAt?: SortOrderInput | SortOrder
     wedding?: WeddingOrderByWithRelationInput
     weddingMember?: WeddingMemberOrderByWithRelationInput
     externalVendors?: ExternalVendorOrderByRelationAggregateInput
     contentPosts?: ContentPostOrderByRelationAggregateInput
     pushDevices?: PushDeviceOrderByRelationAggregateInput
+    adminNotes?: AdminUserNoteOrderByRelationAggregateInput
+    dayPlanShareGrants?: DayPlanShareGrantOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -17871,12 +21734,21 @@ export namespace Prisma {
     role?: EnumRoleFilter<"User"> | $Enums.Role
     blocked?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
+    notifGuestRsvp?: BoolFilter<"User"> | boolean
+    notifUpcomingPayments?: BoolFilter<"User"> | boolean
+    notifTaskDeadlines?: BoolFilter<"User"> | boolean
+    notifPartnerChanges?: BoolFilter<"User"> | boolean
+    notifPush?: BoolFilter<"User"> | boolean
+    notifEmail?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
+    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     wedding?: XOR<WeddingNullableScalarRelationFilter, WeddingWhereInput> | null
     weddingMember?: XOR<WeddingMemberNullableScalarRelationFilter, WeddingMemberWhereInput> | null
     externalVendors?: ExternalVendorListRelationFilter
     contentPosts?: ContentPostListRelationFilter
     pushDevices?: PushDeviceListRelationFilter
+    adminNotes?: AdminUserNoteListRelationFilter
+    dayPlanShareGrants?: DayPlanShareGrantListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -17887,7 +21759,14 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrderInput | SortOrder
+    notifGuestRsvp?: SortOrder
+    notifUpcomingPayments?: SortOrder
+    notifTaskDeadlines?: SortOrder
+    notifPartnerChanges?: SortOrder
+    notifPush?: SortOrder
+    notifEmail?: SortOrder
     createdAt?: SortOrder
+    lastLoginAt?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -17904,7 +21783,69 @@ export namespace Prisma {
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     blocked?: BoolWithAggregatesFilter<"User"> | boolean
     refreshTokenHash?: StringNullableWithAggregatesFilter<"User"> | string | null
+    notifGuestRsvp?: BoolWithAggregatesFilter<"User"> | boolean
+    notifUpcomingPayments?: BoolWithAggregatesFilter<"User"> | boolean
+    notifTaskDeadlines?: BoolWithAggregatesFilter<"User"> | boolean
+    notifPartnerChanges?: BoolWithAggregatesFilter<"User"> | boolean
+    notifPush?: BoolWithAggregatesFilter<"User"> | boolean
+    notifEmail?: BoolWithAggregatesFilter<"User"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  }
+
+  export type AdminUserNoteWhereInput = {
+    AND?: AdminUserNoteWhereInput | AdminUserNoteWhereInput[]
+    OR?: AdminUserNoteWhereInput[]
+    NOT?: AdminUserNoteWhereInput | AdminUserNoteWhereInput[]
+    id?: StringFilter<"AdminUserNote"> | string
+    userId?: StringFilter<"AdminUserNote"> | string
+    body?: StringFilter<"AdminUserNote"> | string
+    createdAt?: DateTimeFilter<"AdminUserNote"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminUserNote"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type AdminUserNoteOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    body?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AdminUserNoteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AdminUserNoteWhereInput | AdminUserNoteWhereInput[]
+    OR?: AdminUserNoteWhereInput[]
+    NOT?: AdminUserNoteWhereInput | AdminUserNoteWhereInput[]
+    userId?: StringFilter<"AdminUserNote"> | string
+    body?: StringFilter<"AdminUserNote"> | string
+    createdAt?: DateTimeFilter<"AdminUserNote"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminUserNote"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type AdminUserNoteOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    body?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AdminUserNoteCountOrderByAggregateInput
+    _max?: AdminUserNoteMaxOrderByAggregateInput
+    _min?: AdminUserNoteMinOrderByAggregateInput
+  }
+
+  export type AdminUserNoteScalarWhereWithAggregatesInput = {
+    AND?: AdminUserNoteScalarWhereWithAggregatesInput | AdminUserNoteScalarWhereWithAggregatesInput[]
+    OR?: AdminUserNoteScalarWhereWithAggregatesInput[]
+    NOT?: AdminUserNoteScalarWhereWithAggregatesInput | AdminUserNoteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdminUserNote"> | string
+    userId?: StringWithAggregatesFilter<"AdminUserNote"> | string
+    body?: StringWithAggregatesFilter<"AdminUserNote"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AdminUserNote"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AdminUserNote"> | Date | string
   }
 
   export type PushDeviceWhereInput = {
@@ -18090,6 +22031,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemListRelationFilter
     website?: XOR<WeddingWebsiteNullableScalarRelationFilter, WeddingWebsiteWhereInput> | null
     invitation?: XOR<WeddingInvitationNullableScalarRelationFilter, WeddingInvitationWhereInput> | null
+    dayPlanShare?: XOR<DayPlanShareNullableScalarRelationFilter, DayPlanShareWhereInput> | null
   }
 
   export type WeddingOrderByWithRelationInput = {
@@ -18117,6 +22059,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemOrderByRelationAggregateInput
     website?: WeddingWebsiteOrderByWithRelationInput
     invitation?: WeddingInvitationOrderByWithRelationInput
+    dayPlanShare?: DayPlanShareOrderByWithRelationInput
   }
 
   export type WeddingWhereUniqueInput = Prisma.AtLeast<{
@@ -18147,6 +22090,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemListRelationFilter
     website?: XOR<WeddingWebsiteNullableScalarRelationFilter, WeddingWebsiteWhereInput> | null
     invitation?: XOR<WeddingInvitationNullableScalarRelationFilter, WeddingInvitationWhereInput> | null
+    dayPlanShare?: XOR<DayPlanShareNullableScalarRelationFilter, DayPlanShareWhereInput> | null
   }, "id" | "userId">
 
   export type WeddingOrderByWithAggregationInput = {
@@ -18193,6 +22137,143 @@ export namespace Prisma {
     vendorPlan?: JsonNullableWithAggregatesFilter<"Wedding">
     seatingDraft?: JsonNullableWithAggregatesFilter<"Wedding">
     seatingPlan?: JsonNullableWithAggregatesFilter<"Wedding">
+  }
+
+  export type DayPlanShareWhereInput = {
+    AND?: DayPlanShareWhereInput | DayPlanShareWhereInput[]
+    OR?: DayPlanShareWhereInput[]
+    NOT?: DayPlanShareWhereInput | DayPlanShareWhereInput[]
+    id?: StringFilter<"DayPlanShare"> | string
+    weddingId?: StringFilter<"DayPlanShare"> | string
+    token?: StringFilter<"DayPlanShare"> | string
+    createdAt?: DateTimeFilter<"DayPlanShare"> | Date | string
+    updatedAt?: DateTimeFilter<"DayPlanShare"> | Date | string
+    wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+    grants?: DayPlanShareGrantListRelationFilter
+  }
+
+  export type DayPlanShareOrderByWithRelationInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    wedding?: WeddingOrderByWithRelationInput
+    grants?: DayPlanShareGrantOrderByRelationAggregateInput
+  }
+
+  export type DayPlanShareWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    weddingId?: string
+    token?: string
+    AND?: DayPlanShareWhereInput | DayPlanShareWhereInput[]
+    OR?: DayPlanShareWhereInput[]
+    NOT?: DayPlanShareWhereInput | DayPlanShareWhereInput[]
+    createdAt?: DateTimeFilter<"DayPlanShare"> | Date | string
+    updatedAt?: DateTimeFilter<"DayPlanShare"> | Date | string
+    wedding?: XOR<WeddingScalarRelationFilter, WeddingWhereInput>
+    grants?: DayPlanShareGrantListRelationFilter
+  }, "id" | "weddingId" | "token">
+
+  export type DayPlanShareOrderByWithAggregationInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DayPlanShareCountOrderByAggregateInput
+    _max?: DayPlanShareMaxOrderByAggregateInput
+    _min?: DayPlanShareMinOrderByAggregateInput
+  }
+
+  export type DayPlanShareScalarWhereWithAggregatesInput = {
+    AND?: DayPlanShareScalarWhereWithAggregatesInput | DayPlanShareScalarWhereWithAggregatesInput[]
+    OR?: DayPlanShareScalarWhereWithAggregatesInput[]
+    NOT?: DayPlanShareScalarWhereWithAggregatesInput | DayPlanShareScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DayPlanShare"> | string
+    weddingId?: StringWithAggregatesFilter<"DayPlanShare"> | string
+    token?: StringWithAggregatesFilter<"DayPlanShare"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"DayPlanShare"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DayPlanShare"> | Date | string
+  }
+
+  export type DayPlanShareGrantWhereInput = {
+    AND?: DayPlanShareGrantWhereInput | DayPlanShareGrantWhereInput[]
+    OR?: DayPlanShareGrantWhereInput[]
+    NOT?: DayPlanShareGrantWhereInput | DayPlanShareGrantWhereInput[]
+    id?: StringFilter<"DayPlanShareGrant"> | string
+    shareId?: StringFilter<"DayPlanShareGrant"> | string
+    email?: StringFilter<"DayPlanShareGrant"> | string
+    name?: StringFilter<"DayPlanShareGrant"> | string
+    access?: EnumDayPlanShareAccessFilter<"DayPlanShareGrant"> | $Enums.DayPlanShareAccess
+    userId?: StringNullableFilter<"DayPlanShareGrant"> | string | null
+    inviteToken?: StringFilter<"DayPlanShareGrant"> | string
+    acceptedAt?: DateTimeNullableFilter<"DayPlanShareGrant"> | Date | string | null
+    createdAt?: DateTimeFilter<"DayPlanShareGrant"> | Date | string
+    share?: XOR<DayPlanShareScalarRelationFilter, DayPlanShareWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type DayPlanShareGrantOrderByWithRelationInput = {
+    id?: SortOrder
+    shareId?: SortOrder
+    email?: SortOrder
+    name?: SortOrder
+    access?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    inviteToken?: SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    share?: DayPlanShareOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type DayPlanShareGrantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    inviteToken?: string
+    shareId_email?: DayPlanShareGrantShareIdEmailCompoundUniqueInput
+    AND?: DayPlanShareGrantWhereInput | DayPlanShareGrantWhereInput[]
+    OR?: DayPlanShareGrantWhereInput[]
+    NOT?: DayPlanShareGrantWhereInput | DayPlanShareGrantWhereInput[]
+    shareId?: StringFilter<"DayPlanShareGrant"> | string
+    email?: StringFilter<"DayPlanShareGrant"> | string
+    name?: StringFilter<"DayPlanShareGrant"> | string
+    access?: EnumDayPlanShareAccessFilter<"DayPlanShareGrant"> | $Enums.DayPlanShareAccess
+    userId?: StringNullableFilter<"DayPlanShareGrant"> | string | null
+    acceptedAt?: DateTimeNullableFilter<"DayPlanShareGrant"> | Date | string | null
+    createdAt?: DateTimeFilter<"DayPlanShareGrant"> | Date | string
+    share?: XOR<DayPlanShareScalarRelationFilter, DayPlanShareWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "inviteToken" | "shareId_email">
+
+  export type DayPlanShareGrantOrderByWithAggregationInput = {
+    id?: SortOrder
+    shareId?: SortOrder
+    email?: SortOrder
+    name?: SortOrder
+    access?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    inviteToken?: SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: DayPlanShareGrantCountOrderByAggregateInput
+    _max?: DayPlanShareGrantMaxOrderByAggregateInput
+    _min?: DayPlanShareGrantMinOrderByAggregateInput
+  }
+
+  export type DayPlanShareGrantScalarWhereWithAggregatesInput = {
+    AND?: DayPlanShareGrantScalarWhereWithAggregatesInput | DayPlanShareGrantScalarWhereWithAggregatesInput[]
+    OR?: DayPlanShareGrantScalarWhereWithAggregatesInput[]
+    NOT?: DayPlanShareGrantScalarWhereWithAggregatesInput | DayPlanShareGrantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DayPlanShareGrant"> | string
+    shareId?: StringWithAggregatesFilter<"DayPlanShareGrant"> | string
+    email?: StringWithAggregatesFilter<"DayPlanShareGrant"> | string
+    name?: StringWithAggregatesFilter<"DayPlanShareGrant"> | string
+    access?: EnumDayPlanShareAccessWithAggregatesFilter<"DayPlanShareGrant"> | $Enums.DayPlanShareAccess
+    userId?: StringNullableWithAggregatesFilter<"DayPlanShareGrant"> | string | null
+    inviteToken?: StringWithAggregatesFilter<"DayPlanShareGrant"> | string
+    acceptedAt?: DateTimeNullableWithAggregatesFilter<"DayPlanShareGrant"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DayPlanShareGrant"> | Date | string
   }
 
   export type WeddingWebsiteWhereInput = {
@@ -18928,12 +23009,21 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -18944,12 +23034,21 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -18960,12 +23059,21 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -18976,12 +23084,21 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -18992,7 +23109,14 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -19003,7 +23127,14 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -19014,7 +23145,69 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AdminUserNoteCreateInput = {
+    id?: string
+    body: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdminNotesInput
+  }
+
+  export type AdminUserNoteUncheckedCreateInput = {
+    id?: string
+    userId: string
+    body: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminUserNoteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdminNotesNestedInput
+  }
+
+  export type AdminUserNoteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminUserNoteCreateManyInput = {
+    id?: string
+    userId: string
+    body: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminUserNoteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminUserNoteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PushDeviceCreateInput = {
@@ -19211,6 +23404,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateInput = {
@@ -19237,6 +23431,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUpdateInput = {
@@ -19263,6 +23458,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateInput = {
@@ -19289,6 +23485,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateManyInput = {
@@ -19345,6 +23542,147 @@ export namespace Prisma {
     vendorPlan?: NullableJsonNullValueInput | InputJsonValue
     seatingDraft?: NullableJsonNullValueInput | InputJsonValue
     seatingPlan?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type DayPlanShareCreateInput = {
+    id?: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    wedding: WeddingCreateNestedOneWithoutDayPlanShareInput
+    grants?: DayPlanShareGrantCreateNestedManyWithoutShareInput
+  }
+
+  export type DayPlanShareUncheckedCreateInput = {
+    id?: string
+    weddingId: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutShareInput
+  }
+
+  export type DayPlanShareUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    wedding?: WeddingUpdateOneRequiredWithoutDayPlanShareNestedInput
+    grants?: DayPlanShareGrantUpdateManyWithoutShareNestedInput
+  }
+
+  export type DayPlanShareUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grants?: DayPlanShareGrantUncheckedUpdateManyWithoutShareNestedInput
+  }
+
+  export type DayPlanShareCreateManyInput = {
+    id?: string
+    weddingId: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DayPlanShareUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantCreateInput = {
+    id?: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    share: DayPlanShareCreateNestedOneWithoutGrantsInput
+    user?: UserCreateNestedOneWithoutDayPlanShareGrantsInput
+  }
+
+  export type DayPlanShareGrantUncheckedCreateInput = {
+    id?: string
+    shareId: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    userId?: string | null
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DayPlanShareGrantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    share?: DayPlanShareUpdateOneRequiredWithoutGrantsNestedInput
+    user?: UserUpdateOneWithoutDayPlanShareGrantsNestedInput
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shareId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantCreateManyInput = {
+    id?: string
+    shareId: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    userId?: string | null
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DayPlanShareGrantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shareId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WeddingWebsiteCreateInput = {
@@ -20198,6 +24536,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type WeddingNullableScalarRelationFilter = {
     is?: WeddingWhereInput | null
     isNot?: WeddingWhereInput | null
@@ -20226,6 +24575,18 @@ export namespace Prisma {
     none?: PushDeviceWhereInput
   }
 
+  export type AdminUserNoteListRelationFilter = {
+    every?: AdminUserNoteWhereInput
+    some?: AdminUserNoteWhereInput
+    none?: AdminUserNoteWhereInput
+  }
+
+  export type DayPlanShareGrantListRelationFilter = {
+    every?: DayPlanShareGrantWhereInput
+    some?: DayPlanShareGrantWhereInput
+    none?: DayPlanShareGrantWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -20243,6 +24604,14 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type AdminUserNoteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DayPlanShareGrantOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
@@ -20251,7 +24620,14 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrder
+    notifGuestRsvp?: SortOrder
+    notifUpcomingPayments?: SortOrder
+    notifTaskDeadlines?: SortOrder
+    notifPartnerChanges?: SortOrder
+    notifPush?: SortOrder
+    notifEmail?: SortOrder
     createdAt?: SortOrder
+    lastLoginAt?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -20262,7 +24638,14 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrder
+    notifGuestRsvp?: SortOrder
+    notifUpcomingPayments?: SortOrder
+    notifTaskDeadlines?: SortOrder
+    notifPartnerChanges?: SortOrder
+    notifPush?: SortOrder
+    notifEmail?: SortOrder
     createdAt?: SortOrder
+    lastLoginAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -20273,7 +24656,14 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrder
+    notifGuestRsvp?: SortOrder
+    notifUpcomingPayments?: SortOrder
+    notifTaskDeadlines?: SortOrder
+    notifPartnerChanges?: SortOrder
+    notifPush?: SortOrder
+    notifEmail?: SortOrder
     createdAt?: SortOrder
+    lastLoginAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -20344,9 +24734,47 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type AdminUserNoteCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    body?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminUserNoteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    body?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminUserNoteMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    body?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type PushDeviceCountOrderByAggregateInput = {
@@ -20552,6 +24980,11 @@ export namespace Prisma {
     isNot?: WeddingInvitationWhereInput | null
   }
 
+  export type DayPlanShareNullableScalarRelationFilter = {
+    is?: DayPlanShareWhereInput | null
+    isNot?: DayPlanShareWhereInput | null
+  }
+
   export type WeddingMemberOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -20673,15 +25106,101 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  export type WeddingScalarRelationFilter = {
+    is?: WeddingWhereInput
+    isNot?: WeddingWhereInput
+  }
+
+  export type DayPlanShareCountOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DayPlanShareMaxOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DayPlanShareMinOrderByAggregateInput = {
+    id?: SortOrder
+    weddingId?: SortOrder
+    token?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumDayPlanShareAccessFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayPlanShareAccess | EnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    in?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    not?: NestedEnumDayPlanShareAccessFilter<$PrismaModel> | $Enums.DayPlanShareAccess
+  }
+
+  export type DayPlanShareScalarRelationFilter = {
+    is?: DayPlanShareWhereInput
+    isNot?: DayPlanShareWhereInput
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type DayPlanShareGrantShareIdEmailCompoundUniqueInput = {
+    shareId: string
+    email: string
+  }
+
+  export type DayPlanShareGrantCountOrderByAggregateInput = {
+    id?: SortOrder
+    shareId?: SortOrder
+    email?: SortOrder
+    name?: SortOrder
+    access?: SortOrder
+    userId?: SortOrder
+    inviteToken?: SortOrder
+    acceptedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DayPlanShareGrantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shareId?: SortOrder
+    email?: SortOrder
+    name?: SortOrder
+    access?: SortOrder
+    userId?: SortOrder
+    inviteToken?: SortOrder
+    acceptedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DayPlanShareGrantMinOrderByAggregateInput = {
+    id?: SortOrder
+    shareId?: SortOrder
+    email?: SortOrder
+    name?: SortOrder
+    access?: SortOrder
+    userId?: SortOrder
+    inviteToken?: SortOrder
+    acceptedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumDayPlanShareAccessWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayPlanShareAccess | EnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    in?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    not?: NestedEnumDayPlanShareAccessWithAggregatesFilter<$PrismaModel> | $Enums.DayPlanShareAccess
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDayPlanShareAccessFilter<$PrismaModel>
+    _max?: NestedEnumDayPlanShareAccessFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -20705,11 +25224,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type WeddingScalarRelationFilter = {
-    is?: WeddingWhereInput
-    isNot?: WeddingWhereInput
   }
 
   export type WeddingWebsiteCountOrderByAggregateInput = {
@@ -20744,20 +25258,6 @@ export namespace Prisma {
     publishedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -21161,11 +25661,6 @@ export namespace Prisma {
     isNot?: ContentTopicWhereInput
   }
 
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
-  }
-
   export type ContentPostCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -21280,6 +25775,20 @@ export namespace Prisma {
     connect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
   }
 
+  export type AdminUserNoteCreateNestedManyWithoutUserInput = {
+    create?: XOR<AdminUserNoteCreateWithoutUserInput, AdminUserNoteUncheckedCreateWithoutUserInput> | AdminUserNoteCreateWithoutUserInput[] | AdminUserNoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdminUserNoteCreateOrConnectWithoutUserInput | AdminUserNoteCreateOrConnectWithoutUserInput[]
+    createMany?: AdminUserNoteCreateManyUserInputEnvelope
+    connect?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+  }
+
+  export type DayPlanShareGrantCreateNestedManyWithoutUserInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutUserInput, DayPlanShareGrantUncheckedCreateWithoutUserInput> | DayPlanShareGrantCreateWithoutUserInput[] | DayPlanShareGrantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutUserInput | DayPlanShareGrantCreateOrConnectWithoutUserInput[]
+    createMany?: DayPlanShareGrantCreateManyUserInputEnvelope
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+  }
+
   export type WeddingUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<WeddingCreateWithoutUserInput, WeddingUncheckedCreateWithoutUserInput>
     connectOrCreate?: WeddingCreateOrConnectWithoutUserInput
@@ -21313,6 +25822,20 @@ export namespace Prisma {
     connect?: PushDeviceWhereUniqueInput | PushDeviceWhereUniqueInput[]
   }
 
+  export type AdminUserNoteUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AdminUserNoteCreateWithoutUserInput, AdminUserNoteUncheckedCreateWithoutUserInput> | AdminUserNoteCreateWithoutUserInput[] | AdminUserNoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdminUserNoteCreateOrConnectWithoutUserInput | AdminUserNoteCreateOrConnectWithoutUserInput[]
+    createMany?: AdminUserNoteCreateManyUserInputEnvelope
+    connect?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+  }
+
+  export type DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutUserInput, DayPlanShareGrantUncheckedCreateWithoutUserInput> | DayPlanShareGrantCreateWithoutUserInput[] | DayPlanShareGrantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutUserInput | DayPlanShareGrantCreateOrConnectWithoutUserInput[]
+    createMany?: DayPlanShareGrantCreateManyUserInputEnvelope
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -21331,6 +25854,10 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type WeddingUpdateOneWithoutUserNestedInput = {
@@ -21395,6 +25922,34 @@ export namespace Prisma {
     deleteMany?: PushDeviceScalarWhereInput | PushDeviceScalarWhereInput[]
   }
 
+  export type AdminUserNoteUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AdminUserNoteCreateWithoutUserInput, AdminUserNoteUncheckedCreateWithoutUserInput> | AdminUserNoteCreateWithoutUserInput[] | AdminUserNoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdminUserNoteCreateOrConnectWithoutUserInput | AdminUserNoteCreateOrConnectWithoutUserInput[]
+    upsert?: AdminUserNoteUpsertWithWhereUniqueWithoutUserInput | AdminUserNoteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AdminUserNoteCreateManyUserInputEnvelope
+    set?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    disconnect?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    delete?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    connect?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    update?: AdminUserNoteUpdateWithWhereUniqueWithoutUserInput | AdminUserNoteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AdminUserNoteUpdateManyWithWhereWithoutUserInput | AdminUserNoteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AdminUserNoteScalarWhereInput | AdminUserNoteScalarWhereInput[]
+  }
+
+  export type DayPlanShareGrantUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutUserInput, DayPlanShareGrantUncheckedCreateWithoutUserInput> | DayPlanShareGrantCreateWithoutUserInput[] | DayPlanShareGrantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutUserInput | DayPlanShareGrantCreateOrConnectWithoutUserInput[]
+    upsert?: DayPlanShareGrantUpsertWithWhereUniqueWithoutUserInput | DayPlanShareGrantUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DayPlanShareGrantCreateManyUserInputEnvelope
+    set?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    disconnect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    delete?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    update?: DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput | DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DayPlanShareGrantUpdateManyWithWhereWithoutUserInput | DayPlanShareGrantUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+  }
+
   export type WeddingUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<WeddingCreateWithoutUserInput, WeddingUncheckedCreateWithoutUserInput>
     connectOrCreate?: WeddingCreateOrConnectWithoutUserInput
@@ -21455,6 +26010,48 @@ export namespace Prisma {
     update?: PushDeviceUpdateWithWhereUniqueWithoutUserInput | PushDeviceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: PushDeviceUpdateManyWithWhereWithoutUserInput | PushDeviceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: PushDeviceScalarWhereInput | PushDeviceScalarWhereInput[]
+  }
+
+  export type AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AdminUserNoteCreateWithoutUserInput, AdminUserNoteUncheckedCreateWithoutUserInput> | AdminUserNoteCreateWithoutUserInput[] | AdminUserNoteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdminUserNoteCreateOrConnectWithoutUserInput | AdminUserNoteCreateOrConnectWithoutUserInput[]
+    upsert?: AdminUserNoteUpsertWithWhereUniqueWithoutUserInput | AdminUserNoteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AdminUserNoteCreateManyUserInputEnvelope
+    set?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    disconnect?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    delete?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    connect?: AdminUserNoteWhereUniqueInput | AdminUserNoteWhereUniqueInput[]
+    update?: AdminUserNoteUpdateWithWhereUniqueWithoutUserInput | AdminUserNoteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AdminUserNoteUpdateManyWithWhereWithoutUserInput | AdminUserNoteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AdminUserNoteScalarWhereInput | AdminUserNoteScalarWhereInput[]
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutUserInput, DayPlanShareGrantUncheckedCreateWithoutUserInput> | DayPlanShareGrantCreateWithoutUserInput[] | DayPlanShareGrantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutUserInput | DayPlanShareGrantCreateOrConnectWithoutUserInput[]
+    upsert?: DayPlanShareGrantUpsertWithWhereUniqueWithoutUserInput | DayPlanShareGrantUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DayPlanShareGrantCreateManyUserInputEnvelope
+    set?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    disconnect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    delete?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    update?: DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput | DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DayPlanShareGrantUpdateManyWithWhereWithoutUserInput | DayPlanShareGrantUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutAdminNotesInput = {
+    create?: XOR<UserCreateWithoutAdminNotesInput, UserUncheckedCreateWithoutAdminNotesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminNotesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutAdminNotesNestedInput = {
+    create?: XOR<UserCreateWithoutAdminNotesInput, UserUncheckedCreateWithoutAdminNotesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminNotesInput
+    upsert?: UserUpsertWithoutAdminNotesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminNotesInput, UserUpdateWithoutAdminNotesInput>, UserUncheckedUpdateWithoutAdminNotesInput>
   }
 
   export type UserCreateNestedOneWithoutPushDevicesInput = {
@@ -21582,6 +26179,12 @@ export namespace Prisma {
     connect?: WeddingInvitationWhereUniqueInput
   }
 
+  export type DayPlanShareCreateNestedOneWithoutWeddingInput = {
+    create?: XOR<DayPlanShareCreateWithoutWeddingInput, DayPlanShareUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: DayPlanShareCreateOrConnectWithoutWeddingInput
+    connect?: DayPlanShareWhereUniqueInput
+  }
+
   export type WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput = {
     create?: XOR<WeddingMemberCreateWithoutWeddingInput, WeddingMemberUncheckedCreateWithoutWeddingInput> | WeddingMemberCreateWithoutWeddingInput[] | WeddingMemberUncheckedCreateWithoutWeddingInput[]
     connectOrCreate?: WeddingMemberCreateOrConnectWithoutWeddingInput | WeddingMemberCreateOrConnectWithoutWeddingInput[]
@@ -21627,6 +26230,12 @@ export namespace Prisma {
     create?: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
     connectOrCreate?: WeddingInvitationCreateOrConnectWithoutWeddingInput
     connect?: WeddingInvitationWhereUniqueInput
+  }
+
+  export type DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput = {
+    create?: XOR<DayPlanShareCreateWithoutWeddingInput, DayPlanShareUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: DayPlanShareCreateOrConnectWithoutWeddingInput
+    connect?: DayPlanShareWhereUniqueInput
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -21735,6 +26344,16 @@ export namespace Prisma {
     update?: XOR<XOR<WeddingInvitationUpdateToOneWithWhereWithoutWeddingInput, WeddingInvitationUpdateWithoutWeddingInput>, WeddingInvitationUncheckedUpdateWithoutWeddingInput>
   }
 
+  export type DayPlanShareUpdateOneWithoutWeddingNestedInput = {
+    create?: XOR<DayPlanShareCreateWithoutWeddingInput, DayPlanShareUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: DayPlanShareCreateOrConnectWithoutWeddingInput
+    upsert?: DayPlanShareUpsertWithoutWeddingInput
+    disconnect?: DayPlanShareWhereInput | boolean
+    delete?: DayPlanShareWhereInput | boolean
+    connect?: DayPlanShareWhereUniqueInput
+    update?: XOR<XOR<DayPlanShareUpdateToOneWithWhereWithoutWeddingInput, DayPlanShareUpdateWithoutWeddingInput>, DayPlanShareUncheckedUpdateWithoutWeddingInput>
+  }
+
   export type WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput = {
     create?: XOR<WeddingMemberCreateWithoutWeddingInput, WeddingMemberUncheckedCreateWithoutWeddingInput> | WeddingMemberCreateWithoutWeddingInput[] | WeddingMemberUncheckedCreateWithoutWeddingInput[]
     connectOrCreate?: WeddingMemberCreateOrConnectWithoutWeddingInput | WeddingMemberCreateOrConnectWithoutWeddingInput[]
@@ -21825,14 +26444,110 @@ export namespace Prisma {
     update?: XOR<XOR<WeddingInvitationUpdateToOneWithWhereWithoutWeddingInput, WeddingInvitationUpdateWithoutWeddingInput>, WeddingInvitationUncheckedUpdateWithoutWeddingInput>
   }
 
+  export type DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput = {
+    create?: XOR<DayPlanShareCreateWithoutWeddingInput, DayPlanShareUncheckedCreateWithoutWeddingInput>
+    connectOrCreate?: DayPlanShareCreateOrConnectWithoutWeddingInput
+    upsert?: DayPlanShareUpsertWithoutWeddingInput
+    disconnect?: DayPlanShareWhereInput | boolean
+    delete?: DayPlanShareWhereInput | boolean
+    connect?: DayPlanShareWhereUniqueInput
+    update?: XOR<XOR<DayPlanShareUpdateToOneWithWhereWithoutWeddingInput, DayPlanShareUpdateWithoutWeddingInput>, DayPlanShareUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type WeddingCreateNestedOneWithoutDayPlanShareInput = {
+    create?: XOR<WeddingCreateWithoutDayPlanShareInput, WeddingUncheckedCreateWithoutDayPlanShareInput>
+    connectOrCreate?: WeddingCreateOrConnectWithoutDayPlanShareInput
+    connect?: WeddingWhereUniqueInput
+  }
+
+  export type DayPlanShareGrantCreateNestedManyWithoutShareInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutShareInput, DayPlanShareGrantUncheckedCreateWithoutShareInput> | DayPlanShareGrantCreateWithoutShareInput[] | DayPlanShareGrantUncheckedCreateWithoutShareInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutShareInput | DayPlanShareGrantCreateOrConnectWithoutShareInput[]
+    createMany?: DayPlanShareGrantCreateManyShareInputEnvelope
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+  }
+
+  export type DayPlanShareGrantUncheckedCreateNestedManyWithoutShareInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutShareInput, DayPlanShareGrantUncheckedCreateWithoutShareInput> | DayPlanShareGrantCreateWithoutShareInput[] | DayPlanShareGrantUncheckedCreateWithoutShareInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutShareInput | DayPlanShareGrantCreateOrConnectWithoutShareInput[]
+    createMany?: DayPlanShareGrantCreateManyShareInputEnvelope
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+  }
+
+  export type WeddingUpdateOneRequiredWithoutDayPlanShareNestedInput = {
+    create?: XOR<WeddingCreateWithoutDayPlanShareInput, WeddingUncheckedCreateWithoutDayPlanShareInput>
+    connectOrCreate?: WeddingCreateOrConnectWithoutDayPlanShareInput
+    upsert?: WeddingUpsertWithoutDayPlanShareInput
+    connect?: WeddingWhereUniqueInput
+    update?: XOR<XOR<WeddingUpdateToOneWithWhereWithoutDayPlanShareInput, WeddingUpdateWithoutDayPlanShareInput>, WeddingUncheckedUpdateWithoutDayPlanShareInput>
+  }
+
+  export type DayPlanShareGrantUpdateManyWithoutShareNestedInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutShareInput, DayPlanShareGrantUncheckedCreateWithoutShareInput> | DayPlanShareGrantCreateWithoutShareInput[] | DayPlanShareGrantUncheckedCreateWithoutShareInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutShareInput | DayPlanShareGrantCreateOrConnectWithoutShareInput[]
+    upsert?: DayPlanShareGrantUpsertWithWhereUniqueWithoutShareInput | DayPlanShareGrantUpsertWithWhereUniqueWithoutShareInput[]
+    createMany?: DayPlanShareGrantCreateManyShareInputEnvelope
+    set?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    disconnect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    delete?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    update?: DayPlanShareGrantUpdateWithWhereUniqueWithoutShareInput | DayPlanShareGrantUpdateWithWhereUniqueWithoutShareInput[]
+    updateMany?: DayPlanShareGrantUpdateManyWithWhereWithoutShareInput | DayPlanShareGrantUpdateManyWithWhereWithoutShareInput[]
+    deleteMany?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateManyWithoutShareNestedInput = {
+    create?: XOR<DayPlanShareGrantCreateWithoutShareInput, DayPlanShareGrantUncheckedCreateWithoutShareInput> | DayPlanShareGrantCreateWithoutShareInput[] | DayPlanShareGrantUncheckedCreateWithoutShareInput[]
+    connectOrCreate?: DayPlanShareGrantCreateOrConnectWithoutShareInput | DayPlanShareGrantCreateOrConnectWithoutShareInput[]
+    upsert?: DayPlanShareGrantUpsertWithWhereUniqueWithoutShareInput | DayPlanShareGrantUpsertWithWhereUniqueWithoutShareInput[]
+    createMany?: DayPlanShareGrantCreateManyShareInputEnvelope
+    set?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    disconnect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    delete?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
+    update?: DayPlanShareGrantUpdateWithWhereUniqueWithoutShareInput | DayPlanShareGrantUpdateWithWhereUniqueWithoutShareInput[]
+    updateMany?: DayPlanShareGrantUpdateManyWithWhereWithoutShareInput | DayPlanShareGrantUpdateManyWithWhereWithoutShareInput[]
+    deleteMany?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+  }
+
+  export type DayPlanShareCreateNestedOneWithoutGrantsInput = {
+    create?: XOR<DayPlanShareCreateWithoutGrantsInput, DayPlanShareUncheckedCreateWithoutGrantsInput>
+    connectOrCreate?: DayPlanShareCreateOrConnectWithoutGrantsInput
+    connect?: DayPlanShareWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDayPlanShareGrantsInput = {
+    create?: XOR<UserCreateWithoutDayPlanShareGrantsInput, UserUncheckedCreateWithoutDayPlanShareGrantsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDayPlanShareGrantsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumDayPlanShareAccessFieldUpdateOperationsInput = {
+    set?: $Enums.DayPlanShareAccess
+  }
+
+  export type DayPlanShareUpdateOneRequiredWithoutGrantsNestedInput = {
+    create?: XOR<DayPlanShareCreateWithoutGrantsInput, DayPlanShareUncheckedCreateWithoutGrantsInput>
+    connectOrCreate?: DayPlanShareCreateOrConnectWithoutGrantsInput
+    upsert?: DayPlanShareUpsertWithoutGrantsInput
+    connect?: DayPlanShareWhereUniqueInput
+    update?: XOR<XOR<DayPlanShareUpdateToOneWithWhereWithoutGrantsInput, DayPlanShareUpdateWithoutGrantsInput>, DayPlanShareUncheckedUpdateWithoutGrantsInput>
+  }
+
+  export type UserUpdateOneWithoutDayPlanShareGrantsNestedInput = {
+    create?: XOR<UserCreateWithoutDayPlanShareGrantsInput, UserUncheckedCreateWithoutDayPlanShareGrantsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDayPlanShareGrantsInput
+    upsert?: UserUpsertWithoutDayPlanShareGrantsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDayPlanShareGrantsInput, UserUpdateWithoutDayPlanShareGrantsInput>, UserUncheckedUpdateWithoutDayPlanShareGrantsInput>
+  }
+
   export type WeddingCreateNestedOneWithoutWebsiteInput = {
     create?: XOR<WeddingCreateWithoutWebsiteInput, WeddingUncheckedCreateWithoutWebsiteInput>
     connectOrCreate?: WeddingCreateOrConnectWithoutWebsiteInput
     connect?: WeddingWhereUniqueInput
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type WeddingUpdateOneRequiredWithoutWebsiteNestedInput = {
@@ -22108,6 +26823,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -22194,6 +26920,20 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumVendorPipelineStageFilter<$PrismaModel = never> = {
@@ -22290,29 +27030,21 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  export type NestedEnumDayPlanShareAccessFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayPlanShareAccess | EnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    in?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    not?: NestedEnumDayPlanShareAccessFilter<$PrismaModel> | $Enums.DayPlanShareAccess
   }
 
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  export type NestedEnumDayPlanShareAccessWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayPlanShareAccess | EnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    in?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DayPlanShareAccess[] | ListEnumDayPlanShareAccessFieldRefInput<$PrismaModel>
+    not?: NestedEnumDayPlanShareAccessWithAggregatesFilter<$PrismaModel> | $Enums.DayPlanShareAccess
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDayPlanShareAccessFilter<$PrismaModel>
+    _max?: NestedEnumDayPlanShareAccessFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -22476,6 +27208,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutUserInput = {
@@ -22501,6 +27234,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutUserInput = {
@@ -22643,6 +27377,62 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AdminUserNoteCreateWithoutUserInput = {
+    id?: string
+    body: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminUserNoteUncheckedCreateWithoutUserInput = {
+    id?: string
+    body: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminUserNoteCreateOrConnectWithoutUserInput = {
+    where: AdminUserNoteWhereUniqueInput
+    create: XOR<AdminUserNoteCreateWithoutUserInput, AdminUserNoteUncheckedCreateWithoutUserInput>
+  }
+
+  export type AdminUserNoteCreateManyUserInputEnvelope = {
+    data: AdminUserNoteCreateManyUserInput | AdminUserNoteCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DayPlanShareGrantCreateWithoutUserInput = {
+    id?: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    share: DayPlanShareCreateNestedOneWithoutGrantsInput
+  }
+
+  export type DayPlanShareGrantUncheckedCreateWithoutUserInput = {
+    id?: string
+    shareId: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DayPlanShareGrantCreateOrConnectWithoutUserInput = {
+    where: DayPlanShareGrantWhereUniqueInput
+    create: XOR<DayPlanShareGrantCreateWithoutUserInput, DayPlanShareGrantUncheckedCreateWithoutUserInput>
+  }
+
+  export type DayPlanShareGrantCreateManyUserInputEnvelope = {
+    data: DayPlanShareGrantCreateManyUserInput | DayPlanShareGrantCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type WeddingUpsertWithoutUserInput = {
     update: XOR<WeddingUpdateWithoutUserInput, WeddingUncheckedUpdateWithoutUserInput>
     create: XOR<WeddingCreateWithoutUserInput, WeddingUncheckedCreateWithoutUserInput>
@@ -22677,6 +27467,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutUserInput = {
@@ -22702,6 +27493,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingMemberUpsertWithoutUserInput = {
@@ -22831,6 +27623,176 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PushDevice"> | Date | string
   }
 
+  export type AdminUserNoteUpsertWithWhereUniqueWithoutUserInput = {
+    where: AdminUserNoteWhereUniqueInput
+    update: XOR<AdminUserNoteUpdateWithoutUserInput, AdminUserNoteUncheckedUpdateWithoutUserInput>
+    create: XOR<AdminUserNoteCreateWithoutUserInput, AdminUserNoteUncheckedCreateWithoutUserInput>
+  }
+
+  export type AdminUserNoteUpdateWithWhereUniqueWithoutUserInput = {
+    where: AdminUserNoteWhereUniqueInput
+    data: XOR<AdminUserNoteUpdateWithoutUserInput, AdminUserNoteUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AdminUserNoteUpdateManyWithWhereWithoutUserInput = {
+    where: AdminUserNoteScalarWhereInput
+    data: XOR<AdminUserNoteUpdateManyMutationInput, AdminUserNoteUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AdminUserNoteScalarWhereInput = {
+    AND?: AdminUserNoteScalarWhereInput | AdminUserNoteScalarWhereInput[]
+    OR?: AdminUserNoteScalarWhereInput[]
+    NOT?: AdminUserNoteScalarWhereInput | AdminUserNoteScalarWhereInput[]
+    id?: StringFilter<"AdminUserNote"> | string
+    userId?: StringFilter<"AdminUserNote"> | string
+    body?: StringFilter<"AdminUserNote"> | string
+    createdAt?: DateTimeFilter<"AdminUserNote"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminUserNote"> | Date | string
+  }
+
+  export type DayPlanShareGrantUpsertWithWhereUniqueWithoutUserInput = {
+    where: DayPlanShareGrantWhereUniqueInput
+    update: XOR<DayPlanShareGrantUpdateWithoutUserInput, DayPlanShareGrantUncheckedUpdateWithoutUserInput>
+    create: XOR<DayPlanShareGrantCreateWithoutUserInput, DayPlanShareGrantUncheckedCreateWithoutUserInput>
+  }
+
+  export type DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput = {
+    where: DayPlanShareGrantWhereUniqueInput
+    data: XOR<DayPlanShareGrantUpdateWithoutUserInput, DayPlanShareGrantUncheckedUpdateWithoutUserInput>
+  }
+
+  export type DayPlanShareGrantUpdateManyWithWhereWithoutUserInput = {
+    where: DayPlanShareGrantScalarWhereInput
+    data: XOR<DayPlanShareGrantUpdateManyMutationInput, DayPlanShareGrantUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type DayPlanShareGrantScalarWhereInput = {
+    AND?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+    OR?: DayPlanShareGrantScalarWhereInput[]
+    NOT?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+    id?: StringFilter<"DayPlanShareGrant"> | string
+    shareId?: StringFilter<"DayPlanShareGrant"> | string
+    email?: StringFilter<"DayPlanShareGrant"> | string
+    name?: StringFilter<"DayPlanShareGrant"> | string
+    access?: EnumDayPlanShareAccessFilter<"DayPlanShareGrant"> | $Enums.DayPlanShareAccess
+    userId?: StringNullableFilter<"DayPlanShareGrant"> | string | null
+    inviteToken?: StringFilter<"DayPlanShareGrant"> | string
+    acceptedAt?: DateTimeNullableFilter<"DayPlanShareGrant"> | Date | string | null
+    createdAt?: DateTimeFilter<"DayPlanShareGrant"> | Date | string
+  }
+
+  export type UserCreateWithoutAdminNotesInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
+    createdAt?: Date | string
+    lastLoginAt?: Date | string | null
+    wedding?: WeddingCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
+    externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminNotesInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
+    createdAt?: Date | string
+    lastLoginAt?: Date | string | null
+    wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
+    externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminNotesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminNotesInput, UserUncheckedCreateWithoutAdminNotesInput>
+  }
+
+  export type UserUpsertWithoutAdminNotesInput = {
+    update: XOR<UserUpdateWithoutAdminNotesInput, UserUncheckedUpdateWithoutAdminNotesInput>
+    create: XOR<UserCreateWithoutAdminNotesInput, UserUncheckedCreateWithoutAdminNotesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminNotesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminNotesInput, UserUncheckedUpdateWithoutAdminNotesInput>
+  }
+
+  export type UserUpdateWithoutAdminNotesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wedding?: WeddingUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
+    externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminNotesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
+    externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutPushDevicesInput = {
     id?: string
     email: string
@@ -22839,11 +27801,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPushDevicesInput = {
@@ -22854,11 +27825,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPushDevicesInput = {
@@ -22885,11 +27865,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPushDevicesInput = {
@@ -22900,11 +27889,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutExternalVendorsInput = {
@@ -22915,11 +27913,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutExternalVendorsInput = {
@@ -22930,11 +27937,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutExternalVendorsInput = {
@@ -22990,11 +28006,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutExternalVendorsInput = {
@@ -23005,11 +28030,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetItemUpsertWithoutExternalVendorInput = {
@@ -23055,11 +28089,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeddingInput = {
@@ -23070,11 +28113,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeddingInput = {
@@ -23296,6 +28348,27 @@ export namespace Prisma {
     create: XOR<WeddingInvitationCreateWithoutWeddingInput, WeddingInvitationUncheckedCreateWithoutWeddingInput>
   }
 
+  export type DayPlanShareCreateWithoutWeddingInput = {
+    id?: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grants?: DayPlanShareGrantCreateNestedManyWithoutShareInput
+  }
+
+  export type DayPlanShareUncheckedCreateWithoutWeddingInput = {
+    id?: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutShareInput
+  }
+
+  export type DayPlanShareCreateOrConnectWithoutWeddingInput = {
+    where: DayPlanShareWhereUniqueInput
+    create: XOR<DayPlanShareCreateWithoutWeddingInput, DayPlanShareUncheckedCreateWithoutWeddingInput>
+  }
+
   export type UserUpsertWithoutWeddingInput = {
     update: XOR<UserUpdateWithoutWeddingInput, UserUncheckedUpdateWithoutWeddingInput>
     create: XOR<UserCreateWithoutWeddingInput, UserUncheckedCreateWithoutWeddingInput>
@@ -23315,11 +28388,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeddingInput = {
@@ -23330,11 +28412,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingMemberUpsertWithWhereUniqueWithoutWeddingInput = {
@@ -23555,6 +28646,361 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DayPlanShareUpsertWithoutWeddingInput = {
+    update: XOR<DayPlanShareUpdateWithoutWeddingInput, DayPlanShareUncheckedUpdateWithoutWeddingInput>
+    create: XOR<DayPlanShareCreateWithoutWeddingInput, DayPlanShareUncheckedCreateWithoutWeddingInput>
+    where?: DayPlanShareWhereInput
+  }
+
+  export type DayPlanShareUpdateToOneWithWhereWithoutWeddingInput = {
+    where?: DayPlanShareWhereInput
+    data: XOR<DayPlanShareUpdateWithoutWeddingInput, DayPlanShareUncheckedUpdateWithoutWeddingInput>
+  }
+
+  export type DayPlanShareUpdateWithoutWeddingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grants?: DayPlanShareGrantUpdateManyWithoutShareNestedInput
+  }
+
+  export type DayPlanShareUncheckedUpdateWithoutWeddingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grants?: DayPlanShareGrantUncheckedUpdateManyWithoutShareNestedInput
+  }
+
+  export type WeddingCreateWithoutDayPlanShareInput = {
+    id?: string
+    date: Date | string
+    city: string
+    guests: number
+    budget: number
+    partnerOneName?: string
+    partnerTwoName?: string
+    couplePhotoUrl?: string | null
+    planningStage?: string
+    cityUndecided?: boolean
+    guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
+    vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
+    user: UserCreateNestedOneWithoutWeddingInput
+    members?: WeddingMemberCreateNestedManyWithoutWeddingInput
+    invites?: WeddingInviteCreateNestedManyWithoutWeddingInput
+    tasks?: TaskCreateNestedManyWithoutWeddingInput
+    guestList?: GuestCreateNestedManyWithoutWeddingInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+  }
+
+  export type WeddingUncheckedCreateWithoutDayPlanShareInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    city: string
+    guests: number
+    budget: number
+    partnerOneName?: string
+    partnerTwoName?: string
+    couplePhotoUrl?: string | null
+    planningStage?: string
+    cityUndecided?: boolean
+    guestsUndecided?: boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
+    vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
+    members?: WeddingMemberUncheckedCreateNestedManyWithoutWeddingInput
+    invites?: WeddingInviteUncheckedCreateNestedManyWithoutWeddingInput
+    tasks?: TaskUncheckedCreateNestedManyWithoutWeddingInput
+    guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
+    website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+  }
+
+  export type WeddingCreateOrConnectWithoutDayPlanShareInput = {
+    where: WeddingWhereUniqueInput
+    create: XOR<WeddingCreateWithoutDayPlanShareInput, WeddingUncheckedCreateWithoutDayPlanShareInput>
+  }
+
+  export type DayPlanShareGrantCreateWithoutShareInput = {
+    id?: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutDayPlanShareGrantsInput
+  }
+
+  export type DayPlanShareGrantUncheckedCreateWithoutShareInput = {
+    id?: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    userId?: string | null
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DayPlanShareGrantCreateOrConnectWithoutShareInput = {
+    where: DayPlanShareGrantWhereUniqueInput
+    create: XOR<DayPlanShareGrantCreateWithoutShareInput, DayPlanShareGrantUncheckedCreateWithoutShareInput>
+  }
+
+  export type DayPlanShareGrantCreateManyShareInputEnvelope = {
+    data: DayPlanShareGrantCreateManyShareInput | DayPlanShareGrantCreateManyShareInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WeddingUpsertWithoutDayPlanShareInput = {
+    update: XOR<WeddingUpdateWithoutDayPlanShareInput, WeddingUncheckedUpdateWithoutDayPlanShareInput>
+    create: XOR<WeddingCreateWithoutDayPlanShareInput, WeddingUncheckedCreateWithoutDayPlanShareInput>
+    where?: WeddingWhereInput
+  }
+
+  export type WeddingUpdateToOneWithWhereWithoutDayPlanShareInput = {
+    where?: WeddingWhereInput
+    data: XOR<WeddingUpdateWithoutDayPlanShareInput, WeddingUncheckedUpdateWithoutDayPlanShareInput>
+  }
+
+  export type WeddingUpdateWithoutDayPlanShareInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    city?: StringFieldUpdateOperationsInput | string
+    guests?: IntFieldUpdateOperationsInput | number
+    budget?: IntFieldUpdateOperationsInput | number
+    partnerOneName?: StringFieldUpdateOperationsInput | string
+    partnerTwoName?: StringFieldUpdateOperationsInput | string
+    couplePhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    planningStage?: StringFieldUpdateOperationsInput | string
+    cityUndecided?: BoolFieldUpdateOperationsInput | boolean
+    guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
+    vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
+    user?: UserUpdateOneRequiredWithoutWeddingNestedInput
+    members?: WeddingMemberUpdateManyWithoutWeddingNestedInput
+    invites?: WeddingInviteUpdateManyWithoutWeddingNestedInput
+    tasks?: TaskUpdateManyWithoutWeddingNestedInput
+    guestList?: GuestUpdateManyWithoutWeddingNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+  }
+
+  export type WeddingUncheckedUpdateWithoutDayPlanShareInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    city?: StringFieldUpdateOperationsInput | string
+    guests?: IntFieldUpdateOperationsInput | number
+    budget?: IntFieldUpdateOperationsInput | number
+    partnerOneName?: StringFieldUpdateOperationsInput | string
+    partnerTwoName?: StringFieldUpdateOperationsInput | string
+    couplePhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    planningStage?: StringFieldUpdateOperationsInput | string
+    cityUndecided?: BoolFieldUpdateOperationsInput | boolean
+    guestsUndecided?: BoolFieldUpdateOperationsInput | boolean
+    dayPlan?: NullableJsonNullValueInput | InputJsonValue
+    vendorPlan?: NullableJsonNullValueInput | InputJsonValue
+    seatingDraft?: NullableJsonNullValueInput | InputJsonValue
+    seatingPlan?: NullableJsonNullValueInput | InputJsonValue
+    members?: WeddingMemberUncheckedUpdateManyWithoutWeddingNestedInput
+    invites?: WeddingInviteUncheckedUpdateManyWithoutWeddingNestedInput
+    tasks?: TaskUncheckedUpdateManyWithoutWeddingNestedInput
+    guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
+    website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+  }
+
+  export type DayPlanShareGrantUpsertWithWhereUniqueWithoutShareInput = {
+    where: DayPlanShareGrantWhereUniqueInput
+    update: XOR<DayPlanShareGrantUpdateWithoutShareInput, DayPlanShareGrantUncheckedUpdateWithoutShareInput>
+    create: XOR<DayPlanShareGrantCreateWithoutShareInput, DayPlanShareGrantUncheckedCreateWithoutShareInput>
+  }
+
+  export type DayPlanShareGrantUpdateWithWhereUniqueWithoutShareInput = {
+    where: DayPlanShareGrantWhereUniqueInput
+    data: XOR<DayPlanShareGrantUpdateWithoutShareInput, DayPlanShareGrantUncheckedUpdateWithoutShareInput>
+  }
+
+  export type DayPlanShareGrantUpdateManyWithWhereWithoutShareInput = {
+    where: DayPlanShareGrantScalarWhereInput
+    data: XOR<DayPlanShareGrantUpdateManyMutationInput, DayPlanShareGrantUncheckedUpdateManyWithoutShareInput>
+  }
+
+  export type DayPlanShareCreateWithoutGrantsInput = {
+    id?: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    wedding: WeddingCreateNestedOneWithoutDayPlanShareInput
+  }
+
+  export type DayPlanShareUncheckedCreateWithoutGrantsInput = {
+    id?: string
+    weddingId: string
+    token?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DayPlanShareCreateOrConnectWithoutGrantsInput = {
+    where: DayPlanShareWhereUniqueInput
+    create: XOR<DayPlanShareCreateWithoutGrantsInput, DayPlanShareUncheckedCreateWithoutGrantsInput>
+  }
+
+  export type UserCreateWithoutDayPlanShareGrantsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
+    createdAt?: Date | string
+    lastLoginAt?: Date | string | null
+    wedding?: WeddingCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
+    externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutDayPlanShareGrantsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
+    createdAt?: Date | string
+    lastLoginAt?: Date | string | null
+    wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
+    externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutDayPlanShareGrantsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDayPlanShareGrantsInput, UserUncheckedCreateWithoutDayPlanShareGrantsInput>
+  }
+
+  export type DayPlanShareUpsertWithoutGrantsInput = {
+    update: XOR<DayPlanShareUpdateWithoutGrantsInput, DayPlanShareUncheckedUpdateWithoutGrantsInput>
+    create: XOR<DayPlanShareCreateWithoutGrantsInput, DayPlanShareUncheckedCreateWithoutGrantsInput>
+    where?: DayPlanShareWhereInput
+  }
+
+  export type DayPlanShareUpdateToOneWithWhereWithoutGrantsInput = {
+    where?: DayPlanShareWhereInput
+    data: XOR<DayPlanShareUpdateWithoutGrantsInput, DayPlanShareUncheckedUpdateWithoutGrantsInput>
+  }
+
+  export type DayPlanShareUpdateWithoutGrantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    wedding?: WeddingUpdateOneRequiredWithoutDayPlanShareNestedInput
+  }
+
+  export type DayPlanShareUncheckedUpdateWithoutGrantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weddingId?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutDayPlanShareGrantsInput = {
+    update: XOR<UserUpdateWithoutDayPlanShareGrantsInput, UserUncheckedUpdateWithoutDayPlanShareGrantsInput>
+    create: XOR<UserCreateWithoutDayPlanShareGrantsInput, UserUncheckedCreateWithoutDayPlanShareGrantsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDayPlanShareGrantsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDayPlanShareGrantsInput, UserUncheckedUpdateWithoutDayPlanShareGrantsInput>
+  }
+
+  export type UserUpdateWithoutDayPlanShareGrantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wedding?: WeddingUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
+    externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDayPlanShareGrantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
+    externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type WeddingCreateWithoutWebsiteInput = {
     id?: string
     date: Date | string
@@ -23578,6 +29024,7 @@ export namespace Prisma {
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutWebsiteInput = {
@@ -23603,6 +29050,7 @@ export namespace Prisma {
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutWebsiteInput = {
@@ -23644,6 +29092,7 @@ export namespace Prisma {
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutWebsiteInput = {
@@ -23669,6 +29118,7 @@ export namespace Prisma {
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutInvitationInput = {
@@ -23694,6 +29144,7 @@ export namespace Prisma {
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutInvitationInput = {
@@ -23719,6 +29170,7 @@ export namespace Prisma {
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutInvitationInput = {
@@ -23760,6 +29212,7 @@ export namespace Prisma {
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutInvitationInput = {
@@ -23785,6 +29238,7 @@ export namespace Prisma {
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutMembersInput = {
@@ -23810,6 +29264,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutMembersInput = {
@@ -23835,6 +29290,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutMembersInput = {
@@ -23850,11 +29306,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeddingMemberInput = {
@@ -23865,11 +29330,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeddingMemberInput = {
@@ -23911,6 +29385,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutMembersInput = {
@@ -23936,6 +29411,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type UserUpsertWithoutWeddingMemberInput = {
@@ -23957,11 +29433,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeddingMemberInput = {
@@ -23972,11 +29457,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingCreateWithoutInvitesInput = {
@@ -24002,6 +29496,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutInvitesInput = {
@@ -24027,6 +29522,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutInvitesInput = {
@@ -24068,6 +29564,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutInvitesInput = {
@@ -24093,6 +29590,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutTasksInput = {
@@ -24118,6 +29616,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutTasksInput = {
@@ -24143,6 +29642,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutTasksInput = {
@@ -24184,6 +29684,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutTasksInput = {
@@ -24209,6 +29710,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutGuestListInput = {
@@ -24234,6 +29736,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutGuestListInput = {
@@ -24259,6 +29762,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutGuestListInput = {
@@ -24300,6 +29804,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutGuestListInput = {
@@ -24325,6 +29830,7 @@ export namespace Prisma {
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingCreateWithoutBudgetItemsInput = {
@@ -24350,6 +29856,7 @@ export namespace Prisma {
     guestList?: GuestCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingUncheckedCreateWithoutBudgetItemsInput = {
@@ -24375,6 +29882,7 @@ export namespace Prisma {
     guestList?: GuestUncheckedCreateNestedManyWithoutWeddingInput
     website?: WeddingWebsiteUncheckedCreateNestedOneWithoutWeddingInput
     invitation?: WeddingInvitationUncheckedCreateNestedOneWithoutWeddingInput
+    dayPlanShare?: DayPlanShareUncheckedCreateNestedOneWithoutWeddingInput
   }
 
   export type WeddingCreateOrConnectWithoutBudgetItemsInput = {
@@ -24451,6 +29959,7 @@ export namespace Prisma {
     guestList?: GuestUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUpdateOneWithoutWeddingNestedInput
   }
 
   export type WeddingUncheckedUpdateWithoutBudgetItemsInput = {
@@ -24476,6 +29985,7 @@ export namespace Prisma {
     guestList?: GuestUncheckedUpdateManyWithoutWeddingNestedInput
     website?: WeddingWebsiteUncheckedUpdateOneWithoutWeddingNestedInput
     invitation?: WeddingInvitationUncheckedUpdateOneWithoutWeddingNestedInput
+    dayPlanShare?: DayPlanShareUncheckedUpdateOneWithoutWeddingNestedInput
   }
 
   export type ExternalVendorUpsertWithoutBudgetItemInput = {
@@ -24618,11 +30128,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContentPostsInput = {
@@ -24633,11 +30152,20 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
     createdAt?: Date | string
+    lastLoginAt?: Date | string | null
     wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
     weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
     externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContentPostsInput = {
@@ -24695,11 +30223,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContentPostsInput = {
@@ -24710,11 +30247,20 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
     weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
     externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ExternalVendorCreateManyUserInput = {
@@ -24757,6 +30303,24 @@ export namespace Prisma {
     platform?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type AdminUserNoteCreateManyUserInput = {
+    id?: string
+    body: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DayPlanShareGrantCreateManyUserInput = {
+    id?: string
+    shareId: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type ExternalVendorUpdateWithoutUserInput = {
@@ -24885,6 +30449,60 @@ export namespace Prisma {
     platform?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminUserNoteUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminUserNoteUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminUserNoteUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    share?: DayPlanShareUpdateOneRequiredWithoutGrantsNestedInput
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shareId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shareId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WeddingMemberCreateManyWeddingInput = {
@@ -25116,6 +30734,50 @@ export namespace Prisma {
     paid?: BoolFieldUpdateOperationsInput | boolean
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     externalVendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantCreateManyShareInput = {
+    id?: string
+    email: string
+    name: string
+    access?: $Enums.DayPlanShareAccess
+    userId?: string | null
+    inviteToken?: string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DayPlanShareGrantUpdateWithoutShareInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutDayPlanShareGrantsNestedInput
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateWithoutShareInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DayPlanShareGrantUncheckedUpdateManyWithoutShareInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    access?: EnumDayPlanShareAccessFieldUpdateOperationsInput | $Enums.DayPlanShareAccess
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteToken?: StringFieldUpdateOperationsInput | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

@@ -13,7 +13,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UploadsController = void 0;
-const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const client_1 = require("@prisma/client");
@@ -75,7 +74,6 @@ __decorate([
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: MAX_BYTES },
     })),
-    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -83,7 +81,6 @@ __decorate([
 ], UploadsController.prototype, "upload", null);
 __decorate([
     (0, common_1.Get)('files/:filename'),
-    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('filename')),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),

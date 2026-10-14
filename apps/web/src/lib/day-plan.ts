@@ -7,23 +7,6 @@ export type DayPlanEvent = {
   durationMin: number;
 };
 
-export type DayPlanAccessLevel = "view" | "edit";
-
-export type DayPlanSharePerson = {
-  id: string;
-  name: string;
-  email?: string;
-  access: DayPlanAccessLevel;
-};
-
-export const DAY_PLAN_ACCESS_OPTIONS: {
-  value: DayPlanAccessLevel;
-  label: string;
-}[] = [
-  { value: "view", label: "Може переглядати" },
-  { value: "edit", label: "Може редагувати" },
-];
-
 export const DAY_PLAN_DURATION_OPTIONS = [
   15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300, 360,
 ] as const;
@@ -71,6 +54,65 @@ export function formatDayPlanDate(date: string | null | undefined) {
 
 export function sortDayPlanEvents(events: DayPlanEvent[]) {
   return [...events].sort((a, b) => a.time.localeCompare(b.time));
+}
+
+/** "08:45" → хвилини від півночі. Невалідне → 0. */
+export function parseDayPlanTime(time: string): number {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(time.trim());
+  if (!match) return 0;
+  const h = Number(match[1]);
+  const m = Number(match[2]);
+  if (!Number.isFinite(h) || !Number.isFinite(m) || m < 0 || m > 59) return 0;
+  return ((Math.max(0, h) * 60 + m) % (24 * 60) + 24 * 60) % (24 * 60);
+}
+
+export function formatDayPlanTime(totalMinutes: number): string {
+  const normalized =
+    ((Math.round(totalMinutes) % (24 * 60)) + 24 * 60) % (24 * 60);
+  const h = Math.floor(normalized / 60);
+  const m = normalized % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/**
+ * Ланцюжок без дірок: перша подія стартує в `startTime`,
+ * наступні — одразу після кінця попередньої.
+ */
+export function rechainDayPlanTimes(
+  events: DayPlanEvent[],
+  startTime: string,
+): DayPlanEvent[] {
+  let cursor = parseDayPlanTime(startTime);
+  return events.map((event) => {
+    const time = formatDayPlanTime(cursor);
+    cursor += Math.max(0, event.durationMin);
+    return { ...event, time };
+  });
+}
+
+/**
+ * Переставити подію і перерахувати часи від старту розкладу
+ * (час першої події до перестановки лишається якорем дня).
+ */
+export function reorderDayPlanEvents(
+  events: DayPlanEvent[],
+  fromIndex: number,
+  toIndex: number,
+): DayPlanEvent[] {
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= events.length ||
+    toIndex >= events.length
+  ) {
+    return events;
+  }
+  const next = [...events];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  const anchor = events[0]?.time ?? "08:00";
+  return rechainDayPlanTimes(next, anchor);
 }
 
 export function formatDayPlanShareText(
@@ -210,63 +252,4 @@ export async function saveDayPlanRemote(
   } catch {
     saveDayPlan(weddingId, sorted);
   }
-}
-
-export function dayPlanShareStorageKey(weddingId: string) {
-  return `fata-day-plan-share:v1:${weddingId}`;
-}
-
-function isAccessLevel(value: unknown): value is DayPlanAccessLevel {
-  return value === "view" || value === "edit";
-}
-
-export function loadDayPlanShare(
-  weddingId: string,
-  partners: { name: string; email?: string }[] = [],
-): DayPlanSharePerson[] {
-  try {
-    const raw = localStorage.getItem(dayPlanShareStorageKey(weddingId));
-    if (raw) {
-      const parsed = JSON.parse(raw) as DayPlanSharePerson[];
-      if (Array.isArray(parsed)) {
-        return parsed.filter(
-          (p) =>
-            p &&
-            typeof p.id === "string" &&
-            typeof p.name === "string" &&
-            isAccessLevel(p.access),
-        );
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-
-  return partners
-    .map((p) => p.name.trim())
-    .filter(Boolean)
-    .map((name, index) => ({
-      id: `partner-${index}`,
-      name,
-      access: (index === 0 ? "edit" : "view") as DayPlanAccessLevel,
-    }));
-}
-
-export function saveDayPlanShare(
-  weddingId: string,
-  people: DayPlanSharePerson[],
-) {
-  try {
-    localStorage.setItem(
-      dayPlanShareStorageKey(weddingId),
-      JSON.stringify(people),
-    );
-  } catch {
-    /* ignore */
-  }
-}
-
-export function dayPlanShareUrl(weddingId: string) {
-  if (typeof window === "undefined") return `/day-plan?share=${weddingId}`;
-  return `${window.location.origin}/day-plan?share=${encodeURIComponent(weddingId)}`;
 }

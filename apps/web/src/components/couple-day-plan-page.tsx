@@ -19,14 +19,17 @@ import { useAuthStore } from "@/lib/auth-store";
 import { getMyWedding } from "@/lib/dashboard-api";
 import {
   formatDayPlanDate,
-  loadDayPlanShare,
   loadDayPlanWithMigration,
+  reorderDayPlanEvents,
   saveDayPlanRemote,
-  saveDayPlanShare,
   sortDayPlanEvents,
   type DayPlanEvent,
-  type DayPlanSharePerson,
 } from "@/lib/day-plan";
+import {
+  fetchDayPlanShare,
+  type DayPlanSharePerson,
+  type DayPlanShareState,
+} from "@/lib/day-plan-share-api";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
@@ -49,7 +52,8 @@ function DayPlanInner() {
   const [weddingId, setWeddingId] = useState<string | null>(null);
   const [weddingDate, setWeddingDate] = useState<string | null>(null);
   const [events, setEvents] = useState<DayPlanEvent[]>([]);
-  const [sharePeople, setSharePeople] = useState<DayPlanSharePerson[]>([]);
+  const [share, setShare] = useState<DayPlanShareState | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [partnerInitials, setPartnerInitials] = useState("П");
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
@@ -64,17 +68,11 @@ function DayPlanInner() {
         if (!wedding) {
           setWeddingId(null);
           setEvents([]);
-          setSharePeople([]);
           return;
         }
         setWeddingId(wedding.id);
         setWeddingDate(wedding.date);
         setEvents(await loadDayPlanWithMigration(wedding.id));
-
-        const partners = [wedding.partnerOneName, wedding.partnerTwoName]
-          .map((name) => ({ name: name?.trim() || "" }))
-          .filter((p) => p.name);
-        setSharePeople(loadDayPlanShare(wedding.id, partners));
 
         const oneRaw =
           wedding.partnerOneName?.trim() || user?.name?.trim() || "";
@@ -85,7 +83,6 @@ function DayPlanInner() {
       } catch {
         setWeddingId(null);
         setEvents([]);
-        setSharePeople([]);
       } finally {
         setLoading(false);
       }
@@ -102,9 +99,28 @@ function DayPlanInner() {
     if (weddingId) void saveDayPlanRemote(weddingId, sorted);
   }
 
-  function persistShare(next: DayPlanSharePerson[]) {
-    setSharePeople(next);
-    if (weddingId) saveDayPlanShare(weddingId, next);
+  async function openShare() {
+    if (!weddingId || shareLoading) return;
+    if (share) {
+      setShareOpen(true);
+      return;
+    }
+    setShareLoading(true);
+    try {
+      const next = await fetchDayPlanShare();
+      setShare(next);
+      setShareOpen(true);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Не вдалося відкрити доступ",
+      );
+    } finally {
+      setShareLoading(false);
+    }
+  }
+
+  function onShareChange(next: DayPlanShareState) {
+    setShare(next);
   }
 
   function openCreate() {
@@ -158,11 +174,16 @@ function DayPlanInner() {
     setDeleteTarget(null);
   }
 
+  function onReorder(fromIndex: number, toIndex: number) {
+    persist(reorderDayPlanEvents(events, fromIndex, toIndex));
+  }
+
   if (loading) {
     return <PageLoader label="Завантажуємо план дня…" />;
   }
 
   const dateLabel = formatDayPlanDate(weddingDate);
+  const sharePeople: DayPlanSharePerson[] = share?.people ?? [];
 
   return (
     <div className="cabinet-tasks-page cabinet-day-plan-page">
@@ -188,7 +209,7 @@ function DayPlanInner() {
           tone="ghost"
           size="s"
           className="cabinet-day-plan-mobile-share"
-          onClick={() => setShareOpen(true)}
+          onClick={() => void openShare()}
           disabled={!weddingId}
         >
           <IconDayPlanShare size={16} />
@@ -214,7 +235,7 @@ function DayPlanInner() {
             tone="ghost"
             size="m"
             className="cabinet-day-plan-share-btn"
-            onClick={() => setShareOpen(true)}
+            onClick={() => void openShare()}
             disabled={!weddingId}
           >
             <IconDayPlanShare />
@@ -228,6 +249,7 @@ function DayPlanInner() {
           events={events}
           onEdit={openEdit}
           onDelete={setDeleteTarget}
+          onReorder={onReorder}
         />
       ) : (
         <div className="cabinet-day-plan-empty">
@@ -274,12 +296,12 @@ function DayPlanInner() {
         />
       ) : null}
 
-      {shareOpen && weddingId ? (
+      {shareOpen && share && !shareLoading ? (
         <DayPlanShareModal
-          weddingId={weddingId}
+          shareToken={share.token}
           people={sharePeople}
           onClose={() => setShareOpen(false)}
-          onChangePeople={persistShare}
+          onShareChange={onShareChange}
         />
       ) : null}
 

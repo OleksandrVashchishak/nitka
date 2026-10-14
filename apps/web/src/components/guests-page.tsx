@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { IconAddCircle, IconQuickAdd } from "@/components/cabinet-task-icons";
@@ -18,10 +18,12 @@ import {
   CabinetContextMenuItem,
   CabinetContextMenuLabel,
 } from "@/components/cabinet-context-menu";
+import { IconBaby } from "@/components/icon-baby";
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
 import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
+import { GuestsImportCsvModal } from "@/components/guests-import-csv-modal";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import {
   ResponsibleAvatar,
@@ -33,6 +35,7 @@ import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { TextInput } from "@/components/ui/text-input";
 import {
   createGuest,
@@ -64,6 +67,7 @@ import {
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
 import "@/styles/cabinet/cabinet.scss";
+import "@/styles/cabinet/guests.scss";
 
 type SideFilter = "all" | "BRIDE" | "GROOM";
 type InviteFilter = "all" | "not_invited" | "invited";
@@ -211,7 +215,7 @@ function GuestsInner() {
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Guest | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -553,7 +557,7 @@ function GuestsInner() {
     }
   }
 
-  async function onImportCsv(file: File) {
+  async function onImportCsv(file: File): Promise<boolean> {
     const text = await file.text();
     const lines = text
       .split(/\r?\n/)
@@ -583,7 +587,7 @@ function GuestsInner() {
 
     if (rows.length === 0) {
       toast.error("У CSV немає рядків з іменами");
-      return;
+      return false;
     }
 
     setBusy(true);
@@ -591,8 +595,10 @@ function GuestsInner() {
       await importGuests(rows);
       await load();
       toast.success("Імпортовано", `${rows.length} гостей`);
+      return true;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Імпорт не вдався");
+      return false;
     } finally {
       setBusy(false);
     }
@@ -698,7 +704,7 @@ function GuestsInner() {
                 tone="ghost"
                 size="m"
                 className="cabinet-guests-import-btn"
-                onClick={() => fileRef.current?.click()}
+                onClick={() => setImportOpen(true)}
                 disabled={busy}
               >
                 Імпорт CSV
@@ -717,19 +723,7 @@ function GuestsInner() {
               ) : null}
             </>
           }
-        >
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".csv,text/csv"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void onImportCsv(file);
-              e.target.value = "";
-            }}
-          />
-        </CabinetEmptyState>
+        />
       ) : (
         <>
           <CabinetMobileFiltersBar
@@ -862,22 +856,11 @@ function GuestsInner() {
                     tone="ghost"
                     size="m"
                     className="cabinet-guests-import-btn"
-                    onClick={() => fileRef.current?.click()}
+                    onClick={() => setImportOpen(true)}
                     disabled={busy}
                   >
                     Імпорт CSV
                   </Button>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept=".csv,text/csv"
-                    hidden
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void onImportCsv(file);
-                      e.target.value = "";
-                    }}
-                  />
                 </div>
               </div>
 
@@ -908,7 +891,7 @@ function GuestsInner() {
                                 title="Є дитина в партії"
                                 aria-label="Є дитина в партії"
                               >
-                                O
+                                <IconBaby />
                               </span>
                             ) : null}
                           </p>
@@ -1177,30 +1160,49 @@ function GuestsInner() {
                       </button>
                     </div>
                     {row.isChild ? (
-                      <div
-                        className="cabinet-guests-child-needs"
-                        role="group"
-                        aria-label="Потрібне для дитини"
-                      >
-                        {CHILD_NEED_OPTIONS.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            className={
-                              row.childNeed === item.id
-                                ? "is-active"
-                                : undefined
-                            }
-                            onClick={() =>
-                              updateCompanion(row.key, {
-                                childNeed: item.id,
-                              })
-                            }
-                          >
-                            {item.label}
-                          </button>
-                        ))}
-                      </div>
+                      <>
+                        <div
+                          className="cabinet-guests-child-needs"
+                          role="group"
+                          aria-label="Потрібне для дитини"
+                        >
+                          {CHILD_NEED_OPTIONS.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={
+                                row.childNeed === item.id
+                                  ? "is-active"
+                                  : undefined
+                              }
+                              onClick={() =>
+                                updateCompanion(row.key, {
+                                  childNeed: item.id,
+                                })
+                              }
+                            >
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+                        <Select
+                          className="cabinet-guests-child-need-select"
+                          label="Посадка дитини"
+                          value={row.childNeed ?? "with_parents"}
+                          aria-label={`Посадка дитини +1 ${index + 1}`}
+                          onChange={(e) =>
+                            updateCompanion(row.key, {
+                              childNeed: e.target.value as ChildNeed,
+                            })
+                          }
+                        >
+                          {CHILD_NEED_OPTIONS.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </Select>
+                      </>
                     ) : null}
                   </div>
                 ))}
@@ -1253,18 +1255,28 @@ function GuestsInner() {
                     ))}
                   </div>
                 </Field>
-                <TextInput
-                  label={contactLabel(method)}
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder={
-                    method === "telegram"
-                      ? "Наприклад: +38095 437 62 34 або @imya_korystuvacha"
-                      : method === "email"
-                        ? "email@example.com"
-                        : "+380"
-                  }
-                />
+                {method === "phone" ||
+                method === "viber" ||
+                method === "messenger" ? (
+                  <PhoneInput
+                    label={contactLabel(method)}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                ) : (
+                  <TextInput
+                    label={contactLabel(method)}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder={
+                      method === "telegram"
+                        ? "Наприклад: +38095 437 62 34 або @imya_korystuvacha"
+                        : method === "email"
+                          ? "email@example.com"
+                          : "+380"
+                    }
+                  />
+                )}
                 <Select
                   label="Статус"
                   value={inviteStatus}
@@ -1333,6 +1345,14 @@ function GuestsInner() {
                 </Field>
               </div>
       </CabinetOverlay>
+
+      {importOpen ? (
+        <GuestsImportCsvModal
+          busy={busy}
+          onClose={() => setImportOpen(false)}
+          onImport={onImportCsv}
+        />
+      ) : null}
 
       <DeleteConfirmModal
         open={Boolean(deleteTarget)}

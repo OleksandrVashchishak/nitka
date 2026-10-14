@@ -16,12 +16,14 @@ import { EmailModule } from './email/email.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { SeatingModule } from './seating/seating.module';
 import { DayPlanModule } from './day-plan/day-plan.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
     PrismaModule,
     EmailModule,
     AuthModule,
+    AdminModule,
     WeddingsModule,
     VendorsModule,
     GuestsModule,

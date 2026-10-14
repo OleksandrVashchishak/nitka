@@ -129,7 +129,22 @@ exports.Prisma.UserScalarFieldEnum = {
   role: 'role',
   blocked: 'blocked',
   refreshTokenHash: 'refreshTokenHash',
-  createdAt: 'createdAt'
+  notifGuestRsvp: 'notifGuestRsvp',
+  notifUpcomingPayments: 'notifUpcomingPayments',
+  notifTaskDeadlines: 'notifTaskDeadlines',
+  notifPartnerChanges: 'notifPartnerChanges',
+  notifPush: 'notifPush',
+  notifEmail: 'notifEmail',
+  createdAt: 'createdAt',
+  lastLoginAt: 'lastLoginAt'
+};
+
+exports.Prisma.AdminUserNoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.PushDeviceScalarFieldEnum = {
@@ -173,6 +188,26 @@ exports.Prisma.WeddingScalarFieldEnum = {
   vendorPlan: 'vendorPlan',
   seatingDraft: 'seatingDraft',
   seatingPlan: 'seatingPlan'
+};
+
+exports.Prisma.DayPlanShareScalarFieldEnum = {
+  id: 'id',
+  weddingId: 'weddingId',
+  token: 'token',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DayPlanShareGrantScalarFieldEnum = {
+  id: 'id',
+  shareId: 'shareId',
+  email: 'email',
+  name: 'name',
+  access: 'access',
+  userId: 'userId',
+  inviteToken: 'inviteToken',
+  acceptedAt: 'acceptedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.WeddingWebsiteScalarFieldEnum = {
@@ -332,6 +367,11 @@ exports.VendorPipelineStage = exports.$Enums.VendorPipelineStage = {
   CHOSEN: 'CHOSEN'
 };
 
+exports.DayPlanShareAccess = exports.$Enums.DayPlanShareAccess = {
+  VIEW: 'VIEW',
+  EDIT: 'EDIT'
+};
+
 exports.WeddingMemberRole = exports.$Enums.WeddingMemberRole = {
   OWNER: 'OWNER',
   PARTNER: 'PARTNER'
@@ -371,9 +411,12 @@ exports.ContentStatus = exports.$Enums.ContentStatus = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  AdminUserNote: 'AdminUserNote',
   PushDevice: 'PushDevice',
   ExternalVendor: 'ExternalVendor',
   Wedding: 'Wedding',
+  DayPlanShare: 'DayPlanShare',
+  DayPlanShareGrant: 'DayPlanShareGrant',
   WeddingWebsite: 'WeddingWebsite',
   WeddingInvitation: 'WeddingInvitation',
   WeddingMember: 'WeddingMember',

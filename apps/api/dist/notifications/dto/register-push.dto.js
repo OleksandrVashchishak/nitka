@@ -10,12 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterPushDto = void 0;
-const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class RegisterPushDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { token: { required: true, type: () => String, minLength: 8 }, platform: { required: false, type: () => String } };
-    }
 }
 exports.RegisterPushDto = RegisterPushDto;
 __decorate([

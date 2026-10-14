@@ -543,7 +543,12 @@
   color: #1a1a1a;
   cursor: pointer;
 
-  &:hover {
+  &:disabled {
+    opacity: 0.45;
+    cursor: wait;
+  }
+
+  &:hover:not(:disabled) {
     background: rgb(26 26 26 / 0.06);
   }
 }

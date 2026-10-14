@@ -4,15 +4,44 @@ export type InspirationBoard = {
   images: string[];
 };
 
+/** Lightweight starter photos so empty boards don't feel dead. */
 export const DEFAULT_INSPIRATION_BOARDS: InspirationBoard[] = [
-  { id: "bouquets", title: "Букети", images: [] },
-  { id: "tables", title: "Столи", images: [] },
-  { id: "arch", title: "Арка", images: [] },
-  { id: "other", title: "Інше", images: [] },
+  {
+    id: "bouquets",
+    title: "Букети",
+    images: [
+      "/landing/prefooter/footer-placeholder-2.jpg",
+      "/landing/prefooter/footer-placeholder-7.jpg",
+    ],
+  },
+  {
+    id: "tables",
+    title: "Столи",
+    images: [
+      "/landing/prefooter/footer-placeholder-4.jpg",
+      "/landing/feat-3.jpg",
+    ],
+  },
+  {
+    id: "arch",
+    title: "Арка",
+    images: [
+      "/wedding-site/story.jpg",
+      "/landing/prefooter/footer-placeholder-3.jpg",
+    ],
+  },
+  {
+    id: "other",
+    title: "Інше",
+    images: [
+      "/landing/hero-photo.jpg",
+      "/landing/prefooter/footer-placeholder-11.jpg",
+    ],
+  },
 ];
 
 export function inspirationBoardsStorageKey(weddingId: string) {
-  return `fata-inspiration-boards:v2:${weddingId}`;
+  return `fata-inspiration-boards:v3:${weddingId}`;
 }
 
 export function imageCountLabel(count: number) {

@@ -38,6 +38,10 @@ import {
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
+import {
+  runSettingsExport,
+  type SettingsExportId,
+} from "@/lib/settings-export";
 import { toast } from "@/lib/toast";
 import "@/styles/cabinet/cabinet.scss";
 import "@/styles/cabinet/settings.scss";
@@ -192,6 +196,7 @@ function CoupleSettingsInner() {
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [exportBusy, setExportBusy] = useState<SettingsExportId | null>(null);
 
   useEffect(() => {
     const next = parseSettingsTab(searchParams.get("tab"));
@@ -440,14 +445,37 @@ function CoupleSettingsInner() {
     try {
       const saved = await updateNotificationPrefs(patch);
       setNotifPrefs(saved);
-    } catch (err) {
+    } catch {
+      // toast уже з apiFetch на mutation error
       setNotifPrefs(prev);
-      toast.error(err instanceof Error ? err.message : "Не збережено");
     }
   }
 
-  function onExport(id: string) {
-    toast.info("Експорт", `Завантаження «${id}» скоро підключимо`);
+  async function onExport(id: string) {
+    if (exportBusy) return;
+    const exportId = id as SettingsExportId;
+    if (exportId !== "guests" && exportId !== "budget" && exportId !== "dayplan") {
+      return;
+    }
+    setExportBusy(exportId);
+    try {
+      const count = await runSettingsExport(exportId);
+      const labels: Record<SettingsExportId, string> = {
+        guests: "Гості (CSV)",
+        budget: "Бюджет (XLS)",
+        dayplan: "План дня (PDF)",
+      };
+      toast.success(
+        "Завантажено",
+        count > 0
+          ? `${labels[exportId]} · ${count}`
+          : `${labels[exportId]} (порожньо)`,
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Експорт не вдався");
+    } finally {
+      setExportBusy(null);
+    }
   }
 
   function onDeleteAccount() {
@@ -541,8 +569,9 @@ function CoupleSettingsInner() {
         {tab === "security" ? (
           <SettingsSecurityPanel
             sessions={sessions}
+            exportBusyId={exportBusy}
             onRevokeSession={() => void onRevokeSession()}
-            onExport={onExport}
+            onExport={(id) => void onExport(id)}
             onDeleteAccount={onDeleteAccount}
           />
         ) : null}

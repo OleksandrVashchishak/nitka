@@ -130,6 +130,8 @@ function cmdSetup() {
       "PUBLIC_API_URL=http://localhost:3001",
       "WEB_APP_URL=http://localhost:3000",
       "EMAIL_LOG=1",
+      "SUPERADMIN_EMAIL=admin",
+      "SUPERADMIN_PASSWORD=1234",
       "NODE_ENV=development",
       "",
     ].join("\n"),

@@ -45,17 +45,15 @@ export function DayPlanEventModal({ mode, initial, onClose, onSave }: Props) {
       open={open}
       onClose={requestClose}
       title={mode === "edit" ? "Редагувати подію" : "Додати подію"}
-      variant="modal"
+      variant="drawer"
       width={480}
-      mobileVariant="fullscreen"
-      panelClassName="cabinet-day-plan-modal"
-      bodyClassName="cabinet-day-plan-modal-body"
-      footerClassName="cabinet-modal-actions cabinet-day-plan-modal-actions"
+      panelClassName="cabinet-day-plan-drawer"
       asForm
       onSubmit={submit}
       footer={
         <CabinetFormActions
           onCancel={requestClose}
+          saveTone="black"
           saveDisabled={!title.trim() || !time}
         />
       }

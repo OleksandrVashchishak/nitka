@@ -1,3 +1,5 @@
 /uploads
 !/uploads/.gitkeep
 *.tsbuildinfo
+# Prisma locks the engine while copying; leftover temp files
+vendored/prisma-client/*.tmp*

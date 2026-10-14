@@ -24,6 +24,7 @@ export default function robots(): MetadataRoute.Robots {
           "/email-confirmed",
           "/verify-email",
           "/register",
+          "/admin",
         ],
       },
     ],

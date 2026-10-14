@@ -20,6 +20,7 @@ export type SettingsExportItem = {
 
 type Props = {
   sessions: SettingsSession[];
+  exportBusyId?: string | null;
   onRevokeSession: (id: string) => void;
   onExport: (id: string) => void;
   onDeleteAccount: () => void;
@@ -33,6 +34,7 @@ const EXPORT_ITEMS: SettingsExportItem[] = [
 
 export function SettingsSecurityPanel({
   sessions,
+  exportBusyId = null,
   onRevokeSession,
   onExport,
   onDeleteAccount,
@@ -84,22 +86,31 @@ export function SettingsSecurityPanel({
           Експорт даних
         </h3>
         <ul className="cabinet-settings-export-list">
-          {EXPORT_ITEMS.map((item) => (
-            <li key={item.id} className="cabinet-settings-export-row">
-              <span className="cabinet-settings-export-icon" aria-hidden>
-                <CabinetNavIcon name={item.icon} size={20} />
-              </span>
-              <span className="cabinet-settings-export-label">{item.label}</span>
-              <button
-                type="button"
-                className="cabinet-settings-export-download"
-                aria-label={`Завантажити ${item.label}`}
-                onClick={() => onExport(item.id)}
-              >
-                <IconDownload size={20} />
-              </button>
-            </li>
-          ))}
+          {EXPORT_ITEMS.map((item) => {
+            const busy = exportBusyId === item.id;
+            return (
+              <li key={item.id} className="cabinet-settings-export-row">
+                <span className="cabinet-settings-export-icon" aria-hidden>
+                  <CabinetNavIcon name={item.icon} size={20} />
+                </span>
+                <span className="cabinet-settings-export-label">{item.label}</span>
+                <button
+                  type="button"
+                  className="cabinet-settings-export-download"
+                  aria-label={
+                    busy
+                      ? `Завантаження ${item.label}`
+                      : `Завантажити ${item.label}`
+                  }
+                  aria-busy={busy}
+                  disabled={Boolean(exportBusyId)}
+                  onClick={() => onExport(item.id)}
+                >
+                  <IconDownload size={20} />
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </section>
 

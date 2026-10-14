@@ -244,6 +244,50 @@ END $$`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_partner_changes BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_push BOOLEAN NOT NULL DEFAULT true`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_email BOOLEAN NOT NULL DEFAULT true`,
+
+  // --- Superadmin analytics ---
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP(3)`,
+
+  `CREATE TABLE IF NOT EXISTS admin_user_notes (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE INDEX IF NOT EXISTS admin_user_notes_user_id_idx ON admin_user_notes(user_id)`,
+
+  // --- Day plan sharing ---
+  `DO $$ BEGIN
+  CREATE TYPE "DayPlanShareAccess" AS ENUM ('VIEW', 'EDIT');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$`,
+
+  `CREATE TABLE IF NOT EXISTS day_plan_shares (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL,
+  token TEXT NOT NULL,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS day_plan_shares_wedding_id_key ON day_plan_shares(wedding_id)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS day_plan_shares_token_key ON day_plan_shares(token)`,
+
+  `CREATE TABLE IF NOT EXISTS day_plan_share_grants (
+  id TEXT PRIMARY KEY,
+  share_id TEXT NOT NULL,
+  email TEXT NOT NULL,
+  name TEXT NOT NULL,
+  access "DayPlanShareAccess" NOT NULL DEFAULT 'VIEW',
+  user_id TEXT,
+  invite_token TEXT NOT NULL,
+  accepted_at TIMESTAMP(3),
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS day_plan_share_grants_share_id_email_key ON day_plan_share_grants(share_id, email)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS day_plan_share_grants_invite_token_key ON day_plan_share_grants(invite_token)`,
+  `CREATE INDEX IF NOT EXISTS day_plan_share_grants_user_id_idx ON day_plan_share_grants(user_id)`,
+  `CREATE INDEX IF NOT EXISTS day_plan_share_grants_share_id_idx ON day_plan_share_grants(share_id)`,
 ];
 
 async function main() {

@@ -37,28 +37,44 @@ enum VendorPipelineStage {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  password         String
-  name             String
-  role             Role     @default(COUPLE)
-  blocked          Boolean  @default(false)
-  refreshTokenHash String?  @map("refresh_token_hash")
-  notifGuestRsvp         Boolean  @default(true)  @map("notif_guest_rsvp")
-  notifUpcomingPayments  Boolean  @default(false) @map("notif_upcoming_payments")
-  notifTaskDeadlines     Boolean  @default(false) @map("notif_task_deadlines")
-  notifPartnerChanges    Boolean  @default(false) @map("notif_partner_changes")
-  notifPush              Boolean  @default(true)  @map("notif_push")
-  notifEmail             Boolean  @default(true)  @map("notif_email")
-  createdAt        DateTime @default(now()) @map("created_at")
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  password              String
+  name                  String
+  role                  Role      @default(COUPLE)
+  blocked               Boolean   @default(false)
+  refreshTokenHash      String?   @map("refresh_token_hash")
+  notifGuestRsvp        Boolean   @default(true) @map("notif_guest_rsvp")
+  notifUpcomingPayments Boolean   @default(false) @map("notif_upcoming_payments")
+  notifTaskDeadlines    Boolean   @default(false) @map("notif_task_deadlines")
+  notifPartnerChanges   Boolean   @default(false) @map("notif_partner_changes")
+  notifPush             Boolean   @default(true) @map("notif_push")
+  notifEmail            Boolean   @default(true) @map("notif_email")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  lastLoginAt           DateTime? @map("last_login_at")
 
-  wedding         Wedding?
-  weddingMember   WeddingMember?
-  externalVendors ExternalVendor[]
-  contentPosts    ContentPost[]
-  pushDevices     PushDevice[]
+  wedding            Wedding?
+  weddingMember      WeddingMember?
+  externalVendors    ExternalVendor[]
+  contentPosts       ContentPost[]
+  pushDevices        PushDevice[]
+  adminNotes         AdminUserNote[]
+  dayPlanShareGrants DayPlanShareGrant[]
 
   @@map("users")
+}
+
+model AdminUserNote {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("admin_user_notes")
 }
 
 model PushDevice {
@@ -114,16 +130,55 @@ model Wedding {
   seatingDraft    Json?    @map("seating_draft")
   seatingPlan     Json?    @map("seating_plan")
 
-  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  members     WeddingMember[]
-  invites     WeddingInvite[]
-  tasks       Task[]
-  guestList   Guest[]
-  budgetItems BudgetItem[]
-  website     WeddingWebsite?
-  invitation  WeddingInvitation?
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  members      WeddingMember[]
+  invites      WeddingInvite[]
+  tasks        Task[]
+  guestList    Guest[]
+  budgetItems  BudgetItem[]
+  website      WeddingWebsite?
+  invitation   WeddingInvitation?
+  dayPlanShare DayPlanShare?
 
   @@map("weddings")
+}
+
+enum DayPlanShareAccess {
+  VIEW
+  EDIT
+}
+
+model DayPlanShare {
+  id        String   @id @default(cuid())
+  weddingId String   @unique @map("wedding_id")
+  token     String   @unique @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  wedding Wedding             @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  grants  DayPlanShareGrant[]
+
+  @@map("day_plan_shares")
+}
+
+model DayPlanShareGrant {
+  id          String             @id @default(cuid())
+  shareId     String             @map("share_id")
+  email       String
+  name        String
+  access      DayPlanShareAccess @default(VIEW)
+  userId      String?            @map("user_id")
+  inviteToken String             @unique @default(cuid()) @map("invite_token")
+  acceptedAt  DateTime?          @map("accepted_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  share DayPlanShare @relation(fields: [shareId], references: [id], onDelete: Cascade)
+  user  User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([shareId, email])
+  @@index([userId])
+  @@index([shareId])
+  @@map("day_plan_share_grants")
 }
 
 model WeddingWebsite {

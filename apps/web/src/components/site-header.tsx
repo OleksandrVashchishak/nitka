@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth-store";
-import { getHomePath, isCabinetPath } from "@/lib/routes";
+import { getHomePath, isAdminPath, isCabinetPath } from "@/lib/routes";
 import { FATA_NAV, FataMobileMenu } from "@/components/fata-mobile-menu";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +17,8 @@ function shouldHideHeader(pathname: string) {
     pathname.startsWith("/email-confirmed") ||
     pathname.startsWith("/verify-email") ||
     pathname.startsWith("/w/") ||
-    isCabinetPath(pathname)
+    isCabinetPath(pathname) ||
+    isAdminPath(pathname)
   );
 }
 

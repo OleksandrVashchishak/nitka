@@ -10,7 +10,7 @@
     "build": "node scripts/restore-prisma-client.cjs && node scripts/verify-dist.cjs",
     "build:nest": "prisma generate && nest build",
     "start": "node scripts/start-render.js",
-    "start:dev": "node --env-file=.env ./node_modules/@nestjs/cli/bin/nest.js start --watch",
+    "start:dev": "node scripts/start-dev.cjs",
     "start:prod": "node scripts/start-render.js",
     "prisma:generate": "prisma generate",
     "prisma:vendor": "node scripts/vendor-prisma-client.cjs",

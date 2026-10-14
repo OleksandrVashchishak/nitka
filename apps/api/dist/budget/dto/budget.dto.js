@@ -10,13 +10,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateBudgetItemDto = exports.CreateBudgetItemDto = exports.UpdateBudgetPlanDto = void 0;
-const openapi = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class UpdateBudgetPlanDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { budget: { required: true, type: () => Number, minimum: 0 } };
-    }
 }
 exports.UpdateBudgetPlanDto = UpdateBudgetPlanDto;
 __decorate([
@@ -26,9 +22,6 @@ __decorate([
     __metadata("design:type", Number)
 ], UpdateBudgetPlanDto.prototype, "budget", void 0);
 class CreateBudgetItemDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { category: { required: true, type: () => String, minLength: 2 }, title: { required: true, type: () => String, minLength: 2 }, estimated: { required: true, type: () => Number, minimum: 0 }, actual: { required: false, type: () => Number, minimum: 0 }, paid: { required: false, type: () => Boolean }, notes: { required: false, type: () => String } };
-    }
 }
 exports.CreateBudgetItemDto = CreateBudgetItemDto;
 __decorate([
@@ -66,9 +59,6 @@ __decorate([
     __metadata("design:type", String)
 ], CreateBudgetItemDto.prototype, "notes", void 0);
 class UpdateBudgetItemDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { category: { required: false, type: () => String, minLength: 2 }, title: { required: false, type: () => String, minLength: 2 }, estimated: { required: false, type: () => Number, minimum: 0 }, actual: { required: false, type: () => Number, minimum: 0 }, paid: { required: false, type: () => Boolean }, notes: { required: false, type: () => String, nullable: true } };
-    }
 }
 exports.UpdateBudgetItemDto = UpdateBudgetItemDto;
 __decorate([

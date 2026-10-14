@@ -10,12 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpsertWeddingWebsiteDto = void 0;
-const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpsertWeddingWebsiteDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { slug: { required: false, type: () => String, minLength: 2, maxLength: 80, pattern: "/^[a-z0-9]+(?:-[a-z0-9]+)*$/" }, templateId: { required: false, type: () => String, minLength: 2, maxLength: 40 }, published: { required: false, type: () => Boolean }, content: { required: false, type: () => Object } };
-    }
 }
 exports.UpsertWeddingWebsiteDto = UpsertWeddingWebsiteDto;
 __decorate([

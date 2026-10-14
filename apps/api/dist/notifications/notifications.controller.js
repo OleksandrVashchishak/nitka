@@ -13,7 +13,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsController = void 0;
-const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
@@ -54,7 +53,6 @@ __decorate([
     (0, common_1.Post)('push-token'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
-    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -65,7 +63,6 @@ __decorate([
     (0, common_1.Delete)('push-token'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
-    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -73,9 +70,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "unregisterPush", null);
 __decorate([
-    openapi.ApiOperation({ summary: "\u0417\u043E\u0432\u043D\u0456\u0448\u043D\u0456\u0439 cron / \u0440\u0443\u0447\u043D\u0438\u0439 \u0442\u0440\u0438\u0433\u0435\u0440 (\u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A x-cron-secret)." }),
     (0, common_1.Post)('reminders/due'),
-    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Headers)('x-cron-secret')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -85,7 +80,6 @@ __decorate([
     (0, common_1.Get)('summary'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
-    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -95,7 +89,6 @@ __decorate([
     (0, common_1.Get)('prefs'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
-    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -105,7 +98,6 @@ __decorate([
     (0, common_1.Patch)('prefs'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
-    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),

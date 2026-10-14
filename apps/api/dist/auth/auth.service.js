@@ -91,6 +91,10 @@ let AuthService = class AuthService {
         if (user.blocked) {
             throw new common_1.UnauthorizedException('Акаунт заблоковано');
         }
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() },
+        });
         return this.issueTokens(user);
     }
     async refresh(refreshToken) {

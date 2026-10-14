@@ -13,7 +13,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContentController = void 0;
-const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const content_service_1 = require("./content.service");
@@ -48,14 +47,12 @@ let ContentController = class ContentController {
 exports.ContentController = ContentController;
 __decorate([
     (0, common_1.Get)('topics'),
-    openapi.ApiResponse({ status: 200, type: [Object] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ContentController.prototype, "listTopics", null);
 __decorate([
     (0, common_1.Get)('topics/:slug'),
-    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -63,14 +60,12 @@ __decorate([
 ], ContentController.prototype, "getTopic", null);
 __decorate([
     (0, common_1.Get)('cities'),
-    openapi.ApiResponse({ status: 200, type: [String] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ContentController.prototype, "listCities", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)('topic')),
     __param(1, (0, common_1.Query)('kind')),
     __param(2, (0, common_1.Query)('featured')),
@@ -84,7 +79,6 @@ __decorate([
 ], ContentController.prototype, "list", null);
 __decorate([
     (0, common_1.Get)(':slug'),
-    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

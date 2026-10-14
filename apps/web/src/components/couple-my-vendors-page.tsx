@@ -20,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { Select } from "@/components/ui/select";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { TextInput } from "@/components/ui/text-input";
 import {
   createExternalVendor,
@@ -435,7 +436,46 @@ function MyVendorsInner() {
                 const bookedVendor = vendor.stage === "CHOSEN";
                 return (
                   <div key={vendor.id} className="cabinet-vendors-row is-filled">
-                    <h3>{displayCategory(vendor)}</h3>
+                    <div className="cabinet-vendors-row-head">
+                      <h3>{displayCategory(vendor)}</h3>
+                      <span
+                        className={`cabinet-vendors-badge${bookedVendor ? " is-booked" : ""}`}
+                      >
+                        {bookedVendor ? "Заброньовано" : "Не заброньовано"}
+                      </span>
+                      <div className="cabinet-ctx-menu-wrap cabinet-vendors-menu-wrap">
+                        <button
+                          type="button"
+                          className="cabinet-vendors-menu-btn"
+                          aria-label="Меню"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMenuOpenId((id) =>
+                              id === vendor.id ? null : vendor.id,
+                            );
+                          }}
+                        >
+                          <IconMore />
+                        </button>
+                        {menuOpenId === vendor.id ? (
+                          <CabinetContextMenu>
+                            <CabinetContextMenuItem
+                              icon={<IconEdit />}
+                              onClick={() => openEdit(vendor)}
+                            >
+                              Редагувати
+                            </CabinetContextMenuItem>
+                            <CabinetContextMenuItem
+                              icon={<IconTrash />}
+                              danger
+                              onClick={() => requestDelete(vendor)}
+                            >
+                              Видалити
+                            </CabinetContextMenuItem>
+                          </CabinetContextMenu>
+                        ) : null}
+                      </div>
+                    </div>
                     <div className="cabinet-vendors-cell">
                       <span className="cabinet-vendors-cell-label">Виконавець</span>
                       <span className="cabinet-vendors-cell-value">{vendor.name}</span>
@@ -466,41 +506,6 @@ function MyVendorsInner() {
                           ? formatVendorMoney(meta.deposit, meta.depositCurrency)
                           : "—"}
                       </span>
-                    </div>
-                    <span
-                      className={`cabinet-vendors-badge${bookedVendor ? " is-booked" : ""}`}
-                    >
-                      {bookedVendor ? "Заброньовано" : "Не заброньовано"}
-                    </span>
-                    <div className="cabinet-ctx-menu-wrap cabinet-vendors-menu-wrap">
-                      <button
-                        type="button"
-                        className="cabinet-vendors-menu-btn"
-                        aria-label="Меню"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMenuOpenId((id) => (id === vendor.id ? null : vendor.id));
-                        }}
-                      >
-                        <IconMore />
-                      </button>
-                      {menuOpenId === vendor.id ? (
-                        <CabinetContextMenu>
-                          <CabinetContextMenuItem
-                            icon={<IconEdit />}
-                            onClick={() => openEdit(vendor)}
-                          >
-                            Редагувати
-                          </CabinetContextMenuItem>
-                          <CabinetContextMenuItem
-                            icon={<IconTrash />}
-                            danger
-                            onClick={() => requestDelete(vendor)}
-                          >
-                            Видалити
-                          </CabinetContextMenuItem>
-                        </CabinetContextMenu>
-                      ) : null}
                     </div>
                   </div>
                 );
@@ -662,45 +667,57 @@ function MyVendorsInner() {
           </div>
         </div>
 
-        <TextInput
-          label={
-            form.contactMethod === "instagram"
-              ? "Instagram підрядника"
-              : form.contactMethod === "email"
-                ? "Email підрядника"
-                : form.contactMethod === "telegram"
-                  ? "Telegram підрядника"
-                  : "Номер телефону підрядника"
-          }
-          value={
-            form.contactMethod === "phone" ||
-            form.contactMethod === "viber" ||
-            form.contactMethod === "messenger" ||
-            form.contactMethod === "meet" ||
-            form.contactMethod === "other"
-              ? form.phone
-              : form.website
-          }
-          onChange={(e) => {
-            const value = e.target.value;
-            if (
+        {form.contactMethod === "phone" ||
+        form.contactMethod === "viber" ||
+        form.contactMethod === "messenger" ? (
+          <PhoneInput
+            label="Номер телефону підрядника"
+            value={form.phone}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, phone: e.target.value }))
+            }
+          />
+        ) : (
+          <TextInput
+            label={
+              form.contactMethod === "instagram"
+                ? "Instagram підрядника"
+                : form.contactMethod === "email"
+                  ? "Email підрядника"
+                  : form.contactMethod === "telegram"
+                    ? "Telegram підрядника"
+                    : "Контакт підрядника"
+            }
+            value={
               form.contactMethod === "instagram" ||
               form.contactMethod === "email" ||
               form.contactMethod === "telegram"
-            ) {
-              setForm((f) => ({ ...f, website: value }));
-            } else {
-              setForm((f) => ({ ...f, phone: value }));
+                ? form.website
+                : form.phone
             }
-          }}
-          placeholder={
-            form.contactMethod === "instagram"
-              ? "@username"
-              : form.contactMethod === "email"
-                ? "name@example.com"
-                : "+380"
-          }
-        />
+            onChange={(e) => {
+              const next = e.target.value;
+              if (
+                form.contactMethod === "instagram" ||
+                form.contactMethod === "email" ||
+                form.contactMethod === "telegram"
+              ) {
+                setForm((f) => ({ ...f, website: next }));
+              } else {
+                setForm((f) => ({ ...f, phone: next }));
+              }
+            }}
+            placeholder={
+              form.contactMethod === "instagram"
+                ? "@username"
+                : form.contactMethod === "email"
+                  ? "name@example.com"
+                  : form.contactMethod === "telegram"
+                    ? "@username"
+                    : "Телефон або інший контакт"
+            }
+          />
+        )}
 
         <Select
           label="Статус"

@@ -7,47 +7,35 @@ import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
 import {
   DAY_PLAN_ACCESS_OPTIONS,
-  dayPlanShareUrl,
-  type DayPlanAccessLevel,
+  DAY_PLAN_REVOKE_VALUE,
+  dayPlanSharedUrl,
+  inviteDayPlanShare,
+  revokeDayPlanShareGrant,
+  updateDayPlanShareGrant,
+  type DayPlanShareAccess,
   type DayPlanSharePerson,
-} from "@/lib/day-plan";
+  type DayPlanShareState,
+} from "@/lib/day-plan-share-api";
 import { toast } from "@/lib/toast";
 
 type Props = {
-  weddingId: string;
+  shareToken: string;
   people: DayPlanSharePerson[];
   onClose: () => void;
-  onChangePeople: (people: DayPlanSharePerson[]) => void;
+  onShareChange: (state: DayPlanShareState) => void;
 };
 
-function newShareId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `share-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function displayNameFromInvite(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed.includes("@")) return trimmed;
-  const local = trimmed.split("@")[0] ?? trimmed;
-  return local
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 export function DayPlanShareModal({
-  weddingId,
+  shareToken,
   people,
   onClose,
-  onChangePeople,
+  onShareChange,
 }: Props) {
   const [invite, setInvite] = useState("");
   const [inviteAccess, setInviteAccess] =
-    useState<DayPlanAccessLevel>("view");
+    useState<DayPlanShareAccess>("VIEW");
   const [sending, setSending] = useState(false);
+  const [busyGrantId, setBusyGrantId] = useState<string | null>(null);
   const [open, setOpen] = useState(true);
 
   function requestClose() {
@@ -55,44 +43,61 @@ export function DayPlanShareModal({
     window.setTimeout(onClose, 280);
   }
 
-  function onInvite(event: FormEvent) {
+  async function onInvite(event: FormEvent) {
     event.preventDefault();
-    const value = invite.trim();
-    if (!value) return;
-
-    const email = value.includes("@") ? value.toLowerCase() : undefined;
-    if (email && people.some((p) => p.email?.toLowerCase() === email)) {
-      toast.error("Ця людина вже має доступ");
+    const email = invite.trim().toLowerCase();
+    if (!email || !email.includes("@")) {
+      toast.error("Вкажи коректний email");
       return;
     }
 
     setSending(true);
-    onChangePeople([
-      ...people,
-      {
-        id: newShareId(),
-        name: displayNameFromInvite(value),
+    try {
+      const next = await inviteDayPlanShare({
         email,
         access: inviteAccess,
-      },
-    ]);
-    setInvite("");
-    setInviteAccess("view");
-    setSending(false);
-    toast.success("Запрошення надіслано", "Доступ додано до списку");
+      });
+      onShareChange(next);
+      setInvite("");
+      setInviteAccess("VIEW");
+      toast.success("Запрошення надіслано", "Доступ додано до списку");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Не вдалося надіслати запрошення",
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
-  function setAccess(id: string, access: DayPlanAccessLevel) {
-    onChangePeople(
-      people.map((person) =>
-        person.id === id ? { ...person, access } : person,
-      ),
-    );
+  async function onGrantChange(person: DayPlanSharePerson, value: string) {
+    if (person.locked || person.kind !== "grant") return;
+
+    setBusyGrantId(person.id);
+    try {
+      if (value === DAY_PLAN_REVOKE_VALUE) {
+        const next = await revokeDayPlanShareGrant(person.id);
+        onShareChange(next);
+        toast.success("Доступ прибрано");
+        return;
+      }
+
+      const access = value as DayPlanShareAccess;
+      if (access !== "VIEW" && access !== "EDIT") return;
+      const next = await updateDayPlanShareGrant(person.id, access);
+      onShareChange(next);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Не вдалося оновити доступ",
+      );
+    } finally {
+      setBusyGrantId(null);
+    }
   }
 
   async function onCopyLink() {
     try {
-      await navigator.clipboard.writeText(dayPlanShareUrl(weddingId));
+      await navigator.clipboard.writeText(dayPlanSharedUrl(shareToken));
       toast.success("Скопійовано", "Посилання на план дня в буфері");
     } catch {
       toast.error("Не вдалося скопіювати посилання");
@@ -114,7 +119,7 @@ export function DayPlanShareModal({
           <TextInput
             label="Email або посилання"
             size="m"
-            type="text"
+            type="email"
             inputMode="email"
             autoComplete="email"
             value={invite}
@@ -128,7 +133,7 @@ export function DayPlanShareModal({
             size="m"
             value={inviteAccess}
             onChange={(e) =>
-              setInviteAccess(e.target.value as DayPlanAccessLevel)
+              setInviteAccess(e.target.value as DayPlanShareAccess)
             }
           >
             {DAY_PLAN_ACCESS_OPTIONS.map((option) => (
@@ -160,24 +165,31 @@ export function DayPlanShareModal({
                   <span className="cabinet-day-plan-share-name">
                     {person.name}
                   </span>
-                  <Select
-                    size="s"
-                    value={person.access}
-                    aria-label={`Доступ для ${person.name}`}
-                    onChange={(e) =>
-                      setAccess(
-                        person.id,
-                        e.target.value as DayPlanAccessLevel,
-                      )
-                    }
-                    className="cabinet-day-plan-share-row-select"
-                  >
-                    {DAY_PLAN_ACCESS_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                  {person.locked ? (
+                    <span className="cabinet-day-plan-share-locked">
+                      Може редагувати
+                    </span>
+                  ) : (
+                    <Select
+                      size="s"
+                      value={person.access}
+                      aria-label={`Доступ для ${person.name}`}
+                      disabled={busyGrantId === person.id}
+                      onChange={(e) =>
+                        void onGrantChange(person, e.target.value)
+                      }
+                      className="cabinet-day-plan-share-row-select"
+                    >
+                      {DAY_PLAN_ACCESS_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                      <option value={DAY_PLAN_REVOKE_VALUE}>
+                        Прибрати доступ
                       </option>
-                    ))}
-                  </Select>
+                    </Select>
+                  )}
                 </li>
               ))}
             </ul>
@@ -193,6 +205,7 @@ export function DayPlanShareModal({
           fullWidth
           className="cabinet-day-plan-share-copy-btn"
           onClick={() => void onCopyLink()}
+          disabled={!shareToken}
         >
           Скопіювати посилання
         </Button>
