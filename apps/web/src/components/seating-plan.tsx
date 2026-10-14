@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type PointerEvent,
+} from "react";
 import type { Guest, RsvpStatus } from "@/lib/guests-api";
 import { updateGuest } from "@/lib/guests-api";
 import { isChildGuest, parseCompanions } from "@/lib/guest-party";
@@ -45,6 +52,7 @@ function firstName(value: string) {
 }
 
 const GROUP_COLORS = ["#8B7CC8", "#5B8DEF", "#4CAF7A", "#C47A3A", "#E07A9A"];
+const GUEST_DRAG_MIME = "application/x-fata-guest-key";
 const GRID = 24;
 /** Padding past the farthest table edge before canvas ends. */
 const CANVAS_PAD = 48;
@@ -503,6 +511,8 @@ export function SeatingPlan({
     () => new Set(draft.guests.detachedKeys ?? []),
   );
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragGuestKey, setDragGuestKey] = useState<string | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [seatPick, setSeatPick] = useState<{
     tableId: string;
@@ -914,14 +924,95 @@ export function SeatingPlan({
       prev.map((table) => ({
         ...table,
         seats: table.seats.map((seat) => {
-          if (seat.guestKey === guestKey) return { ...seat, guestKey: null };
           if (table.id === tableId && seat.id === seatId) {
             return { ...seat, guestKey };
           }
+          if (seat.guestKey === guestKey) return { ...seat, guestKey: null };
           return seat;
         }),
       })),
     );
+  }
+
+  function assignToFirstEmptySeat(tableId: string, guestKey: string) {
+    const table = tables.find((t) => t.id === tableId);
+    const empty = table?.seats.find((s) => !s.guestKey);
+    if (!empty) {
+      toast.info("Немає вільних місць за цим столом");
+      return;
+    }
+    assignToSeat(tableId, empty.id, guestKey);
+  }
+
+  function readDragGuestKey(event: DragEvent) {
+    return (
+      event.dataTransfer.getData(GUEST_DRAG_MIME) ||
+      event.dataTransfer.getData("text/plain") ||
+      dragGuestKey
+    );
+  }
+
+  function isGuestDrag(event: DragEvent) {
+    if (dragGuestKey) return true;
+    const types = Array.from(event.dataTransfer.types);
+    return types.includes(GUEST_DRAG_MIME) || types.includes("text/plain");
+  }
+
+  function beginGuestDrag(event: DragEvent, guestKey: string) {
+    event.dataTransfer.setData(GUEST_DRAG_MIME, guestKey);
+    event.dataTransfer.setData("text/plain", guestKey);
+    event.dataTransfer.effectAllowed = "move";
+    setDragGuestKey(guestKey);
+    setSelectedKey(guestKey);
+    closePopover();
+  }
+
+  function endGuestDrag() {
+    setDragGuestKey(null);
+    setDropTargetId(null);
+  }
+
+  function onSeatDragOver(
+    event: DragEvent,
+    tableId: string,
+    seatId: string,
+  ) {
+    if (!isGuestDrag(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+    const id = `${tableId}:${seatId}`;
+    if (dropTargetId !== id) setDropTargetId(id);
+  }
+
+  function onSeatDrop(event: DragEvent, tableId: string, seatId: string) {
+    if (!isGuestDrag(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const guestKey = readDragGuestKey(event);
+    endGuestDrag();
+    if (!guestKey) return;
+    assignToSeat(tableId, seatId, guestKey);
+  }
+
+  function onTableDragOver(event: DragEvent, tableId: string) {
+    if (!isGuestDrag(event)) return;
+    if ((event.target as Element).closest?.(".seat-plan-seat")) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    const id = `table:${tableId}`;
+    if (dropTargetId !== id) setDropTargetId(id);
+  }
+
+  function onTableDrop(event: DragEvent, tableId: string) {
+    if (!isGuestDrag(event)) return;
+    if ((event.target as Element).closest?.(".seat-plan-seat")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const guestKey = readDragGuestKey(event);
+    endGuestDrag();
+    if (!guestKey) return;
+    assignToFirstEmptySeat(tableId, guestKey);
   }
 
   function freeGuest(key: string) {
@@ -1072,7 +1163,11 @@ export function SeatingPlan({
   }, [flat, draft.guests]);
 
   return (
-    <div className={`seat-plan is-tab-${mobileTab}`}>
+    <div
+      className={`seat-plan is-tab-${mobileTab}${
+        dragGuestKey ? " is-guest-dragging" : ""
+      }`}
+    >
       <div className="seat-plan-top">
         <div className="seat-plan-title-wrap">
           <h1 className="seat-plan-title">
@@ -1349,7 +1444,20 @@ export function SeatingPlan({
                   key={g.key}
                   className={`seat-plan-guest-row-wrap${
                     selectedKey === g.key ? " is-selected" : ""
-                  }`}
+                  }${dragGuestKey === g.key ? " is-dragging" : ""}`}
+                  draggable={!isMobile}
+                  onDragStart={(e) => {
+                    if (
+                      (e.target as Element).closest?.(
+                        ".seat-plan-guest-more-btn",
+                      )
+                    ) {
+                      e.preventDefault();
+                      return;
+                    }
+                    beginGuestDrag(e, g.key);
+                  }}
+                  onDragEnd={endGuestDrag}
                 >
                   <button
                     type="button"
@@ -1530,7 +1638,11 @@ export function SeatingPlan({
                   table.kind === "kids" && table.shape === "long"
                     ? " is-kids-long"
                     : ""
-                }${draggingId === table.id ? " is-dragging" : ""}`}
+                }${draggingId === table.id ? " is-dragging" : ""}${
+                  dropTargetId === `table:${table.id}`
+                    ? " is-drop-target"
+                    : ""
+                }`}
                 style={{
                   left: table.x,
                   top: table.y,
@@ -1542,6 +1654,17 @@ export function SeatingPlan({
                 onPointerMove={onTablePointerMove}
                 onPointerUp={() => onTablePointerUp(table.id)}
                 onPointerCancel={() => onTablePointerUp(table.id)}
+                onDragOver={(e) => onTableDragOver(e, table.id)}
+                onDragLeave={(e) => {
+                  if (
+                    !e.currentTarget.contains(e.relatedTarget as Node | null)
+                  ) {
+                    setDropTargetId((cur) =>
+                      cur === `table:${table.id}` ? null : cur,
+                    );
+                  }
+                }}
+                onDrop={(e) => onTableDrop(e, table.id)}
               >
                 <div className="seat-plan-table-body">
                   <TableShapeSilhouette kind={table.kind} />
@@ -1571,11 +1694,22 @@ export function SeatingPlan({
                         table.seats.length,
                         table.shape,
                       );
+                      const seatDropId = `${table.id}:${seat.id}`;
                       return (
                         <button
                           key={seat.id}
                           type="button"
-                          className={`seat-plan-seat${guest ? "" : " is-empty"}`}
+                          className={`seat-plan-seat${
+                            guest ? "" : " is-empty"
+                          }${
+                            dropTargetId === seatDropId
+                              ? " is-drop-target"
+                              : ""
+                          }${
+                            dragGuestKey && seat.guestKey === dragGuestKey
+                              ? " is-dragging"
+                              : ""
+                          }`}
                           style={{
                             left: pos.left,
                             top: pos.top,
@@ -1585,7 +1719,26 @@ export function SeatingPlan({
                               : undefined,
                           }}
                           title={guest?.name ?? "Порожнє місце"}
+                          draggable={Boolean(guest) && !isMobile}
                           onPointerDown={(e) => e.stopPropagation()}
+                          onDragStart={(e) => {
+                            if (!seat.guestKey) {
+                              e.preventDefault();
+                              return;
+                            }
+                            e.stopPropagation();
+                            beginGuestDrag(e, seat.guestKey);
+                          }}
+                          onDragEnd={endGuestDrag}
+                          onDragOver={(e) =>
+                            onSeatDragOver(e, table.id, seat.id)
+                          }
+                          onDragLeave={() => {
+                            setDropTargetId((cur) =>
+                              cur === seatDropId ? null : cur,
+                            );
+                          }}
+                          onDrop={(e) => onSeatDrop(e, table.id, seat.id)}
                           onClick={(e) => {
                             if (selectedKey) {
                               assignToSeat(table.id, seat.id);

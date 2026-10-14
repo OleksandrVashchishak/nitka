@@ -325,9 +325,18 @@
   background: #f7f7f7;
 }
 
+.seat-plan-guest-row-wrap[draggable="true"] {
+  cursor: grab;
+}
+
 .seat-plan-guest-row-wrap.is-selected {
   background: #f0f0f0;
   box-shadow: inset 3px 0 0 #0088ff;
+}
+
+.seat-plan-guest-row-wrap.is-dragging {
+  opacity: 0.42;
+  cursor: grabbing;
 }
 
 .seat-plan-guest-row {
@@ -521,6 +530,14 @@
   cursor: grabbing;
   z-index: 5;
   opacity: 0.96;
+}
+
+.seat-plan-table.is-drop-target .seat-plan-table-body {
+  box-shadow: 0 0 0 2px #0088ff;
+}
+
+.seat-plan.is-guest-dragging .seat-plan-table {
+  cursor: copy;
 }
 
 .seat-plan-table-label {
@@ -766,6 +783,26 @@
 .seat-plan-seat.is-empty:hover {
   border-color: #0088ff;
   background: #eef6ff;
+}
+
+.seat-plan-seat.is-dragging {
+  opacity: 0.4;
+}
+
+.seat-plan-seat.is-drop-target {
+  border: 1.5px solid #0088ff;
+  background: #eef6ff;
+  box-shadow: 0 0 0 3px rgba(0, 136, 255, 0.22);
+  color: transparent;
+}
+
+.seat-plan-seat.is-drop-target:not(.is-empty) {
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 136, 255, 0.35);
+}
+
+.seat-plan.is-guest-dragging .seat-plan-seat.is-empty {
+  border-color: #90caf9;
 }
 
 .seat-plan-seat-name {
