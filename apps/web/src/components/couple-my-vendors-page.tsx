@@ -583,12 +583,10 @@ function MyVendorsInner() {
         open={formModalOpen}
         onClose={() => setFormModalOpen(false)}
         title={editingId ? "Редагувати підрядника" : "Додати підрядника"}
-        variant="modal"
-        width={520}
-        mobileVariant="fullscreen"
-        panelClassName="cabinet-vendors-form-modal"
+        variant="drawer"
+        width={771}
+        panelClassName="cabinet-vendors-drawer"
         bodyClassName="cabinet-vendors-form-body"
-        footerClassName="cabinet-modal-actions cabinet-vendors-modal-actions"
         asForm
         onSubmit={onSubmit}
         footer={
@@ -635,22 +633,34 @@ function MyVendorsInner() {
           required
         />
 
-        <Select
-          label="Спосіб спілкування"
-          value={form.contactMethod}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              contactMethod: e.target.value as VendorContactMethod,
-            }))
-          }
-        >
-          {VENDOR_CONTACT_METHODS.map((method) => (
-            <option key={method.id} value={method.id}>
-              {method.label}
-            </option>
-          ))}
-        </Select>
+        <div className="cabinet-vendors-contact-field">
+          <span className="cabinet-vendors-contact-label">
+            Спосіб спілкування
+          </span>
+          <div
+            className="cabinet-vendors-contact-pills"
+            role="radiogroup"
+            aria-label="Спосіб спілкування"
+          >
+            {VENDOR_CONTACT_METHODS.map((method) => {
+              const selected = form.contactMethod === method.id;
+              return (
+                <button
+                  key={method.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  className={`cabinet-vendors-contact-pill${selected ? " is-selected" : ""}`}
+                  onClick={() =>
+                    setForm((f) => ({ ...f, contactMethod: method.id }))
+                  }
+                >
+                  {method.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <TextInput
           label={

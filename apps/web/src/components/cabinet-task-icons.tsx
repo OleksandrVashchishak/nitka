@@ -26,6 +26,37 @@ export function IconQuickAdd({ size = 40, className }: Props) {
   );
 }
 
+/** Lime ring + plus — desktop «Додати …» CTA (Figma AddButton). */
+export function IconAddCircle({ size = 20, className }: Props) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <circle
+        cx="10"
+        cy="10"
+        r="9.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 10h8M10 14V6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** Horizontal sliders — filters trigger. */
 export function IconFilters({ size = 16, className }: Props) {
   return (

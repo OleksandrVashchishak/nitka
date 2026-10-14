@@ -22,7 +22,7 @@ export function CabinetNotificationsBell({
   const preview = feed.slice(0, PREVIEW_LIMIT);
   const newCount = summary?.newCount ?? preview.filter((item) => item.isNew).length;
   const badgeCount = newCount > 0 ? newCount : summary?.total ?? 0;
-  const moreHref = summary?.moreHref || "/guests";
+  const moreHref = summary?.moreHref || "/settings?tab=notifications";
 
   useEffect(() => {
     function onDocClick(event: MouseEvent) {

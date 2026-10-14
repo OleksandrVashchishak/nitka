@@ -10,8 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateNotificationPrefsDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpdateNotificationPrefsDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { guestRsvp: { required: false, type: () => Boolean }, upcomingPayments: { required: false, type: () => Boolean }, taskDeadlines: { required: false, type: () => Boolean }, partnerChanges: { required: false, type: () => Boolean }, push: { required: false, type: () => Boolean }, email: { required: false, type: () => Boolean } };
+    }
 }
 exports.UpdateNotificationPrefsDto = UpdateNotificationPrefsDto;
 __decorate([

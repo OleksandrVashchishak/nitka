@@ -10,9 +10,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpsertDayPlanDto = exports.DayPlanEventDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class DayPlanEventDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: true, type: () => String, minLength: 1, maxLength: 64 }, title: { required: true, type: () => String, minLength: 1, maxLength: 120 }, time: { required: true, type: () => String, pattern: "/^\\d{2}:\\d{2}$/" }, durationMin: { required: true, type: () => Number, minimum: 5, maximum: 24 * 60 } };
+    }
 }
 exports.DayPlanEventDto = DayPlanEventDto;
 __decorate([
@@ -39,6 +43,9 @@ __decorate([
     __metadata("design:type", Number)
 ], DayPlanEventDto.prototype, "durationMin", void 0);
 class UpsertDayPlanDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { events: { required: true, type: () => [require("./upsert-day-plan.dto").DayPlanEventDto], maxItems: 100 } };
+    }
 }
 exports.UpsertDayPlanDto = UpsertDayPlanDto;
 __decorate([

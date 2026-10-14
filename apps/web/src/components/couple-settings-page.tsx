@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
@@ -156,8 +156,16 @@ function partnerFromWedding(
   return { status: "form", partner: null };
 }
 
+function parseSettingsTab(value: string | null): SettingsTab | null {
+  if (value === "profile" || value === "security" || value === "notifications") {
+    return value;
+  }
+  return null;
+}
+
 function CoupleSettingsInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
   const logout = useAuthStore((s) => s.logout);
@@ -165,7 +173,9 @@ function CoupleSettingsInner() {
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [initials, setInitials] = useState("П");
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<SettingsTab>("profile");
+  const [tab, setTab] = useState<SettingsTab>(
+    () => parseSettingsTab(searchParams.get("tab")) ?? "profile",
+  );
   const [name, setName] = useState("");
   const [savedName, setSavedName] = useState("");
   const [weddingDate, setWeddingDate] = useState("");
@@ -182,6 +192,11 @@ function CoupleSettingsInner() {
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
+
+  useEffect(() => {
+    const next = parseSettingsTab(searchParams.get("tab"));
+    if (next) setTab(next);
+  }, [searchParams]);
 
   useEffect(() => {
     setSessions([buildCurrentSession(user?.name || name || "")]);
@@ -484,7 +499,13 @@ function CoupleSettingsInner() {
           weddingDateLabel={dateLabel}
           activeTab={tab}
           photoBusy={photoBusy}
-          onTabChange={setTab}
+          onTabChange={(next) => {
+            setTab(next);
+            router.replace(
+              next === "profile" ? "/settings" : `/settings?tab=${next}`,
+              { scroll: false },
+            );
+          }}
           onPhotoPick={(file) => void onPhotoPick(file)}
         />
 
@@ -548,7 +569,9 @@ function CoupleSettingsInner() {
 export function CoupleSettingsPage() {
   return (
     <RequireAuth>
-      <CoupleSettingsInner />
+      <Suspense fallback={<PageLoader label="Завантажуємо налаштування…" />}>
+        <CoupleSettingsInner />
+      </Suspense>
     </RequireAuth>
   );
 }

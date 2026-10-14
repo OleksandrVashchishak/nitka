@@ -10,9 +10,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpsertWeddingDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class UpsertWeddingDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { date: { required: true, type: () => String }, city: { required: true, type: () => String }, guests: { required: true, type: () => Number, minimum: 1 }, budget: { required: true, type: () => Number, minimum: 0 }, partnerOneName: { required: false, type: () => String, maxLength: 80 }, partnerTwoName: { required: false, type: () => String, maxLength: 80 }, couplePhotoUrl: { required: false, type: () => String, nullable: true, maxLength: 2000 }, planningStage: { required: false, type: () => String, enum: [
+                    'NOT_ENGAGED',
+                    'EXPLORING',
+                    'PLANNING_NO_VENUE',
+                    'PLANNING_WITH_VENUE',
+                    'FINAL_DETAILS',
+                ] }, cityUndecided: { required: false, type: () => Boolean }, guestsUndecided: { required: false, type: () => Boolean } };
+    }
 }
 exports.UpsertWeddingDto = UpsertWeddingDto;
 __decorate([

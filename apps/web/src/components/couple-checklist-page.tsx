@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { IconQuickAdd } from "@/components/cabinet-task-icons";
+import { IconAddCircle, IconQuickAdd } from "@/components/cabinet-task-icons";
 import { IconClose } from "@/components/icon-close";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
@@ -56,8 +56,11 @@ import {
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import {
+  defaultTaskDaysBefore,
+  dueDateBeforeWedding,
   smartBannerKey,
   smartPlanDoneKey,
+  smartPlanDueDate,
   type SmartPlanTask,
 } from "@/lib/smart-planning";
 import { toast } from "@/lib/toast";
@@ -246,6 +249,7 @@ function ChecklistInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const editHandledRef = useRef<string | null>(null);
+  const dueBackfillRef = useRef<string | null>(null);
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -307,6 +311,76 @@ function ChecklistInner() {
     } catch {
       setShowSmartBanner(true);
     }
+  }, [wedding]);
+
+  /** Один раз підставляє дедлайни шаблонним задачам без dueDate, якщо є дата весілля. */
+  useEffect(() => {
+    if (!wedding?.date?.trim()) return;
+    const stamp = `${wedding.id}:${wedding.date.slice(0, 10)}`;
+    if (dueBackfillRef.current === stamp) return;
+    const backfillKey = `fata-default-due-backfill:v1:${wedding.id}`;
+    try {
+      if (localStorage.getItem(backfillKey) === "1") {
+        dueBackfillRef.current = stamp;
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+    dueBackfillRef.current = stamp;
+
+    const weddingDate = wedding.date;
+    const pending = wedding.tasks.filter((task) => {
+      if (task.dueDate) return false;
+      return defaultTaskDaysBefore(task.title, task.categorySlug) != null;
+    });
+
+    const markDone = () => {
+      try {
+        localStorage.setItem(backfillKey, "1");
+      } catch {
+        /* ignore */
+      }
+    };
+
+    if (pending.length === 0) {
+      markDone();
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      const patched: Array<{ id: string; dueDate: string }> = [];
+      for (const task of pending) {
+        const days = defaultTaskDaysBefore(task.title, task.categorySlug);
+        if (days == null) continue;
+        const dueDate = dueDateBeforeWedding(weddingDate, days);
+        if (!dueDate) continue;
+        try {
+          await updateTask(task.id, { dueDate }, { silent: true });
+          patched.push({ id: task.id, dueDate });
+        } catch {
+          /* ignore single failures */
+        }
+        if (cancelled) return;
+      }
+      markDone();
+      if (cancelled || patched.length === 0) return;
+      setWedding((prev) => {
+        if (!prev) return prev;
+        const map = new Map(patched.map((p) => [p.id, p.dueDate]));
+        return {
+          ...prev,
+          tasks: prev.tasks.map((t) =>
+            map.has(t.id) ? { ...t, dueDate: map.get(t.id)! } : t,
+          ),
+        };
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [wedding]);
 
   useEffect(() => {
@@ -753,14 +827,17 @@ function ChecklistInner() {
     const toCreate = planTasks.filter(
       (t) => !existingTitles.has(t.title.trim().toLowerCase()),
     );
+    const weddingDate = wedding.date?.trim() || null;
 
     const created: WeddingTask[] = [];
     for (const [index, task] of toCreate.entries()) {
+      const dueDate = smartPlanDueDate(weddingDate, task);
       const row = await createTask(
         {
           title: task.title,
           categorySlug: task.categorySlug,
           sortOrder: 100 + index,
+          ...(dueDate ? { dueDate } : {}),
         },
         { silent: true },
       );
@@ -930,7 +1007,6 @@ function ChecklistInner() {
               <Select
                 className="cabinet-tasks-sort"
                 size="m"
-                shape="pill"
                 value={sortMode}
                 onChange={(e) => setSortMode(e.target.value as SortMode)}
                 aria-label="Сортування"
@@ -941,12 +1017,12 @@ function ChecklistInner() {
               </Select>
               <Button
                 type="button"
-                tone="black"
+                tone="ink"
                 size="s"
                 className="cabinet-tasks-add-btn"
                 onClick={openCreate}
               >
-                <span aria-hidden>+</span>
+                <IconAddCircle />
                 Додати завдання
               </Button>
             </div>
@@ -1014,23 +1090,23 @@ function ChecklistInner() {
                       onCheckedChange={() => void onToggle(task)}
                     />
                     <div className="cabinet-task-body">
-                      <p className="cabinet-task-title">{task.title}</p>
+                      <div className="cabinet-task-main">
+                        <p className="cabinet-task-title">{task.title}</p>
+                        <span className={`cabinet-task-tag is-${meta.tone}`}>
+                          {meta.label}
+                        </span>
+                      </div>
                       <div className="cabinet-task-meta-wrap">
-                        <div className="cabinet-task-meta">
-                          <span className={`cabinet-task-tag is-${meta.tone}`}>
-                            {meta.label}
+                        {task.effectiveDue ? (
+                          <span
+                            className={`cabinet-task-date${taskDateTone(
+                              task.effectiveDue,
+                              done,
+                            )}`}
+                          >
+                            {formatTaskDate(task.effectiveDue)}
                           </span>
-                          {task.effectiveDue ? (
-                            <span
-                              className={`cabinet-task-date${taskDateTone(
-                                task.effectiveDue,
-                                done,
-                              )}`}
-                            >
-                              {formatTaskDate(task.effectiveDue)}
-                            </span>
-                          ) : null}
-                        </div>
+                        ) : null}
                         <div className="cabinet-task-actions">
                           <TaskResponsibleAvatar
                             who={task.who}

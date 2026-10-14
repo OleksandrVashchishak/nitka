@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BudgetController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
@@ -43,6 +44,7 @@ let BudgetController = class BudgetController {
 exports.BudgetController = BudgetController;
 __decorate([
     (0, common_1.Get)(),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -50,6 +52,7 @@ __decorate([
 ], BudgetController.prototype, "getMine", null);
 __decorate([
     (0, common_1.Put)('plan'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -58,6 +61,7 @@ __decorate([
 ], BudgetController.prototype, "updatePlan", null);
 __decorate([
     (0, common_1.Post)('items'),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -66,6 +70,7 @@ __decorate([
 ], BudgetController.prototype, "createItem", null);
 __decorate([
     (0, common_1.Patch)('items/:id'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
@@ -75,6 +80,7 @@ __decorate([
 ], BudgetController.prototype, "updateItem", null);
 __decorate([
     (0, common_1.Delete)('items/:id'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

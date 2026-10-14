@@ -10,10 +10,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateExternalVendorDto = exports.CreateExternalVendorDto = exports.UpdatePipelineDto = exports.UpsertVendorPlanDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
 class UpsertVendorPlanDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { categories: { required: true, type: () => [String], minLength: 1, maxLength: 64, maxItems: 40 } };
+    }
 }
 exports.UpsertVendorPlanDto = UpsertVendorPlanDto;
 __decorate([
@@ -25,6 +29,9 @@ __decorate([
     __metadata("design:type", Array)
 ], UpsertVendorPlanDto.prototype, "categories", void 0);
 class UpdatePipelineDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { stage: { required: false, type: () => Object }, quotedPrice: { required: false, type: () => Number, nullable: true, minimum: 0 }, notes: { required: false, type: () => String, nullable: true } };
+    }
 }
 exports.UpdatePipelineDto = UpdatePipelineDto;
 __decorate([
@@ -45,6 +52,9 @@ __decorate([
     __metadata("design:type", Object)
 ], UpdatePipelineDto.prototype, "notes", void 0);
 class CreateExternalVendorDto extends UpdatePipelineDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { name: { required: true, type: () => String, minLength: 2 }, category: { required: true, type: () => String, minLength: 2 }, city: { required: false, type: () => String }, phone: { required: false, type: () => String }, website: { required: false, type: () => String } };
+    }
 }
 exports.CreateExternalVendorDto = CreateExternalVendorDto;
 __decorate([
@@ -73,6 +83,9 @@ __decorate([
     __metadata("design:type", String)
 ], CreateExternalVendorDto.prototype, "website", void 0);
 class UpdateExternalVendorDto extends UpdatePipelineDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { name: { required: false, type: () => String, minLength: 2 }, category: { required: false, type: () => String, minLength: 2 }, city: { required: false, type: () => String }, phone: { required: false, type: () => String, nullable: true }, website: { required: false, type: () => String, nullable: true } };
+    }
 }
 exports.UpdateExternalVendorDto = UpdateExternalVendorDto;
 __decorate([

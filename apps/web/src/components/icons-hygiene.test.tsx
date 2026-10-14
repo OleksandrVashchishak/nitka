@@ -9,7 +9,11 @@ import {
   IconPlus,
   IconShareNodes,
 } from "@/components/inspiration-icons";
-import { IconFilters, IconQuickAdd } from "@/components/cabinet-task-icons";
+import {
+  IconAddCircle,
+  IconFilters,
+  IconQuickAdd,
+} from "@/components/cabinet-task-icons";
 
 afterEach(() => {
   cleanup();
@@ -35,10 +39,11 @@ describe("shared icons", () => {
     const { container } = render(
       <>
         <IconQuickAdd />
+        <IconAddCircle />
         <IconFilters />
       </>,
     );
-    expect(container.querySelectorAll("svg")).toHaveLength(2);
+    expect(container.querySelectorAll("svg")).toHaveLength(3);
   });
 
   it("renders inspiration icons", () => {

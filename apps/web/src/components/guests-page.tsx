@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
-import { IconQuickAdd } from "@/components/cabinet-task-icons";
+import { IconAddCircle, IconQuickAdd } from "@/components/cabinet-task-icons";
 import { IconButton } from "@/components/ui/icon-button";
 import { CabinetFilterGroup } from "@/components/cabinet-filter-group";
 import { CabinetFiltersSheet } from "@/components/cabinet-filters-sheet";
@@ -48,11 +48,10 @@ import {
 import {
   buildGuestNotes,
   companionsToLegacyFields,
-  isChildGuest as notesIsChild,
   isInvitedGuest,
-  parseChildNeed,
   parseCompanions,
   parseInviteMethod,
+  partyHasChild,
   type ChildNeed,
   type GuestCompanion,
   type InviteMethod,
@@ -147,10 +146,6 @@ const RSVP_UI: Record<
   PENDING: { label: "Ще не відповіли", tone: "pending" },
 };
 
-function isChild(guest: Guest) {
-  return notesIsChild(guest.notes);
-}
-
 function isInvited(guest: Guest) {
   return isInvitedGuest(guest);
 }
@@ -213,8 +208,6 @@ function GuestsInner() {
     "not_invited",
   );
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus>("PENDING");
-  const [isChildGuest, setIsChildGuest] = useState(false);
-  const [childNeed, setChildNeed] = useState<ChildNeed | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Guest | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -286,8 +279,8 @@ function GuestsInner() {
     };
     const age = {
       all: guests.length,
-      adult: guests.filter((g) => !isChild(g)).length,
-      child: guests.filter((g) => isChild(g)).length,
+      adult: guests.filter((g) => !partyHasChild(g)).length,
+      child: guests.filter((g) => partyHasChild(g)).length,
     };
     return { side: sideCounts, invite, rsvp, age };
   }, [guests]);
@@ -298,8 +291,8 @@ function GuestsInner() {
       if (inviteFilter === "invited" && !isInvited(guest)) return false;
       if (inviteFilter === "not_invited" && isInvited(guest)) return false;
       if (rsvpFilter !== "all" && guest.rsvpStatus !== rsvpFilter) return false;
-      if (ageFilter === "child" && !isChild(guest)) return false;
-      if (ageFilter === "adult" && isChild(guest)) return false;
+      if (ageFilter === "child" && !partyHasChild(guest)) return false;
+      if (ageFilter === "adult" && partyHasChild(guest)) return false;
       return true;
     });
 
@@ -355,8 +348,6 @@ function GuestsInner() {
     setPhone("");
     setInviteStatus("not_invited");
     setRsvpStatus("PENDING");
-    setIsChildGuest(false);
-    setChildNeed(null);
   }
 
   function closeDrawer() {
@@ -409,9 +400,6 @@ function GuestsInner() {
     setPhone(guest.phone ?? "");
     setInviteStatus(isInvited(guest) ? "invited" : "not_invited");
     setRsvpStatus(guest.rsvpStatus);
-    const child = isChild(guest);
-    setIsChildGuest(child);
-    setChildNeed(child ? parseChildNeed(guest.notes) : null);
     setMenuOpenId(null);
     setDrawerOpen(true);
   }
@@ -445,8 +433,9 @@ function GuestsInner() {
         rsvpStatus,
         notes:
           buildGuestNotes({
-            child: isChildGuest,
-            childNeed: isChildGuest ? childNeed : null,
+            // Основний гість завжди дорослий; дитина лише як +1.
+            child: false,
+            childNeed: null,
             invited,
             method,
             companions: companionPayload,
@@ -850,7 +839,6 @@ function GuestsInner() {
                   <Select
                     className="cabinet-tasks-sort"
                     size="m"
-                    shape="pill"
                     value={sortMode}
                     onChange={(e) => setSortMode(e.target.value as SortMode)}
                     aria-label="Сортування"
@@ -861,12 +849,12 @@ function GuestsInner() {
                   </Select>
                   <Button
                     type="button"
-                    tone="black"
+                    tone="ink"
                     size="s"
                     className="cabinet-tasks-add-btn"
                     onClick={openCreate}
                   >
-                    <span aria-hidden>+</span>
+                    <IconAddCircle />
                     Додати гостей
                   </Button>
                   <Button
@@ -914,11 +902,11 @@ function GuestsInner() {
                             <span className="cabinet-guest-name-text">
                               {guest.name}
                             </span>
-                            {isChild(guest) ? (
+                            {partyHasChild(guest) ? (
                               <span
                                 className="cabinet-guest-child"
-                                title="Дитина"
-                                aria-label="Дитина"
+                                title="Є дитина в партії"
+                                aria-label="Є дитина в партії"
                               >
                                 O
                               </span>
@@ -1121,7 +1109,7 @@ function GuestsInner() {
         onClose={closeDrawer}
         title={editingId ? "Редагувати гостя" : "Додати гостя"}
         variant="drawer"
-        width={420}
+        width={710}
         asForm
         onSubmit={onSave}
         footer={
@@ -1135,69 +1123,19 @@ function GuestsInner() {
         }
       >
               <div className="cabinet-guests-party">
-                <div className="cabinet-guests-party-row">
-                  <div className="cabinet-guests-plus-line cabinet-guests-plus-line--main">
-                    <TextInput
-                      label="Ім'я і прізвище"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Наприклад: Ліля Василенко"
-                      required
-                    />
-                    <div
-                      className="cabinet-guests-age-toggle"
-                      role="group"
-                      aria-label="Вік гостя"
-                    >
-                      <button
-                        type="button"
-                        className={!isChildGuest ? "is-active" : undefined}
-                        onClick={() => {
-                          setIsChildGuest(false);
-                          setChildNeed(null);
-                        }}
-                      >
-                        Дорослий
-                      </button>
-                      <button
-                        type="button"
-                        className={isChildGuest ? "is-active" : undefined}
-                        onClick={() => {
-                          setIsChildGuest(true);
-                          setChildNeed((need) => need ?? "with_parents");
-                        }}
-                      >
-                        Дитина
-                      </button>
-                    </div>
-                  </div>
-                  {isChildGuest ? (
-                    <div
-                      className="cabinet-guests-child-needs"
-                      role="group"
-                      aria-label="Потрібне для дитини"
-                    >
-                      {CHILD_NEED_OPTIONS.map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className={
-                            childNeed === item.id ? "is-active" : undefined
-                          }
-                          onClick={() => setChildNeed(item.id)}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
+                <TextInput
+                  label="Ім'я і прізвище"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Наприклад: Ліля Василенко"
+                  required
+                />
 
                 {companions.map((row, index) => (
                   <div key={row.key} className="cabinet-guests-party-row">
                     <div className="cabinet-guests-plus-line">
                       <TextInput
-                        label={index === 0 ? "Ім'я +1" : undefined}
+                        label="Ім'я і прізвище"
                         value={row.name}
                         onChange={(e) =>
                           updateCompanion(row.key, { name: e.target.value })
@@ -1272,7 +1210,8 @@ function GuestsInner() {
                   className="cabinet-guests-plusone"
                   onClick={addCompanion}
                 >
-                  + Додати +1
+                  <IconAddCircle size={20} />
+                  Додати +1
                 </button>
               </div>
 
@@ -1288,9 +1227,12 @@ function GuestsInner() {
               </Select>
 
               <div className="cabinet-guests-invite-box">
-                <p className="cabinet-filter-title">Запрошення</p>
-                <Field label="Спосіб запрошення">
-                  <div className="cabinet-guests-methods">
+                <p className="cabinet-guests-invite-title">Запрошення</p>
+                <Field
+                  label="Спосіб запрошення"
+                  className="cabinet-guests-invite-method-field"
+                >
+                  <div className="cabinet-guests-methods" role="group">
                     {INVITE_METHODS.map((item) => (
                       <button
                         key={item.id}
@@ -1316,7 +1258,11 @@ function GuestsInner() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder={
-                    method === "telegram" ? "@nickname або +380" : "+380"
+                    method === "telegram"
+                      ? "Наприклад: +38095 437 62 34 або @imya_korystuvacha"
+                      : method === "email"
+                        ? "email@example.com"
+                        : "+380"
                   }
                 />
                 <Select
@@ -1339,39 +1285,50 @@ function GuestsInner() {
                       <Select
                         value={rsvpStatus}
                         aria-label={`Результат: ${name.trim() || "основний гість"}`}
+                        className={`cabinet-guests-rsvp-select is-${RSVP_UI[rsvpStatus].tone}`}
+                        startAdornment={
+                          <StatusIcon tone={RSVP_UI[rsvpStatus].tone} />
+                        }
                         onChange={(e) =>
                           setRsvpStatus(e.target.value as RsvpStatus)
                         }
                       >
-                      <option value="YES">? Прийде</option>
-                      <option value="MAYBE">0 Можливо прийде</option>
-                      <option value="NO">? Не прийде</option>
-                      <option value="PENDING">0 Ще не відповіли</option>
-                    </Select>
-                  </div>
-                  {companions.map((row, index) => (
-                    <div key={row.key} className="cabinet-guests-rsvp-row">
-                      <span className="cabinet-guests-rsvp-name">
-                        {row.name.trim() || `+1 #${index + 1}`}
-                      </span>
-                      <Select
-                        value={row.rsvpStatus}
-                        aria-label={`Результат: ${
-                          row.name.trim() || `+1 #${index + 1}`
-                        }`}
-                        onChange={(e) =>
-                          updateCompanion(row.key, {
-                            rsvpStatus: e.target.value as RsvpStatus,
-                          })
-                        }
-                      >
-                        <option value="YES">? Прийде</option>
-                        <option value="MAYBE">0 Можливо прийде</option>
-                        <option value="NO">? Не прийде</option>
-                        <option value="PENDING">0 Ще не відповіли</option>
+                        <option value="YES">Прийде</option>
+                        <option value="MAYBE">Можливо прийде</option>
+                        <option value="NO">Не прийде</option>
+                        <option value="PENDING">Ще не відповіли</option>
                       </Select>
                     </div>
-                  ))}
+                    {companions.map((row, index) => {
+                      const companionUi = RSVP_UI[row.rsvpStatus];
+                      return (
+                        <div key={row.key} className="cabinet-guests-rsvp-row">
+                          <span className="cabinet-guests-rsvp-name">
+                            {row.name.trim() || `+1 #${index + 1}`}
+                          </span>
+                          <Select
+                            value={row.rsvpStatus}
+                            aria-label={`Результат: ${
+                              row.name.trim() || `+1 #${index + 1}`
+                            }`}
+                            className={`cabinet-guests-rsvp-select is-${companionUi.tone}`}
+                            startAdornment={
+                              <StatusIcon tone={companionUi.tone} />
+                            }
+                            onChange={(e) =>
+                              updateCompanion(row.key, {
+                                rsvpStatus: e.target.value as RsvpStatus,
+                              })
+                            }
+                          >
+                            <option value="YES">Прийде</option>
+                            <option value="MAYBE">Можливо прийде</option>
+                            <option value="NO">Не прийде</option>
+                            <option value="PENDING">Ще не відповіли</option>
+                          </Select>
+                        </div>
+                      );
+                    })}
                   </div>
                 </Field>
               </div>

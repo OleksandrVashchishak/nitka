@@ -80,6 +80,17 @@ export function isChildGuest(notes: string | null | undefined) {
   return (notes ?? "").includes("[child]");
 }
 
+/** Чи є в партії хоч одна дитина (леґасі-основний або +1). */
+export function partyHasChild(guest: {
+  notes: string | null;
+  plusOne?: boolean;
+  plusOneName?: string | null;
+  plusOneAttending?: boolean | null;
+}) {
+  if (isChildGuest(guest.notes)) return true;
+  return parseCompanions(guest.notes, guest).some((c) => c.isChild);
+}
+
 export function isInvitedGuest(guest: {
   notes: string | null;
   phone: string | null;

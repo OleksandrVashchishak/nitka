@@ -275,7 +275,7 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
       newCount,
       items,
       feed,
-      moreHref: '/guests',
+      moreHref: '/settings?tab=notifications',
     };
   }
 

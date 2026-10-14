@@ -281,6 +281,8 @@ export function updateTask(
 
   },
 
+  options?: { silent?: boolean },
+
 ) {
 
   return apiFetch<WeddingTask>(`/api/weddings/tasks/${taskId}`, {
@@ -288,6 +290,8 @@ export function updateTask(
     method: "PATCH",
 
     body: JSON.stringify(input),
+
+    silent: options?.silent,
 
   });
 

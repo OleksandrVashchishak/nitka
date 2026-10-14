@@ -8,6 +8,8 @@ export type BudgetItem = {
   actual: number;
   paid: boolean;
   notes: string | null;
+  /** Set when the row was auto-synced from «Підрядники». */
+  externalVendorId?: string | null;
   createdAt: string;
 };
 

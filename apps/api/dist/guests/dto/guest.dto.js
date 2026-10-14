@@ -10,10 +10,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateGuestDto = exports.ImportGuestsDto = exports.ImportGuestRowDto = exports.CreateGuestDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
 class CreateGuestDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { name: { required: true, type: () => String, minLength: 2 }, email: { required: false, type: () => String, format: "email" }, phone: { required: false, type: () => String }, side: { required: false, type: () => Object }, rsvpStatus: { required: false, type: () => Object }, plusOne: { required: false, type: () => Boolean }, plusOneName: { required: false, type: () => String }, plusOneAttending: { required: false, type: () => Boolean }, allergies: { required: false, type: () => String }, notes: { required: false, type: () => String } };
+    }
 }
 exports.CreateGuestDto = CreateGuestDto;
 __decorate([
@@ -69,6 +73,9 @@ __decorate([
     __metadata("design:type", String)
 ], CreateGuestDto.prototype, "notes", void 0);
 class ImportGuestRowDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { name: { required: true, type: () => String, minLength: 2 }, email: { required: false, type: () => String, format: "email" }, phone: { required: false, type: () => String }, side: { required: false, type: () => Object }, plusOne: { required: false, type: () => Boolean }, notes: { required: false, type: () => String } };
+    }
 }
 exports.ImportGuestRowDto = ImportGuestRowDto;
 __decorate([
@@ -103,6 +110,9 @@ __decorate([
     __metadata("design:type", String)
 ], ImportGuestRowDto.prototype, "notes", void 0);
 class ImportGuestsDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { guests: { required: true, type: () => [require("./guest.dto").ImportGuestRowDto] } };
+    }
 }
 exports.ImportGuestsDto = ImportGuestsDto;
 __decorate([
@@ -112,6 +122,9 @@ __decorate([
     __metadata("design:type", Array)
 ], ImportGuestsDto.prototype, "guests", void 0);
 class UpdateGuestDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { name: { required: false, type: () => String, minLength: 2 }, email: { required: false, type: () => String, nullable: true, format: "email" }, phone: { required: false, type: () => String, nullable: true }, side: { required: false, type: () => Object }, rsvpStatus: { required: false, type: () => Object }, plusOne: { required: false, type: () => Boolean }, plusOneName: { required: false, type: () => String, nullable: true }, plusOneAttending: { required: false, type: () => Boolean, nullable: true }, allergies: { required: false, type: () => String, nullable: true }, notes: { required: false, type: () => String, nullable: true } };
+    }
 }
 exports.UpdateGuestDto = UpdateGuestDto;
 __decorate([

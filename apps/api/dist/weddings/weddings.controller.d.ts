@@ -17,13 +17,13 @@ export declare class WeddingsController {
     getMine(user: AuthUser, res: Response): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -32,15 +32,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
-            id: string;
-            userId: string;
-            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            id: string;
+            createdAt: Date;
+            userId: string;
             weddingId: string;
         })[];
         id: string;
@@ -63,13 +63,13 @@ export declare class WeddingsController {
     upsert(user: AuthUser, dto: UpsertWeddingDto): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -78,15 +78,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
-            id: string;
-            userId: string;
-            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            id: string;
+            createdAt: Date;
+            userId: string;
             weddingId: string;
         })[];
         id: string;
@@ -142,13 +142,13 @@ export declare class WeddingsController {
     removePartner(user: AuthUser): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -157,15 +157,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
-            id: string;
-            userId: string;
-            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            id: string;
+            createdAt: Date;
+            userId: string;
             weddingId: string;
         })[];
         id: string;
@@ -188,13 +188,13 @@ export declare class WeddingsController {
     acceptPartnerInvite(user: AuthUser, token: string): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
+            sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
@@ -203,15 +203,15 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                email: string;
                 name: string;
                 id: string;
-                email: string;
             };
         } & {
-            id: string;
-            userId: string;
-            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            id: string;
+            createdAt: Date;
+            userId: string;
             weddingId: string;
         })[];
         id: string;

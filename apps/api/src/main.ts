@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -16,6 +17,22 @@ async function bootstrap() {
     origin: process.env.CORS_ORIGIN?.split(',') ?? ['http://localhost:3000'],
     credentials: true,
   });
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('fata.studio API')
+    .setDescription('Wedding planning API')
+    .setVersion('0.1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'JWT',
+    )
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  document.security = [{ JWT: [] }];
+  SwaggerModule.setup('docs', app, document, {
+    useGlobalPrefix: true,
+  });
+
   await app.listen(
     process.env.PORT ? Number(process.env.PORT) : 3001,
     '0.0.0.0',

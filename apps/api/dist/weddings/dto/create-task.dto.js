@@ -10,10 +10,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateTaskDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const update_task_dto_1 = require("./update-task.dto");
 class CreateTaskDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { title: { required: true, type: () => String, minLength: 2 }, categorySlug: { required: false, type: () => String }, sortOrder: { required: false, type: () => Number, minimum: 0 }, dueDate: { required: false, type: () => String }, assignee: { required: false, type: () => Object, enum: update_task_dto_1.TASK_ASSIGNEES } };
+    }
 }
 exports.CreateTaskDto = CreateTaskDto;
 __decorate([

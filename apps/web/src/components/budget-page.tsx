@@ -474,6 +474,38 @@ function BudgetInner() {
     [ownerName, partnerName],
   );
 
+  /** Soft warn when saving would double-count an auto-synced vendor expense. */
+  const vendorDuplicateWarning = useMemo(() => {
+    if (!drawerOpen || category !== "vendors" || !vendorId) return null;
+    const vendor = vendors.find((v) => v.id === vendorId);
+    if (!vendor) return null;
+
+    const existing = data?.items.find(
+      (item) =>
+        item.externalVendorId === vendorId && item.id !== editingId,
+    );
+    if (!existing) return null;
+
+    const raw = Number(amount.replace(/\s/g, "").replace(",", "."));
+    const moneyLabel =
+      Number.isFinite(raw) && raw > 0
+        ? formCurrency === "USD"
+          ? `$${Math.round(raw)}`
+          : `${Math.round(raw)} ₴`
+        : formatMoney(itemAmount(existing), formCurrency);
+
+    return `Витрату ${moneyLabel} по категорії підрядників «${vendor.name}» уже було раніше автоматично внесено з вкладки «Підрядники». Хочете все одно зберегти цю витрату?`;
+  }, [
+    drawerOpen,
+    category,
+    vendorId,
+    vendors,
+    data?.items,
+    editingId,
+    amount,
+    formCurrency,
+  ]);
+
   function resetDrawer() {
     setEditingId(null);
     setTitle("");
@@ -501,7 +533,11 @@ function BudgetInner() {
     const display =
       itemCurrency === "USD" ? Math.round(uah / USD_RATE) : Math.round(uah);
     const vendorName = parseVendorName(item.notes);
-    const matchedVendor = vendors.find((v) => v.name === vendorName);
+    const matchedVendor = vendors.find(
+      (v) =>
+        (item.externalVendorId != null && v.id === item.externalVendorId) ||
+        v.name === vendorName,
+    );
     setEditingId(item.id);
     setTitle(item.title);
     setAmount(String(display));
@@ -684,22 +720,22 @@ function BudgetInner() {
             </>
           ) : null
         }
-        endActions={
-          rows.length > 0 ? (
-            <Select
-              className="cabinet-tasks-sort cabinet-budget-currency-desktop"
-              size="m"
-              shape="pill"
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value as Currency)}
-              aria-label="Валюта"
-            >
-              <option value="UAH">Показувати витрати в UAH</option>
-              <option value="USD">Показувати витрати в USD</option>
-            </Select>
-          ) : null
-        }
       />
+
+      {rows.length > 0 ? (
+        <div className="cabinet-budget-currency-bar">
+          <Select
+            className="cabinet-tasks-sort cabinet-budget-currency-desktop"
+            size="m"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value as Currency)}
+            aria-label="Валюта"
+          >
+            <option value="UAH">Показувати витрати в UAH</option>
+            <option value="USD">Показувати витрати в USD</option>
+          </Select>
+        </div>
+      ) : null}
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
 
@@ -839,7 +875,6 @@ function BudgetInner() {
                     <Select
                       className="cabinet-tasks-sort"
                       size="m"
-                      shape="pill"
                       value={sortMode}
                       onChange={(e) =>
                         setSortMode(e.target.value as SortMode)
@@ -1124,8 +1159,7 @@ function BudgetInner() {
         onClose={closeDrawer}
         title={editingId ? "Редагувати витрату" : "Внести витрату"}
         variant="drawer"
-        width={430}
-        desktopPresentation="centered"
+        width={530}
         panelClassName="cabinet-budget-drawer"
         asForm
         onSubmit={onSave}
@@ -1242,6 +1276,12 @@ function BudgetInner() {
             {payerLabels.parents_partner}
           </option>
         </Select>
+
+        {vendorDuplicateWarning ? (
+          <p className="cabinet-budget-duplicate-warning" role="status">
+            {vendorDuplicateWarning}
+          </p>
+        ) : null}
       </CabinetOverlay>
 
       <DeleteConfirmModal

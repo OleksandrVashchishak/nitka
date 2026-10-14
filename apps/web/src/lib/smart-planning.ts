@@ -57,6 +57,8 @@ export type SmartPlanTask = {
   title: string;
   categorySlug: string;
   categoryId: SmartPlanCategoryId;
+  /** Днів до дати весілля (0 = у день весілля). Без дати весілля дедлайн не ставимо. */
+  daysBefore: number;
   /** Якщо задано — задача з’являється лише коли обрана фіча з кроку 1 */
   requires?: SmartFeatureId[];
   /** Якщо хоча б одна з фіч обрана (OR). Ігнорується якщо є requires. */
@@ -155,6 +157,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Знайти та забронювати РАЦС",
     categorySlug: "officiant",
     categoryId: "ceremony",
+    daysBefore: 60,
     requires: ["racs"],
   },
   {
@@ -162,6 +165,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Організувати вінчання в церкві",
     categorySlug: "officiant",
     categoryId: "ceremony",
+    daysBefore: 60,
     requires: ["church"],
   },
   {
@@ -169,6 +173,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обрати місце для виїзної церемонії",
     categorySlug: "venue",
     categoryId: "ceremony",
+    daysBefore: 60,
     requires: ["outdoor"],
     excludeIfDone: ["outdoor_done", "ceremony_venue"],
   },
@@ -177,6 +182,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Узгодити сценарій церемонії",
     categorySlug: "requests",
     categoryId: "ceremony",
+    daysBefore: 14,
     requiresAny: ["outdoor", "racs", "church"],
   },
   {
@@ -184,6 +190,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Замовити арку / декор церемонії",
     categorySlug: "decor",
     categoryId: "ceremony",
+    daysBefore: 30,
     requires: ["outdoor"],
     excludeIfDone: ["outdoor_done"],
   },
@@ -194,6 +201,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Найняти весільного координатора",
     categorySlug: "planner",
     categoryId: "coordination",
+    daysBefore: 60,
     requires: ["coordinator"],
     excludeIfDone: ["coordinator_chosen"],
   },
@@ -202,6 +210,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Замовити транспорт для молодят",
     categorySlug: "requests",
     categoryId: "coordination",
+    daysBefore: 30,
     excludeIfDone: ["transport"],
   },
   {
@@ -209,6 +218,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Замовити транспорт для гостей",
     categorySlug: "guests",
     categoryId: "coordination",
+    daysBefore: 30,
     requires: ["remote_guests"],
     excludeIfDone: ["transport"],
   },
@@ -217,6 +227,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Скласти тайм-лайн дня весілля",
     categorySlug: "requests",
     categoryId: "coordination",
+    daysBefore: 14,
   },
 
   // Банкет
@@ -225,6 +236,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Забронювати локацію для банкету",
     categorySlug: "venue",
     categoryId: "banquet",
+    daysBefore: 60,
     excludeIfDone: ["banquet_venue"],
   },
   {
@@ -232,6 +244,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обрати та забронювати ведучого",
     categorySlug: "officiant",
     categoryId: "banquet",
+    daysBefore: 45,
     excludeIfDone: ["host_found"],
   },
   {
@@ -239,6 +252,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Забронювати музикантів / DJ",
     categorySlug: "music",
     categoryId: "banquet",
+    daysBefore: 45,
     excludeIfDone: ["music"],
   },
   {
@@ -246,6 +260,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Знайти хореографа для першого танцю",
     categorySlug: "requests",
     categoryId: "banquet",
+    daysBefore: 45,
     requires: ["first_dance"],
   },
   {
@@ -253,6 +268,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Організувати фотозону",
     categorySlug: "decor",
     categoryId: "banquet",
+    daysBefore: 21,
     requires: ["photozone"],
   },
   {
@@ -260,12 +276,14 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Скласти програму вечора",
     categorySlug: "requests",
     categoryId: "banquet",
+    daysBefore: 14,
   },
   {
     id: "banquet-cossack",
     title: "Організувати козацький стіл",
     categorySlug: "catering",
     categoryId: "banquet",
+    daysBefore: 21,
     requires: ["cossack_table"],
   },
 
@@ -275,6 +293,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обрати весільну сукню",
     categorySlug: "attire",
     categoryId: "look",
+    daysBefore: 60,
     excludeIfDone: ["dress"],
   },
   {
@@ -282,6 +301,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обрати костюм нареченого",
     categorySlug: "attire",
     categoryId: "look",
+    daysBefore: 45,
     excludeIfDone: ["suit"],
   },
   {
@@ -289,6 +309,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Забронювати стиліста / візажиста",
     categorySlug: "beauty",
     categoryId: "look",
+    daysBefore: 30,
     excludeIfDone: ["makeup"],
   },
   {
@@ -296,6 +317,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Замовити обручки",
     categorySlug: "attire",
     categoryId: "look",
+    daysBefore: 30,
     excludeIfDone: ["rings"],
   },
   {
@@ -303,6 +325,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Організувати фінальну примірку",
     categorySlug: "attire",
     categoryId: "look",
+    daysBefore: 7,
   },
 
   // Гості
@@ -311,6 +334,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Скласти список гостей",
     categorySlug: "guests",
     categoryId: "guests",
+    daysBefore: 60,
     excludeIfDone: ["guest_list"],
   },
   {
@@ -318,6 +342,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Організувати трансфер для гостей здалеку",
     categorySlug: "guests",
     categoryId: "guests",
+    daysBefore: 21,
     requires: ["remote_guests"],
     excludeIfDone: ["transport"],
   },
@@ -326,6 +351,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Підготувати welcome-зону",
     categorySlug: "guests",
     categoryId: "guests",
+    daysBefore: 14,
     requires: ["welcome"],
   },
   {
@@ -333,12 +359,14 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Організувати дитячий куточок",
     categorySlug: "guests",
     categoryId: "guests",
+    daysBefore: 21,
   },
   {
     id: "guests-invites",
     title: "Замовити друк запрошень",
     categorySlug: "invitations",
     categoryId: "style",
+    daysBefore: 45,
     excludeIfDone: ["invitations_sent"],
   },
   {
@@ -346,6 +374,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Зібрати RSVP відповіді",
     categorySlug: "rsvp",
     categoryId: "guests",
+    daysBefore: 21,
     excludeIfDone: ["rsvp"],
   },
 
@@ -355,6 +384,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Забронювати фотографа",
     categorySlug: "photo",
     categoryId: "photo",
+    daysBefore: 60,
     excludeIfDone: ["photographer"],
   },
   {
@@ -362,6 +392,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Забронювати відеографа",
     categorySlug: "photo",
     categoryId: "photo",
+    daysBefore: 60,
     excludeIfDone: ["videographer"],
   },
   {
@@ -369,18 +400,21 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обговорити список обов’язкових кадрів",
     categorySlug: "photo",
     categoryId: "photo",
+    daysBefore: 14,
   },
   {
     id: "photo-pre",
     title: "Організувати pre-wedding зйомку",
     categorySlug: "photo",
     categoryId: "photo",
+    daysBefore: 30,
   },
   {
     id: "photo-locations",
     title: "Узгодити локації для фотосесії",
     categorySlug: "photo",
     categoryId: "photo",
+    daysBefore: 21,
   },
 
   // Стиль
@@ -389,6 +423,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обрати та забронювати декоратора",
     categorySlug: "decor",
     categoryId: "style",
+    daysBefore: 45,
     requires: ["decorator"],
     excludeIfDone: ["decorator_found"],
   },
@@ -397,6 +432,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Обрати флориста",
     categorySlug: "decor",
     categoryId: "style",
+    daysBefore: 30,
     requiresAny: ["decorator", "outdoor"],
   },
   {
@@ -404,6 +440,7 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Замовити весільний торт",
     categorySlug: "cake",
     categoryId: "style",
+    daysBefore: 30,
     requires: ["cake"],
     excludeIfDone: ["cake_ordered"],
   },
@@ -412,9 +449,68 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
     title: "Організувати кенді-бар",
     categorySlug: "cake",
     categoryId: "style",
+    daysBefore: 21,
     requires: ["candy_bar"],
   },
 ];
+
+/** Дедлайн відносно дати весілля. Без дати — null. */
+export function dueDateBeforeWedding(
+  weddingDateIso: string | null | undefined,
+  daysBefore: number,
+): string | null {
+  const iso = weddingDateIso?.trim().slice(0, 10);
+  if (!iso) return null;
+  const wedding = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(wedding.getTime())) return null;
+  const due = new Date(wedding);
+  due.setDate(due.getDate() - Math.max(0, daysBefore));
+  return due.toISOString().slice(0, 10);
+}
+
+export function smartPlanDueDate(
+  weddingDateIso: string | null | undefined,
+  task: Pick<SmartPlanTask, "daysBefore" | "title">,
+): string | null {
+  return dueDateBeforeWedding(weddingDateIso, task.daysBefore);
+}
+
+/** Стартові задачі API — ті самі офсети, що й для бекфілу на клієнті. */
+export const STARTER_TASK_DEADLINES: Array<{
+  title: string;
+  categorySlug: string;
+  daysBefore: number;
+}> = [
+  {
+    title: "Побудувати список завдань",
+    categorySlug: "starter-plan",
+    daysBefore: 60,
+  },
+  {
+    title: "Додати гостей",
+    categorySlug: "starter-guests",
+    daysBefore: 45,
+  },
+  {
+    title: "Внести витрати",
+    categorySlug: "starter-budget",
+    daysBefore: 30,
+  },
+];
+
+export function defaultTaskDaysBefore(
+  title: string,
+  categorySlug?: string | null,
+): number | null {
+  const bySlug = STARTER_TASK_DEADLINES.find(
+    (t) => categorySlug && t.categorySlug === categorySlug,
+  );
+  if (bySlug) return bySlug.daysBefore;
+  const byTitle = SMART_PLAN_CATALOG.find((t) => t.title === title);
+  if (byTitle) return byTitle.daysBefore;
+  const starterByTitle = STARTER_TASK_DEADLINES.find((t) => t.title === title);
+  return starterByTitle?.daysBefore ?? null;
+}
 
 function featureOk(
   task: SmartPlanTask,

@@ -205,7 +205,7 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
             newCount,
             items,
             feed,
-            moreHref: '/guests',
+            moreHref: '/settings?tab=notifications',
         };
     }
     async buildCoupleFeed(_userId, wedding, pendingRsvp) {

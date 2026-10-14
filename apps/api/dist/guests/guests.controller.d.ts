@@ -20,11 +20,12 @@ export declare class GuestsController {
             headcount: number;
         };
         guests: {
+            email: string | null;
             name: string;
             id: string;
+            createdAt: Date;
             weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-            email: string | null;
             phone: string | null;
             side: import(".prisma/client").$Enums.GuestSide;
             plusOne: boolean;
@@ -35,15 +36,15 @@ export declare class GuestsController {
             notes: string | null;
             inviteToken: string;
             respondedAt: Date | null;
-            createdAt: Date;
         }[];
     }>;
     create(user: AuthUser, dto: CreateGuestDto): Promise<{
+        email: string | null;
         name: string;
         id: string;
+        createdAt: Date;
         weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-        email: string | null;
         phone: string | null;
         side: import(".prisma/client").$Enums.GuestSide;
         plusOne: boolean;
@@ -54,16 +55,16 @@ export declare class GuestsController {
         notes: string | null;
         inviteToken: string;
         respondedAt: Date | null;
-        createdAt: Date;
     }>;
     importMany(user: AuthUser, dto: ImportGuestsDto): Promise<{
         imported: number;
         guests: {
+            email: string | null;
             name: string;
             id: string;
+            createdAt: Date;
             weddingId: string;
             rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-            email: string | null;
             phone: string | null;
             side: import(".prisma/client").$Enums.GuestSide;
             plusOne: boolean;
@@ -74,15 +75,15 @@ export declare class GuestsController {
             notes: string | null;
             inviteToken: string;
             respondedAt: Date | null;
-            createdAt: Date;
         }[];
     }>;
     update(user: AuthUser, id: string, dto: UpdateGuestDto): Promise<{
+        email: string | null;
         name: string;
         id: string;
+        createdAt: Date;
         weddingId: string;
         rsvpStatus: import(".prisma/client").$Enums.RsvpStatus;
-        email: string | null;
         phone: string | null;
         side: import(".prisma/client").$Enums.GuestSide;
         plusOne: boolean;
@@ -93,7 +94,6 @@ export declare class GuestsController {
         notes: string | null;
         inviteToken: string;
         respondedAt: Date | null;
-        createdAt: Date;
     }>;
     remove(user: AuthUser, id: string): Promise<{
         ok: boolean;
