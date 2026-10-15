@@ -144,6 +144,16 @@ const authInputClass = textInputControlClassName({
   shape: "pill",
 });
 
+const SHOW_TEST_TOOLS = process.env.NODE_ENV === "development";
+
+function randomTestCredentials() {
+  const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  return {
+    email: `test+${id}@fata.studio`,
+    password: `Test-${id}-1a`,
+  };
+}
+
 export function RegisterForm() {
   const router = useRouter();
   const register = useAuthStore((s) => s.register);
@@ -367,6 +377,44 @@ export function RegisterForm() {
   function finishOnboarding() {
     clearOnboardingDraft();
     router.push(getHomePath(user?.role ?? "COUPLE"));
+  }
+
+  async function createTestUser() {
+    if (!SHOW_TEST_TOOLS || loading) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const creds = randomTestCredentials();
+      await register(
+        {
+          name: "Тест і Партнер",
+          email: creds.email,
+          password: creds.password,
+          role: "COUPLE",
+        },
+        { silent: true },
+      );
+      await upsertWedding({
+        date: fallbackWeddingDate(),
+        city: "Київ",
+        guests: 75,
+        budget: 0,
+        partnerOneName: "Тест",
+        partnerTwoName: "Партнер",
+        planningStage,
+        cityUndecided: false,
+        guestsUndecided: false,
+      });
+      clearOnboardingDraft();
+      toast.success("Тест юзер", creds.email);
+      router.push(getHomePath("COUPLE"));
+    } catch (err) {
+      const message = getErrorMessage(err, "Не вдалось створити тест юзера");
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const stepper = (
@@ -735,7 +783,7 @@ export function RegisterForm() {
         </div>
 
         {screen === 1 ? (
-          <div className="onboarding-step mx-auto flex items-center justify-between px-5 pb-8 md:px-0 md:pb-10">
+          <div className="onboarding-step mx-auto flex items-center justify-between gap-3 px-5 pb-8 md:px-0 md:pb-10">
             <button
               type="button"
               onClick={() => {
@@ -746,6 +794,17 @@ export function RegisterForm() {
             >
               Пропустити
             </button>
+            {SHOW_TEST_TOOLS ? (
+              <Button
+                type="button"
+                tone="outline"
+                size="m"
+                loading={loading}
+                onClick={() => void createTestUser()}
+              >
+                тест юзер
+              </Button>
+            ) : null}
             <Button
               type="button"
               tone="dark"

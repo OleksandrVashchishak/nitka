@@ -66,6 +66,8 @@ import {
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
+import { uaGuestsOfLabel } from "@/lib/ua-name-case";
+
 import "@/styles/cabinet/cabinet.scss";
 import "@/styles/cabinet/guests.scss";
 
@@ -673,19 +675,24 @@ function GuestsInner() {
 
       {guests.length === 0 ? (
         <CabinetEmptyState
+          className="cabinet-guests-empty"
           art={{
-            src: "/cabinet/empty/guests.png",
-            width: 320,
-            height: 220,
+            src: "/cabinet/empty/guests.svg",
+            width: 310,
+            height: 202,
+            className: "cabinet-guests-empty-art",
           }}
           title="Внесіть своїх перших гостей"
           description={
             <>
-              <p>
+              <p className="cabinet-guests-empty-lead">
                 Єдиний список гостей для вас обох. Всі контакти, статуси
-                запрошень, деталі щодо гостей — в одному місці.
+                <br />
+                запрошень, деталі щодо гостей - в одному місці.
               </p>
-              <p>Додайте гостей вручну або імпортуйте список із CSV файлу</p>
+              <p className="cabinet-guests-empty-hint">
+                Додайте гостей вручну або імпортуйте список із CSV файлу
+              </p>
             </>
           }
           actions={
@@ -697,7 +704,7 @@ function GuestsInner() {
                 className="cabinet-empty-cta"
                 onClick={openCreate}
               >
-                Додати гостей
+                + Додати гостей
               </Button>
               <Button
                 type="button"
@@ -747,14 +754,15 @@ function GuestsInner() {
                   { id: "all", label: "Всі", count: counts.side.all },
                   {
                     id: "BRIDE",
-                    label: "Гості нареченої",
+                    label: uaGuestsOfLabel(ownerName, "нареченої"),
                     count: counts.side.BRIDE,
                   },
                   {
                     id: "GROOM",
-                    label: "Гості нареченого",
+                    label: uaGuestsOfLabel(partnerName, "нареченого"),
                     count: counts.side.GROOM,
                   },
+
                 ]}
                 active={sideFilter}
                 onChange={(id) => setSideFilter(id as SideFilter)}
@@ -985,11 +993,19 @@ function GuestsInner() {
                                 </CabinetContextMenuItem>
                                 <CabinetContextMenuItem
                                   icon={
-                                    <ResponsibleAvatarDuo
-                                      ownerName={ownerName}
-                                      partnerName={partnerName}
+                                    <span
+                                      className="cabinet-ctx-menu-avatars"
                                       aria-hidden
-                                    />
+                                    >
+                                      <ResponsibleAvatar
+                                        name={partnerName}
+                                        tone="partner"
+                                      />
+                                      <ResponsibleAvatar
+                                        name={ownerName}
+                                        tone="owner"
+                                      />
+                                    </span>
                                   }
                                   active={guest.side === "BOTH"}
                                   disabled={busy}
@@ -1025,12 +1041,12 @@ function GuestsInner() {
             { id: "all", label: "Всі", count: counts.side.all },
             {
               id: "BRIDE",
-              label: "Гості нареченої",
+              label: uaGuestsOfLabel(ownerName, "нареченої"),
               count: counts.side.BRIDE,
             },
             {
               id: "GROOM",
-              label: "Гості нареченого",
+              label: uaGuestsOfLabel(partnerName, "нареченого"),
               count: counts.side.GROOM,
             },
           ]}
@@ -1093,6 +1109,7 @@ function GuestsInner() {
         title={editingId ? "Редагувати гостя" : "Додати гостя"}
         variant="drawer"
         width={710}
+        panelClassName="cabinet-guests-drawer"
         asForm
         onSubmit={onSave}
         footer={

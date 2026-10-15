@@ -43,7 +43,9 @@ import {
 } from "@/lib/seating-api";
 import { shapedSeatPosition, defaultShapedSeatCount } from "@/lib/seat-layout";
 import { toast } from "@/lib/toast";
+import { uaGuestsOfLabel } from "@/lib/ua-name-case";
 import "@/styles/seating/plan.scss";
+
 
 type MobileTab = "map" | "guests" | "tables";
 
@@ -737,8 +739,14 @@ export function SeatingPlan({
   ]);
 
   const namedGroups = draft.guests.groups.filter((g) => g.name.trim());
-  const partnerOneShort = firstName(partnerOneName) || "нареченої";
-  const partnerTwoShort = firstName(partnerTwoName) || "нареченого";
+  const guestsBrideLabel = uaGuestsOfLabel(
+    firstName(partnerOneName),
+    "нареченої",
+  );
+  const guestsGroomLabel = uaGuestsOfLabel(
+    firstName(partnerTwoName),
+    "нареченого",
+  );
 
   const filterCounts = useMemo(() => {
     const seat = { all: 0, seated: 0, unseated: 0 };
@@ -815,13 +823,13 @@ export function SeatingPlan({
     if (sideFilter === "BRIDE") {
       chips.push({
         id: "side-bride",
-        label: `Гості ${partnerOneShort}`,
+        label: guestsBrideLabel,
         onClear: () => setSideFilter("all"),
       });
     } else if (sideFilter === "GROOM") {
       chips.push({
         id: "side-groom",
-        label: `Гості ${partnerTwoShort}`,
+        label: guestsGroomLabel,
         onClear: () => setSideFilter("all"),
       });
     }
@@ -841,9 +849,10 @@ export function SeatingPlan({
     tableFilter,
     namedGroups,
     tables,
-    partnerOneShort,
-    partnerTwoShort,
+    guestsBrideLabel,
+    guestsGroomLabel,
   ]);
+
 
   const filtersActive = activeFilterChips.length > 0;
 
@@ -2178,14 +2187,15 @@ export function SeatingPlan({
             { id: "all", label: "Усі", count: filterCounts.side.all },
             {
               id: "BRIDE",
-              label: `Гості ${partnerOneShort}`,
+              label: guestsBrideLabel,
               count: filterCounts.side.BRIDE,
             },
             {
               id: "GROOM",
-              label: `Гості ${partnerTwoShort}`,
+              label: guestsGroomLabel,
               count: filterCounts.side.GROOM,
             },
+
           ]}
           active={draftSideFilter}
           onChange={(id) => setDraftSideFilter(id as SideFilter)}

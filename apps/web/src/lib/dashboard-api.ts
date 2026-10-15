@@ -24,6 +24,9 @@ export type WeddingTask = {
 
   assignee?: TaskAssignee | null;
 
+  /** Custom name when assignee === "other". */
+  assigneeName?: string | null;
+
 };
 
 
@@ -211,6 +214,10 @@ export async function getPartnerInvitePreview(token: string) {
 
     coupleName: string;
 
+    inviterName: string;
+
+    inviteeName: string;
+
   }>;
 
 }
@@ -279,6 +286,8 @@ export function updateTask(
 
     assignee?: TaskAssignee | null;
 
+    assigneeName?: string | null;
+
   },
 
   options?: { silent?: boolean },
@@ -312,6 +321,8 @@ export function createTask(
     sortOrder?: number;
 
     assignee?: TaskAssignee;
+
+    assigneeName?: string | null;
 
   },
 

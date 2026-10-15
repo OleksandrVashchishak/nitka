@@ -137,7 +137,9 @@ export function CabinetNotificationsBell({
               className="cabinet-notify-more"
               onClick={() => setOpen(false)}
             >
-              Переглянути більше
+              {preview.length
+                ? "Переглянути більше"
+                : "Переглянути налаштування"}
             </Link>
           </div>
         </div>

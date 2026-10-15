@@ -13,6 +13,8 @@ export declare class WeddingsController {
         city: string;
         date: Date;
         coupleName: string;
+        inviterName: string;
+        inviteeName: string;
     }>;
     getMine(user: AuthUser, res: Response): Promise<{
         tasks: ({
@@ -27,7 +29,8 @@ export declare class WeddingsController {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -73,7 +76,8 @@ export declare class WeddingsController {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -152,7 +156,8 @@ export declare class WeddingsController {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -198,7 +203,8 @@ export declare class WeddingsController {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -235,13 +241,15 @@ export declare class WeddingsController {
         id: string;
         weddingId: string;
     } & {
-        assignee: string | null;
+        assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+        assigneeName: string | null;
     }>;
     updateTask(user: AuthUser, taskId: string, dto: UpdateTaskDto): Promise<{
         id: string;
         weddingId: string;
     } & {
-        assignee: string | null;
+        assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+        assigneeName: string | null;
     }>;
     deleteTask(user: AuthUser, taskId: string): Promise<{
         ok: boolean;

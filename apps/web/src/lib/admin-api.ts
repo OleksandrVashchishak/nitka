@@ -289,3 +289,50 @@ export function deleteAdminNote(
     { method: "DELETE" },
   );
 }
+
+export type AdminContactMessage = {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  readAt: string | null;
+  createdAt: string;
+};
+
+export type AdminContactMessagesResponse = {
+  page: number;
+  limit: number;
+  total: number;
+  unread: number;
+  items: AdminContactMessage[];
+};
+
+export function fetchAdminContactMessages(
+  accessToken: string,
+  params?: { page?: number; limit?: number },
+) {
+  const search = new URLSearchParams();
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.limit) search.set("limit", String(params.limit));
+  const qs = search.toString();
+  return adminFetch<AdminContactMessagesResponse>(
+    `/api/admin/contact-messages${qs ? `?${qs}` : ""}`,
+    accessToken,
+  );
+}
+
+export function markAdminContactRead(accessToken: string, id: string) {
+  return adminFetch<AdminContactMessage>(
+    `/api/admin/contact-messages/${id}/read`,
+    accessToken,
+    { method: "PATCH" },
+  );
+}
+
+export function deleteAdminContactMessage(accessToken: string, id: string) {
+  return adminFetch<{ ok: boolean }>(
+    `/api/admin/contact-messages/${id}`,
+    accessToken,
+    { method: "DELETE" },
+  );
+}

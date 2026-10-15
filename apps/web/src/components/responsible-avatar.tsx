@@ -90,6 +90,7 @@ type TaskProps = {
   who: TaskAssignee;
   ownerName: string;
   partnerName: string;
+  otherName?: string | null;
   className?: string;
 };
 
@@ -98,6 +99,7 @@ export function TaskResponsibleAvatar({
   who,
   ownerName,
   partnerName,
+  otherName,
   className,
 }: TaskProps) {
   if (who === "both") {
@@ -112,21 +114,16 @@ export function TaskResponsibleAvatar({
     );
   }
   if (who === "none") {
-    return (
-      <ResponsibleAvatar
-        tone="none"
-        letter="—"
-        title="Ніхто"
-        className={className}
-      />
-    );
+    return null;
   }
   if (who === "other") {
+    const label = otherName?.trim() || "Хтось інший";
     return (
       <ResponsibleAvatar
         tone="other"
-        letter="?"
-        title="Хтось інший"
+        name={otherName?.trim() || undefined}
+        letter={otherName?.trim() ? undefined : "?"}
+        title={label}
         className={className}
       />
     );

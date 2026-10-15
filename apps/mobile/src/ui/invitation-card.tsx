@@ -1,6 +1,8 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import type { InvitationContent } from "@/lib/invitations-api";
 import { getInvitationTheme } from "@/lib/invitation-themes";
+import { uaNameGenitive } from "@/lib/ua-name-case";
+
 
 type Props = {
   templateId: string;
@@ -70,7 +72,11 @@ export function InvitationCard({
 
         {guestName ? (
           <Text style={[styles.forGuest, { color: c.muted }]}>
-            Для <Text style={{ color: c.text, fontWeight: "600" }}>{guestName}</Text>
+            Для{" "}
+            <Text style={{ color: c.text, fontWeight: "600" }}>
+              {uaNameGenitive(guestName)}
+            </Text>
+
           </Text>
         ) : null}
 

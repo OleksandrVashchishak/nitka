@@ -241,14 +241,16 @@ export function CabinetOverlay({
       </div>
     );
 
+    const scrollBody = <div className={drawerBodyClass}>{children}</div>;
+
     const body = asForm ? (
-      <form className={drawerBodyClass} onSubmit={onSubmit}>
-        {children}
+      <form className="cabinet-drawer-shell" onSubmit={onSubmit}>
+        {scrollBody}
         {footerEl}
       </form>
     ) : (
-      <div className={drawerBodyClass}>
-        {children}
+      <div className="cabinet-drawer-shell">
+        {scrollBody}
         {footerEl}
       </div>
     );

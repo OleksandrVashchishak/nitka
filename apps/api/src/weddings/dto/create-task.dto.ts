@@ -4,8 +4,10 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TASK_ASSIGNEES, type TaskAssignee } from './update-task.dto';
@@ -32,4 +34,10 @@ export class CreateTaskDto {
   @IsOptional()
   @IsIn(TASK_ASSIGNEES)
   assignee?: TaskAssignee;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  @MaxLength(80)
+  assigneeName?: string | null;
 }

@@ -17,6 +17,7 @@ import { VendorsModule } from './vendors/vendors.module';
 import { SeatingModule } from './seating/seating.module';
 import { DayPlanModule } from './day-plan/day-plan.module';
 import { AdminModule } from './admin/admin.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AdminModule } from './admin/admin.module';
     EmailModule,
     AuthModule,
     AdminModule,
+    ContactModule,
     WeddingsModule,
     VendorsModule,
     GuestsModule,

@@ -5,6 +5,7 @@ import {
   IsIn,
   IsOptional,
   IsString,
+  MaxLength,
   MinLength,
   ValidateIf,
 } from 'class-validator';
@@ -38,4 +39,11 @@ export class UpdateTaskDto {
   @ValidateIf((_, value) => value !== null)
   @IsIn(TASK_ASSIGNEES)
   assignee?: TaskAssignee | null;
+
+  /** Custom label when assignee === "other". */
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  @MaxLength(80)
+  assigneeName?: string | null;
 }

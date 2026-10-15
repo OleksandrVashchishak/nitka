@@ -13,13 +13,16 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminAnalyticsController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
+const contact_service_1 = require("../contact/contact.service");
 const admin_analytics_service_1 = require("./admin-analytics.service");
 const admin_note_dto_1 = require("./dto/admin-note.dto");
 const superadmin_guard_1 = require("./superadmin.guard");
 let AdminAnalyticsController = class AdminAnalyticsController {
-    constructor(analytics) {
+    constructor(analytics, contact) {
         this.analytics = analytics;
+        this.contact = contact;
     }
     getStats() {
         return this.analytics.getStats();
@@ -45,16 +48,27 @@ let AdminAnalyticsController = class AdminAnalyticsController {
     deleteNote(id, noteId) {
         return this.analytics.deleteNote(id, noteId);
     }
+    listContactMessages(page, limit) {
+        return this.contact.list({ page, limit });
+    }
+    markContactRead(id) {
+        return this.contact.markRead(id);
+    }
+    deleteContactMessage(id) {
+        return this.contact.remove(id);
+    }
 };
 exports.AdminAnalyticsController = AdminAnalyticsController;
 __decorate([
     (0, common_1.Get)('stats'),
+    openapi.ApiResponse({ status: 200 }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AdminAnalyticsController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('users'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)('q')),
     __param(1, (0, common_1.Query)('page', new common_1.DefaultValuePipe(1), common_1.ParseIntPipe)),
     __param(2, (0, common_1.Query)('limit', new common_1.DefaultValuePipe(25), common_1.ParseIntPipe)),
@@ -69,6 +83,7 @@ __decorate([
 ], AdminAnalyticsController.prototype, "listUsers", null);
 __decorate([
     (0, common_1.Get)('users/:id'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -76,6 +91,7 @@ __decorate([
 ], AdminAnalyticsController.prototype, "getUser", null);
 __decorate([
     (0, common_1.Post)('users/:id/notes'),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -84,15 +100,42 @@ __decorate([
 ], AdminAnalyticsController.prototype, "addNote", null);
 __decorate([
     (0, common_1.Delete)('users/:id/notes/:noteId'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Param)('noteId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AdminAnalyticsController.prototype, "deleteNote", null);
+__decorate([
+    (0, common_1.Get)('contact-messages'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Query)('page', new common_1.DefaultValuePipe(1), common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Query)('limit', new common_1.DefaultValuePipe(50), common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "listContactMessages", null);
+__decorate([
+    (0, common_1.Patch)('contact-messages/:id/read'),
+    openapi.ApiResponse({ status: 200, type: Object }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "markContactRead", null);
+__decorate([
+    (0, common_1.Delete)('contact-messages/:id'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "deleteContactMessage", null);
 exports.AdminAnalyticsController = AdminAnalyticsController = __decorate([
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(superadmin_guard_1.SuperadminGuard),
-    __metadata("design:paramtypes", [admin_analytics_service_1.AdminAnalyticsService])
+    __metadata("design:paramtypes", [admin_analytics_service_1.AdminAnalyticsService,
+        contact_service_1.ContactService])
 ], AdminAnalyticsController);
 //# sourceMappingURL=admin-analytics.controller.js.map

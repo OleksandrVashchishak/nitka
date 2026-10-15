@@ -1,8 +1,10 @@
+import { ContactService } from '../contact/contact.service';
 import { AdminAnalyticsService } from './admin-analytics.service';
 import { CreateAdminNoteDto } from './dto/admin-note.dto';
 export declare class AdminAnalyticsController {
     private readonly analytics;
-    constructor(analytics: AdminAnalyticsService);
+    private readonly contact;
+    constructor(analytics: AdminAnalyticsService, contact: ContactService);
     getStats(): Promise<{
         generatedAt: string;
         users: {
@@ -218,6 +220,27 @@ export declare class AdminAnalyticsController {
         body: string;
     }>;
     deleteNote(id: string, noteId: string): Promise<{
+        ok: boolean;
+    }>;
+    listContactMessages(page?: number, limit?: number): Promise<{
+        page: number;
+        limit: number;
+        total: number;
+        unread: number;
+        items: {
+            email: string;
+            name: string;
+            id: string;
+            createdAt: Date;
+            message: string;
+            readAt: Date | null;
+        }[];
+    }>;
+    markContactRead(id: string): Promise<{
+        id: string;
+        readAt: Date | null;
+    }>;
+    deleteContactMessage(id: string): Promise<{
         ok: boolean;
     }>;
 }

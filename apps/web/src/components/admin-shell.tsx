@@ -9,6 +9,7 @@ import "@/styles/admin/admin.scss";
 const NAV = [
   { href: "/admin", label: "Огляд", exact: true },
   { href: "/admin/users", label: "Юзери", exact: false },
+  { href: "/admin/messages", label: "Повідомлення", exact: false },
 ] as const;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

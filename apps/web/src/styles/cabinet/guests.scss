@@ -1,3 +1,71 @@
+/* Guests — empty state (Figma) */
+
+.cabinet-guests-empty-art {
+  width: min(310px, 78vw);
+  margin-bottom: 32px;
+}
+
+.cabinet-guests-empty h2 {
+  max-width: none;
+}
+
+.cabinet-guests-empty p.cabinet-guests-empty-lead {
+  max-width: 34rem;
+  margin-top: 20px;
+}
+
+.cabinet-guests-empty p.cabinet-guests-empty-hint {
+  max-width: none;
+  margin-top: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 150%;
+  color: #9aa3ad;
+}
+
+.cabinet-guests-empty .cabinet-empty-actions {
+  margin-top: 16px;
+}
+
+/* Guests — add/edit drawer (Figma AddGuest-Modal) */
+
+.cabinet-guests-drawer {
+  width: min(710px, 100%);
+}
+
+.cabinet-guests-drawer .cabinet-drawer-head {
+  padding: 32px 32px 0;
+}
+
+.cabinet-guests-drawer .cabinet-drawer-head h2 {
+  font-size: 28px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+}
+
+.cabinet-guests-drawer .cabinet-drawer-form {
+  gap: 20px;
+  padding: 28px 32px;
+}
+
+.cabinet-guests-drawer .cabinet-drawer-actions {
+  gap: 12px;
+  padding: 24px 32px 32px;
+}
+
+.cabinet-guests-drawer .cabinet-drawer-cancel,
+.cabinet-guests-drawer .cabinet-drawer-save {
+  min-width: 106px;
+  height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+}
+
+.cabinet-guests-drawer .cabinet-drawer-cancel {
+  border-color: #1a1a1a;
+}
+
 /* Guests — CSV import modal (Figma AddGuest-Modal-imported) */
 
 .cabinet-guests-import-modal {
@@ -224,6 +292,42 @@
 }
 
 @media (max-width: 767px) {
+  .cabinet-guests-drawer {
+    width: 100%;
+  }
+
+  .cabinet-guests-drawer .cabinet-drawer-head {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid #f3f3f3;
+  }
+
+  .cabinet-guests-drawer .cabinet-drawer-head h2 {
+    font-size: 24px;
+  }
+
+  .cabinet-guests-drawer .cabinet-drawer-form {
+    gap: 16px;
+    padding: 20px 16px;
+  }
+
+  /* Figma AddGuest mobile: fixed side-by-side pill actions */
+  .cabinet-guests-drawer .cabinet-drawer-actions {
+    flex-direction: row;
+    justify-content: stretch;
+    gap: 16px;
+    padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid #f3f3f3;
+    background: #fff;
+  }
+
+  .cabinet-guests-drawer .cabinet-drawer-cancel,
+  .cabinet-guests-drawer .cabinet-drawer-save {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    height: 52px;
+  }
+
   .cabinet-modal-root:has(.cabinet-guests-import-modal) {
     padding: 0;
     align-items: stretch;

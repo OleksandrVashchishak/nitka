@@ -1,0 +1,197 @@
+.fata-contact {
+  background: #fff;
+  color: #1a1a1a;
+  min-height: calc(100vh - var(--fata-header-h, 90px));
+  display: flex;
+  flex-direction: column;
+}
+
+.fata-contact-main {
+  flex: 1;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 120px 76px 120px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 652px;
+  gap: 48px;
+  align-items: start;
+}
+
+.fata-contact-copy {
+  max-width: 520px;
+  padding-top: 8px;
+}
+
+.fata-contact-eyebrow {
+  margin: 0 0 20px;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #838383;
+}
+
+.fata-contact-title {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #1a1a1a;
+}
+
+.fata-contact-lead {
+  margin: 20px 0 0;
+  max-width: 420px;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #6b6b6b;
+}
+
+.fata-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 652px;
+}
+
+.fata-contact-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.fata-contact-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 81px;
+  padding-top: 29px;
+}
+
+.fata-contact-field--message {
+  min-height: 81px;
+}
+
+.fata-contact-field input,
+.fata-contact-field textarea {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 16px;
+  margin: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #1a1a1a;
+  outline: none;
+  box-shadow: none;
+  resize: none;
+  appearance: none;
+}
+
+.fata-contact-field textarea {
+  min-height: 52px;
+  overflow: hidden;
+}
+
+.fata-contact-field input::placeholder,
+.fata-contact-field textarea::placeholder {
+  color: #9a9a9a;
+}
+
+.fata-contact-field::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #cacaca;
+}
+
+.fata-contact-field:focus-within::after {
+  background: #1a1a1a;
+}
+
+.fata-contact-submit {
+  margin-top: 52px;
+  align-self: flex-start;
+  min-width: 248px;
+  height: 56px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 28px;
+  background: #61040f;
+  color: #fff;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fata-contact-submit:hover:not(:disabled) {
+  background: #4a030c;
+}
+
+.fata-contact-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.fata-contact-status {
+  margin: 16px 0 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.fata-contact-status.is-ok {
+  color: #2f6b3a;
+}
+
+.fata-contact-status.is-err {
+  color: #a11a1a;
+}
+
+@media (max-width: 1100px) {
+  .fata-contact-main {
+    grid-template-columns: 1fr;
+    padding: 72px 32px 96px;
+    gap: 40px;
+  }
+
+  .fata-contact-title {
+    font-size: 32px;
+  }
+
+  .fata-contact-form {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-contact-main {
+    padding: 48px 20px 72px;
+  }
+
+  .fata-contact-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .fata-contact-title {
+    font-size: 28px;
+  }
+
+  .fata-contact-submit {
+    width: 100%;
+    min-width: 0;
+  }
+}

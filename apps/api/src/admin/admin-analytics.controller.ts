@@ -6,10 +6,12 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ContactService } from '../contact/contact.service';
 import { AdminAnalyticsService } from './admin-analytics.service';
 import { CreateAdminNoteDto } from './dto/admin-note.dto';
 import { SuperadminGuard } from './superadmin.guard';
@@ -17,7 +19,10 @@ import { SuperadminGuard } from './superadmin.guard';
 @Controller('admin')
 @UseGuards(SuperadminGuard)
 export class AdminAnalyticsController {
-  constructor(private readonly analytics: AdminAnalyticsService) {}
+  constructor(
+    private readonly analytics: AdminAnalyticsService,
+    private readonly contact: ContactService,
+  ) {}
 
   @Get('stats')
   getStats() {
@@ -60,5 +65,23 @@ export class AdminAnalyticsController {
   @Delete('users/:id/notes/:noteId')
   deleteNote(@Param('id') id: string, @Param('noteId') noteId: string) {
     return this.analytics.deleteNote(id, noteId);
+  }
+
+  @Get('contact-messages')
+  listContactMessages(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit?: number,
+  ) {
+    return this.contact.list({ page, limit });
+  }
+
+  @Patch('contact-messages/:id/read')
+  markContactRead(@Param('id') id: string) {
+    return this.contact.markRead(id);
+  }
+
+  @Delete('contact-messages/:id')
+  deleteContactMessage(@Param('id') id: string) {
+    return this.contact.remove(id);
   }
 }

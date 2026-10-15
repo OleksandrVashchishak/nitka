@@ -11,12 +11,14 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import {
+  parseTaskAssignee,
+  serializeTaskAssignee,
+} from './task-assignee';
+import {
   requireWeddingForUser,
   requireWeddingOwner,
   resolveWeddingForUser,
 } from './wedding-access';
-import { cloneDefaultDayPlan } from '../day-plan/day-plan.defaults';
-
 /** Стартові задачі для нових акаунтів (розумне планування додає решту). */
 const DEFAULT_TASKS = [
   {
@@ -83,7 +85,13 @@ export class WeddingsService {
   private async attachTaskAssignees<
     T extends { id: string },
   >(weddingId: string, tasks: T[]) {
-    if (tasks.length === 0) return tasks.map((task) => ({ ...task, assignee: null }));
+    if (tasks.length === 0) {
+      return tasks.map((task) => ({
+        ...task,
+        assignee: null,
+        assigneeName: null,
+      }));
+    }
     try {
       const rows = await this.prisma.$queryRaw<
         Array<{ id: string; assignee: string | null }>
@@ -91,12 +99,20 @@ export class WeddingsService {
         SELECT id, assignee FROM tasks WHERE wedding_id = ${weddingId}
       `;
       const map = new Map(rows.map((row) => [row.id, row.assignee]));
+      return tasks.map((task) => {
+        const parsed = parseTaskAssignee(map.get(task.id) ?? null);
+        return {
+          ...task,
+          assignee: parsed.assignee,
+          assigneeName: parsed.assigneeName,
+        };
+      });
+    } catch {
       return tasks.map((task) => ({
         ...task,
-        assignee: map.get(task.id) ?? null,
+        assignee: null,
+        assigneeName: null,
       }));
-    } catch {
-      return tasks.map((task) => ({ ...task, assignee: null }));
     }
   }
 
@@ -104,6 +120,19 @@ export class WeddingsService {
     await this.prisma.$executeRaw`
       UPDATE tasks SET assignee = ${assignee} WHERE id = ${taskId}
     `;
+  }
+
+  private async readTaskAssigneeRaw(taskId: string): Promise<string | null> {
+    try {
+      const rows = await this.prisma.$queryRaw<
+        Array<{ assignee: string | null }>
+      >`
+        SELECT assignee FROM tasks WHERE id = ${taskId} LIMIT 1
+      `;
+      return rows[0]?.assignee ?? null;
+    } catch {
+      return null;
+    }
   }
 
   private async taskWithAssignee(task: { id: string; weddingId: string }) {
@@ -281,7 +310,6 @@ export class WeddingsService {
         planningStage: dto.planningStage ?? 'EXPLORING',
         cityUndecided: dto.cityUndecided ?? false,
         guestsUndecided: dto.guestsUndecided ?? false,
-        dayPlan: cloneDefaultDayPlan(),
         tasks: {
           create: DEFAULT_TASKS.map((task, index) => ({
             title: task.title,
@@ -354,12 +382,11 @@ export class WeddingsService {
       throw new BadRequestException('Термін запрошення минув');
     }
 
-    const partners = [
-      invite.wedding.partnerOneName,
-      invite.wedding.partnerTwoName,
-    ]
-      .map((n) => n.trim())
-      .filter(Boolean);
+    const partnerOne = invite.wedding.partnerOneName.trim();
+    const partnerTwo = invite.wedding.partnerTwoName.trim();
+    const partners = [partnerOne, partnerTwo].filter(Boolean);
+    const inviterName = partnerOne || invite.wedding.user.name.trim();
+    const inviteeName = partnerTwo;
 
     return {
       token: invite.token,
@@ -370,6 +397,8 @@ export class WeddingsService {
         partners.length > 0
           ? partners.join(' & ')
           : invite.wedding.user.name,
+      inviterName,
+      inviteeName,
     };
   }
 
@@ -486,7 +515,10 @@ export class WeddingsService {
 
     if (dto.assignee) {
       try {
-        await this.setTaskAssignee(created.id, dto.assignee);
+        await this.setTaskAssignee(
+          created.id,
+          serializeTaskAssignee(dto.assignee, dto.assigneeName),
+        );
       } catch {
         /* column may be missing until ensure-schema */
       }
@@ -513,9 +545,23 @@ export class WeddingsService {
       },
     });
 
-    if (dto.assignee !== undefined) {
+    if (dto.assignee !== undefined || dto.assigneeName !== undefined) {
       try {
-        await this.setTaskAssignee(taskId, dto.assignee);
+        const current = parseTaskAssignee(
+          await this.readTaskAssigneeRaw(taskId),
+        );
+        const nextWho =
+          dto.assignee !== undefined ? dto.assignee : current.assignee;
+        const nextName =
+          nextWho === 'other'
+            ? dto.assigneeName !== undefined
+              ? dto.assigneeName
+              : current.assigneeName
+            : null;
+        await this.setTaskAssignee(
+          taskId,
+          serializeTaskAssignee(nextWho, nextName),
+        );
       } catch {
         /* column may be missing until ensure-schema */
       }

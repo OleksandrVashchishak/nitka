@@ -6,4 +6,5 @@ export declare class UpdateTaskDto {
     dueDate?: string | null;
     title?: string;
     assignee?: TaskAssignee | null;
+    assigneeName?: string | null;
 }

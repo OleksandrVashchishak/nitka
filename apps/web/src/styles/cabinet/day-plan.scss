@@ -221,13 +221,12 @@
 
 .cabinet-day-plan-drawer .cabinet-drawer-form {
   gap: 16px;
-  padding: 28px 32px 32px;
+  padding: 28px 32px;
 }
 
 .cabinet-day-plan-drawer .cabinet-drawer-actions {
   gap: 12px;
-  margin-top: auto;
-  padding-top: 48px;
+  padding: 48px 32px 32px;
 }
 
 .cabinet-day-plan-drawer .cabinet-drawer-cancel,
@@ -313,13 +312,13 @@
 
   .cabinet-day-plan-drawer .cabinet-drawer-form {
     gap: 16px;
-    padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    padding: 20px 16px;
   }
 
   .cabinet-day-plan-drawer .cabinet-drawer-actions {
     flex-direction: column-reverse;
     gap: 10px;
-    padding-top: 24px;
+    padding: 24px 16px calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   .cabinet-day-plan-drawer .cabinet-drawer-cancel,
@@ -392,6 +391,23 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #6f8f7c;
+}
+
+.cabinet-day-plan-empty-art {
+  width: min(279px, 70vw);
+  height: auto;
+  margin-bottom: 28px;
+}
+
+.cabinet-day-plan-empty-state h2 {
+  max-width: 28rem;
+}
+
+.cabinet-day-plan-empty-seed.fata-button {
+  height: 46px;
+  min-width: 0;
+  padding: 0 20px;
+  border-width: 1.5px;
 }
 
 @media (max-width: 720px) {

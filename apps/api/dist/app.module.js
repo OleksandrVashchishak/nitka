@@ -26,6 +26,7 @@ const vendors_module_1 = require("./vendors/vendors.module");
 const seating_module_1 = require("./seating/seating.module");
 const day_plan_module_1 = require("./day-plan/day-plan.module");
 const admin_module_1 = require("./admin/admin.module");
+const contact_module_1 = require("./contact/contact.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             email_module_1.EmailModule,
             auth_module_1.AuthModule,
             admin_module_1.AdminModule,
+            contact_module_1.ContactModule,
             weddings_module_1.WeddingsModule,
             vendors_module_1.VendorsModule,
             guests_module_1.GuestsModule,

@@ -2,6 +2,8 @@
 
 import { IconClose } from "@/components/icon-close";
 import type { RsvpStatus } from "@/lib/guests-api";
+import { uaNameGenitive, uaNameInstrumental } from "@/lib/ua-name-case";
+
 
 export type GuestPopoverInfo = {
   key: string;
@@ -42,7 +44,8 @@ export function GuestSeatPopover({
         </button>
         {info.swapCandidates.map((c) => (
           <button key={c.key} type="button" onClick={() => onSwap(c.key)}>
-            Поміняти місцями з {c.name}
+            Поміняти місцями з {uaNameInstrumental(c.name)}
+
           </button>
         ))}
       </div>
@@ -106,7 +109,8 @@ export function GuestListPopover({
         ) : null}
         {info.linkedName && onDetach ? (
           <button type="button" onClick={onDetach}>
-            Від’єднати від {info.linkedName}
+            Від’єднати від {uaNameGenitive(info.linkedName)}
+
           </button>
         ) : null}
         {onSeatElsewhere ? (

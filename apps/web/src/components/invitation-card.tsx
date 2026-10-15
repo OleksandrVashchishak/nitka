@@ -6,6 +6,8 @@ import {
   getInvitationTheme,
   type InvitationTheme,
 } from "@/lib/invitation-themes";
+import { uaNameGenitive } from "@/lib/ua-name-case";
+
 
 type Props = {
   templateId: string;
@@ -127,8 +129,9 @@ export function InvitationCard({
           >
             Для{" "}
             <span style={{ color: theme.colors.text }} className="font-medium">
-              {guestName}
+              {uaNameGenitive(guestName)}
             </span>
+
           </p>
         ) : null}
 

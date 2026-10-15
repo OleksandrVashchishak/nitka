@@ -5,4 +5,5 @@ export declare class CreateTaskDto {
     sortOrder?: number;
     dueDate?: string;
     assignee?: TaskAssignee;
+    assigneeName?: string | null;
 }

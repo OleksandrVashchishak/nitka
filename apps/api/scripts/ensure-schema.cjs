@@ -288,6 +288,17 @@ END $$`,
   `CREATE UNIQUE INDEX IF NOT EXISTS day_plan_share_grants_invite_token_key ON day_plan_share_grants(invite_token)`,
   `CREATE INDEX IF NOT EXISTS day_plan_share_grants_user_id_idx ON day_plan_share_grants(user_id)`,
   `CREATE INDEX IF NOT EXISTS day_plan_share_grants_share_id_idx ON day_plan_share_grants(share_id)`,
+
+  // --- Contact form («Напишіть нам») ---
+  `CREATE TABLE IF NOT EXISTS contact_messages (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  message TEXT NOT NULL,
+  read_at TIMESTAMP(3),
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
+  `CREATE INDEX IF NOT EXISTS contact_messages_created_at_idx ON contact_messages(created_at)`,
 ];
 
 async function main() {

@@ -18,7 +18,6 @@ import {
   CabinetContextMenu,
   CabinetContextMenuDivider,
   CabinetContextMenuItem,
-  CabinetContextMenuLabel,
 } from "@/components/cabinet-context-menu";
 import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
@@ -27,9 +26,9 @@ import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
 import {
   ResponsibleAvatar,
-  ResponsibleAvatarDuo,
   TaskResponsibleAvatar,
 } from "@/components/responsible-avatar";
+import { TaskAssigneeMenuBlock } from "@/components/task-assignee-menu";
 import { PartnerInviteBanner } from "@/components/partner-invite-banner";
 import { SmartPlanningWizard } from "@/components/smart-planning-wizard";
 import { PageLoader } from "@/components/ui-loader";
@@ -66,19 +65,17 @@ import {
 import { toast } from "@/lib/toast";
 import { useAnimatedProgress } from "@/lib/use-animated-progress";
 import { useAuthStore } from "@/lib/auth-store";
+import {
+  CABINET_CATEGORIES,
+  cabinetCategoryMeta,
+  cabinetCategoryToSlug,
+  resolveCabinetCategory,
+  type CabinetCategoryId,
+} from "@/lib/cabinet-categories";
 import "@/styles/cabinet/cabinet.scss";
 
 type StatusFilter = "all" | "open" | "done";
-type TypeFilter =
-  | "all"
-  | "prep"
-  | "vendors"
-  | "attire"
-  | "guests"
-  | "budget"
-  | "invites"
-  | "other"
-  | "guests_invites";
+type TypeFilter = "all" | CabinetCategoryId;
 type DueFilter = "all" | "soon" | "week" | "overdue" | "nodate";
 type WhoFilter = "all" | "owner" | "partner";
 type SortMode = "urgent" | "date" | "alpha";
@@ -86,26 +83,13 @@ type TaskWho = TaskAssignee;
 
 type ChecklistRow = WeddingTask & {
   effectiveDue: string | null;
-  taskType: Exclude<TypeFilter, "all" | "other" | "guests_invites">;
+  taskType: CabinetCategoryId;
   who: TaskWho;
 };
 
 const TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
   { id: "all", label: "Всі" },
-  { id: "prep", label: "Підготовка" },
-  { id: "vendors", label: "Підрядники" },
-  { id: "attire", label: "Вбрання" },
-  { id: "guests", label: "Гості" },
-  { id: "budget", label: "Бюджет" },
-  { id: "invites", label: "Запрошення" },
-];
-
-const MOBILE_TYPE_OPTIONS: Array<{ id: TypeFilter; label: string }> = [
-  { id: "all", label: "Всі" },
-  { id: "prep", label: "Підготовка" },
-  { id: "vendors", label: "Підрядники" },
-  { id: "guests_invites", label: "Гості і Запрошення" },
-  { id: "other", label: "Інше" },
+  ...CABINET_CATEGORIES,
 ];
 
 const DEFAULT_FILTERS = {
@@ -131,7 +115,7 @@ function resolveTaskWho(task: WeddingTask): TaskWho {
   if (task.assignee && TASK_WHO_VALUES.includes(task.assignee)) {
     return task.assignee;
   }
-  return task.sortOrder % 2 === 0 ? "owner" : "partner";
+  return "none";
 }
 
 function formatTaskDate(iso: string) {
@@ -147,73 +131,12 @@ function effectiveDueFor(task: WeddingTask, _weddingDate: string) {
 function resolveTaskType(
   slug: string | null | undefined,
   title: string,
-): Exclude<TypeFilter, "all" | "other" | "guests_invites"> {
-  const key = slug ?? "";
-  const lower = title.toLowerCase();
-  if (key === "starter-budget" || key === "budget" || lower.includes("бюджет")) {
-    return "budget";
-  }
-  if (
-    key === "invitations" ||
-    key === "invite-guests" ||
-    key === "website" ||
-    lower.includes("запрош")
-  ) {
-    return "invites";
-  }
-  if (
-    key === "starter-guests" ||
-    key === "guests" ||
-    key === "rsvp" ||
-    key === "seating" ||
-    lower.includes("гост") ||
-    lower.includes("розсад")
-  ) {
-    return "guests";
-  }
-  if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
-    return "attire";
-  }
-  if (
-    [
-      "venue",
-      "photo",
-      "music",
-      "catering",
-      "decor",
-      "officiant",
-      "planner",
-      "cake",
-      "favorites",
-      "requests",
-    ].includes(key) ||
-    lower.includes("фото") ||
-    lower.includes("місц") ||
-    lower.includes("ведуч") ||
-    lower.includes("підряд")
-  ) {
-    return "vendors";
-  }
-  return "prep";
+): CabinetCategoryId {
+  return resolveCabinetCategory(slug, title);
 }
 
-function typeMeta(
-  type: Exclude<TypeFilter, "all" | "other" | "guests_invites">,
-) {
-  switch (type) {
-    case "vendors":
-      return { label: "Підрядники", tone: "lilac" as const };
-    case "attire":
-      return { label: "Вбрання", tone: "blue" as const };
-    case "invites":
-      return { label: "Запрошення", tone: "orange" as const };
-    case "guests":
-      return { label: "Гості", tone: "gray" as const };
-    case "budget":
-      return { label: "Бюджет", tone: "gray" as const };
-    default:
-      return { label: "Підготовка", tone: "gray" as const };
-  }
+function typeMeta(type: CabinetCategoryId) {
+  return cabinetCategoryMeta(type);
 }
 
 function matchesTypeFilter(
@@ -221,12 +144,6 @@ function matchesTypeFilter(
   filter: TypeFilter,
 ) {
   if (filter === "all") return true;
-  if (filter === "guests_invites") {
-    return taskType === "guests" || taskType === "invites";
-  }
-  if (filter === "other") {
-    return taskType === "attire" || taskType === "budget";
-  }
   return taskType === filter;
 }
 
@@ -269,10 +186,8 @@ function ChecklistInner() {
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDue, setNewDue] = useState("");
-  const [newType, setNewType] = useState<
-    Exclude<TypeFilter, "all" | "other" | "guests_invites"> | ""
-  >("");
-  const [newWho, setNewWho] = useState<TaskWho>("owner");
+  const [newType, setNewType] = useState<CabinetCategoryId | "">("");
+  const [newWho, setNewWho] = useState<TaskWho>("none");
   const [newOtherName, setNewOtherName] = useState("");
   const [wizardOpen, setWizardOpen] = useState(false);
   const [showSmartBanner, setShowSmartBanner] = useState(false);
@@ -393,13 +308,7 @@ function ChecklistInner() {
     if (!filtersOpen) return;
 
     setDraftStatus(statusFilter);
-    setDraftType(
-      typeFilter === "attire" || typeFilter === "budget"
-        ? "other"
-        : typeFilter === "guests" || typeFilter === "invites"
-          ? "guests_invites"
-          : typeFilter,
-    );
+    setDraftType(typeFilter);
     setDraftDue(
       dueFilter === "soon" || dueFilter === "nodate" ? "all" : dueFilter,
     );
@@ -453,14 +362,12 @@ function ChecklistInner() {
     const status = { all: rows.length, open: 0, done: 0 };
     const types: Record<TypeFilter, number> = {
       all: rows.length,
-      prep: 0,
       vendors: 0,
       attire: 0,
-      guests: 0,
-      budget: 0,
-      invites: 0,
+      decor: 0,
+      banquet: 0,
+      print: 0,
       other: 0,
-      guests_invites: 0,
     };
     const due = {
       all: rows.length,
@@ -475,12 +382,6 @@ function ChecklistInner() {
       if (row.status === "DONE") status.done += 1;
       else status.open += 1;
       types[row.taskType] += 1;
-      if (row.taskType === "attire" || row.taskType === "budget") {
-        types.other += 1;
-      }
-      if (row.taskType === "guests" || row.taskType === "invites") {
-        types.guests_invites += 1;
-      }
       if (row.who === "owner" || row.who === "both") who.owner += 1;
       if (row.who === "partner" || row.who === "both") who.partner += 1;
       if (!row.effectiveDue) due.nodate += 1;
@@ -630,25 +531,8 @@ function ChecklistInner() {
     }
   }
 
-  function typeToSlug(
-    type: Exclude<TypeFilter, "all" | "other" | "guests_invites"> | "",
-  ) {
-    switch (type) {
-      case "vendors":
-        return "photo";
-      case "attire":
-        return "attire";
-      case "guests":
-        return "guests";
-      case "budget":
-        return "budget";
-      case "invites":
-        return "invitations";
-      case "prep":
-        return "vibe";
-      default:
-        return "phase-1";
-    }
+  function typeToSlug(type: CabinetCategoryId | "") {
+    return type ? cabinetCategoryToSlug(type) : "other";
   }
 
   function resetDrawer() {
@@ -656,7 +540,7 @@ function ChecklistInner() {
     setNewTitle("");
     setNewDue("");
     setNewType("");
-    setNewWho("owner");
+    setNewWho("none");
     setNewOtherName("");
   }
 
@@ -677,7 +561,7 @@ function ChecklistInner() {
     setNewDue(task.dueDate?.slice(0, 10) ?? "");
     setNewType(task.taskType);
     setNewWho(task.who);
-    setNewOtherName("");
+    setNewOtherName(task.assigneeName?.trim() ?? "");
     setMenuOpenId(null);
     setDrawerOpen(true);
   }
@@ -700,15 +584,19 @@ function ChecklistInner() {
     const dueDate = newDue.trim() ? newDue.trim() : null;
     setAdding(true);
     try {
+      const otherName =
+        newWho === "other" ? newOtherName.trim() || null : null;
       if (editingId) {
         const existing = wedding.tasks.find((t) => t.id === editingId);
         const payload: {
           title?: string;
           dueDate: string | null;
           assignee: TaskAssignee;
+          assigneeName: string | null;
         } = {
           dueDate,
           assignee: newWho,
+          assigneeName: otherName,
         };
         if (existing?.isCustom) {
           payload.title = title;
@@ -722,6 +610,7 @@ function ChecklistInner() {
           categorySlug: typeToSlug(newType),
           sortOrder: newWho === "partner" ? 1 : 0,
           assignee: newWho,
+          assigneeName: otherName,
         });
         setWedding((prev) =>
           prev ? { ...prev, tasks: [...prev.tasks, created] } : prev,
@@ -742,15 +631,38 @@ function ChecklistInner() {
     }
   }
 
-  async function onSetAssignee(task: ChecklistRow, assignee: TaskAssignee) {
-    setMenuOpenId(null);
-    if (task.who === assignee) return;
-    patchLocal(task.id, { assignee });
+  async function onSetAssignee(
+    task: ChecklistRow,
+    assignee: TaskAssignee,
+    options?: { keepMenuOpen?: boolean; assigneeName?: string | null },
+  ) {
+    if (!options?.keepMenuOpen) setMenuOpenId(null);
+    const nextName =
+      assignee === "other"
+        ? (options?.assigneeName !== undefined
+            ? options.assigneeName
+            : (task.assigneeName ?? null))
+        : null;
+    const sameWho = task.who === assignee;
+    const sameName =
+      assignee !== "other" ||
+      (task.assigneeName?.trim() ?? "") === (nextName?.trim() ?? "");
+    if (sameWho && sameName) return;
+    patchLocal(task.id, {
+      assignee,
+      assigneeName: nextName,
+    });
     try {
-      const updated = await updateTask(task.id, { assignee });
+      const updated = await updateTask(task.id, {
+        assignee,
+        assigneeName: nextName,
+      });
       patchLocal(task.id, updated);
     } catch (err) {
-      patchLocal(task.id, { assignee: task.assignee ?? null });
+      patchLocal(task.id, {
+        assignee: task.assignee ?? null,
+        assigneeName: task.assigneeName ?? null,
+      });
       toast.error(err instanceof Error ? err.message : "Не оновлено");
     }
   }
@@ -837,6 +749,7 @@ function ChecklistInner() {
           title: task.title,
           categorySlug: task.categorySlug,
           sortOrder: 100 + index,
+          assignee: "none",
           ...(dueDate ? { dueDate } : {}),
         },
         { silent: true },
@@ -964,7 +877,7 @@ function ChecklistInner() {
             onChange={(id) => setStatusFilter(id as StatusFilter)}
           />
           <CabinetFilterGroup
-            title="Тип завдання"
+            title="Категорія"
             items={TYPE_OPTIONS.map((opt) => ({
               id: opt.id,
               label: opt.label,
@@ -1097,22 +1010,26 @@ function ChecklistInner() {
                         </span>
                       </div>
                       <div className="cabinet-task-meta-wrap">
-                        {task.effectiveDue ? (
-                          <span
-                            className={`cabinet-task-date${taskDateTone(
-                              task.effectiveDue,
-                              done,
-                            )}`}
-                          >
-                            {formatTaskDate(task.effectiveDue)}
-                          </span>
-                        ) : null}
+                        <span
+                          className={`cabinet-task-date${
+                            task.effectiveDue
+                              ? taskDateTone(task.effectiveDue, done)
+                              : ""
+                          }`}
+                        >
+                          {task.effectiveDue
+                            ? formatTaskDate(task.effectiveDue)
+                            : null}
+                        </span>
                         <div className="cabinet-task-actions">
-                          <TaskResponsibleAvatar
-                            who={task.who}
-                            ownerName={ownerShort}
-                            partnerName={partnerShort}
-                          />
+                          <span className="cabinet-task-assignee-slot">
+                            <TaskResponsibleAvatar
+                              who={task.who}
+                              ownerName={ownerShort}
+                              partnerName={partnerShort}
+                              otherName={task.assigneeName}
+                            />
+                          </span>
                           <div className="cabinet-ctx-menu-wrap">
                             <IconButton
                               variant="ghost"
@@ -1142,69 +1059,23 @@ function ChecklistInner() {
                                 </CabinetContextMenuItem>
 
                                 <CabinetContextMenuDivider />
-                                <CabinetContextMenuLabel>
-                                  Хто відповідальний
-                                </CabinetContextMenuLabel>
-
-                                <CabinetContextMenuItem
-                                  icon={
-                                    <ResponsibleAvatar
-                                      name={ownerShort}
-                                      tone="owner"
-                                    />
+                                <TaskAssigneeMenuBlock
+                                  who={task.who}
+                                  otherName={task.assigneeName}
+                                  ownerName={ownerShort}
+                                  partnerName={partnerShort}
+                                  onSelect={(assignee) =>
+                                    void onSetAssignee(task, assignee, {
+                                      keepMenuOpen: assignee === "other",
+                                    })
                                   }
-                                  active={task.who === "owner"}
-                                  onClick={() =>
-                                    void onSetAssignee(task, "owner")
-                                  }
-                                >
-                                  {ownerShort}
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  icon={
-                                    <ResponsibleAvatar
-                                      name={partnerShort}
-                                      tone="partner"
-                                    />
-                                  }
-                                  active={task.who === "partner"}
-                                  onClick={() =>
-                                    void onSetAssignee(task, "partner")
-                                  }
-                                >
-                                  {partnerShort}
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  icon={
-                                    <ResponsibleAvatarDuo
-                                      ownerName={ownerShort}
-                                      partnerName={partnerShort}
-                                      aria-hidden
-                                    />
-                                  }
-                                  active={task.who === "both"}
-                                  onClick={() =>
-                                    void onSetAssignee(task, "both")
-                                  }
-                                >
-                                  Обоє
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  active={task.who === "none"}
-                                  onClick={() =>
-                                    void onSetAssignee(task, "none")
-                                  }
-                                >
-                                  Ніхто
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  active={task.who === "other"}
-                                  onClick={() =>
-                                    void onSetAssignee(task, "other")
-                                  }
-                                >
-                                  Хтось інший
-                                </CabinetContextMenuItem>
+                                  onSaveOtherName={(name) => {
+                                    setMenuOpenId(null);
+                                    void onSetAssignee(task, "other", {
+                                      assigneeName: name || null,
+                                    });
+                                  }}
+                                />
                               </CabinetContextMenu>
                             ) : null}
                           </div>
@@ -1272,8 +1143,8 @@ function ChecklistInner() {
           onChange={(id) => setDraftStatus(id as StatusFilter)}
         />
         <CabinetFilterGroup
-          title="Тип завдання"
-          items={MOBILE_TYPE_OPTIONS.map((opt) => ({
+          title="Категорія"
+          items={TYPE_OPTIONS.map((opt) => ({
             id: opt.id,
             label: opt.label,
             count: counts.types[opt.id],
@@ -1348,20 +1219,13 @@ function ChecklistInner() {
         />
         {!editingId ? (
           <Select
-            label="Тип завдання"
+            label="Категорія"
             value={newType}
             onChange={(e) =>
-              setNewType(
-                e.target.value as
-                  | Exclude<
-                      TypeFilter,
-                      "all" | "other" | "guests_invites"
-                    >
-                  | "",
-              )
+              setNewType(e.target.value as CabinetCategoryId | "")
             }
           >
-            <option value="">Не призначено</option>
+            <option value="">Обрати категорію</option>
             {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
               <option key={opt.id} value={opt.id}>
                 {opt.label}
@@ -1374,17 +1238,22 @@ function ChecklistInner() {
           value={newWho}
           onChange={(e) => setNewWho(e.target.value as TaskWho)}
           startAdornment={
-            <TaskResponsibleAvatar
-              who={newWho}
-              ownerName={ownerShort}
-              partnerName={partnerShort}
-            />
+            newWho === "none" ? (
+              <ResponsibleAvatar tone="none" letter="—" title="Ніхто" aria-hidden />
+            ) : (
+              <TaskResponsibleAvatar
+                who={newWho}
+                ownerName={ownerShort}
+                partnerName={partnerShort}
+                otherName={newOtherName}
+              />
+            )
           }
         >
+          <option value="none">Ніхто</option>
           <option value="owner">{ownerShort}</option>
           <option value="partner">{partnerShort}</option>
           <option value="both">Обоє</option>
-          <option value="none">Ніхто</option>
           <option value="other">Хтось інший</option>
         </Select>
         {newWho === "other" ? (
@@ -1392,7 +1261,7 @@ function ChecklistInner() {
             label="Вкажіть відповідального"
             value={newOtherName}
             onChange={(e) => setNewOtherName(e.target.value)}
-            placeholder="Введіть імʼя або роль"
+            placeholder="Напишіть відповідального"
           />
         ) : null}
       </CabinetOverlay>

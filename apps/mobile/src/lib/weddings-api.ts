@@ -52,6 +52,8 @@ export async function getPartnerInvitePreview(token: string) {
     city: string;
     date: string;
     coupleName: string;
+    inviterName: string;
+    inviteeName: string;
   }>;
 }
 

@@ -731,15 +731,15 @@ export function HomeLanding() {
             <div>
               <h4>Компанія</h4>
               <Link href="/content">Про нас</Link>
-              <Link href="/content">Ідеї</Link>
-              <Link href="/content">Контакти</Link>
+              <Link href="/blog">Ідеї</Link>
+              <Link href="/napyshit-nam">Контакти</Link>
             </div>
             <div>
               <h4>Підтримка</h4>
               <Link href="/content">Допомога</Link>
               <Link href="/content">Умови використання</Link>
               <Link href="/content">Політика конфіденційності</Link>
-              <Link href="/content">Зворотний зв’язок</Link>
+              <Link href="/napyshit-nam">Напишіть нам</Link>
             </div>
           </div>
           <div className="fata-foot-line" />

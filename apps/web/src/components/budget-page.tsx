@@ -52,17 +52,18 @@ import {
 } from "@/lib/notifications-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
+import { uaNameGenitive } from "@/lib/ua-name-case";
+import {
+  CABINET_CATEGORIES,
+  cabinetCategoryToSlug,
+  resolveCabinetCategory,
+  type CabinetCategoryId,
+} from "@/lib/cabinet-categories";
 import "@/styles/cabinet/cabinet.scss";
 
+
 type StatusFilter = "all" | "paid" | "unpaid";
-type CategoryFilter =
-  | "all"
-  | "vendors"
-  | "attire"
-  | "decor"
-  | "banquet"
-  | "print"
-  | "other";
+type CategoryFilter = "all" | CabinetCategoryId;
 type PayerFilter =
   | "all"
   | "couple"
@@ -82,7 +83,7 @@ type SortMode = "recent" | "amount" | "alpha";
 type Currency = "UAH" | "USD";
 
 type BudgetRow = BudgetItem & {
-  uiCategory: Exclude<CategoryFilter, "all">;
+  uiCategory: CabinetCategoryId;
   payer: Exclude<PayerFilter, "all">;
   amount: number;
 };
@@ -96,15 +97,7 @@ type BudgetRow = BudgetItem & {
  */
 const USD_RATE = 41;
 
-const UI_CATEGORIES: Array<{ id: Exclude<CategoryFilter, "all">; label: string }> =
-  [
-    { id: "vendors", label: "Підрядники" },
-    { id: "attire", label: "Образи" },
-    { id: "decor", label: "Декор" },
-    { id: "banquet", label: "Банкет" },
-    { id: "print", label: "Поліграфія" },
-    { id: "other", label: "Інше" },
-  ];
+const UI_CATEGORIES = CABINET_CATEGORIES;
 
 const PAYERS: Array<{ id: Exclude<PayerFilter, "all">; label: string }> = [
   { id: "couple", label: "Обоє" },
@@ -114,49 +107,12 @@ const PAYERS: Array<{ id: Exclude<PayerFilter, "all">; label: string }> = [
   { id: "parents_partner", label: "Батьки нареченого" },
 ];
 
-const API_TO_UI: Record<string, Exclude<CategoryFilter, "all">> = {
-  venue: "vendors",
-  photo: "vendors",
-  video: "vendors",
-  music: "vendors",
-  host: "vendors",
-  beauty: "vendors",
-  transport: "vendors",
-  vendors: "vendors",
-  attire: "attire",
-  rings: "attire",
-  decor: "decor",
-  catering: "banquet",
-  cake: "banquet",
-  banquet: "banquet",
-  docs: "print",
-  gifts: "print",
-  print: "print",
-  other: "other",
-  honeymoon: "other",
-  reserve: "other",
-};
-
-function mapApiCategory(slug: string): Exclude<CategoryFilter, "all"> {
-  return API_TO_UI[slug] ?? "other";
+function mapApiCategory(slug: string): CabinetCategoryId {
+  return resolveCabinetCategory(slug);
 }
 
-function uiToApiCategory(ui: Exclude<CategoryFilter, "all"> | "") {
-  switch (ui) {
-    case "vendors":
-      return "vendors";
-    case "attire":
-      return "attire";
-    case "decor":
-      return "decor";
-    case "banquet":
-      return "banquet";
-    case "print":
-      return "print";
-    case "other":
-    default:
-      return "other";
-  }
+function uiToApiCategory(ui: CabinetCategoryId | "") {
+  return cabinetCategoryToSlug(ui || "other");
 }
 
 function parsePayer(notes: string | null): Exclude<PayerFilter, "all"> {
@@ -317,7 +273,7 @@ function BudgetInner() {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [formCurrency, setFormCurrency] = useState<Currency>("UAH");
-  const [category, setCategory] = useState<Exclude<CategoryFilter, "all"> | "">(
+  const [category, setCategory] = useState<CabinetCategoryId | "">(
     "",
   );
   const [vendorId, setVendorId] = useState("");
@@ -406,7 +362,7 @@ function BudgetInner() {
         c.id,
         rows.filter((r) => r.uiCategory === c.id).reduce((s, r) => s + r.amount, 0),
       ]),
-    ) as Record<Exclude<CategoryFilter, "all">, number>;
+    ) as Record<CabinetCategoryId, number>;
     const payers = Object.fromEntries(
       PAYERS.map((p) => [
         p.id,
@@ -466,8 +422,9 @@ function BudgetInner() {
       couple: "Обоє",
       owner: ownerName,
       partner: partnerName,
-      parents_owner: `Батьки ${ownerName}`,
-      parents_partner: `Батьки ${partnerName}`,
+      parents_owner: `Батьки ${uaNameGenitive(ownerName)}`,
+      parents_partner: `Батьки ${uaNameGenitive(partnerName)}`,
+
       unknown: "Ніхто",
       other: "Хтось інший",
     }),
@@ -1029,11 +986,19 @@ function BudgetInner() {
                                   </CabinetContextMenuItem>
                                   <CabinetContextMenuItem
                                     icon={
-                                      <ResponsibleAvatarDuo
-                                        ownerName={ownerName}
-                                        partnerName={partnerName}
+                                      <span
+                                        className="cabinet-ctx-menu-avatars"
                                         aria-hidden
-                                      />
+                                      >
+                                        <ResponsibleAvatar
+                                          name={partnerName}
+                                          tone="partner"
+                                        />
+                                        <ResponsibleAvatar
+                                          name={ownerName}
+                                          tone="owner"
+                                        />
+                                      </span>
                                     }
                                     active={item.payer === "couple"}
                                     disabled={busy}
@@ -1212,7 +1177,7 @@ function BudgetInner() {
           value={category}
           onChange={(e) =>
             setCategory(
-              e.target.value as Exclude<CategoryFilter, "all"> | "",
+              e.target.value as CabinetCategoryId | "",
             )
           }
         >

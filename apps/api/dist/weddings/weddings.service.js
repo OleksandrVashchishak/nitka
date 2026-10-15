@@ -14,8 +14,8 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
+const task_assignee_1 = require("./task-assignee");
 const wedding_access_1 = require("./wedding-access");
-const day_plan_defaults_1 = require("../day-plan/day-plan.defaults");
 const DEFAULT_TASKS = [
     {
         title: 'Побудувати список завдань',
@@ -69,26 +69,50 @@ let WeddingsService = class WeddingsService {
         };
     }
     async attachTaskAssignees(weddingId, tasks) {
-        if (tasks.length === 0)
-            return tasks.map((task) => ({ ...task, assignee: null }));
+        if (tasks.length === 0) {
+            return tasks.map((task) => ({
+                ...task,
+                assignee: null,
+                assigneeName: null,
+            }));
+        }
         try {
             const rows = await this.prisma.$queryRaw `
         SELECT id, assignee FROM tasks WHERE wedding_id = ${weddingId}
       `;
             const map = new Map(rows.map((row) => [row.id, row.assignee]));
-            return tasks.map((task) => ({
-                ...task,
-                assignee: map.get(task.id) ?? null,
-            }));
+            return tasks.map((task) => {
+                const parsed = (0, task_assignee_1.parseTaskAssignee)(map.get(task.id) ?? null);
+                return {
+                    ...task,
+                    assignee: parsed.assignee,
+                    assigneeName: parsed.assigneeName,
+                };
+            });
         }
         catch {
-            return tasks.map((task) => ({ ...task, assignee: null }));
+            return tasks.map((task) => ({
+                ...task,
+                assignee: null,
+                assigneeName: null,
+            }));
         }
     }
     async setTaskAssignee(taskId, assignee) {
         await this.prisma.$executeRaw `
       UPDATE tasks SET assignee = ${assignee} WHERE id = ${taskId}
     `;
+    }
+    async readTaskAssigneeRaw(taskId) {
+        try {
+            const rows = await this.prisma.$queryRaw `
+        SELECT assignee FROM tasks WHERE id = ${taskId} LIMIT 1
+      `;
+            return rows[0]?.assignee ?? null;
+        }
+        catch {
+            return null;
+        }
     }
     async taskWithAssignee(task) {
         const [enriched] = await this.attachTaskAssignees(task.weddingId, [task]);
@@ -234,7 +258,6 @@ let WeddingsService = class WeddingsService {
                 planningStage: dto.planningStage ?? 'EXPLORING',
                 cityUndecided: dto.cityUndecided ?? false,
                 guestsUndecided: dto.guestsUndecided ?? false,
-                dayPlan: (0, day_plan_defaults_1.cloneDefaultDayPlan)(),
                 tasks: {
                     create: DEFAULT_TASKS.map((task, index) => ({
                         title: task.title,
@@ -299,12 +322,11 @@ let WeddingsService = class WeddingsService {
         if (invite.expiresAt < new Date()) {
             throw new common_1.BadRequestException('Термін запрошення минув');
         }
-        const partners = [
-            invite.wedding.partnerOneName,
-            invite.wedding.partnerTwoName,
-        ]
-            .map((n) => n.trim())
-            .filter(Boolean);
+        const partnerOne = invite.wedding.partnerOneName.trim();
+        const partnerTwo = invite.wedding.partnerTwoName.trim();
+        const partners = [partnerOne, partnerTwo].filter(Boolean);
+        const inviterName = partnerOne || invite.wedding.user.name.trim();
+        const inviteeName = partnerTwo;
         return {
             token: invite.token,
             expiresAt: invite.expiresAt,
@@ -313,6 +335,8 @@ let WeddingsService = class WeddingsService {
             coupleName: partners.length > 0
                 ? partners.join(' & ')
                 : invite.wedding.user.name,
+            inviterName,
+            inviteeName,
         };
     }
     async removePartner(userId) {
@@ -409,7 +433,7 @@ let WeddingsService = class WeddingsService {
         });
         if (dto.assignee) {
             try {
-                await this.setTaskAssignee(created.id, dto.assignee);
+                await this.setTaskAssignee(created.id, (0, task_assignee_1.serializeTaskAssignee)(dto.assignee, dto.assigneeName));
             }
             catch {
             }
@@ -431,9 +455,16 @@ let WeddingsService = class WeddingsService {
                 ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
             },
         });
-        if (dto.assignee !== undefined) {
+        if (dto.assignee !== undefined || dto.assigneeName !== undefined) {
             try {
-                await this.setTaskAssignee(taskId, dto.assignee);
+                const current = (0, task_assignee_1.parseTaskAssignee)(await this.readTaskAssigneeRaw(taskId));
+                const nextWho = dto.assignee !== undefined ? dto.assignee : current.assignee;
+                const nextName = nextWho === 'other'
+                    ? dto.assigneeName !== undefined
+                        ? dto.assigneeName
+                        : current.assigneeName
+                    : null;
+                await this.setTaskAssignee(taskId, (0, task_assignee_1.serializeTaskAssignee)(nextWho, nextName));
             }
             catch {
             }

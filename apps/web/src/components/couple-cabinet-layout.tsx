@@ -6,10 +6,13 @@ import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { CabinetBottomNav } from "@/components/cabinet-bottom-nav";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
+import { IconSms } from "@/components/icon-sms";
 import { Button } from "@/components/ui/button";
 import { createPartnerInvite, getMyWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
+import { detectUaNameGender, uaNameAccusative } from "@/lib/ua-name-case";
 import "@/styles/cabinet/cabinet.scss";
+
 
 const CabinetCtx = createContext(false);
 export function useCoupleCabinet() {
@@ -129,21 +132,32 @@ function SidebarInviteCard() {
     }
   }
 
+  const name = uaNameAccusative(partnerName);
+  const raw = partnerName.trim();
+  const feminine =
+    !!raw &&
+    !/^партнер/i.test(raw) &&
+    detectUaNameGender(raw) === "feminine";
+
   return (
     <div className="cabinet-app-card cabinet-invite-card">
-      <div className="cabinet-invite-icon" aria-hidden>
-        +
-      </div>
-      <div>
-        <h3>Запросіть {partnerName}</h3>
-        <p>Додайте партнера до кабінету — разом ведіть задачі, гостей і бюджет.</p>
+      <div className="cabinet-invite-card__body">
+        <div className="cabinet-invite-card__head">
+          <IconSms className="cabinet-invite-card__icon" />
+          <h3>Запросіть {name}</h3>
+        </div>
+        <p>
+          Додайте {name} до спільного доступу, щоб{" "}
+          {feminine ? "вона могла" : "він міг"} бачити та редагувати ваш
+          дашборд.
+        </p>
       </div>
       <Button
         type="button"
-        tone="black"
+        tone="ink"
         size="s"
         fullWidth
-        className="cabinet-app-btn"
+        className="cabinet-app-btn cabinet-invite-card__btn"
         loading={busy}
         loadingText="…"
         onClick={() => void onInvite()}

@@ -17,6 +17,8 @@ import {
   type DayPlanShareState,
 } from "@/lib/day-plan-share-api";
 import { toast } from "@/lib/toast";
+import { uaNameGenitive } from "@/lib/ua-name-case";
+
 
 type Props = {
   shareToken: string;
@@ -173,7 +175,8 @@ export function DayPlanShareModal({
                     <Select
                       size="s"
                       value={person.access}
-                      aria-label={`Доступ для ${person.name}`}
+                      aria-label={`Доступ для ${uaNameGenitive(person.name)}`}
+
                       disabled={busyGrantId === person.id}
                       onChange={(e) =>
                         void onGrantChange(person, e.target.value)

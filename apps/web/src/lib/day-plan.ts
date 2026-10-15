@@ -156,13 +156,14 @@ function readLocalDayPlan(weddingId: string): DayPlanEvent[] | null {
   }
 }
 
-/** Sync read from localStorage (legacy / offline fallback). Seeds defaults if empty. */
+/** Sync read from localStorage (legacy / offline fallback). Does not seed. */
 export function loadDayPlan(weddingId: string): DayPlanEvent[] {
-  const local = readLocalDayPlan(weddingId);
-  if (local) return local;
-  const seed = DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
-  saveDayPlan(weddingId, seed);
-  return seed;
+  return readLocalDayPlan(weddingId) ?? [];
+}
+
+/** Стартовий шаблон розкладу — лише після явного «Додати план». */
+export function cloneDefaultDayPlan(): DayPlanEvent[] {
+  return DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
 }
 
 export function saveDayPlan(weddingId: string, events: DayPlanEvent[]) {
@@ -204,7 +205,7 @@ export async function persistDayPlan(events: DayPlanEvent[]) {
 /**
  * Load day plan from API.
  * If DB empty but browser has old localStorage — migrate once.
- * If both empty — seed DEFAULT_DAY_PLAN and persist.
+ * If both empty — return [] (empty state until user adds a plan).
  */
 export async function loadDayPlanWithMigration(
   weddingId: string,
@@ -227,18 +228,18 @@ export async function loadDayPlanWithMigration(
   }
 
   const local = readLocalDayPlan(weddingId);
-  const next = local?.length
-    ? local
-    : DEFAULT_DAY_PLAN.map((e) => ({ ...e }));
-
-  try {
-    await persistDayPlan(next);
-    clearLocalDayPlan(weddingId);
-  } catch {
-    saveDayPlan(weddingId, next);
+  if (!local?.length) {
+    return [];
   }
 
-  return sortDayPlanEvents(next);
+  try {
+    await persistDayPlan(local);
+    clearLocalDayPlan(weddingId);
+  } catch {
+    saveDayPlan(weddingId, local);
+  }
+
+  return sortDayPlanEvents(local);
 }
 
 export async function saveDayPlanRemote(

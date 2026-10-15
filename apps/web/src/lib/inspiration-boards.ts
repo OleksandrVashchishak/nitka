@@ -12,6 +12,8 @@ export const DEFAULT_INSPIRATION_BOARDS: InspirationBoard[] = [
     images: [
       "/landing/prefooter/footer-placeholder-2.jpg",
       "/landing/prefooter/footer-placeholder-7.jpg",
+      "/landing/prefooter/footer-placeholder-14.jpg",
+      "/landing/couple.jpg",
     ],
   },
   {
@@ -20,6 +22,8 @@ export const DEFAULT_INSPIRATION_BOARDS: InspirationBoard[] = [
     images: [
       "/landing/prefooter/footer-placeholder-4.jpg",
       "/landing/feat-3.jpg",
+      "/landing/prefooter/footer-placeholder-10.jpg",
+      "/landing/feat-4.jpg",
     ],
   },
   {
@@ -28,6 +32,8 @@ export const DEFAULT_INSPIRATION_BOARDS: InspirationBoard[] = [
     images: [
       "/wedding-site/story.jpg",
       "/landing/prefooter/footer-placeholder-3.jpg",
+      "/landing/prefooter/footer-placeholder-18.jpg",
+      "/wedding-site/hero.jpg",
     ],
   },
   {
@@ -36,12 +42,14 @@ export const DEFAULT_INSPIRATION_BOARDS: InspirationBoard[] = [
     images: [
       "/landing/hero-photo.jpg",
       "/landing/prefooter/footer-placeholder-11.jpg",
+      "/landing/prefooter/footer-placeholder-1.jpg",
+      "/landing/prefooter/footer-placeholder-6.jpg",
     ],
   },
 ];
 
 export function inspirationBoardsStorageKey(weddingId: string) {
-  return `fata-inspiration-boards:v3:${weddingId}`;
+  return `fata-inspiration-boards:v4:${weddingId}`;
 }
 
 export function imageCountLabel(count: number) {
@@ -99,6 +107,31 @@ export function saveInspirationBoards(
     inspirationBoardsStorageKey(weddingId),
     JSON.stringify(boards),
   );
+}
+
+const DEFAULT_INSPIRATION_IMAGE_SET = new Set(
+  DEFAULT_INSPIRATION_BOARDS.flatMap((b) => b.images),
+);
+
+/** True when the couple has uploaded at least one of their own images. */
+export function hasUserInspirationContent(weddingId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(inspirationBoardsStorageKey(weddingId));
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as InspirationBoard[];
+    if (!Array.isArray(parsed)) return false;
+    return parsed.some(
+      (b) =>
+        b &&
+        Array.isArray(b.images) &&
+        b.images.some(
+          (src) => typeof src === "string" && !DEFAULT_INSPIRATION_IMAGE_SET.has(src),
+        ),
+    );
+  } catch {
+    return false;
+  }
 }
 
 /** Tile aspect ratios from the board-card collage (same grid language). */

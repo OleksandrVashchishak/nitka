@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { DayPlanEventModal } from "@/components/day-plan/day-plan-event-modal";
 import {
   IconDayPlanBack,
@@ -18,6 +19,7 @@ import { PageLoader } from "@/components/ui-loader";
 import { useAuthStore } from "@/lib/auth-store";
 import { getMyWedding } from "@/lib/dashboard-api";
 import {
+  cloneDefaultDayPlan,
   formatDayPlanDate,
   loadDayPlanWithMigration,
   reorderDayPlanEvents,
@@ -128,6 +130,12 @@ function DayPlanInner() {
     setModal("create");
   }
 
+  function onSeedDefaultPlan() {
+    if (!weddingId) return;
+    persist(cloneDefaultDayPlan());
+    toast.success("Додано", "Готовий список подій створено");
+  }
+
   function openEdit(event: DayPlanEvent) {
     setEditing(event);
     setModal("edit");
@@ -184,6 +192,7 @@ function DayPlanInner() {
 
   const dateLabel = formatDayPlanDate(weddingDate);
   const sharePeople: DayPlanSharePerson[] = share?.people ?? [];
+  const hasPlan = events.length > 0;
 
   return (
     <div className="cabinet-tasks-page cabinet-day-plan-page">
@@ -204,85 +213,109 @@ function DayPlanInner() {
           <IconDayPlanBack />
         </button>
         <h1 className="cabinet-day-plan-mobile-title">План дня</h1>
-        <Button
-          type="button"
-          tone="ghost"
-          size="s"
-          className="cabinet-day-plan-mobile-share"
-          onClick={() => void openShare()}
-          disabled={!weddingId}
-        >
-          <IconDayPlanShare size={16} />
-          Поділитися
-        </Button>
-      </div>
-
-      <div className="cabinet-day-plan-toolbar">
-        <p className="cabinet-day-plan-date">{dateLabel}</p>
-        <div className="cabinet-day-plan-toolbar-actions">
-          <Button
-            type="button"
-            tone="black"
-            size="m"
-            className="cabinet-day-plan-add-btn"
-            onClick={openCreate}
-          >
-            <IconDayPlanPlus />
-            Додати подію
-          </Button>
+        {hasPlan ? (
           <Button
             type="button"
             tone="ghost"
-            size="m"
-            className="cabinet-day-plan-share-btn"
+            size="s"
+            className="cabinet-day-plan-mobile-share"
             onClick={() => void openShare()}
             disabled={!weddingId}
           >
-            <IconDayPlanShare />
+            <IconDayPlanShare size={16} />
             Поділитися
           </Button>
-        </div>
+        ) : null}
       </div>
 
-      {events.length ? (
-        <DayPlanTimeline
-          events={events}
-          onEdit={openEdit}
-          onDelete={setDeleteTarget}
-          onReorder={onReorder}
-        />
+      {hasPlan ? (
+        <>
+          <div className="cabinet-day-plan-toolbar">
+            <p className="cabinet-day-plan-date">{dateLabel}</p>
+            <div className="cabinet-day-plan-toolbar-actions">
+              <Button
+                type="button"
+                tone="black"
+                size="m"
+                className="cabinet-day-plan-add-btn"
+                onClick={openCreate}
+              >
+                <IconDayPlanPlus />
+                Додати подію
+              </Button>
+              <Button
+                type="button"
+                tone="ghost"
+                size="m"
+                className="cabinet-day-plan-share-btn"
+                onClick={() => void openShare()}
+                disabled={!weddingId}
+              >
+                <IconDayPlanShare />
+                Поділитися
+              </Button>
+            </div>
+          </div>
+
+          <DayPlanTimeline
+            events={events}
+            onEdit={openEdit}
+            onDelete={setDeleteTarget}
+            onReorder={onReorder}
+          />
+
+          <div className="cabinet-day-plan-mobile-bar">
+            <Button
+              type="button"
+              tone="ink"
+              size="l"
+              fullWidth
+              className="cabinet-day-plan-mobile-add"
+              onClick={openCreate}
+            >
+              <IconDayPlanPlus />
+              Додати подію
+            </Button>
+          </div>
+        </>
       ) : (
-        <div className="cabinet-day-plan-empty">
-          <h2>Зберіть розклад весільного дня</h2>
-          <p>
-            Додайте події з часом і тривалістю — від зборів до танців — і
-            поділіться планом з підрядниками та близькими.
-          </p>
-          <Button
-            type="button"
-            tone="ink"
-            size="m"
-            className="cabinet-empty-cta"
-            onClick={openCreate}
-          >
-            Додати подію
-          </Button>
-        </div>
+        <CabinetEmptyState
+          className="cabinet-day-plan-empty-state"
+          art={{
+            src: "/cabinet/empty/day-plan-empty.svg",
+            width: 279,
+            height: 317,
+            className: "cabinet-day-plan-empty-art",
+          }}
+          title="Розпочнемо планування весільного дня"
+          description={<p>Внесіть події</p>}
+          actions={
+            <>
+              <Button
+                type="button"
+                tone="ink"
+                size="m"
+                className="cabinet-empty-cta"
+                onClick={openCreate}
+                disabled={!weddingId}
+              >
+                <IconDayPlanPlus />
+                Внести подію
+              </Button>
+              <Button
+                type="button"
+                tone="ghost"
+                size="m"
+                className="cabinet-day-plan-empty-seed"
+                onClick={onSeedDefaultPlan}
+                disabled={!weddingId}
+              >
+                Створіть готовий список подій
+              </Button>
+            </>
+          }
+        />
       )}
-
-      <div className="cabinet-day-plan-mobile-bar">
-        <Button
-          type="button"
-          tone="ink"
-          size="l"
-          fullWidth
-          className="cabinet-day-plan-mobile-add"
-          onClick={openCreate}
-        >
-          <IconDayPlanPlus />
-          Додати подію
-        </Button>
-      </div>
 
       {modal ? (
         <DayPlanEventModal

@@ -10,6 +10,7 @@ export declare class WeddingsService {
     private loadWeddingWithMeta;
     private attachTaskAssignees;
     private setTaskAssignee;
+    private readTaskAssigneeRaw;
     private taskWithAssignee;
     getMine(userId: string): Promise<{
         tasks: ({
@@ -24,7 +25,8 @@ export declare class WeddingsService {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -98,7 +100,8 @@ export declare class WeddingsService {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -142,6 +145,8 @@ export declare class WeddingsService {
         city: string;
         date: Date;
         coupleName: string;
+        inviterName: string;
+        inviteeName: string;
     }>;
     removePartner(userId: string): Promise<{
         tasks: ({
@@ -156,7 +161,8 @@ export declare class WeddingsService {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -202,7 +208,8 @@ export declare class WeddingsService {
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: string | null;
+            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
@@ -239,13 +246,15 @@ export declare class WeddingsService {
         id: string;
         weddingId: string;
     } & {
-        assignee: string | null;
+        assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+        assigneeName: string | null;
     }>;
     updateTask(userId: string, taskId: string, dto: UpdateTaskDto): Promise<{
         id: string;
         weddingId: string;
     } & {
-        assignee: string | null;
+        assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+        assigneeName: string | null;
     }>;
     deleteTask(userId: string, taskId: string): Promise<{
         ok: boolean;

@@ -1,0 +1,73 @@
+.admin-contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-contact-card {
+  background: var(--admin-card);
+  border: 1px solid var(--admin-line);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.admin-contact-card.is-unread {
+  border-color: #18181b;
+  box-shadow: inset 3px 0 0 #18181b;
+}
+
+.admin-contact-card__head {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.admin-contact-card__head strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.admin-contact-card__head a {
+  color: var(--admin-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.admin-contact-card__head a:hover {
+  color: var(--admin-ink);
+  text-decoration: underline;
+}
+
+.admin-contact-card__head time {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--admin-muted);
+}
+
+.admin-contact-card__body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.admin-contact-card__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.admin-contact-card__actions .admin-btn {
+  width: auto;
+  padding: 0 14px;
+  height: 34px;
+  font-size: 13px;
+}

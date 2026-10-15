@@ -325,6 +325,15 @@ exports.Prisma.ContentPostScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ContactMessageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  message: 'message',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -425,7 +434,8 @@ exports.Prisma.ModelName = {
   Guest: 'Guest',
   BudgetItem: 'BudgetItem',
   ContentTopic: 'ContentTopic',
-  ContentPost: 'ContentPost'
+  ContentPost: 'ContentPost',
+  ContactMessage: 'ContactMessage'
 };
 
 /**

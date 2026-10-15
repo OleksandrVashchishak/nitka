@@ -22,12 +22,13 @@ import {
   sortDayPlanEvents,
   type DayPlanEvent,
 } from "@/lib/day-plan";
+import { hasUserInspirationContent } from "@/lib/inspiration-boards";
 import {
   CabinetContextMenu,
   CabinetContextMenuDivider,
   CabinetContextMenuItem,
-  CabinetContextMenuLabel,
 } from "@/components/cabinet-context-menu";
+import { TaskAssigneeMenuBlock } from "@/components/task-assignee-menu";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { BrandLogo } from "@/components/brand-logo";
@@ -38,11 +39,14 @@ import { IconTrash } from "@/components/icon-trash";
 import { PartnerInviteBanner } from "@/components/partner-invite-banner";
 import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
 import { IconButton } from "@/components/ui/icon-button";
+import { uaNameInstrumental, uaNameVocative } from "@/lib/ua-name-case";
 import {
-  ResponsibleAvatar,
-  ResponsibleAvatarDuo,
-  TaskResponsibleAvatar,
-} from "@/components/responsible-avatar";
+  cabinetCategoryMeta,
+  resolveCabinetCategory,
+} from "@/lib/cabinet-categories";
+
+
+import { TaskResponsibleAvatar } from "@/components/responsible-avatar";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
@@ -164,38 +168,7 @@ function vendorPlanProgress(pipeline: VendorPipeline | null) {
 }
 
 function taskCategoryMeta(slug: string | null | undefined, title: string) {
-  const key = slug ?? "";
-  const lower = title.toLowerCase();
-  if (key === "invitations" || key === "invite-guests" || key === "website") {
-    return { label: "Запрошення", tone: "orange" as const };
-  }
-  if (key === "attire" || key === "beauty" || lower.includes("вбран")) {
-    return { label: "Вбрання", tone: "blue" as const };
-  }
-  if (
-    [
-      "venue",
-      "photo",
-      "music",
-      "catering",
-      "decor",
-      "officiant",
-      "planner",
-      "cake",
-      "vibe",
-      "favorites",
-      "requests",
-    ].includes(key) ||
-    lower.includes("фото") ||
-    lower.includes("місц") ||
-    lower.includes("ведуч")
-  ) {
-    return { label: "Підрядники", tone: "lilac" as const };
-  }
-  if (key === "guests" || key === "rsvp") {
-    return { label: "Гості", tone: "gray" as const };
-  }
-  return { label: "План", tone: "gray" as const };
+  return cabinetCategoryMeta(resolveCabinetCategory(slug, title));
 }
 
 export function CoupleOverview({
@@ -229,6 +202,7 @@ export function CoupleOverview({
   const [deleting, setDeleting] = useState(false);
   /** taskId → коли чекнули; тримаємо на огляді 24 год. */
   const [doneLinger, setDoneLinger] = useState<DoneLingerMap>({});
+  const [hasInspiration, setHasInspiration] = useState(false);
   const lingerExpiryTimerRef = useRef<number | null>(null);
   const router = useRouter();
 
@@ -244,6 +218,19 @@ export function CoupleOverview({
       /* ignore */
     }
     setDoneLinger(readDoneLinger(wedding.id));
+  }, [wedding.id]);
+
+  useEffect(() => {
+    function refreshInspiration() {
+      setHasInspiration(hasUserInspirationContent(wedding.id));
+    }
+    refreshInspiration();
+    window.addEventListener("focus", refreshInspiration);
+    window.addEventListener("storage", refreshInspiration);
+    return () => {
+      window.removeEventListener("focus", refreshInspiration);
+      window.removeEventListener("storage", refreshInspiration);
+    };
   }, [wedding.id]);
 
   // Коли спливе найближчий 24h-термін — прибрати з списку без релоаду.
@@ -390,6 +377,11 @@ export function CoupleOverview({
   const showInviteTask = isOwner && !hasPartner && !inviteDismissed;
   const isTasksFirstState =
     !smartPlanningStarted && done === 0 && !hasGuests && !hasSpend;
+  /** Стартові «Побудувати список / Додати гостей / Внести витрати» — ще не план. */
+  const hasOwnTasks = wedding.tasks.some(
+    (task) => !task.categorySlug?.startsWith("starter-"),
+  );
+  const showReadiness = smartPlanningStarted || hasOwnTasks;
   const daysLabel =
     daysLeft > 0
       ? `${daysLeft} ${daysWord(daysLeft)}`
@@ -434,8 +426,12 @@ export function CoupleOverview({
     }
   }
 
-  async function onSetAssignee(task: WeddingTask, assignee: TaskAssignee) {
-    setMenuOpenId(null);
+  async function onSetAssignee(
+    task: WeddingTask,
+    assignee: TaskAssignee,
+    options?: { keepMenuOpen?: boolean; assigneeName?: string | null },
+  ) {
+    if (!options?.keepMenuOpen) setMenuOpenId(null);
     const current =
       task.assignee === "owner" ||
       task.assignee === "partner" ||
@@ -444,9 +440,22 @@ export function CoupleOverview({
       task.assignee === "other"
         ? task.assignee
         : null;
-    if (current === assignee) return;
+    const nextName =
+      assignee === "other"
+        ? (options?.assigneeName !== undefined
+            ? options.assigneeName
+            : (task.assigneeName ?? null))
+        : null;
+    const sameWho = current === assignee;
+    const sameName =
+      assignee !== "other" ||
+      (task.assigneeName?.trim() ?? "") === (nextName?.trim() ?? "");
+    if (sameWho && sameName) return;
     try {
-      const updated = await updateTask(task.id, { assignee });
+      const updated = await updateTask(task.id, {
+        assignee,
+        ...(assignee === "other" ? { assigneeName: nextName } : { assigneeName: null }),
+      });
       onTaskChange(updated);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не оновлено");
@@ -518,9 +527,11 @@ export function CoupleOverview({
       <div className="cabinet-overview-top">
         <BrandLogo href="/dashboard" className="cabinet-mobile-brand" />
         <div className="cabinet-overview-greeting">
-          <h1>Привіт, {greetingName}!</h1>
+          <h1>Привіт, {uaNameVocative(greetingName)}!</h1>
+
           <p>
-            Ви {partnerName ? `з ${partnerName} ` : ""}одружуєтесь через{" "}
+            Ви {partnerName ? `з ${uaNameInstrumental(partnerName)} ` : ""}одружуєтесь через{" "}
+
             <strong>{daysLabel}</strong>.
           </p>
         </div>
@@ -531,6 +542,15 @@ export function CoupleOverview({
       </div>
 
       <div className="cabinet-body">
+        {showInviteTask ? (
+          <PartnerInviteBanner
+            className="partner-invite-banner--overview-mobile"
+            partnerName={inviteName}
+            busy={inviteBusy}
+            onInvite={() => void onInvitePartner()}
+            onDismiss={onDismissInvite}
+          />
+        ) : null}
         <div className="cabinet-stats">
           {statsReady && !hasSpend ? (
             <article className="cabinet-stat is-light is-cta">
@@ -601,28 +621,55 @@ export function CoupleOverview({
         </div>
 
         <aside className="cabinet-right-col">
-          <article className="cabinet-side-progress">
-            <div className="cabinet-side-progress-head">
-              <div className="cabinet-side-progress-title">
-                <p className="cabinet-side-progress-value">{displayPercent}%</p>
-                <p className="cabinet-side-progress-label">готовність весілля</p>
+          {showReadiness ? (
+            <article className="cabinet-side-progress">
+              <div className="cabinet-side-progress-head">
+                <div className="cabinet-side-progress-title">
+                  <p className="cabinet-side-progress-value">{displayPercent}%</p>
+                  <p className="cabinet-side-progress-label">готовність весілля</p>
+                </div>
+                <span className="cabinet-side-progress-ratio">
+                  {done}/{total}
+                </span>
               </div>
-              <span className="cabinet-side-progress-ratio">
-                {done}/{total}
-              </span>
-            </div>
-            <div className="cabinet-side-progress-bar">
-              <span style={{ width: `${barWidth}%` }} />
-            </div>
-            <div className="cabinet-side-progress-meta">
-              <span>{done} виконано</span>
-              <span>{remaining} залишилось</span>
-            </div>
-          </article>
+              <div className="cabinet-side-progress-bar">
+                <span style={{ width: `${barWidth}%` }} />
+              </div>
+              <div className="cabinet-side-progress-meta">
+                <span>{done} виконано</span>
+                <span>{remaining} залишилось</span>
+              </div>
+            </article>
+          ) : null}
 
-          <div className="cabinet-photo">
-            <Image src={photo} alt="Фото пари" fill className="object-cover" sizes="361px" />
-          </div>
+          {hasInspiration ? (
+            <Link
+              href="/inspiration"
+              className="cabinet-photo"
+              aria-label="Дошка натхнення"
+            >
+              <Image
+                src={photo}
+                alt="Дошка натхнення"
+                fill
+                className="object-cover"
+                sizes="361px"
+              />
+            </Link>
+          ) : (
+            <div className="cabinet-photo">
+              <Image
+                src={photo}
+                alt="Фото пари"
+                fill
+                className="object-cover"
+                sizes="361px"
+              />
+              <Link href="/inspiration" className="cabinet-photo-cta">
+                Побудувати спільну дошку натхнення
+              </Link>
+            </div>
+          )}
 
           {hasGuests ? (
             <article className="cabinet-overview-guests">
@@ -712,7 +759,7 @@ export function CoupleOverview({
                 підрядниками
               </p>
               <Link href="/day-plan" className="cabinet-overview-day-plan-link">
-                Внести подію
+                Додати план
               </Link>
             </article>
           )}
@@ -722,6 +769,7 @@ export function CoupleOverview({
           <h2>Завдання</h2>
           {showInviteTask ? (
             <PartnerInviteBanner
+              className="partner-invite-banner--overview-desktop"
               partnerName={inviteName}
               busy={inviteBusy}
               onInvite={() => void onInvitePartner()}
@@ -738,9 +786,7 @@ export function CoupleOverview({
                 task.assignee === "none" ||
                 task.assignee === "other"
                   ? task.assignee
-                  : task.sortOrder % 2 === 0
-                    ? "owner"
-                    : "partner";
+                  : "none";
               return (
                 <li
                   key={task.id}
@@ -759,19 +805,20 @@ export function CoupleOverview({
                       </span>
                     </div>
                     <div className="cabinet-task-meta-wrap">
-                      {due ? (
-                        <span
-                          className={`cabinet-task-date${taskDateTone(due, isDone)}`}
-                        >
-                          {formatTaskDate(due)}
-                        </span>
-                      ) : null}
+                      <span
+                        className={`cabinet-task-date${due ? taskDateTone(due, isDone) : ""}`}
+                      >
+                        {due ? formatTaskDate(due) : null}
+                      </span>
                       <div className="cabinet-task-actions">
-                        <TaskResponsibleAvatar
-                          who={who}
-                          ownerName={greetingName}
-                          partnerName={partnerName}
-                        />
+                        <span className="cabinet-task-assignee-slot">
+                          <TaskResponsibleAvatar
+                            who={who}
+                            ownerName={greetingName}
+                            partnerName={partnerName}
+                            otherName={task.assigneeName}
+                          />
+                        </span>
                         <div className="cabinet-ctx-menu-wrap">
                           <IconButton
                             variant="ghost"
@@ -801,69 +848,23 @@ export function CoupleOverview({
                               </CabinetContextMenuItem>
 
                               <CabinetContextMenuDivider />
-                              <CabinetContextMenuLabel>
-                                Хто відповідальний
-                              </CabinetContextMenuLabel>
-
-                              <CabinetContextMenuItem
-                                icon={
-                                  <ResponsibleAvatar
-                                    name={greetingName}
-                                    tone="owner"
-                                  />
+                              <TaskAssigneeMenuBlock
+                                who={who}
+                                otherName={task.assigneeName}
+                                ownerName={greetingName}
+                                partnerName={partnerName}
+                                onSelect={(assignee) =>
+                                  void onSetAssignee(task, assignee, {
+                                    keepMenuOpen: assignee === "other",
+                                  })
                                 }
-                                active={who === "owner"}
-                                onClick={() =>
-                                  void onSetAssignee(task, "owner")
-                                }
-                              >
-                                {greetingName}
-                              </CabinetContextMenuItem>
-                              <CabinetContextMenuItem
-                                icon={
-                                  <ResponsibleAvatar
-                                    name={partnerName}
-                                    tone="partner"
-                                  />
-                                }
-                                active={who === "partner"}
-                                onClick={() =>
-                                  void onSetAssignee(task, "partner")
-                                }
-                              >
-                                {partnerName}
-                              </CabinetContextMenuItem>
-                              <CabinetContextMenuItem
-                                icon={
-                                  <ResponsibleAvatarDuo
-                                    ownerName={greetingName}
-                                    partnerName={partnerName}
-                                    aria-hidden
-                                  />
-                                }
-                                active={who === "both"}
-                                onClick={() =>
-                                  void onSetAssignee(task, "both")
-                                }
-                              >
-                                Обоє
-                              </CabinetContextMenuItem>
-                              <CabinetContextMenuItem
-                                active={who === "none"}
-                                onClick={() =>
-                                  void onSetAssignee(task, "none")
-                                }
-                              >
-                                Ніхто
-                              </CabinetContextMenuItem>
-                              <CabinetContextMenuItem
-                                active={who === "other"}
-                                onClick={() =>
-                                  void onSetAssignee(task, "other")
-                                }
-                              >
-                                Хтось інший
-                              </CabinetContextMenuItem>
+                                onSaveOtherName={(name) => {
+                                  setMenuOpenId(null);
+                                  void onSetAssignee(task, "other", {
+                                    assigneeName: name || null,
+                                  });
+                                }}
+                              />
                             </CabinetContextMenu>
                           ) : null}
                         </div>

@@ -48,6 +48,9 @@ export function SiteFooter() {
             <Link href="/blog" className="hover:text-ink">
               Блог
             </Link>
+            <Link href="/napyshit-nam" className="hover:text-ink">
+              Напишіть нам
+            </Link>
             <Link href="/login" className="hover:text-ink">
               Увійти
             </Link>
@@ -65,8 +68,10 @@ export function SiteFooterWrapper() {
   const pathname = usePathname();
   if (
     pathname === "/" ||
+    pathname === "/napyshit-nam" ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/login") ||
+    pathname.startsWith("/partner-invite") ||
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/confirm-email") ||
     pathname.startsWith("/email-confirmed") ||

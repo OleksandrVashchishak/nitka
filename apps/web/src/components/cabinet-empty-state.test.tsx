@@ -10,7 +10,7 @@ describe("CabinetEmptyState", () => {
   it("renders illustrated empty with art, title, description, actions", () => {
     const { container } = render(
       <CabinetEmptyState
-        art={{ src: "/cabinet/empty/guests.png", width: 320, height: 220 }}
+        art={{ src: "/cabinet/empty/guests.svg", width: 310, height: 202 }}
         title="Порожньо"
         description={<p>Додай перший запис</p>}
         actions={<button type="button">Додати</button>}
@@ -21,7 +21,7 @@ describe("CabinetEmptyState", () => {
     expect(container.querySelector(".cabinet-empty--soft")).toBeNull();
     expect(container.querySelector(".cabinet-empty-glow")).toBeTruthy();
     expect(container.querySelector("img")?.getAttribute("src")).toBe(
-      "/cabinet/empty/guests.png",
+      "/cabinet/empty/guests.svg",
     );
     expect(screen.getByRole("heading", { name: "Порожньо" })).toBeTruthy();
     expect(screen.getByText("Додай перший запис")).toBeTruthy();
