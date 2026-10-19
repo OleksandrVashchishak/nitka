@@ -152,14 +152,51 @@ function ServiceFeatures() {
       </h2>
       <div className="fata-service-features__grid">
         {FEATURES.map((feature) => (
-          <div className="fata-service-features__card" key={feature.title}>
-            <div className="fata-service-features__icon">
+          <div className="fata-service-card" key={feature.title}>
+            <div className="fata-service-card__icon">
               <CabinetNavIcon name={feature.icon} size={24} />
             </div>
-            <h3 className="fata-service-features__card-title">
-              {feature.title}
+            <h3 className="fata-service-card__title">{feature.title}</h3>
+            <p className="fata-service-card__text">{feature.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const HOW_IT_WORKS = [
+  {
+    icon: "tasks",
+    title: "Скористайтесь розумним плануванням",
+    text: "Дайте відповідь на кілька запитань про ваше весілля (формат, наявність виїзної церемонії, гостей з інших міст), і наш весільний таск менеджер сформує готовий список завдань.",
+  },
+  {
+    icon: "guests",
+    title: "Закривайте цілі по черзі",
+    text: "Локація, підрядники, гості, запрошення, вбрання — у логічному порядку, з дедлайнами та підказками по дорозі.",
+  },
+  {
+    icon: "overview",
+    title: "Тримайте все в fata.studio",
+    text: "Бюджет, обране, список гостей та заявки живуть поруч із планом — один кабінет замість п'яти сервісів.",
+  },
+] as const;
+
+function ServiceHowItWorks() {
+  return (
+    <section className="fata-service-how">
+      <h2 className="fata-service-how__title">Як це працює?</h2>
+      <div className="fata-service-how__grid">
+        {HOW_IT_WORKS.map((step, i) => (
+          <div className="fata-service-card" key={step.title}>
+            <div className="fata-service-card__icon">
+              <CabinetNavIcon name={step.icon} size={24} />
+            </div>
+            <h3 className="fata-service-card__title">
+              {i + 1}. {step.title}
             </h3>
-            <p className="fata-service-features__card-text">{feature.text}</p>
+            <p className="fata-service-card__text">{step.text}</p>
           </div>
         ))}
       </div>
@@ -202,6 +239,7 @@ export function VesilnyyPlanPage() {
       <ServiceFeatures />
       <ServiceCompare />
       <ServiceAudience />
+      <ServiceHowItWorks />
     </div>
   );
 }

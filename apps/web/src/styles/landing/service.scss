@@ -132,14 +132,17 @@
   gap: 24px;
 }
 
-.fata-service-features__card {
-  padding: 24px;
+.fata-service-features__grid .fata-service-card {
   background: #fffdf761;
-  border: 1px solid #ebe5d4;
   min-height: 209px;
 }
 
-.fata-service-features__icon {
+.fata-service-card {
+  padding: 24px;
+  border: 1px solid #ebe5d4;
+}
+
+.fata-service-card__icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,7 +153,7 @@
   color: #292d32;
 }
 
-.fata-service-features__card-title {
+.fata-service-card__title {
   margin: 24px 0 0;
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
@@ -159,7 +162,7 @@
   color: var(--ink);
 }
 
-.fata-service-features__card-text {
+.fata-service-card__text {
   margin: 12px 0 0;
   font-family: var(--font-sans), sans-serif;
   font-weight: 400;
@@ -181,7 +184,7 @@
     grid-template-columns: 1fr;
   }
 
-  .fata-service-features__card {
+  .fata-service-features__grid .fata-service-card {
     min-height: 0;
   }
 }
@@ -195,7 +198,7 @@
     font-size: 28px;
   }
 
-  .fata-service-features__card-title {
+  .fata-service-card__title {
     font-size: 18px;
     line-height: 1.2;
   }
@@ -437,10 +440,64 @@
   }
 
   .fata-service-audience__num {
-    font-size: 40px;
+    font-size: 28px;
   }
 
   .fata-service-audience__item-title {
     font-size: 18px;
+  }
+}
+
+.fata-service-how {
+  background: #fffdf7;
+  padding: 80px 76px;
+}
+
+.fata-service-how__title {
+  margin: 0 0 40px;
+  width: min(100%, var(--fata));
+  margin-left: auto;
+  margin-right: auto;
+  font-family: var(--font-display), sans-serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.fata-service-how__grid {
+  width: min(100%, var(--fata));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.fata-service-how__grid .fata-service-card {
+  background: #fff;
+}
+
+@media (max-width: 1100px) {
+  .fata-service-how {
+    padding: 56px 32px;
+  }
+
+  .fata-service-how__title {
+    font-size: 32px;
+  }
+
+  .fata-service-how__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-how {
+    padding: 40px 16px;
+  }
+
+  .fata-service-how__title {
+    font-size: 28px;
   }
 }
