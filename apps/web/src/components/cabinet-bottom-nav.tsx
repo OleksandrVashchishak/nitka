@@ -19,6 +19,8 @@ const MORE_PREFIXES = [
   "/day-plan",
   "/inspiration",
   "/settings",
+  "/support",
+  "/feedback",
   "/website",
 ];
 

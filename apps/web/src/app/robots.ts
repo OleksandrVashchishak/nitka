@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
           "/guests",
           "/website",
           "/settings",
+          "/support",
           "/my-vendors",
           "/moyi-pidryadnyky",
           "/login",

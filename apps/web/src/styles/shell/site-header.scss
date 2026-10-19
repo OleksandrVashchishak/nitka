@@ -1,0 +1,205 @@
+/* Shared header chrome — loads on every route (SiteHeader lives in the root layout).
+   Home keeps its own pixel-locked theme on top of this, from landing/hero.scss. */
+
+:root {
+  --fata-header-h: 72px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --fata-header-h: 96px;
+  }
+}
+
+.fata-site-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+}
+
+.fata-site-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 39px;
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding: 20px 20px;
+  box-sizing: border-box;
+}
+
+.fata-site-header a:not(.fata-button) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fata-site-header .fata-nav {
+  display: none;
+}
+
+.fata-site-header .fata-auth {
+  display: none;
+  margin-left: auto;
+}
+
+.fata-site-burger {
+  margin-left: auto;
+}
+
+.fata-auth-skeleton {
+  width: 168px;
+  height: 56px;
+  border-radius: 40px;
+  background: rgb(26 26 26 / 8%);
+}
+
+body.has-fata-header {
+  padding-top: var(--fata-header-h);
+}
+
+@media (min-width: 1024px) {
+  .fata-site-header .fata-nav {
+    display: flex;
+  }
+
+  .fata-site-header .fata-auth {
+    display: flex;
+  }
+
+  .fata-site-burger {
+    display: none;
+  }
+}
+
+.fata-logo {
+  display: block;
+  flex-shrink: 0;
+}
+
+.fata-logo img {
+  display: block;
+  width: 154px;
+  height: auto;
+  object-fit: contain;
+}
+
+.fata-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fata-site-header .fata-nav a {
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.fata-auth {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.fata-m-burger {
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.fata-m-burger span {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 2px;
+  width: 20px;
+  transition:
+    all 0.2s ease,
+    top 0.2s ease;
+}
+
+.fata-m-burger span:first-child {
+  top: 12px;
+}
+
+.fata-m-burger span:nth-child(2) {
+  top: 16px;
+}
+
+.fata-m-burger span:last-child {
+  top: 20px;
+  width: 14px;
+}
+
+@media (max-width: 1300px) {
+  .fata-site-header-inner {
+    gap: 10px;
+  }
+
+  .fata-logo img {
+    width: 110px;
+  }
+
+  .fata-site-header .fata-nav a {
+    font-size: 14px;
+  }
+
+  .fata-auth {
+    gap: 10px;
+  }
+
+  .fata-auth-skeleton {
+    width: 120px;
+    height: 36px;
+  }
+}
+
+/* Default (non-home) theme: white surface, ink text/nav, light CTAs.
+   Home overrides background/color back to wine+lime in landing/hero.scss. */
+body:not(.has-fata-header-home) .fata-site-header {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+body:not(.has-fata-header-home) .fata-m-burger span {
+  background: #1a1a1a;
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-button--brand {
+  background: #fff;
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-button--brand:hover:not(:disabled) {
+  background: rgb(26 26 26 / 4%);
+  border-color: #1a1a1a;
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-button--brand:active:not(:disabled) {
+  background: rgb(26 26 26 / 8%);
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-button--light {
+  background: #ff4200;
+  color: #fff;
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-button--light:hover:not(:disabled) {
+  background: #e63b00;
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-button--light:active:not(:disabled) {
+  background: #cc3400;
+}

@@ -28,30 +28,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/vesilnyy-plan`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
-      url: `${siteUrl}/vesilnyy-byudzhet`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
-      url: `${siteUrl}/vesilnyy-sayt`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
-      url: `${siteUrl}/spysok-gostey`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.85,
-    },
-    {
       url: `${siteUrl}/napyshit-nam`,
       lastModified: now,
       changeFrequency: "monthly",

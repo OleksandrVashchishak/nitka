@@ -624,104 +624,6 @@ position: absolute;
   object-fit: cover;
 }
 
-.fata-foot {
-  background: #1a1a1a;
-  color: #f0febb;
-  border-top: 1px solid #887676;
-  padding: 0;
-}
-
-.fata-foot-inner {
-  padding: 56px 20px 32px;
-  max-width: 1330px;
-  margin: 0 auto;
-}
-
-.fata-foot-top {
-  display: flex;
-  gap: 48px;
-  align-items: flex-start;
-  width: 100%;
-}
-
-.fata-foot-brand {
-  width: 320px;
-  flex-shrink: 0;
-}
-.fata-foot-brand .fata-logo img {
-      width: 154px;
-}
-
-.fata-foot-top>div:not(.fata-foot-brand) {
-  width: 220px;
-  flex-shrink: 0;
-}
-
-.fata-foot-top p {
-  margin: 12px 0 0;
-  max-width: 320px;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #e8edc1;
-}
-
-.fata-foot h4 {
-  margin: 0 0 10px;
-  font-family: var(--font-display), sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: #f0febb;
-}
-
-.fata-foot a {
-  display: block;
-  margin: 8px 0 0;
-  color: #e8edc1;
-  text-decoration: none;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 14px;
-  line-height: 1.2;
-}
-
-.fata-foot a:hover {
-  color: #f0febb;
-}
-
-.fata-foot-line {
-  width: 100%;
-  height: 1px;
-  margin: 32px 0 0;
-  background: #f0febb;
-  opacity: 0.35;
-}
-
-.fata-foot-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin: 8px 0 0;
-  padding-top: 32px;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 13px;
-  color: #e8edc1;
-}
-
-.fata-foot-social {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.fata-foot-social a {
-  margin: 0;
-  width: 20px;
-  height: 20px;
-}
-
 @media (max-width: 1400px) {
   .fata-mobile-stage {
     max-width: none;
@@ -797,10 +699,6 @@ position: absolute;
 
   .fata-phone {
     height: 596px;
-  }
-
-  .fata-foot-top>div:not(.fata-foot-brand) {
-    width: auto;
   }
 }
 
@@ -1025,26 +923,6 @@ position: absolute;
     height: 218px;
     margin-top: 16px;
     justify-self: stretch;
-  }
-
-  .fata-foot-top {
-    flex-direction: column;
-    gap: 24px;
-  }
-  .fata-foot-inner {
-    padding: 40px 16px 24px;
-  }
-
-  .fata-foot-brand {
-    margin-bottom: 8px;
-  }
-}
-
-@media (max-width: 640px) {
-  .fata-foot-bottom {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
 }
 

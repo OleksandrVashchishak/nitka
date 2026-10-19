@@ -205,7 +205,7 @@ export function SmartPlanningWizard({
                       }`}
                       onClick={() => toggleGroup(group.id)}
                     >
-                      <Checkbox checked={allOn || someOn} />
+                      <Checkbox checked={allOn} indeterminate={someOn} />
                       <span>{group.title}</span>
                     </button>
                     <ul className="smart-plan-option-list">

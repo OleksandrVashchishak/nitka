@@ -1,0 +1,61 @@
+/* ——— Support / Підтримка ——— */
+
+.cabinet-support-page {
+  .cabinet-tasks-title {
+    font-weight: 500;
+  }
+}
+
+.cabinet-support-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 571px;
+  margin-top: 32px;
+  padding: 24px 16px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.cabinet-support-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cabinet-support-message {
+  .fata-textarea__control {
+    min-height: 128px;
+    resize: vertical;
+  }
+}
+
+.cabinet-support-submit.fata-button {
+  align-self: flex-start;
+  width: 148px;
+  height: 52px;
+  margin-top: 12px;
+  padding: 0 24px;
+  border-radius: 26px;
+  font-size: 14px;
+}
+
+.cabinet-support-error {
+  margin: 12px 0 0;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  font-size: 14px;
+  line-height: 1.3;
+  color: #c45b4a;
+}
+
+@media (max-width: 767px) {
+  .cabinet-support-card {
+    margin-top: 20px;
+    padding: 20px 16px;
+  }
+
+  .cabinet-support-submit.fata-button {
+    width: 100%;
+  }
+}

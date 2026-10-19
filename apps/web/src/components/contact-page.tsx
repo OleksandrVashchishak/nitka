@@ -1,31 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { submitContactMessage } from "@/lib/contact-api";
-import "@/styles/landing/hero.scss";
-import "@/styles/landing/rest.scss";
 import "@/styles/landing/contact.scss";
-
-const FOOT_PRODUCT = [
-  { href: "/vesilnyy-plan", label: "Чеклісти" },
-  { href: "/spysok-gostey", label: "Список гостей" },
-  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
-  { href: "/zaprosinnya", label: "Запрошення" },
-  { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
-] as const;
-
-function FataLogo({
-  src = "/landing/logo-foot.svg",
-}: {
-  src?: string;
-}) {
-  return (
-    <Link href="/" className="fata-logo" aria-label="fata.studio">
-      <img src={src} alt="fata.studio" width={154} height={32} />
-    </Link>
-  );
-}
 
 export function ContactPage() {
   const [name, setName] = useState("");
@@ -139,63 +116,6 @@ export function ContactPage() {
           ) : null}
         </form>
       </div>
-
-      <footer className="fata-foot">
-        <div className="fata-shell fata-foot-inner">
-          <div className="fata-foot-top">
-            <div className="fata-foot-brand">
-              <FataLogo />
-              <p>Сучасний інструмент для планування весілля</p>
-            </div>
-            <div>
-              <h4>Продукт</h4>
-              {FOOT_PRODUCT.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-            <div>
-              <h4>Компанія</h4>
-              <a href="https://instagram.com" rel="noreferrer" target="_blank">
-                Instagram
-              </a>
-              <a href="https://facebook.com" rel="noreferrer" target="_blank">
-                Facebook
-              </a>
-              <Link href="/blog">Ідеї</Link>
-            </div>
-            <div>
-              <h4>Підтримка</h4>
-              <Link href="/content">Умови використання</Link>
-              <Link href="/content">Політика конфіденційності</Link>
-              <Link href="/napyshit-nam">Напишіть нам</Link>
-            </div>
-          </div>
-          <div className="fata-foot-line" />
-          <div className="fata-foot-bottom">
-            <span>© 2026 fata.studio. Усі права захищені.</span>
-            <span className="fata-foot-social">
-              <a href="https://instagram.com" aria-label="Instagram">
-                <img
-                  src="/landing/cloud/ig.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                />
-              </a>
-              <a href="https://facebook.com" aria-label="Facebook">
-                <img
-                  src="/landing/cloud/fb.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                />
-              </a>
-            </span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

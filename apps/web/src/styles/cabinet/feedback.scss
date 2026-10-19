@@ -1,0 +1,130 @@
+/* ——— Feedback / Відгуки і пропозиції ——— */
+
+.cabinet-feedback-page {
+  &__mobile-top,
+  &__mobile-bar {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+
+    &__desktop-top,
+    &__desktop-submit.fata-button {
+      display: none;
+    }
+
+    &__mobile-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    &__back {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin-left: -6px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #292d32;
+      cursor: pointer;
+    }
+
+    &__mobile-title {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+      font-size: 24px;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1;
+      letter-spacing: 0;
+      color: #1a1a1a;
+    }
+
+    &__mobile-bar {
+      display: flex;
+      gap: 16px;
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 46;
+      padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+      background: #fff;
+    }
+
+    &__cancel.fata-button,
+    &__submit.fata-button {
+      flex: 1;
+      min-width: 0;
+      height: 52px;
+      padding: 0 16px;
+      border-radius: 26px;
+    }
+
+    &__cancel.fata-button {
+      border: 1px solid #1a1a1a;
+      background: #fff;
+      color: #1a1a1a;
+    }
+  }
+}
+
+.cabinet-feedback-rating {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 9px;
+
+  &__item {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 48px;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 1px solid #ebe5d4;
+    border-radius: 999px;
+    background: #fff;
+    font-family: var(--font-sans), Montserrat, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: #1a1a1a;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    &--active {
+      border-color: #000;
+      background: #f0febb;
+    }
+  }
+
+  @media (max-width: 767px) {
+    &__item {
+      max-width: none;
+      height: 44px;
+      aspect-ratio: auto;
+    }
+  }
+}
+
+.cabinet-feedback-text {
+  .fata-textarea__control {
+    min-height: 60px;
+    resize: vertical;
+  }
+}

@@ -4,7 +4,7 @@ export function getHomePath(role?: Role | null) {
   return "/dashboard";
 }
 
-/** Couple cabinet / app shell routes — hide marketing header & footer. */
+/** Couple cabinet / app shell routes — hide marketing header. */
 const CABINET_PREFIXES = [
   "/dashboard",
   "/checklist",
@@ -14,6 +14,8 @@ const CABINET_PREFIXES = [
   "/website",
   "/my-vendors",
   "/settings",
+  "/support",
+  "/feedback",
   "/day-plan",
   "/inspiration",
   "/more",
@@ -30,7 +32,7 @@ export function isCabinetPath(pathname: string) {
   );
 }
 
-/** Internal superadmin — hide marketing header & footer. */
+/** Internal superadmin — hide marketing header. */
 export function isAdminPath(pathname: string) {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }

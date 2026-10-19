@@ -7,6 +7,7 @@ import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath, isAdminPath, isCabinetPath } from "@/lib/routes";
 import { FATA_NAV, FataMobileMenu } from "@/components/fata-mobile-menu";
 import { Button } from "@/components/ui/button";
+import "@/styles/shell/site-header.scss";
 
 function shouldHideHeader(pathname: string) {
   return (

@@ -11,11 +11,14 @@ import { IconClose } from "@/components/icon-close";
 import "@/styles/shell/mobile-menu.scss";
 
 export const FATA_NAV = [
-  { href: "/vesilnyy-plan", label: "Чеклісти" },
-  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
-  { href: "/vesilnyy-sayt", label: "Весільний сайт" },
-  { href: "/spysok-gostey", label: "Список гостей" },
-  { href: "/content", label: "Ідеї" },
+  { href: "/checklist", label: "Завдання" },
+  { href: "/website", label: "Сайт-запрошення" },
+  { href: "/seating", label: "Розсадка" },
+  { href: "/my-vendors", label: "Підрядники" },
+  { href: "/budget", label: "Бюджет" },
+  { href: "/guests", label: "Гості" },
+  { href: "/day-plan", label: "План дня" },
+  { href: "/blog", label: "Ідеї" },
 ] as const;
 
 export function FataMobileMenu({

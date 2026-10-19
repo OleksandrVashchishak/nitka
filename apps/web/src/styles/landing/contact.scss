@@ -1,13 +1,9 @@
 .fata-contact {
   background: #fff;
   color: #1a1a1a;
-  min-height: calc(100vh - var(--fata-header-h, 90px));
-  display: flex;
-  flex-direction: column;
 }
 
 .fata-contact-main {
-  flex: 1;
   width: min(100%, 1440px);
   margin: 0 auto;
   padding: 120px 76px 120px;

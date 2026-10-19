@@ -19,7 +19,8 @@
     border-color 0.28s ease,
     transform 0.2s ease;
 
-  &.is-checked {
+  &.is-checked,
+  &.is-indeterminate {
     border-color: #f0febb;
     background: #f0febb;
 
@@ -48,6 +49,15 @@
     stroke-dasharray: 14;
     stroke-dashoffset: 14;
     transition: stroke-dashoffset 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+    &--dash {
+      stroke-dasharray: 8;
+      stroke-dashoffset: 8;
+    }
+  }
+
+  &.is-indeterminate .fata-checkbox__path--dash {
+    stroke-dashoffset: 0;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -58,7 +68,8 @@
       transition: none;
     }
 
-    &.is-checked {
+    &.is-checked,
+    &.is-indeterminate {
       .fata-checkbox__mark,
       .fata-checkbox__path {
         transition-delay: 0s;

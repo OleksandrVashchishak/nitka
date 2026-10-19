@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import {
   useEffect,
   useRef,
@@ -127,13 +126,6 @@ const FEATURES = [
     ],
   },
 ];
-
-const FOOT_PRODUCT = [
-  { href: "/vesilnyy-plan", label: "Чеклісти" },
-  { href: "/spysok-gostey", label: "Список гостей" },
-  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
-  { href: "/zaprosinnya", label: "Запрошення" },
-] as const;
 
 function FeaturesStack() {
   return (
@@ -403,20 +395,6 @@ function ComparePair({
         <p className="fata-compare-copy">{row.afterText}</p>
       </div>
     </div>
-  );
-}
-
-function FataLogo({
-  className = "fata-logo",
-  src = "/landing/logo.svg",
-}: {
-  className?: string;
-  src?: string;
-}) {
-  return (
-    <Link href="/" className={className} aria-label="fata.studio">
-      <img src={src} alt="fata.studio" width={154} height={32} />
-    </Link>
   );
 }
 
@@ -712,50 +690,6 @@ export function HomeLanding() {
       <FeaturesStack />
 
       <Prefooter />
-
-      <footer className="fata-foot">
-        <div className="fata-shell fata-foot-inner">
-          <div className="fata-foot-top">
-            <div className="fata-foot-brand">
-              <FataLogo src="/landing/logo-foot.svg" />
-              <p>Сучасний інструмент для планування весілля</p>
-            </div>
-            <div>
-              <h4>Продукт</h4>
-              {FOOT_PRODUCT.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-            <div>
-              <h4>Компанія</h4>
-              <Link href="/content">Про нас</Link>
-              <Link href="/blog">Ідеї</Link>
-              <Link href="/napyshit-nam">Контакти</Link>
-            </div>
-            <div>
-              <h4>Підтримка</h4>
-              <Link href="/content">Допомога</Link>
-              <Link href="/content">Умови використання</Link>
-              <Link href="/content">Політика конфіденційності</Link>
-              <Link href="/napyshit-nam">Напишіть нам</Link>
-            </div>
-          </div>
-          <div className="fata-foot-line" />
-          <div className="fata-foot-bottom">
-            <span>© 2026 fata.studio. Усі права захищені.</span>
-            <span className="fata-foot-social">
-              <a href="https://instagram.com" aria-label="Instagram">
-                <img src="/landing/cloud/ig.svg" alt="" width={20} height={20} />
-              </a>
-              <a href="https://facebook.com" aria-label="Facebook">
-                <img src="/landing/cloud/fb.svg" alt="" width={20} height={20} />
-              </a>
-            </span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

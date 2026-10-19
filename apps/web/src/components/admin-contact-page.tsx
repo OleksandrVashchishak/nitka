@@ -75,9 +75,9 @@ export function AdminContactPage() {
 
   return (
     <div className="admin-contact">
-      <h1 className="admin-page-title">Напишіть нам</h1>
+      <h1 className="admin-page-title">Повідомлення</h1>
       <p className="admin-page-sub">
-        Повідомлення з форми зворотного зв&apos;язку
+        Підтримка з кабінету та форма «Напишіть нам»
         {data ? ` · ${data.total} усього · ${data.unread} непрочитаних` : null}
       </p>
 
