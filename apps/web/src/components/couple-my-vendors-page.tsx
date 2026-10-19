@@ -190,6 +190,11 @@ function MyVendorsInner() {
     });
   }, [visibleCategories, manual]);
 
+  /** Planned categories without a vendor yet count as not booked too. */
+  const notBookedCount =
+    notBooked.length + rows.filter((r) => !r.vendors.length).length;
+  const totalCount = booked.length + notBookedCount;
+
   const isEmpty = plan.length === 0 && manual.length === 0;
 
   /** Categories that already have a vendor can't be unchecked until that vendor is removed. */
@@ -388,7 +393,7 @@ function MyVendorsInner() {
           <div className="cabinet-vendors-toolbar">
             <div className="cabinet-vendors-stats">
               <article className="cabinet-vendors-stat">
-                <p className="cabinet-vendors-stat-value">{manual.length}</p>
+                <p className="cabinet-vendors-stat-value">{totalCount}</p>
                 <p className="cabinet-vendors-stat-label">Всього підрядників</p>
               </article>
               <article className="cabinet-vendors-stat">
@@ -396,7 +401,7 @@ function MyVendorsInner() {
                 <p className="cabinet-vendors-stat-label">Заброньовано</p>
               </article>
               <article className="cabinet-vendors-stat">
-                <p className="cabinet-vendors-stat-value">{notBooked.length}</p>
+                <p className="cabinet-vendors-stat-value">{notBookedCount}</p>
                 <p className="cabinet-vendors-stat-label">Не заброньовано</p>
               </article>
             </div>
