@@ -107,3 +107,340 @@
     align-items: stretch;
   }
 }
+
+.fata-service-features {
+  background: #d3dfae;
+  padding: 80px 76px;
+}
+
+.fata-service-features__title {
+  margin: 0 0 40px;
+  max-width: 900px;
+  font-family: var(--font-display), sans-serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.fata-service-features__grid {
+  width: min(100%, var(--fata));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.fata-service-features__card {
+  padding: 24px;
+  background: #fffdf761;
+  border: 1px solid #ebe5d4;
+  min-height: 209px;
+}
+
+.fata-service-features__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f0febb;
+  color: #292d32;
+}
+
+.fata-service-features__card-title {
+  margin: 24px 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.fata-service-features__card-text {
+  margin: 12px 0 0;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+@media (max-width: 1100px) {
+  .fata-service-features {
+    padding: 56px 32px;
+  }
+
+  .fata-service-features__title {
+    font-size: 32px;
+  }
+
+  .fata-service-features__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fata-service-features__card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-features {
+    padding: 40px 16px;
+  }
+
+  .fata-service-features__title {
+    font-size: 28px;
+  }
+
+  .fata-service-features__card-title {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+}
+
+.fata-service-compare {
+  background: #fff;
+  padding: 96px 76px;
+  overflow: hidden;
+}
+
+.fata-service-compare__row {
+  display: grid;
+  column-gap: 0;
+}
+
+.fata-service-compare__row--1 {
+  grid-template-columns: 464px 1fr;
+}
+
+.fata-service-compare__row--2 {
+  grid-template-columns: 644px 1fr;
+  margin-top: 73px;
+}
+
+.fata-service-compare__row--2 .fata-service-compare__problem {
+  padding-left: 52px;
+  margin-top: 34px;
+}
+
+.fata-service-compare__row--1 .fata-service-compare__solution {
+  margin-top: 24px;
+}
+
+.fata-service-compare__problem,
+.fata-service-compare__solution {
+  max-width: 380px;
+}
+
+.fata-service-compare__solution {
+  position: relative;
+}
+
+.fata-service-compare__scribble {
+  position: absolute;
+  left: -30px;
+  top: -30px;
+  width: 460px;
+  height: 190px;
+  pointer-events: none;
+}
+
+.fata-service-compare__eyebrow {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.fata-service-compare__title {
+  position: relative;
+  margin: 8px 0 0;
+  font-family: var(--font-script), serif;
+  font-size: 40px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.fata-service-compare__text {
+  position: relative;
+  margin: 12px 0 0;
+  max-width: 340px;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 1100px) {
+  .fata-service-compare {
+    padding: 64px 32px;
+  }
+
+  .fata-service-compare__row--1,
+  .fata-service-compare__row--2 {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+  }
+
+  .fata-service-compare__row--2 {
+    margin-top: 56px;
+  }
+
+  .fata-service-compare__row--2 .fata-service-compare__problem {
+    padding-left: 0;
+    margin-top: 55px;
+  }
+
+  .fata-service-compare__row--1 .fata-service-compare__solution,
+  .fata-service-compare__row--2 .fata-service-compare__solution {
+    margin-top: 0;
+  }
+
+  .fata-service-compare__problem,
+  .fata-service-compare__solution {
+    max-width: none;
+  }
+
+  .fata-service-compare__scribble {
+    left: -16px;
+    top: -16px;
+    width: 220px;
+    height: 190px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-compare {
+    padding: 48px 16px;
+  }
+
+  .fata-service-compare__row--1,
+  .fata-service-compare__row--2 {
+    column-gap: 16px;
+  }
+
+  .fata-service-compare__title {
+    font-size: 24px;
+  }
+
+  .fata-service-compare__scribble {
+    left: -12px;
+    top: -12px;
+    width: 200px;
+    height: 170px;
+  }
+}
+
+.fata-service-audience {
+  background: #61040f;
+  padding: 96px 76px;
+}
+
+.fata-service-audience__main {
+  width: min(100%, var(--fata));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  gap: 24px;
+}
+
+.fata-service-audience__title {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 40px;
+  line-height: 1;
+  color: #f0febb;
+}
+
+.fata-service-audience__list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.fata-service-audience__item {
+  display: flex;
+  gap: 16px;
+  max-width: 580px;
+}
+
+.fata-service-audience__num {
+  flex: none;
+  margin: 0;
+  font-family: var(--font-script), serif;
+  font-weight: 600;
+  font-style: italic;
+  font-size: 55px;
+  line-height: 0.49;
+  color: #f0febb;
+}
+
+.fata-service-audience__item-title {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1;
+  color: #f0febb;
+}
+
+.fata-service-audience__item-text {
+  margin: 12px 0 0;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #f0febb;
+}
+
+@media (max-width: 1100px) {
+  .fata-service-audience {
+    padding: 64px 32px;
+  }
+
+  .fata-service-audience__main {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .fata-service-audience__title {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-audience {
+    padding: 48px 16px;
+  }
+
+  .fata-service-audience__title {
+    font-size: 28px;
+  }
+
+  .fata-service-audience__item {
+    gap: 12px;
+  }
+
+  .fata-service-audience__num {
+    font-size: 40px;
+  }
+
+  .fata-service-audience__item-title {
+    font-size: 18px;
+  }
+}

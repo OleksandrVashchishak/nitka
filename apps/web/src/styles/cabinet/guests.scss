@@ -25,6 +25,19 @@
 
 .cabinet-guests-empty .cabinet-empty-actions {
   margin-top: 16px;
+
+  @media (max-width: 767px) {
+    align-self: stretch;
+
+    .cabinet-guests-import-btn {
+      display: none;
+    }
+
+    .cabinet-empty-cta {
+      width: 100%;
+      min-width: 0;
+    }
+  }
 }
 
 /* Guests — add/edit drawer (Figma AddGuest-Modal) */

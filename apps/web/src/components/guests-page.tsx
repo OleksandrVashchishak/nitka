@@ -50,7 +50,6 @@ import {
 } from "@/lib/guests-api";
 import {
   buildGuestNotes,
-  companionsToLegacyFields,
   isInvitedGuest,
   parseCompanions,
   parseInviteMethod,
@@ -417,76 +416,85 @@ function GuestsInner() {
       toast.error("Вкажи ім?я гостя");
       return;
     }
+    // Кожен +1 зберігається як окремий гість, а не як супутник основного.
+    const extraGuests = companions.map((c) => ({ ...c, name: c.name.trim() }));
+    if (extraGuests.some((c) => c.name.length < 2)) {
+      toast.error("Вкажи ім?я для кожного +1");
+      return;
+    }
     setBusy(true);
     try {
       const invited = inviteStatus === "invited";
-      const companionPayload = companions.map(
-        ({ name: cName, isChild: cChild, childNeed: cNeed, rsvpStatus: cRsvp }) => ({
-          name: cName,
-          isChild: cChild,
-          childNeed: cChild ? cNeed : null,
-          rsvpStatus: cRsvp,
-        }),
-      );
-      const legacy = companionsToLegacyFields(companionPayload);
+      const guestSide = (side || "BOTH") as GuestSide;
       const payload = {
         name: nextName,
-        side: (side || "BOTH") as GuestSide,
+        side: guestSide,
         phone: phone.trim() || undefined,
-        plusOne: legacy.plusOne,
-        plusOneName: legacy.plusOneName ?? undefined,
-        plusOneAttending: legacy.plusOneAttending,
+        plusOne: false,
+        plusOneName: undefined,
+        plusOneAttending: null,
         rsvpStatus,
         notes:
           buildGuestNotes({
-            // Основний гість завжди дорослий; дитина лише як +1.
             child: false,
             childNeed: null,
             invited,
             method,
-            companions: companionPayload,
+            companions: [],
           }) ?? undefined,
       };
+      const extraPayloads = extraGuests.map((c) => ({
+        name: c.name,
+        side: guestSide,
+        plusOne: false,
+        plusOneAttending: null,
+        rsvpStatus: c.rsvpStatus,
+        notes:
+          buildGuestNotes({
+            child: c.isChild,
+            childNeed: c.isChild ? c.childNeed : null,
+            invited,
+            method,
+            companions: [],
+          }) ?? undefined,
+      }));
 
-      if (editingId) {
-        const updated = await updateGuest(editingId, payload);
-        setData((prev) =>
-          prev
-            ? {
-                ...prev,
-                guests: prev.guests.map((g) =>
-                  g.id === updated.id ? updated : g,
-                ),
-              }
-            : prev,
-        );
-        toast.success("Оновлено", nextName);
-      } else {
-        const created = await createGuest(payload);
-        setData((prev) =>
-          prev
-            ? {
-                ...prev,
-                guests: [created, ...prev.guests],
-                stats: {
-                  ...prev.stats,
-                  total: prev.stats.total + 1,
-                  yes: prev.stats.yes + (rsvpStatus === "YES" ? 1 : 0),
-                  no: prev.stats.no + (rsvpStatus === "NO" ? 1 : 0),
-                  maybe: prev.stats.maybe + (rsvpStatus === "MAYBE" ? 1 : 0),
-                  pending:
-                    prev.stats.pending + (rsvpStatus === "PENDING" ? 1 : 0),
-                  headcount:
-                    prev.stats.headcount +
-                    (rsvpStatus === "YES" ? 1 : 0) +
-                    companionPayload.filter((c) => c.rsvpStatus === "YES")
-                      .length,
-                },
-              }
-            : prev,
-        );
-        toast.success("Додано", nextName);
+      const updated = editingId
+        ? await updateGuest(editingId, payload)
+        : null;
+      const created: Guest[] = [];
+      if (!editingId) created.push(await createGuest(payload));
+      for (const extra of extraPayloads) {
+        created.push(await createGuest(extra));
       }
+      const countOf = (status: RsvpStatus) =>
+        created.filter((g) => g.rsvpStatus === status).length;
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              guests: [
+                ...created.slice().reverse(),
+                ...prev.guests.map((g) =>
+                  updated && g.id === updated.id ? updated : g,
+                ),
+              ],
+              stats: {
+                ...prev.stats,
+                total: prev.stats.total + created.length,
+                yes: prev.stats.yes + countOf("YES"),
+                no: prev.stats.no + countOf("NO"),
+                maybe: prev.stats.maybe + countOf("MAYBE"),
+                pending: prev.stats.pending + countOf("PENDING"),
+                headcount: prev.stats.headcount + countOf("YES"),
+              },
+            }
+          : prev,
+      );
+      const savedNames = [nextName, ...extraGuests.map((c) => c.name)].join(
+        ", ",
+      );
+      toast.success(editingId ? "Оновлено" : "Додано", savedNames);
       setDrawerOpen(false);
       resetDrawer();
     } catch (err) {

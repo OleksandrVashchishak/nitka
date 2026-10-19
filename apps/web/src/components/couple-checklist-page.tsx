@@ -78,7 +78,7 @@ type StatusFilter = "all" | "open" | "done";
 type TypeFilter = "all" | CabinetCategoryId;
 type DueFilter = "all" | "soon" | "week" | "overdue" | "nodate";
 type WhoFilter = "all" | "owner" | "partner";
-type SortMode = "urgent" | "date" | "alpha";
+type SortMode = "urgent" | "date" | "alpha" | "recent";
 type TaskWho = TaskAssignee;
 
 type ChecklistRow = WeddingTask & {
@@ -439,6 +439,10 @@ function ChecklistInner() {
     return list.sort((a, b) => {
       if (sortMode === "alpha") {
         return a.title.localeCompare(b.title, "uk");
+      }
+      if (sortMode === "recent") {
+        // cuid() ids start with a creation timestamp, so newer ids sort later.
+        return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
       }
       const aDue = a.effectiveDue ?? "9999-99-99";
       const bDue = b.effectiveDue ?? "9999-99-99";
@@ -861,6 +865,7 @@ function ChecklistInner() {
           { value: "urgent", label: "Термінові зверху" },
           { value: "date", label: "За датою" },
           { value: "alpha", label: "За алфавітом" },
+          { value: "recent", label: "Недавно додані" },
         ]}
       />
 
@@ -927,6 +932,7 @@ function ChecklistInner() {
                 <option value="urgent">Термінові зверху</option>
                 <option value="date">За датою</option>
                 <option value="alpha">За алфавітом</option>
+                <option value="recent">Недавно додані</option>
               </Select>
               <Button
                 type="button"
