@@ -38,6 +38,20 @@ winget install PostgreSQL.PostgreSQL.16 --accept-package-agreements --accept-sou
 
 Windows service: `postgresql-x64-16`.
 
+## Тестові акаунти (локалка)
+
+Створюються `npm run local:seed` (див. `apps/api/prisma/seed.ts`). Логін — звичайна форма `/login`, пароль хешований як у реальних юзерів; жодного обходу авторизації немає.
+
+| Email | Роль | Пароль |
+|-------|------|--------|
+| `couple@test.local` | COUPLE (кабінет, з демо-даними) | `demo1234` |
+| `reviewer2@demo.local` | COUPLE | `demo1234` |
+| `admin@nitka.local` | COUPLE | `demo1234` |
+
+- **Вхід (агенту/вручну):** `/login` → email + пароль вище → «Увійти». Якщо `Невірний email або пароль` — спершу `npm run local:seed` (акаунт міг бути відсутній у БД).
+- **Вихід:** меню профілю (ініціали справа вгорі) → «Вийти з акаунту».
+- Це креди для локальної розробки. Не використовувати в проді; реальні паролі сюди не писати.
+
 ## Env
 
 | Файл | Для |

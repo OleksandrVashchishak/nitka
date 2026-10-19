@@ -313,6 +313,12 @@ background: #F3F3F3;
   cursor: pointer;
 }
 
+.cabinet-bell-icon {
+  display: block;
+  width: 15px;
+  height: 16.5px;
+}
+
 .cabinet-bell-badge {
   position: absolute;
   top: -7px;
@@ -1534,6 +1540,12 @@ color: #1A1A1A;
 }
 
 @media (max-width: 767px) {
+  /* Mobile bell: bell.svg from design — 20×22 */
+  .cabinet-bell-icon {
+    width: 20px;
+    height: 22px;
+  }
+
   .cabinet-overview {
     padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px));
   }

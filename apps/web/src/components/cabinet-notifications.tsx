@@ -51,18 +51,18 @@ export function CabinetNotificationsBell({
         aria-haspopup="dialog"
         onClick={() => setOpen((value) => !value)}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <svg
+          className="cabinet-bell-icon"
+          viewBox="0 0 20 22"
+          fill="none"
+          aria-hidden
+        >
           <path
-            d="M6 9.5a6 6 0 0 1 12 0v4.2l1.6 2.3H4.4L6 13.7V9.5Z"
+            d="M11.48 19.75C11.3023 20.1149 11.0292 20.4212 10.6873 20.6307C10.3454 20.8403 9.9507 20.9443 9.5513 20.9303C9.152 20.9163 8.7655 20.785 8.4388 20.5522C8.1121 20.3194 7.8598 19.9949 7.71 19.62M15.75 6.75C15.75 5.1587 15.1179 3.63258 13.9926 2.50736C12.8674 1.38214 11.3413 0.75 9.75 0.75C8.1587 0.75 6.63258 1.38214 5.50736 2.50736C4.38214 3.63258 3.75 5.1587 3.75 6.75C3.75 13.75 0.75 15.75 0.75 15.75H18.75C18.75 15.75 15.75 13.75 15.75 6.75Z"
             stroke="currentColor"
-            strokeWidth="1.7"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M10 19a2.2 2.2 0 0 0 4 0"
-            stroke="currentColor"
-            strokeWidth="1.7"
+            strokeWidth="1.5"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
         {badgeCount > 0 ? (
