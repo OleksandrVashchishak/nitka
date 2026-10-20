@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
+import { Reveal } from "@/components/landing/reveal";
 import "@/styles/landing/service.scss";
 
 const FEATURES = [
@@ -75,21 +77,27 @@ function ServiceCompare() {
           className={`fata-service-compare__row fata-service-compare__row--${i + 1}`}
           key={row.problem.title}
         >
-          <div className="fata-service-compare__problem">
+          <Reveal className="fata-service-compare__problem">
             <p className="fata-service-compare__eyebrow">Проблема</p>
             <h3 className="fata-service-compare__title">
               {row.problem.title}
             </h3>
             <p className="fata-service-compare__text">{row.problem.text}</p>
-          </div>
-          <div className="fata-service-compare__solution">
+          </Reveal>
+          <img
+            src="/landing/comparison-arrow.svg"
+            alt=""
+            aria-hidden
+            className="fata-service-compare__arrow"
+          />
+          <Reveal className="fata-service-compare__solution" delay={120}>
             <CompareScribble />
             <p className="fata-service-compare__eyebrow">Рішення</p>
             <h3 className="fata-service-compare__title">
               {row.solution.title}
             </h3>
             <p className="fata-service-compare__text">{row.solution.text}</p>
-          </div>
+          </Reveal>
         </div>
       ))}
     </section>
@@ -124,7 +132,11 @@ function ServiceAudience() {
         </h2>
         <div className="fata-service-audience__list">
           {AUDIENCE.map((item, i) => (
-            <div className="fata-service-audience__item" key={item.title}>
+            <Reveal
+              className="fata-service-audience__item"
+              key={item.title}
+              delay={i * 80}
+            >
               <p className="fata-service-audience__num">
                 {String(i + 1).padStart(2, "0")}
               </p>
@@ -136,7 +148,7 @@ function ServiceAudience() {
                   {item.text}
                 </p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -151,14 +163,18 @@ function ServiceFeatures() {
         Як це полегшить підготовку до весілля?
       </h2>
       <div className="fata-service-features__grid">
-        {FEATURES.map((feature) => (
-          <div className="fata-service-card" key={feature.title}>
+        {FEATURES.map((feature, i) => (
+          <Reveal
+            className="fata-service-card"
+            key={feature.title}
+            delay={i * 80}
+          >
             <div className="fata-service-card__icon">
               <CabinetNavIcon name={feature.icon} size={24} />
             </div>
             <h3 className="fata-service-card__title">{feature.title}</h3>
             <p className="fata-service-card__text">{feature.text}</p>
-          </div>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -189,7 +205,7 @@ function ServiceHowItWorks() {
       <h2 className="fata-service-how__title">Як це працює?</h2>
       <div className="fata-service-how__grid">
         {HOW_IT_WORKS.map((step, i) => (
-          <div className="fata-service-card" key={step.title}>
+          <Reveal className="fata-service-card" key={step.title} delay={i * 80}>
             <div className="fata-service-card__icon">
               <CabinetNavIcon name={step.icon} size={24} />
             </div>
@@ -197,7 +213,116 @@ function ServiceHowItWorks() {
               {i + 1}. {step.title}
             </h3>
             <p className="fata-service-card__text">{step.text}</p>
-          </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const FAQ = [
+  {
+    q: "Чи можна додавати власні завдання до списку?",
+    a: "Так, ви можете легко створити власне завдання, вказати для нього дедлайн, категорію та призначити відповідального.",
+  },
+  {
+    q: "Як працює планер з спільним доступом для пари?",
+    a: "Ви надсилаєте запрошення партнеру, і він отримує повний доступ до дашборду. Ви можете разом редагувати чекліст, відмічати виконане та ділити таски.",
+  },
+  {
+    q: "Чи підходить сервіс, якщо ми вже розпочали підготовку?",
+    a: "Звісно! Під час первинного налаштування ви просто позначаєте кроки, які вже зробили, і система залишить у списку лише актуальні справи.",
+  },
+  {
+    q: "Чи безкоштовний цей весільний планер?",
+    a: "Так, базова функціональність створення завдань та розумного планування доступна безкоштовно після реєстрації.",
+  },
+  {
+    q: "Чи є підказки, які саме завдання потрібні для мого весілля?",
+    a: "Так, наш весільний пленер українською має вбудовану базу стандартних та специфічних весільних задач (від РАЦСу до кенді-бару).",
+  },
+] as const;
+
+function ServiceFaq() {
+  return (
+    <section className="fata-service-faq">
+      <div className="fata-service-faq__main">
+        <h2 className="fata-service-faq__title">Часті питання</h2>
+        <div className="fata-service-faq__list">
+          {FAQ.map((item, i) => (
+            <Reveal
+              className="fata-service-faq__item"
+              key={item.q}
+              delay={Math.min(i, 3) * 60}
+            >
+              <h3 className="fata-service-faq__q">{item.q}</h3>
+              <p className="fata-service-faq__a">{item.a}</p>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ServiceCta() {
+  return (
+    <section className="fata-service-cta">
+      <Reveal className="fata-service-cta__reveal">
+        <h2 className="fata-service-cta__title">
+          <span className="fata-service-cta__title-light">
+            Готові організувати
+          </span>
+          <br />
+          <span className="fata-service-cta__title-accent">весілля</span>{" "}
+          <span className="fata-service-cta__title-light">без хаосу?</span>
+        </h2>
+        <div className="fata-service-cta__action">
+          <Button href="/register" tone="ink" size="l">
+            Розпочати безкоштовно
+          </Button>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+const OTHER_TOOLS = [
+  {
+    href: "/budget",
+    title: "Бюджет весілля",
+    text: "Контролюйте витрати, аванси та фінальні розрахунки з підрядниками.",
+  },
+  {
+    href: "/website",
+    title: "Сайт-запрошення",
+    text: "Створюйте стильні веб-запрошення та збирайте відповіді гостей.",
+  },
+  {
+    href: "/seating",
+    title: "Розсадка гостей",
+    text: "Інтерактивна схема столів та списки гостей в одному місці.",
+  },
+] as const;
+
+function ServiceOtherTools() {
+  return (
+    <section className="fata-service-other">
+      <h2 className="fata-service-other__title">Інші інструменти для пари</h2>
+      <div className="fata-service-other__grid">
+        {OTHER_TOOLS.map((tool, i) => (
+          <Reveal
+            className="fata-service-other__card"
+            key={tool.href}
+            delay={i * 80}
+          >
+            <div className="fata-service-other__image" />
+            <h3 className="fata-service-other__card-title">{tool.title}</h3>
+            <p className="fata-service-other__card-text">{tool.text}</p>
+            <Link href={tool.href} className="fata-service-other__link">
+              Читати <span aria-hidden>›</span>
+            </Link>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -240,6 +365,9 @@ export function VesilnyyPlanPage() {
       <ServiceCompare />
       <ServiceAudience />
       <ServiceHowItWorks />
+      <ServiceFaq />
+      <ServiceCta />
+      <ServiceOtherTools />
     </div>
   );
 }

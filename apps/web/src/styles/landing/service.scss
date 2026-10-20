@@ -1,3 +1,25 @@
+.fata-service-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.fata-service-reveal.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fata-service-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
 .fata-service-hero {
   background: #fff;
   color: var(--ink);
@@ -10,10 +32,10 @@
   flex: 1;
   width: min(100%, var(--fata));
   margin: 0 auto;
-  padding: 120px 76px;
+  padding: 120px 100px 80px 76px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 634px;
-  gap: 48px;
+  gap: 24px;
   align-items: center;
 }
 
@@ -47,7 +69,11 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--ink-soft);
+  color: #333;
+}
+
+.fata-service-hero__actions .fata-button--dark {
+  color: #f0febb;
 }
 
 .fata-service-hero__actions {
@@ -110,7 +136,7 @@
 
 .fata-service-features {
   background: #d3dfae;
-  padding: 80px 76px;
+  padding: 80px 100px 80px 76px;
 }
 
 .fata-service-features__title {
@@ -138,6 +164,9 @@
 }
 
 .fata-service-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 24px;
   border: 1px solid #ebe5d4;
 }
@@ -154,7 +183,7 @@
 }
 
 .fata-service-card__title {
-  margin: 24px 0 0;
+  margin: 0;
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
   font-size: 24px;
@@ -163,7 +192,7 @@
 }
 
 .fata-service-card__text {
-  margin: 12px 0 0;
+  margin: 0;
   font-family: var(--font-sans), sans-serif;
   font-weight: 400;
   font-size: 16px;
@@ -211,6 +240,7 @@
 }
 
 .fata-service-compare__row {
+  position: relative;
   display: grid;
   column-gap: 0;
 }
@@ -261,7 +291,7 @@
   line-height: 1;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--ink);
+  color: #000;
 }
 
 .fata-service-compare__title {
@@ -272,7 +302,7 @@
   font-weight: 600;
   font-style: italic;
   line-height: 1;
-  color: var(--ink);
+  color: #000;
 }
 
 .fata-service-compare__text {
@@ -283,7 +313,32 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--ink-soft);
+  color: #000;
+}
+
+.fata-service-compare__arrow {
+  position: absolute;
+  width: 140px;
+  height: 96px;
+  pointer-events: none;
+}
+
+.fata-service-compare__row--1 .fata-service-compare__arrow {
+  left: 300px;
+  top: 70px;
+  transform: rotate(13.56deg);
+}
+
+.fata-service-compare__row--2 .fata-service-compare__arrow {
+  left: 480px;
+  top: 60px;
+  transform: rotate(13.56deg);
+}
+
+@media (max-width: 1100px) {
+  .fata-service-compare__arrow {
+    display: none;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -348,7 +403,7 @@
 
 .fata-service-audience {
   background: #61040f;
-  padding: 96px 76px;
+  padding: 80px 0;
 }
 
 .fata-service-audience__main {
@@ -356,11 +411,12 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: 460px 1fr;
-  gap: 24px;
+  gap: 100px;
 }
 
 .fata-service-audience__title {
   margin: 0;
+  padding-left: 76px;
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
   font-style: italic;
@@ -422,6 +478,7 @@
   }
 
   .fata-service-audience__title {
+    padding-left: 0;
     font-size: 32px;
   }
 }
@@ -450,7 +507,7 @@
 
 .fata-service-how {
   background: #fffdf7;
-  padding: 80px 76px;
+  padding: 80px 100px 80px 76px;
 }
 
 .fata-service-how__title {
@@ -499,5 +556,250 @@
 
   .fata-service-how__title {
     font-size: 28px;
+  }
+}
+
+.fata-service-faq {
+  position: relative;
+  background: #fffdf7;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+.fata-service-faq::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 640px 520px at 72% 48%,
+    rgba(255, 66, 0, 0.07),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.fata-service-faq__main {
+  position: relative;
+  width: min(100%, var(--fata));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  gap: 100px;
+}
+
+.fata-service-faq__title {
+  margin: 0;
+  padding-left: 76px;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.fata-service-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.fata-service-faq__item {
+  max-width: 710px;
+}
+
+.fata-service-faq__q {
+  margin: 0;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.fata-service-faq__a {
+  margin: 12px 0 0;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+@media (max-width: 1100px) {
+  .fata-service-faq {
+    padding: 64px 32px;
+  }
+
+  .fata-service-faq__main {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .fata-service-faq__title {
+    padding-left: 0;
+    font-size: 32px;
+  }
+
+  .fata-service-faq__item {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-faq {
+    padding: 48px 16px;
+  }
+
+  .fata-service-faq__title {
+    font-size: 28px;
+  }
+
+  .fata-service-faq__list {
+    gap: 40px;
+  }
+}
+
+.fata-service-cta {
+  background: #d3dfae;
+  padding: 96px 76px;
+  text-align: center;
+}
+
+.fata-service-cta__title {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 80px;
+  line-height: 0.8;
+}
+
+.fata-service-cta__title-light {
+  color: #f0febb;
+}
+
+.fata-service-cta__title-accent {
+  color: #ff4200;
+}
+
+.fata-service-cta__action {
+  margin-top: 30px;
+}
+
+.fata-service-cta__action .fata-button {
+  background: #000;
+}
+
+.fata-service-cta__action .fata-button:hover:not(:disabled) {
+  background: #222;
+}
+
+@media (max-width: 1100px) {
+  .fata-service-cta {
+    padding: 64px 32px;
+  }
+
+  .fata-service-cta__title {
+    font-size: 56px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-cta {
+    padding: 48px 16px;
+  }
+
+  .fata-service-cta__title {
+    font-size: 36px;
+  }
+
+  .fata-service-cta__action .fata-button {
+    width: 100%;
+  }
+}
+
+.fata-service-other {
+  background: #fff;
+  padding: 80px 100px;
+}
+
+.fata-service-other__title {
+  margin: 0 0 40px;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 40px;
+  line-height: 1;
+  color: #252525;
+}
+
+.fata-service-other__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.fata-service-other__image {
+  aspect-ratio: 387 / 269;
+  background: #fffdf7;
+}
+
+.fata-service-other__card-title {
+  margin: 24px 0 0;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.fata-service-other__card-text {
+  margin: 12px 0 0;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.fata-service-other__link {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-akzidenz), sans-serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #ff4200;
+  text-decoration: none;
+}
+
+@media (max-width: 1100px) {
+  .fata-service-other {
+    padding: 56px 32px;
+  }
+
+  .fata-service-other__title {
+    font-size: 32px;
+  }
+
+  .fata-service-other__grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fata-service-other {
+    padding: 40px 16px;
+  }
+
+  .fata-service-other__title {
+    font-size: 22px;
   }
 }
