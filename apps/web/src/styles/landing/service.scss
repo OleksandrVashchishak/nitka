@@ -30,9 +30,10 @@
 
 .fata-service-hero__main {
   flex: 1;
-  width: min(100%, var(--fata));
+  width: 100%;
+  max-width: var(--fata);
   margin: 0 auto;
-  padding: 120px 100px 80px 76px;
+  padding: 120px 76px 80px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 634px;
   gap: 24px;
@@ -136,7 +137,7 @@
 
 .fata-service-features {
   background: #d3dfae;
-  padding: 80px 100px 80px 76px;
+  padding: 80px 76px;
 }
 
 .fata-service-features__title {
@@ -151,7 +152,7 @@
 }
 
 .fata-service-features__grid {
-  width: min(100%, var(--fata));
+  max-width: var(--fata);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -407,7 +408,7 @@
 }
 
 .fata-service-audience__main {
-  width: min(100%, var(--fata));
+  max-width: var(--fata);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 460px 1fr;
@@ -507,12 +508,12 @@
 
 .fata-service-how {
   background: #fffdf7;
-  padding: 80px 100px 80px 76px;
+  padding: 80px 76px;
 }
 
 .fata-service-how__title {
   margin: 0 0 40px;
-  width: min(100%, var(--fata));
+  max-width: var(--fata);
   margin-left: auto;
   margin-right: auto;
   font-family: var(--font-display), sans-serif;
@@ -524,7 +525,7 @@
 }
 
 .fata-service-how__grid {
-  width: min(100%, var(--fata));
+  max-width: var(--fata);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -580,7 +581,7 @@
 
 .fata-service-faq__main {
   position: relative;
-  width: min(100%, var(--fata));
+  max-width: var(--fata);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 460px 1fr;
@@ -722,7 +723,7 @@
 
 .fata-service-other {
   background: #fff;
-  padding: 80px 100px;
+  padding: 80px 76px;
 }
 
 .fata-service-other__title {
