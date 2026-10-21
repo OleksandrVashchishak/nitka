@@ -20,6 +20,20 @@
   }
 }
 
+/** Shared container — same 1320/20 recipe as the site header / home hero. */
+.fata-service-shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .fata-service-shell {
+    padding: 0 16px;
+  }
+}
+
 .fata-service-hero {
   background: #fff;
   color: var(--ink);
@@ -31,9 +45,9 @@
 .fata-service-hero__main {
   flex: 1;
   width: 100%;
-  max-width: var(--fata);
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 120px 76px 80px;
+  padding: 120px 20px 80px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 634px;
   gap: 24px;
@@ -122,7 +136,7 @@
 
 @media (max-width: 640px) {
   .fata-service-hero__main {
-    padding: 48px 20px;
+    padding: 48px 16px;
   }
 
   .fata-service-hero__title {
@@ -137,12 +151,11 @@
 
 .fata-service-features {
   background: #d3dfae;
-  padding: 80px 76px;
+  padding: 80px 0;
 }
 
 .fata-service-features__title {
   margin: 0 0 40px;
-  max-width: 900px;
   font-family: var(--font-display), sans-serif;
   font-style: italic;
   font-weight: 400;
@@ -152,8 +165,6 @@
 }
 
 .fata-service-features__grid {
-  max-width: var(--fata);
-  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
@@ -203,7 +214,7 @@
 
 @media (max-width: 1100px) {
   .fata-service-features {
-    padding: 56px 32px;
+    padding: 56px 0;
   }
 
   .fata-service-features__title {
@@ -221,7 +232,7 @@
 
 @media (max-width: 640px) {
   .fata-service-features {
-    padding: 40px 16px;
+    padding: 40px 0;
   }
 
   .fata-service-features__title {
@@ -236,7 +247,7 @@
 
 .fata-service-compare {
   background: #fff;
-  padding: 96px 76px;
+  padding: 96px 0;
   overflow: hidden;
 }
 
@@ -344,7 +355,7 @@
 
 @media (max-width: 1100px) {
   .fata-service-compare {
-    padding: 64px 32px;
+    padding: 64px 0;
   }
 
   .fata-service-compare__row--1,
@@ -382,7 +393,7 @@
 
 @media (max-width: 640px) {
   .fata-service-compare {
-    padding: 48px 16px;
+    padding: 48px 0;
   }
 
   .fata-service-compare__row--1,
@@ -408,8 +419,6 @@
 }
 
 .fata-service-audience__main {
-  max-width: var(--fata);
-  margin: 0 auto;
   display: grid;
   grid-template-columns: 460px 1fr;
   gap: 100px;
@@ -417,7 +426,6 @@
 
 .fata-service-audience__title {
   margin: 0;
-  padding-left: 76px;
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
   font-style: italic;
@@ -470,7 +478,7 @@
 
 @media (max-width: 1100px) {
   .fata-service-audience {
-    padding: 64px 32px;
+    padding: 64px 0;
   }
 
   .fata-service-audience__main {
@@ -486,7 +494,7 @@
 
 @media (max-width: 640px) {
   .fata-service-audience {
-    padding: 48px 16px;
+    padding: 48px 0;
   }
 
   .fata-service-audience__title {
@@ -508,14 +516,11 @@
 
 .fata-service-how {
   background: #fffdf7;
-  padding: 80px 76px;
+  padding: 80px 0;
 }
 
 .fata-service-how__title {
   margin: 0 0 40px;
-  max-width: var(--fata);
-  margin-left: auto;
-  margin-right: auto;
   font-family: var(--font-display), sans-serif;
   font-style: italic;
   font-weight: 400;
@@ -525,8 +530,6 @@
 }
 
 .fata-service-how__grid {
-  max-width: var(--fata);
-  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
@@ -538,7 +541,7 @@
 
 @media (max-width: 1100px) {
   .fata-service-how {
-    padding: 56px 32px;
+    padding: 56px 0;
   }
 
   .fata-service-how__title {
@@ -552,7 +555,7 @@
 
 @media (max-width: 640px) {
   .fata-service-how {
-    padding: 40px 16px;
+    padding: 40px 0;
   }
 
   .fata-service-how__title {
@@ -581,8 +584,6 @@
 
 .fata-service-faq__main {
   position: relative;
-  max-width: var(--fata);
-  margin: 0 auto;
   display: grid;
   grid-template-columns: 460px 1fr;
   gap: 100px;
@@ -590,7 +591,6 @@
 
 .fata-service-faq__title {
   margin: 0;
-  padding-left: 76px;
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
   font-style: italic;
@@ -630,7 +630,7 @@
 
 @media (max-width: 1100px) {
   .fata-service-faq {
-    padding: 64px 32px;
+    padding: 64px 0;
   }
 
   .fata-service-faq__main {
@@ -650,7 +650,7 @@
 
 @media (max-width: 640px) {
   .fata-service-faq {
-    padding: 48px 16px;
+    padding: 48px 0;
   }
 
   .fata-service-faq__title {
@@ -664,7 +664,7 @@
 
 .fata-service-cta {
   background: #d3dfae;
-  padding: 96px 76px;
+  padding: 96px 20px;
   text-align: center;
 }
 
@@ -723,7 +723,7 @@
 
 .fata-service-other {
   background: #fff;
-  padding: 80px 76px;
+  padding: 80px 0;
 }
 
 .fata-service-other__title {
@@ -782,7 +782,7 @@
 
 @media (max-width: 1100px) {
   .fata-service-other {
-    padding: 56px 32px;
+    padding: 56px 0;
   }
 
   .fata-service-other__title {
@@ -797,7 +797,7 @@
 
 @media (max-width: 640px) {
   .fata-service-other {
-    padding: 40px 16px;
+    padding: 40px 0;
   }
 
   .fata-service-other__title {
