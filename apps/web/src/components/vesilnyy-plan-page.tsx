@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 import { Reveal } from "@/components/landing/reveal";
+import { getSiteUrl, SITE_NAME } from "@/lib/site";
 import "@/styles/landing/service.scss";
 
 const FEATURES = [
@@ -59,7 +60,7 @@ function CompareScribble() {
       aria-hidden
     >
       <path
-        d="M48 78c-18-28 38-58 118-64 86-6 168 8 198 38 28 28 8 54-48 64-62 12-168 16-228-2-42-12-52-38-28-52 18-10 62-4 96 6"
+        d="M70 34C150 4 330 6 390 44c36 24 14 66-80 82-100 16-220 10-270-18C2 88 20 52 70 34c26-9 60-14 96-16"
         stroke="#FF4200"
         strokeWidth={3.25}
         strokeLinecap="round"
@@ -73,6 +74,9 @@ function ServiceCompare() {
   return (
     <section className="fata-service-compare">
       <div className="fata-service-shell">
+        <h2 className="fata-service-sr-only">
+          Типові проблеми підготовки до весілля та як їх вирішує fata.studio
+        </h2>
         {COMPARE_ROWS.map((row, i) => (
           <div
             className={`fata-service-compare__row fata-service-compare__row--${i + 1}`}
@@ -108,7 +112,7 @@ function ServiceCompare() {
 
 const AUDIENCE = [
   {
-    title: "Пара, яка тільни починає підготовку",
+    title: "Пара, яка тільки починає підготовку",
     text: "Не знаєте, з чого почати? Інтерактивний весільний органайзер автоматично сформує покроковий план підготовки до весілля з підказками.",
   },
   {
@@ -120,7 +124,7 @@ const AUDIENCE = [
     text: "Зручний додаток для підготовки до весілля дозволяє бачити, хто за що відповідає (наприклад, Оля — за декор, Роман — за транспорт), уникаючи непорозумінь.",
   },
   {
-    title: "Наречені, які втомилися від бардану і непорозумінь зі статусами завдань",
+    title: "Наречені, які втомилися від бардаку і непорозумінь зі статусами завдань",
     text: "Підійде тим, хто шукає новий інструмент, який таки буде працювати і де ви справді будете відслідковувати результати вашого планування разом.",
   },
 ] as const;
@@ -337,15 +341,63 @@ function ServiceOtherTools() {
   );
 }
 
+export const PAGE_TITLE = "План весілля онлайн: список завдань без хаосу";
+export const PAGE_DESCRIPTION =
+  "Український весільний планер: персональний список справ за 3 кроки, розподіл обов'язків і дедлайни під контролем.";
+
 export function VesilnyyPlanPage() {
+  const siteUrl = getSiteUrl();
+  const pageUrl = `${siteUrl}/vesilnyy-plan`;
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Головна",
+          item: siteUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: PAGE_TITLE,
+          item: pageUrl,
+        },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: PAGE_TITLE,
+      description: PAGE_DESCRIPTION,
+      url: pageUrl,
+      inLanguage: "uk-UA",
+      isPartOf: { "@type": "WebSite", name: SITE_NAME, url: siteUrl },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQ.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+  ];
+
   return (
     <div className="fata-service-hero">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="fata-service-hero__main">
         <div className="fata-service-hero__copy">
           <p className="fata-service-hero__eyebrow">FATA.STUDIO • ЗАВДАННЯ</p>
-          <h1 className="fata-service-hero__title">
-            План весілля онлайн: список завдань без хаосу
-          </h1>
+          <h1 className="fata-service-hero__title">{PAGE_TITLE}</h1>
           <p className="fata-service-hero__lead">
             Забудьте про хаотичне планування. Fata.studio — це сучасний
             український весільний пленер, який формує персональний список

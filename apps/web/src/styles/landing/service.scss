@@ -28,6 +28,19 @@
   box-sizing: border-box;
 }
 
+/** Visually hidden but readable by screen readers / crawlers — keeps heading order h1→h2→h3 intact. */
+.fata-service-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (max-width: 640px) {
   .fata-service-shell {
     padding: 0 16px;
