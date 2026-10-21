@@ -11,7 +11,7 @@ import { IconClose } from "@/components/icon-close";
 import "@/styles/shell/mobile-menu.scss";
 
 export const FATA_NAV = [
-  { href: "/checklist", label: "Завдання" },
+  { href: "/vesilnyy-plan", label: "Завдання" },
   { href: "/website", label: "Сайт-запрошення" },
   { href: "/seating", label: "Розсадка" },
   { href: "/my-vendors", label: "Підрядники" },

@@ -6,7 +6,7 @@ import { isAdminPath, isCabinetPath } from "@/lib/routes";
 import "@/styles/shell/site-footer.scss";
 
 const PRODUCT_LINKS = [
-  { href: "/checklist", label: "Завдання" },
+  { href: "/vesilnyy-plan", label: "Завдання" },
   { href: "/guests", label: "Гості" },
   { href: "/budget", label: "Бюджет" },
   { href: "/website", label: "Сайт-запрошення" },
