@@ -11,7 +11,7 @@ const PRODUCT_LINKS = [
   { href: "/budget", label: "Бюджет" },
   { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
   { href: "/rozsadka-gostey", label: "Розсадка" },
-  { href: "/my-vendors", label: "Підрядники" },
+  { href: "/pidryadnyky", label: "Підрядники" },
   { href: "/day-plan", label: "План дня" },
 ] as const;
 
