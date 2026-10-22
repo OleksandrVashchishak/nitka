@@ -12,7 +12,7 @@ import "@/styles/shell/mobile-menu.scss";
 
 export const FATA_NAV = [
   { href: "/vesilnyy-plan", label: "Завдання" },
-  { href: "/website", label: "Сайт-запрошення" },
+  { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
   { href: "/seating", label: "Розсадка" },
   { href: "/my-vendors", label: "Підрядники" },
   { href: "/budget", label: "Бюджет" },

@@ -9,7 +9,7 @@ const PRODUCT_LINKS = [
   { href: "/vesilnyy-plan", label: "Завдання" },
   { href: "/guests", label: "Гості" },
   { href: "/budget", label: "Бюджет" },
-  { href: "/website", label: "Сайт-запрошення" },
+  { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
   { href: "/seating", label: "Розсадка" },
   { href: "/my-vendors", label: "Підрядники" },
   { href: "/day-plan", label: "План дня" },
