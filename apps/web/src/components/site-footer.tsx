@@ -10,7 +10,7 @@ const PRODUCT_LINKS = [
   { href: "/guests", label: "Гості" },
   { href: "/budget", label: "Бюджет" },
   { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
-  { href: "/seating", label: "Розсадка" },
+  { href: "/rozsadka-gostey", label: "Розсадка" },
   { href: "/my-vendors", label: "Підрядники" },
   { href: "/day-plan", label: "План дня" },
 ] as const;
