@@ -454,64 +454,6 @@ export const SMART_PLAN_CATALOG: SmartPlanTask[] = [
   },
 ];
 
-/** Дедлайн відносно дати весілля. Без дати — null. */
-export function dueDateBeforeWedding(
-  weddingDateIso: string | null | undefined,
-  daysBefore: number,
-): string | null {
-  const iso = weddingDateIso?.trim().slice(0, 10);
-  if (!iso) return null;
-  const wedding = new Date(`${iso}T12:00:00`);
-  if (Number.isNaN(wedding.getTime())) return null;
-  const due = new Date(wedding);
-  due.setDate(due.getDate() - Math.max(0, daysBefore));
-  return due.toISOString().slice(0, 10);
-}
-
-export function smartPlanDueDate(
-  weddingDateIso: string | null | undefined,
-  task: Pick<SmartPlanTask, "daysBefore" | "title">,
-): string | null {
-  return dueDateBeforeWedding(weddingDateIso, task.daysBefore);
-}
-
-/** Стартові задачі API — ті самі офсети, що й для бекфілу на клієнті. */
-export const STARTER_TASK_DEADLINES: Array<{
-  title: string;
-  categorySlug: string;
-  daysBefore: number;
-}> = [
-  {
-    title: "Побудувати список завдань",
-    categorySlug: "starter-plan",
-    daysBefore: 60,
-  },
-  {
-    title: "Додати гостей",
-    categorySlug: "starter-guests",
-    daysBefore: 45,
-  },
-  {
-    title: "Внести витрати",
-    categorySlug: "starter-budget",
-    daysBefore: 30,
-  },
-];
-
-export function defaultTaskDaysBefore(
-  title: string,
-  categorySlug?: string | null,
-): number | null {
-  const bySlug = STARTER_TASK_DEADLINES.find(
-    (t) => categorySlug && t.categorySlug === categorySlug,
-  );
-  if (bySlug) return bySlug.daysBefore;
-  const byTitle = SMART_PLAN_CATALOG.find((t) => t.title === title);
-  if (byTitle) return byTitle.daysBefore;
-  const starterByTitle = STARTER_TASK_DEADLINES.find((t) => t.title === title);
-  return starterByTitle?.daysBefore ?? null;
-}
-
 function featureOk(
   task: SmartPlanTask,
   features: Set<SmartFeatureId>,

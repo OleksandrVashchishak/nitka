@@ -39,7 +39,7 @@ import { IconTrash } from "@/components/icon-trash";
 import { PartnerInviteBanner } from "@/components/partner-invite-banner";
 import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
 import { IconButton } from "@/components/ui/icon-button";
-import { uaNameInstrumental, uaNameVocative } from "@/lib/ua-name-case";
+import { uaNameInstrumental } from "@/lib/ua-name-case";
 import {
   cabinetCategoryMeta,
   resolveCabinetCategory,
@@ -527,7 +527,7 @@ export function CoupleOverview({
       <div className="cabinet-overview-top">
         <BrandLogo href="/dashboard" className="cabinet-mobile-brand" />
         <div className="cabinet-overview-greeting">
-          <h1>Привіт, {uaNameVocative(greetingName)}!</h1>
+          <h1>Привіт, {greetingName}!</h1>
 
           <p>
             Ви {partnerName ? `з ${uaNameInstrumental(partnerName)} ` : ""}одружуєтесь через{" "}

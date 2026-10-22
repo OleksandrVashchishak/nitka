@@ -10,7 +10,7 @@ import { IconSms } from "@/components/icon-sms";
 import { Button } from "@/components/ui/button";
 import { createPartnerInvite, getMyWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
-import { detectUaNameGender, uaNameAccusative } from "@/lib/ua-name-case";
+import { uaNameAccusative } from "@/lib/ua-name-case";
 import "@/styles/cabinet/cabinet.scss";
 
 
@@ -133,11 +133,6 @@ function SidebarInviteCard() {
   }
 
   const name = uaNameAccusative(partnerName);
-  const raw = partnerName.trim();
-  const feminine =
-    !!raw &&
-    !/^партнер/i.test(raw) &&
-    detectUaNameGender(raw) === "feminine";
 
   return (
     <div className="cabinet-app-card cabinet-invite-card">
@@ -147,9 +142,7 @@ function SidebarInviteCard() {
           <h3>Запросіть {name}</h3>
         </div>
         <p>
-          Додайте {name} до спільного доступу, щоб{" "}
-          {feminine ? "вона могла" : "він міг"} бачити та редагувати ваш
-          дашборд.
+          Додайте {name} до кабінету — разом ведіть задачі, гостей і бюджет.
         </p>
       </div>
       <Button

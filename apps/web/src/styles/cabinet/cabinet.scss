@@ -1563,6 +1563,7 @@ color: #1A1A1A;
   .cabinet-mobile-brand {
     display: inline-flex;
     grid-area: brand;
+    margin-left: 8px;
   }
 
   .cabinet-overview-greeting {
@@ -1572,6 +1573,7 @@ color: #1A1A1A;
   .cabinet-overview-actions {
     grid-area: actions;
     justify-self: end;
+    margin-right: 8px;
   }
 
   .cabinet-overview-actions .cabinet-profile-wrap {

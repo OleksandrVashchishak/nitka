@@ -64,7 +64,7 @@ function declineFeminine(name: string, grammaticalCase: UaGrammaticalCase): stri
     const stem = n.slice(0, -1);
     if (grammaticalCase === "accusative") return `${stem}ю`;
     if (grammaticalCase === "vocative") {
-      return /[аеєиіїоуюя]$/u.test(stem) ? `${stem}є` : `${stem}е`;
+      return /[аеєиіїоуюя]$/u.test(stem) ? `${stem}є` : `${stem}ю`;
     }
     if (grammaticalCase === "genitive") {
       return /[аеєиіїоуюя]$/u.test(stem) ? `${stem}ї` : `${stem}і`;

@@ -3,7 +3,7 @@
 import { IconClose } from "@/components/icon-close";
 import { IconSms } from "@/components/icon-sms";
 import { Button } from "@/components/ui/button";
-import { detectUaNameGender, uaNameAccusative } from "@/lib/ua-name-case";
+import { uaNameAccusative } from "@/lib/ua-name-case";
 
 type Props = {
   partnerName: string;
@@ -21,11 +21,6 @@ export function PartnerInviteBanner({
   className,
 }: Props) {
   const name = uaNameAccusative(partnerName);
-  const raw = partnerName.trim();
-  const feminine =
-    !!raw &&
-    !/^партнер/i.test(raw) &&
-    detectUaNameGender(raw) === "feminine";
 
   return (
     <div
@@ -46,8 +41,7 @@ export function PartnerInviteBanner({
       </button>
 
       <p className="partner-invite-banner__text">
-        Додайте {name} до спільного доступу, щоб{" "}
-        {feminine ? "вона могла" : "він міг"} бачити та редагувати ваш дашборд.
+        Додайте {name} до кабінету — разом ведіть задачі, гостей і бюджет.
       </p>
 
       <div className="partner-invite-banner__actions">

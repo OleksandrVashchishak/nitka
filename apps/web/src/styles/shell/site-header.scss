@@ -172,6 +172,37 @@ body:not(.has-fata-header-home) .fata-site-header {
   color: #1a1a1a;
 }
 
+/* Service pages, per Figma: 90px bar (17px padding around 56px CTAs),
+   24px between nav items, orange underline on the active item. */
+@media (min-width: 1024px) {
+  body.has-fata-header {
+    --fata-header-h: 90px;
+  }
+
+  body.has-fata-header .fata-site-header-inner {
+    padding-block: 17px;
+  }
+}
+
+@media (min-width: 1301px) {
+  body.has-fata-header .fata-site-header .fata-nav {
+    gap: 24px;
+  }
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-nav a {
+  position: relative;
+}
+
+body:not(.has-fata-header-home) .fata-site-header .fata-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -8px;
+  height: 1px;
+  background: #ff4200;
+}
+
 body:not(.has-fata-header-home) .fata-m-burger span {
   background: #1a1a1a;
 }

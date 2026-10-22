@@ -24,31 +24,16 @@ const DEFAULT_TASKS = [
   {
     title: 'Побудувати список завдань',
     categorySlug: 'starter-plan',
-    daysBefore: 60,
   },
   {
     title: 'Додати гостей',
     categorySlug: 'starter-guests',
-    daysBefore: 45,
   },
   {
     title: 'Внести витрати',
     categorySlug: 'starter-budget',
-    daysBefore: 30,
   },
 ];
-
-/** Дедлайн = дата весілля − N днів. Без дати — null. */
-function dueDateBeforeWedding(
-  weddingDate: Date | null | undefined,
-  daysBefore: number,
-): Date | null {
-  if (!weddingDate || Number.isNaN(weddingDate.getTime())) return null;
-  const due = new Date(weddingDate);
-  due.setHours(12, 0, 0, 0);
-  due.setDate(due.getDate() - Math.max(0, daysBefore));
-  return due;
-}
 
 const TASK_ORDER = { orderBy: [{ sortOrder: 'asc' as const }, { id: 'asc' as const }] };
 
@@ -144,7 +129,7 @@ export class WeddingsService {
     const access = await resolveWeddingForUser(this.prisma, userId);
     if (!access) return null;
 
-    await this.syncDefaultTasks(access.wedding.id, access.wedding.date);
+    await this.syncDefaultTasks(access.wedding.id);
     return this.loadWeddingWithMeta(access.wedding.id, userId);
   }
 
@@ -265,7 +250,7 @@ export class WeddingsService {
             : {}),
         },
       });
-      await this.syncDefaultTasks(access.wedding.id, new Date(dto.date));
+      await this.syncDefaultTasks(access.wedding.id);
 
       const changed =
         prev.date.toISOString().slice(0, 10) !== dto.date.slice(0, 10) ||
@@ -317,7 +302,6 @@ export class WeddingsService {
             sortOrder: index,
             isCustom: false,
             status: TaskStatus.TODO,
-            dueDate: dueDateBeforeWedding(new Date(dto.date), task.daysBefore),
           })),
         },
         members: {
@@ -596,10 +580,7 @@ export class WeddingsService {
     return task;
   }
 
-  private async syncDefaultTasks(
-    weddingId: string,
-    weddingDate?: Date | null,
-  ) {
+  private async syncDefaultTasks(weddingId: string) {
     const existing = await this.prisma.task.findMany({
       where: { weddingId },
     });
@@ -611,21 +592,12 @@ export class WeddingsService {
           (task) => !task.isCustom && task.categorySlug === def.categorySlug,
         );
         if (!found) continue;
-        const dueDate =
-          !found.dueDate && weddingDate
-            ? dueDateBeforeWedding(weddingDate, def.daysBefore)
-            : undefined;
         const needsMeta =
           found.title !== def.title || found.sortOrder !== index;
-        if (!needsMeta && dueDate === undefined) continue;
+        if (!needsMeta) continue;
         await this.prisma.task.update({
           where: { id: found.id },
-          data: {
-            ...(needsMeta
-              ? { title: def.title, sortOrder: index }
-              : {}),
-            ...(dueDate ? { dueDate } : {}),
-          },
+          data: { title: def.title, sortOrder: index },
         });
       }
       return;
@@ -639,7 +611,6 @@ export class WeddingsService {
         sortOrder: index,
         isCustom: false,
         status: TaskStatus.TODO,
-        dueDate: dueDateBeforeWedding(weddingDate, task.daysBefore),
       })),
     });
   }

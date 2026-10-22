@@ -24,10 +24,12 @@ function shouldHideHeader(pathname: string) {
   );
 }
 
-function FataLogo({ className = "" }: { className?: string }) {
+function FataLogo({ isHome }: { isHome: boolean }) {
+  // Home sits on the wine theme; every other page is ink on white.
+  const src = isHome ? "/landing/logo.svg" : "/landing/logo-dark.svg";
   return (
-    <Link href="/" className={`fata-logo ${className}`.trim()} aria-label="fata.studio">
-      <img src="/landing/logo.svg" alt="fata.studio" width={154} height={32} />
+    <Link href="/" className="fata-logo" aria-label="fata.studio">
+      <img src={src} alt="fata.studio" width={154} height={32} />
     </Link>
   );
 }
@@ -88,13 +90,21 @@ export function SiteHeader() {
   return (
     <header className="fata-site-header">
       <div className="fata-site-header-inner">
-        <FataLogo />
+        <FataLogo isHome={isHome} />
         <nav className="fata-nav" aria-label="Основне меню">
-          {FATA_NAV.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
+          {FATA_NAV.map((item) => {
+            const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="fata-auth">
           <AuthButtons />

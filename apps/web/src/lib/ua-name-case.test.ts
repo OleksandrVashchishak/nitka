@@ -45,6 +45,8 @@ describe("declineUaGivenName", () => {
 
     expect(declineUaGivenName("Надія", "accusative")).toBe("Надію");
     expect(declineUaGivenName("Катя", "accusative")).toBe("Катю");
+    expect(declineUaGivenName("Оля", "vocative")).toBe("Олю");
+    expect(declineUaGivenName("Оля", "genitive")).toBe("Олі");
     expect(declineUaGivenName("Наташа", "genitive")).toBe("Наташі");
   });
 

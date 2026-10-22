@@ -55,11 +55,8 @@ import {
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import {
-  defaultTaskDaysBefore,
-  dueDateBeforeWedding,
   smartBannerKey,
   smartPlanDoneKey,
-  smartPlanDueDate,
   type SmartPlanTask,
 } from "@/lib/smart-planning";
 import { toast } from "@/lib/toast";
@@ -166,7 +163,6 @@ function ChecklistInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const editHandledRef = useRef<string | null>(null);
-  const dueBackfillRef = useRef<string | null>(null);
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -226,76 +222,6 @@ function ChecklistInner() {
     } catch {
       setShowSmartBanner(true);
     }
-  }, [wedding]);
-
-  /** Один раз підставляє дедлайни шаблонним задачам без dueDate, якщо є дата весілля. */
-  useEffect(() => {
-    if (!wedding?.date?.trim()) return;
-    const stamp = `${wedding.id}:${wedding.date.slice(0, 10)}`;
-    if (dueBackfillRef.current === stamp) return;
-    const backfillKey = `fata-default-due-backfill:v1:${wedding.id}`;
-    try {
-      if (localStorage.getItem(backfillKey) === "1") {
-        dueBackfillRef.current = stamp;
-        return;
-      }
-    } catch {
-      /* ignore */
-    }
-    dueBackfillRef.current = stamp;
-
-    const weddingDate = wedding.date;
-    const pending = wedding.tasks.filter((task) => {
-      if (task.dueDate) return false;
-      return defaultTaskDaysBefore(task.title, task.categorySlug) != null;
-    });
-
-    const markDone = () => {
-      try {
-        localStorage.setItem(backfillKey, "1");
-      } catch {
-        /* ignore */
-      }
-    };
-
-    if (pending.length === 0) {
-      markDone();
-      return;
-    }
-
-    let cancelled = false;
-    void (async () => {
-      const patched: Array<{ id: string; dueDate: string }> = [];
-      for (const task of pending) {
-        const days = defaultTaskDaysBefore(task.title, task.categorySlug);
-        if (days == null) continue;
-        const dueDate = dueDateBeforeWedding(weddingDate, days);
-        if (!dueDate) continue;
-        try {
-          await updateTask(task.id, { dueDate }, { silent: true });
-          patched.push({ id: task.id, dueDate });
-        } catch {
-          /* ignore single failures */
-        }
-        if (cancelled) return;
-      }
-      markDone();
-      if (cancelled || patched.length === 0) return;
-      setWedding((prev) => {
-        if (!prev) return prev;
-        const map = new Map(patched.map((p) => [p.id, p.dueDate]));
-        return {
-          ...prev,
-          tasks: prev.tasks.map((t) =>
-            map.has(t.id) ? { ...t, dueDate: map.get(t.id)! } : t,
-          ),
-        };
-      });
-    })();
-
-    return () => {
-      cancelled = true;
-    };
   }, [wedding]);
 
   useEffect(() => {
@@ -743,18 +669,15 @@ function ChecklistInner() {
     const toCreate = planTasks.filter(
       (t) => !existingTitles.has(t.title.trim().toLowerCase()),
     );
-    const weddingDate = wedding.date?.trim() || null;
-
+    // Дедлайни не ставимо автоматично — пара додає їх сама.
     const created: WeddingTask[] = [];
     for (const [index, task] of toCreate.entries()) {
-      const dueDate = smartPlanDueDate(weddingDate, task);
       const row = await createTask(
         {
           title: task.title,
           categorySlug: task.categorySlug,
           sortOrder: 100 + index,
           assignee: "none",
-          ...(dueDate ? { dueDate } : {}),
         },
         { silent: true },
       );
