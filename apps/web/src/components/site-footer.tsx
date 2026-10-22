@@ -12,7 +12,7 @@ const PRODUCT_LINKS = [
   { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
   { href: "/rozsadka-gostey", label: "Розсадка" },
   { href: "/pidryadnyky", label: "Підрядники" },
-  { href: "/day-plan", label: "План дня" },
+  { href: "/plan-dnya", label: "План дня" },
 ] as const;
 
 // TODO: підставити справжні акаунти fata.studio
