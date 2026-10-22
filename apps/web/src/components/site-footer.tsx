@@ -8,7 +8,7 @@ import "@/styles/shell/site-footer.scss";
 const PRODUCT_LINKS = [
   { href: "/vesilnyy-plan", label: "Завдання" },
   { href: "/guests", label: "Гості" },
-  { href: "/budget", label: "Бюджет" },
+  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
   { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
   { href: "/rozsadka-gostey", label: "Розсадка" },
   { href: "/pidryadnyky", label: "Підрядники" },

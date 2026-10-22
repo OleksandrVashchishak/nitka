@@ -298,7 +298,7 @@ function ServiceCta() {
 
 const OTHER_TOOLS = [
   {
-    href: "/budget",
+    href: "/vesilnyy-byudzhet",
     title: "Бюджет весілля",
     text: "Повний контроль витрат, авансів та фінальних розрахунків з підрядниками в одному місці.",
   },

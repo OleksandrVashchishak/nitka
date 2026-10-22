@@ -15,7 +15,7 @@ export const FATA_NAV = [
   { href: "/vesilnyy-sayt", label: "Сайт-запрошення" },
   { href: "/rozsadka-gostey", label: "Розсадка" },
   { href: "/pidryadnyky", label: "Підрядники" },
-  { href: "/budget", label: "Бюджет" },
+  { href: "/vesilnyy-byudzhet", label: "Бюджет" },
   { href: "/guests", label: "Гості" },
   { href: "/day-plan", label: "План дня" },
   { href: "/blog", label: "Ідеї" },
