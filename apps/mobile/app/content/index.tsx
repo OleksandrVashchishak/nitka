@@ -74,7 +74,7 @@ export default function ContentIndexScreen() {
                 contentContainerStyle={styles.chips}
               >
                 <Chip
-                  label="Усі"
+                  label="Всі"
                   active={!topic}
                   onPress={() => setTopic(undefined)}
                 />

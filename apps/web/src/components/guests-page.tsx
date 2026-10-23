@@ -50,9 +50,13 @@ import {
 } from "@/lib/guests-api";
 import {
   buildGuestNotes,
+  isChildGuest,
   isInvitedGuest,
+  newPartyId,
+  parseChildNeed,
   parseCompanions,
   parseInviteMethod,
+  parsePartyId,
   partyHasChild,
   type ChildNeed,
   type GuestCompanion,
@@ -76,7 +80,7 @@ type RsvpFilter = "all" | RsvpStatus;
 type AgeFilter = "all" | "adult" | "child";
 type SortMode = "recent" | "alpha" | "rsvp";
 
-type CompanionDraft = GuestCompanion & { key: string };
+type CompanionDraft = GuestCompanion & { key: string; guestId?: string };
 
 const SHOW_TEST_TOOLS = process.env.NODE_ENV === "development";
 
@@ -393,13 +397,24 @@ function GuestsInner() {
   function openEdit(guest: Guest) {
     setEditingId(guest.id);
     setName(guest.name);
+    const partyId = parsePartyId(guest.notes);
+    const linked: CompanionDraft[] = partyId
+      ? guests
+          .filter((g) => g.id !== guest.id && parsePartyId(g.notes) === partyId)
+          .map((g) => ({
+            key: newCompanionKey(),
+            guestId: g.id,
+            name: g.name,
+            isChild: isChildGuest(g.notes),
+            childNeed: isChildGuest(g.notes) ? parseChildNeed(g.notes) : null,
+            rsvpStatus: g.rsvpStatus,
+          }))
+      : [];
     const parsed = parseCompanions(guest.notes, guest);
-    setCompanions(
-      parsed.map((row) => ({
-        ...row,
-        key: newCompanionKey(),
-      })),
-    );
+    setCompanions([
+      ...linked,
+      ...parsed.map((row) => ({ ...row, key: newCompanionKey() })),
+    ]);
     setSide(guest.side === "OTHER" ? "BOTH" : guest.side);
     setMethod(parseInviteMethod(guest.notes));
     setPhone(guest.phone ?? "");
@@ -426,6 +441,13 @@ function GuestsInner() {
     try {
       const invited = inviteStatus === "invited";
       const guestSide = (side || "BOTH") as GuestSide;
+      const current = editingId
+        ? guests.find((g) => g.id === editingId)
+        : undefined;
+      const existingPartyId = current ? parsePartyId(current.notes) : null;
+      const partyId =
+        existingPartyId ?? (extraGuests.length > 0 ? newPartyId() : null);
+      const currentChild = current ? isChildGuest(current.notes) : false;
       const payload = {
         name: nextName,
         side: guestSide,
@@ -436,37 +458,73 @@ function GuestsInner() {
         rsvpStatus,
         notes:
           buildGuestNotes({
-            child: false,
-            childNeed: null,
+            child: currentChild,
+            childNeed: currentChild && current ? parseChildNeed(current.notes) : null,
             invited,
             method,
             companions: [],
+            partyId,
           }) ?? undefined,
       };
       const extraPayloads = extraGuests.map((c) => ({
-        name: c.name,
-        side: guestSide,
-        plusOne: false,
-        plusOneAttending: null,
-        rsvpStatus: c.rsvpStatus,
-        notes:
-          buildGuestNotes({
-            child: c.isChild,
-            childNeed: c.isChild ? c.childNeed : null,
-            invited,
-            method,
-            companions: [],
-          }) ?? undefined,
+        guestId: c.guestId,
+        body: {
+          name: c.name,
+          side: guestSide,
+          plusOne: false,
+          plusOneAttending: null,
+          rsvpStatus: c.rsvpStatus,
+          notes:
+            buildGuestNotes({
+              child: c.isChild,
+              childNeed: c.isChild ? c.childNeed : null,
+              invited,
+              method,
+              companions: [],
+              partyId,
+            }) ?? undefined,
+        },
       }));
 
       const updated = editingId
         ? await updateGuest(editingId, payload)
         : null;
       const created: Guest[] = [];
+      const touched = new Map<string, Guest>();
       if (!editingId) created.push(await createGuest(payload));
       for (const extra of extraPayloads) {
-        created.push(await createGuest(extra));
+        if (extra.guestId) {
+          const saved = await updateGuest(extra.guestId, extra.body);
+          touched.set(saved.id, saved);
+        } else {
+          created.push(await createGuest(extra.body));
+        }
       }
+      // Прибрані з форми +1 лишаються гостями, але відв'язуються від групи.
+      if (existingPartyId) {
+        const keptIds = new Set(extraGuests.map((c) => c.guestId));
+        const dropped = guests.filter(
+          (g) =>
+            g.id !== editingId &&
+            parsePartyId(g.notes) === existingPartyId &&
+            !keptIds.has(g.id),
+        );
+        for (const g of dropped) {
+          const saved = await updateGuest(g.id, {
+            name: g.name,
+            notes:
+              buildGuestNotes({
+                child: isChildGuest(g.notes),
+                childNeed: parseChildNeed(g.notes),
+                invited: isInvited(g),
+                method: parseInviteMethod(g.notes),
+                companions: [],
+              }) ?? undefined,
+          });
+          touched.set(saved.id, saved);
+        }
+      }
+      if (updated) touched.set(updated.id, updated);
       const countOf = (status: RsvpStatus) =>
         created.filter((g) => g.rsvpStatus === status).length;
       setData((prev) =>
@@ -475,9 +533,7 @@ function GuestsInner() {
               ...prev,
               guests: [
                 ...created.slice().reverse(),
-                ...prev.guests.map((g) =>
-                  updated && g.id === updated.id ? updated : g,
-                ),
+                ...prev.guests.map((g) => touched.get(g.id) ?? g),
               ],
               stats: {
                 ...prev.stats,
@@ -796,7 +852,7 @@ function GuestsInner() {
               <CabinetFilterGroup
                 title="Результат запрошення"
                 items={[
-                  { id: "all", label: "Усі", count: counts.rsvp.all },
+                  { id: "all", label: "Всі", count: counts.rsvp.all },
                   { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
                   { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
                   {
@@ -816,7 +872,7 @@ function GuestsInner() {
               <CabinetFilterGroup
                 title="Вік"
                 items={[
-                  { id: "all", label: "Усі", count: counts.age.all },
+                  { id: "all", label: "Всі", count: counts.age.all },
                   { id: "adult", label: "Дорослі", count: counts.age.adult },
                   { id: "child", label: "Діти", count: counts.age.child },
                 ]}
@@ -1082,7 +1138,7 @@ function GuestsInner() {
         <CabinetFilterGroup
           title="Результат запрошення"
           items={[
-            { id: "all", label: "Усі", count: counts.rsvp.all },
+            { id: "all", label: "Всі", count: counts.rsvp.all },
             { id: "YES", label: "Прийдуть", count: counts.rsvp.YES },
             { id: "NO", label: "Відмовили", count: counts.rsvp.NO },
             {
@@ -1102,7 +1158,7 @@ function GuestsInner() {
         <CabinetFilterGroup
           title="Вік"
           items={[
-            { id: "all", label: "Усі", count: counts.age.all },
+            { id: "all", label: "Всі", count: counts.age.all },
             { id: "adult", label: "Дорослі", count: counts.age.adult },
             { id: "child", label: "Діти", count: counts.age.child },
           ]}

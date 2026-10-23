@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DayPlanController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
@@ -62,6 +63,7 @@ let DayPlanController = class DayPlanController {
 exports.DayPlanController = DayPlanController;
 __decorate([
     (0, common_1.Get)('public/:token'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -70,6 +72,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('shared/:token/access'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('token')),
     __metadata("design:type", Function),
@@ -78,6 +81,7 @@ __decorate([
 ], DayPlanController.prototype, "getSharedAccessAuthed", null);
 __decorate([
     (0, common_1.Get)('invite/:inviteToken'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('inviteToken')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -87,6 +91,7 @@ __decorate([
     (0, common_1.Post)('invite/:inviteToken/accept'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('inviteToken')),
     __metadata("design:type", Function),
@@ -97,6 +102,7 @@ __decorate([
     (0, common_1.Get)('share'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -106,6 +112,7 @@ __decorate([
     (0, common_1.Post)('share/invite'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -116,6 +123,7 @@ __decorate([
     (0, common_1.Patch)('share/grants/:grantId'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('grantId')),
     __param(2, (0, common_1.Body)()),
@@ -127,6 +135,7 @@ __decorate([
     (0, common_1.Delete)('share/grants/:grantId'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('grantId')),
     __metadata("design:type", Function),
@@ -137,6 +146,7 @@ __decorate([
     (0, common_1.Put)('shared/:token'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('token')),
     __param(2, (0, common_1.Body)()),
@@ -148,6 +158,7 @@ __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -157,6 +168,7 @@ __decorate([
     (0, common_1.Put)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),

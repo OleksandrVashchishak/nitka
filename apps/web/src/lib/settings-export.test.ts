@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  budgetToXlsXml,
+  budgetToCsv,
   guestsToCsv,
   jpegToPdf,
 } from "@/lib/settings-export";
@@ -44,7 +44,7 @@ describe("settings-export", () => {
     expect(csv).toContain("YES");
   });
 
-  it("builds budget SpreadsheetML with numbers", () => {
+  it("builds budget CSV with numbers", () => {
     const items: BudgetItem[] = [
       {
         id: "1",
@@ -57,17 +57,16 @@ describe("settings-export", () => {
         createdAt: "2026-01-01T00:00:00.000Z",
       },
     ];
-    const xml = budgetToXlsXml(items, {
+    const csv = budgetToCsv(items, {
       totalBudget: 100000,
       estimated: 50000,
       actual: 48000,
       paid: 48000,
       remaining: 52000,
     });
-    expect(xml).toContain("ss:Type=\"Number\">50000</Data>");
-    expect(xml).toContain("Локація");
-    expect(xml).toContain("Зала");
-    expect(xml).toContain("Підсумок");
+    expect(csv).toContain("Локація,Зала,50000,48000,Так");
+    expect(csv).toContain("Підсумок");
+    expect(csv).toContain("Залишок,52000");
   });
 
   it("wraps jpeg bytes into a valid PDF header", () => {

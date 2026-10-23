@@ -180,6 +180,9 @@ function CoupleSettingsInner() {
   const [tab, setTab] = useState<SettingsTab>(
     () => parseSettingsTab(searchParams.get("tab")) ?? "profile",
   );
+  const [mobileDetail, setMobileDetail] = useState(
+    () => parseSettingsTab(searchParams.get("tab")) != null,
+  );
   const [name, setName] = useState("");
   const [savedName, setSavedName] = useState("");
   const [weddingDate, setWeddingDate] = useState("");
@@ -200,7 +203,10 @@ function CoupleSettingsInner() {
 
   useEffect(() => {
     const next = parseSettingsTab(searchParams.get("tab"));
-    if (next) setTab(next);
+    if (next) {
+      setTab(next);
+      setMobileDetail(true);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -429,6 +435,24 @@ function CoupleSettingsInner() {
     }
   }
 
+  function onMobileBack() {
+    if (mobileDetail) {
+      setMobileDetail(false);
+      router.replace("/settings", { scroll: false });
+      return;
+    }
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/dashboard");
+  }
+
+  async function onLogout() {
+    await logout();
+    router.replace("/login");
+  }
+
   async function onRevokeSession() {
     await logout();
     router.replace("/login");
@@ -512,13 +536,38 @@ function CoupleSettingsInner() {
   const dateLabel = wedding?.date ? formatShortDate(wedding.date) : "";
 
   return (
-    <div className="cabinet-tasks-page cabinet-settings-page">
+    <div
+      className={`cabinet-tasks-page cabinet-settings-page ${
+        mobileDetail ? "is-mobile-detail" : "is-mobile-hub"
+      }`}
+    >
       <CabinetPageHeader
         title="Налаштування"
         summary={summary}
         initials={initials}
         accountDesktopOnly={false}
+        className="cabinet-settings-desktop-top"
       />
+
+      <div className="cabinet-settings-mobile-top">
+        <button
+          type="button"
+          className="cabinet-settings-mobile-back"
+          aria-label="Назад"
+          onClick={onMobileBack}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path
+              d="M15 5 8 12l7 7"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <h1 className="cabinet-settings-mobile-title">Налаштування</h1>
+      </div>
 
       <div className="cabinet-settings-layout">
         <SettingsSideNav
@@ -527,8 +576,11 @@ function CoupleSettingsInner() {
           weddingDateLabel={dateLabel}
           activeTab={tab}
           photoBusy={photoBusy}
+          hubMode
+          onLogout={() => void onLogout()}
           onTabChange={(next) => {
             setTab(next);
+            setMobileDetail(true);
             router.replace(
               next === "profile" ? "/settings" : `/settings?tab=${next}`,
               { scroll: false },

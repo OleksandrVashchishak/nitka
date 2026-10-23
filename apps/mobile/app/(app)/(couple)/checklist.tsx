@@ -206,7 +206,7 @@ export default function ChecklistScreen() {
         label: `${formatMonthYearUk(key)} (${count})`,
       }));
     return [
-      { id: "ALL", label: "Усі місяці" },
+      { id: "ALL", label: "Всі місяці" },
       ...months,
       ...(undated ? [{ id: "NONE", label: `Без дати (${undated})` }] : []),
     ];
@@ -326,7 +326,7 @@ export default function ChecklistScreen() {
           <>
             <ChipRow
               options={[
-                { id: "ALL", label: "Усі" },
+                { id: "ALL", label: "Всі" },
                 { id: "OPEN", label: "Відкриті" },
                 { id: "DONE", label: "Готові" },
               ]}

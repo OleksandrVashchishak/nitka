@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { getBudget } from "@/lib/budget-api";
 import {
   createPartnerInvite,
@@ -46,7 +45,15 @@ import {
 } from "@/lib/cabinet-categories";
 
 
-import { TaskResponsibleAvatar } from "@/components/responsible-avatar";
+import {
+  ResponsibleAvatar,
+  TaskResponsibleAvatar,
+} from "@/components/responsible-avatar";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
+import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
+import { DateInput } from "@/components/ui/date-input";
+import { Select } from "@/components/ui/select";
+import { TextInput } from "@/components/ui/text-input";
 import {
   getNotificationsSummary,
   type NotificationsSummary,
@@ -200,11 +207,17 @@ export function CoupleOverview({
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<WeddingTask | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<WeddingTask | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDue, setEditDue] = useState("");
+  const [editWho, setEditWho] = useState<TaskAssignee>("none");
+  const [editOtherName, setEditOtherName] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
   /** taskId → коли чекнули; тримаємо на огляді 24 год. */
   const [doneLinger, setDoneLinger] = useState<DoneLingerMap>({});
   const [hasInspiration, setHasInspiration] = useState(false);
   const lingerExpiryTimerRef = useRef<number | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -464,7 +477,37 @@ export function CoupleOverview({
 
   function openEdit(task: WeddingTask) {
     setMenuOpenId(null);
-    router.push(`/checklist?edit=${encodeURIComponent(task.id)}`);
+    setEditTarget(task);
+    setEditTitle(task.title);
+    setEditDue(task.dueDate?.slice(0, 10) ?? "");
+    setEditWho(task.assignee ?? "none");
+    setEditOtherName(task.assigneeName?.trim() ?? "");
+    setEditOpen(true);
+  }
+
+  function closeEdit() {
+    setEditOpen(false);
+  }
+
+  async function onSaveEdit(e: FormEvent) {
+    e.preventDefault();
+    const title = editTitle.trim();
+    if (!editTarget || !title) return;
+    setEditSaving(true);
+    try {
+      const updated = await updateTask(editTarget.id, {
+        ...(editTarget.isCustom ? { title } : {}),
+        dueDate: editDue.trim() ? editDue.trim() : null,
+        assignee: editWho,
+        assigneeName: editWho === "other" ? editOtherName.trim() || null : null,
+      });
+      onTaskChange(updated);
+      setEditOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не оновлено");
+    } finally {
+      setEditSaving(false);
+    }
   }
 
   function requestDelete(task: WeddingTask) {
@@ -890,6 +933,71 @@ export function CoupleOverview({
           )}
         </section>
       </div>
+
+      <CabinetOverlay
+        open={editOpen}
+        onClose={closeEdit}
+        title="Редагувати завдання"
+        variant="drawer"
+        width={500}
+        panelClassName="cabinet-tasks-drawer"
+        asForm
+        onSubmit={onSaveEdit}
+        footer={
+          <CabinetFormActions
+            onCancel={closeEdit}
+            saveTone="black"
+            saveDisabled={editSaving || !editTitle.trim()}
+            saveLoading={editSaving}
+            saveLoadingText="…"
+          />
+        }
+      >
+        <TextInput
+          label="Назва завдання"
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+          required
+          disabled={Boolean(editTarget && !editTarget.isCustom)}
+        />
+        <DateInput
+          label="Дедлайн"
+          value={editDue}
+          onChange={(e) => setEditDue(e.target.value)}
+          placeholder="Оберіть дату"
+        />
+        <Select
+          label="Відповідальний"
+          value={editWho}
+          onChange={(e) => setEditWho(e.target.value as TaskAssignee)}
+          startAdornment={
+            editWho === "none" ? (
+              <ResponsibleAvatar tone="none" letter="—" title="Ніхто" aria-hidden />
+            ) : (
+              <TaskResponsibleAvatar
+                who={editWho}
+                ownerName={greetingName}
+                partnerName={partnerName}
+                otherName={editOtherName}
+              />
+            )
+          }
+        >
+          <option value="none">Ніхто</option>
+          <option value="owner">{greetingName}</option>
+          <option value="partner">{partnerName}</option>
+          <option value="both">Обоє</option>
+          <option value="other">Хтось інший</option>
+        </Select>
+        {editWho === "other" ? (
+          <TextInput
+            label="Вкажіть відповідального"
+            value={editOtherName}
+            onChange={(e) => setEditOtherName(e.target.value)}
+            placeholder="Напишіть відповідального"
+          />
+        ) : null}
+      </CabinetOverlay>
 
       <DeleteConfirmModal
         open={Boolean(deleteTarget)}

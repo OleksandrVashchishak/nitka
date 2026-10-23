@@ -42,7 +42,7 @@ import {
 } from "@/ui";
 
 const RSVP_FILTERS = [
-  { id: "ALL", label: "Усі" },
+  { id: "ALL", label: "Всі" },
   { id: "PENDING", label: "Чекаємо" },
   { id: "YES", label: "Так" },
   { id: "NO", label: "Ні" },
@@ -53,7 +53,7 @@ const RSVP_FILTERS = [
 const RSVP_CYCLE: RsvpStatus[] = ["PENDING", "YES", "MAYBE", "NO"];
 
 const SIDE_FILTERS = [
-  { id: "ALL", label: "Усі сторони" },
+  { id: "ALL", label: "Всі сторони" },
   { id: "BRIDE", label: "Наречена" },
   { id: "GROOM", label: "Наречений" },
   { id: "BOTH", label: "Спільні" },

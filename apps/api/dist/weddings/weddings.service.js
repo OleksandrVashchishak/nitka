@@ -433,9 +433,16 @@ let WeddingsService = class WeddingsService {
         if (dto.title !== undefined && !task.isCustom) {
             throw new common_1.BadRequestException('Назву шаблонної задачі змінити не можна');
         }
+        if (dto.categorySlug !== undefined &&
+            task.categorySlug?.startsWith('starter-')) {
+            throw new common_1.BadRequestException('Категорію стартової задачі змінити не можна');
+        }
         const updated = await this.prisma.task.update({
             where: { id: taskId },
             data: {
+                ...(dto.categorySlug !== undefined
+                    ? { categorySlug: dto.categorySlug.trim() || null }
+                    : {}),
                 ...(dto.status !== undefined ? { status: dto.status } : {}),
                 ...(dto.dueDate !== undefined
                     ? { dueDate: dto.dueDate ? new Date(dto.dueDate) : null }

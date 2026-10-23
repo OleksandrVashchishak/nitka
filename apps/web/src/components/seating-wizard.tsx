@@ -8,6 +8,7 @@ import {
 } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { IconMore } from "@/components/icon-more";
+import { IconTrash } from "@/components/icon-trash";
 import { RadioGroup, RadioOption } from "@/components/ui/radio";
 import { TextInput } from "@/components/ui/text-input";
 import type { Guest } from "@/lib/guests-api";
@@ -350,7 +351,7 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
         <BrandLogo className="seat-wiz-logo" />
       </header>
 
-      <div className={`seat-wiz-body${step === 2 ? " is-narrow" : ""}`}>
+      <div className={"seat-wiz-body is-narrow"}>
         <Stepper current={step} />
 
         <h1 id="seat-wiz-title" className="seat-wiz-title">
@@ -727,12 +728,12 @@ function StepGuests({
                 />
                 <button
                   type="button"
-                  className="seat-wiz-icon-btn"
+                  className="seat-wiz-icon-btn seat-wiz-icon-btn--danger"
                   aria-label="Видалити групу"
                   onClick={() => onRemoveGroup(group.id)}
                   disabled={groups.length <= 1}
                 >
-                  <TrashIcon />
+                  <IconTrash size={22} />
                 </button>
               </div>
             </div>
@@ -1022,20 +1023,6 @@ function CheckIcon() {
         d="M2.5 6.2 4.8 8.5 9.5 3.5"
         stroke="currentColor"
         strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <path
-        d="M3.5 5.5h11M7 5.5V4.2A1.2 1.2 0 0 1 8.2 3h1.6A1.2 1.2 0 0 1 11 4.2v1.3M6.2 5.5l.5 8.2a1 1 0 0 0 1 .9h2.6a1 1 0 0 0 1-.9l.5-8.2"
-        stroke="#ff4200"
-        strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

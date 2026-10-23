@@ -1720,13 +1720,14 @@
 
   .seat-plan.is-tab-map .seat-plan-canvas-bar .seat-plan-btn--dark {
     height: 36px;
-    min-width: 160px;
+    min-width: 0;
     padding: 0 14px;
   }
 
   .seat-plan.is-tab-map .seat-plan-toggle {
-    gap: 10px;
+    gap: 8px;
     font-size: 13px;
+    white-space: nowrap;
   }
 
   .seat-plan.is-tab-map .seat-plan-switch {

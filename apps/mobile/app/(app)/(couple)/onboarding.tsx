@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "@/lib/auth-store";
 import {
-  BUDGET_CATEGORIES,
+  categoryLabel,
   createBudgetItem,
   getBudget,
   updateBudgetPlan,
@@ -30,7 +30,7 @@ import { Button, ErrorBox, FormScroll, Input, Loading } from "@/ui";
 
 const BUDGET_PRESETS = [150_000, 300_000, 450_000, 600_000];
 
-const STARTER_CATEGORIES = ["venue", "catering", "photo", "attire"] as const;
+const STARTER_CATEGORIES = ["vendors", "banquet", "attire"] as const;
 
 type Step = 1 | 2 | 3;
 
@@ -216,8 +216,7 @@ export default function OnboardingScreen() {
       if (seedCategories) {
         for (const slug of STARTER_CATEGORIES) {
           if (existing.has(slug)) continue;
-          const label =
-            BUDGET_CATEGORIES.find((c) => c.value === slug)?.label ?? slug;
+          const label = categoryLabel(slug);
           await createBudgetItem({
             category: slug,
             title: label,

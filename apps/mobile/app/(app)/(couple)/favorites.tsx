@@ -38,7 +38,7 @@ const STAGES: VendorPipelineStage[] = [
 ];
 
 const STAGE_FILTERS = [
-  { id: "ALL", label: "Усі" },
+  { id: "ALL", label: "Всі" },
   ...STAGES.map((s) => ({ id: s, label: stageLabel(s) })),
 ];
 

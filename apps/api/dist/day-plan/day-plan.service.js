@@ -79,18 +79,6 @@ let DayPlanService = class DayPlanService {
         if (!userId) {
             return { access: null, canEdit: false };
         }
-        const member = await this.prisma.weddingMember.findFirst({
-            where: { weddingId: share.weddingId, userId },
-        });
-        if (member) {
-            return { access: 'EDIT', canEdit: true };
-        }
-        const owned = await this.prisma.wedding.findFirst({
-            where: { id: share.weddingId, userId },
-        });
-        if (owned) {
-            return { access: 'EDIT', canEdit: true };
-        }
         const grant = await this.prisma.dayPlanShareGrant.findFirst({
             where: {
                 shareId: share.id,

@@ -11,7 +11,7 @@ import "@/styles/admin/admin.scss";
 import "@/styles/admin/admin-users.scss";
 
 const PLANNING_STAGES = [
-  { value: "", label: "Усі етапи" },
+  { value: "", label: "Всі етапи" },
   { value: "NOT_ENGAGED", label: "NOT_ENGAGED" },
   { value: "EXPLORING", label: "EXPLORING" },
   { value: "PLANNING_NO_VENUE", label: "PLANNING_NO_VENUE" },

@@ -112,14 +112,14 @@ export function DayPlanShareModal({
       onClose={requestClose}
       title="Поділитися планом дня"
       variant="modal"
-      width={480}
+      width={500}
       mobileVariant="fullscreen"
       panelClassName="cabinet-day-plan-share-modal"
     >
       <div className="cabinet-day-plan-share-scroll">
         <form className="cabinet-day-plan-share-invite" onSubmit={onInvite}>
           <TextInput
-            label="Email або посилання"
+            label="Email"
             size="m"
             type="email"
             inputMode="email"
@@ -168,9 +168,16 @@ export function DayPlanShareModal({
                     {person.name}
                   </span>
                   {person.locked ? (
-                    <span className="cabinet-day-plan-share-locked">
-                      Може редагувати
-                    </span>
+                    <Select
+                      size="s"
+                      value="EDIT"
+                      aria-label={`Доступ для ${uaNameGenitive(person.name)}`}
+                      disabled
+                      onChange={() => {}}
+                      className="cabinet-day-plan-share-row-select"
+                    >
+                      <option value="EDIT">Може редагувати</option>
+                    </Select>
                   ) : (
                     <Select
                       size="s"

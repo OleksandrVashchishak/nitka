@@ -36,6 +36,10 @@ export class UpdateTaskDto {
   title?: string;
 
   @IsOptional()
+  @IsString()
+  categorySlug?: string;
+
+  @IsOptional()
   @ValidateIf((_, value) => value !== null)
   @IsIn(TASK_ASSIGNEES)
   assignee?: TaskAssignee | null;

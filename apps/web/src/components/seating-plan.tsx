@@ -1314,6 +1314,11 @@ export function SeatingPlan({
             >
               <SlidersHorizontalIcon />
               Фільтри
+              {filtersActive ? (
+                <span className="cabinet-tasks-chip-badge">
+                  {activeFilterChips.length}
+                </span>
+              ) : null}
             </button>
             <button
               type="button"
@@ -1398,7 +1403,7 @@ export function SeatingPlan({
                   onChange={(e) => setGroupFilter(e.target.value)}
                   aria-label="Група"
                 >
-                  <option value="all">Усі групи</option>
+                  <option value="all">Всі групи</option>
                   {namedGroups.map((g) => (
                     <option key={g.id} value={g.id}>
                       {g.name}
@@ -1430,7 +1435,7 @@ export function SeatingPlan({
                   onChange={(e) => setTableFilter(e.target.value)}
                   aria-label="Стіл"
                 >
-                  <option value="all">Усі столи</option>
+                  <option value="all">Всі столи</option>
                   {tables.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.label}
@@ -2025,6 +2030,11 @@ export function SeatingPlan({
             >
               <SlidersHorizontalIcon />
               Фільтри
+              {filtersActive ? (
+                <span className="cabinet-tasks-chip-badge">
+                  {activeFilterChips.length}
+                </span>
+              ) : null}
             </button>
           </div>
 
@@ -2184,7 +2194,7 @@ export function SeatingPlan({
         <CabinetFilterGroup
           title="Гості"
           items={[
-            { id: "all", label: "Усі", count: filterCounts.side.all },
+            { id: "all", label: "Всі", count: filterCounts.side.all },
             {
               id: "BRIDE",
               label: guestsBrideLabel,
@@ -2203,7 +2213,7 @@ export function SeatingPlan({
         <CabinetFilterGroup
           title="Столи"
           items={[
-            { id: "all", label: "Усі", count: filterCounts.table.all },
+            { id: "all", label: "Всі", count: filterCounts.table.all },
             ...tables.map((t, i) => ({
               id: t.id,
               label: t.label || String(i + 1),

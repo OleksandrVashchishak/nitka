@@ -15,7 +15,9 @@ import { IconTrash } from "@/components/icon-trash";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
+import { IconQuickAdd } from "@/components/cabinet-task-icons";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
@@ -329,6 +331,16 @@ function MyVendorsInner() {
     }
   }
 
+  async function removeCategory(slug: string) {
+    try {
+      const saved = await saveVendorPlan(plan.filter((s) => s !== slug));
+      setPlan(saved.plan);
+      clearLegacyVendorPlan();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не вдалось видалити");
+    }
+  }
+
   function requestDelete(vendor: ExternalVendor) {
     setMenuOpenId(null);
     setDeleteTarget(vendor);
@@ -356,6 +368,16 @@ function MyVendorsInner() {
         title="Підрядники"
         summary={summary}
         initials={partnerInitials}
+        actions={
+          isEmpty ? null : (
+            <IconButton
+              variant="quick-add"
+              aria-label="Додати підрядника"
+              icon={<IconQuickAdd />}
+              onClick={() => openAdd()}
+            />
+          )
+        }
       />
 
       {error ? <p className="cabinet-tasks-error">{error}</p> : null}
@@ -431,6 +453,14 @@ function MyVendorsInner() {
                     >
                       + Додати
                     </Button>
+                    <button
+                      type="button"
+                      className="cabinet-vendors-menu-btn"
+                      aria-label="Видалити тип підрядника"
+                      onClick={() => void removeCategory(cat.slug)}
+                    >
+                      <IconTrash />
+                    </button>
                   </div>
                 );
               }
@@ -525,25 +555,13 @@ function MyVendorsInner() {
           >
             Змінити список типів підрядників
           </button>
-
-          <div className="cabinet-vendors-mobile-bar">
-            <Button
-              type="button"
-              tone="ink"
-              size="m"
-              className="cabinet-vendors-primary-btn"
-              onClick={() => openAdd()}
-            >
-              + Додати підрядника
-            </Button>
-          </div>
         </>
       )}
 
       <CabinetOverlay
         open={planModalOpen}
         onClose={() => setPlanModalOpen(false)}
-        title="Мені будуть потрібні такі підрядники"
+        title="Нам будуть потрібні такі підрядники"
         subtitle="Оберіть всіх, кого плануєте мати на весіллі - це допоможе побачити цілісну картину. Пізніше ви зможете редагувати список."
         variant="modal"
         width={520}

@@ -1,28 +1,16 @@
 import { apiFetch } from "@/lib/client-api";
 import type { BudgetItem, BudgetResponse } from "@/lib/types";
 
-export const BUDGET_CATEGORIES = [
-  { value: "venue", label: "Локація" },
-  { value: "catering", label: "Кейтеринг / банкет" },
-  { value: "photo", label: "Фото" },
-  { value: "video", label: "Відео" },
-  { value: "music", label: "Музика / DJ" },
-  { value: "host", label: "Ведучий" },
-  { value: "decor", label: "Декор і квіти" },
-  { value: "cake", label: "Торт" },
-  { value: "beauty", label: "Beauty" },
-  { value: "attire", label: "Одяг" },
-  { value: "rings", label: "Обручки" },
-  { value: "transport", label: "Транспорт" },
-  { value: "docs", label: "РАЦС / документи" },
-  { value: "gifts", label: "Подарунки" },
-  { value: "honeymoon", label: "Медовий місяць" },
-  { value: "reserve", label: "Резерв" },
-  { value: "other", label: "Інше" },
-] as const;
+import {
+  CABINET_CATEGORIES,
+  resolveCabinetCategory,
+} from "@/lib/cabinet-categories";
+
+export const BUDGET_CATEGORIES = CABINET_CATEGORIES;
 
 export function categoryLabel(slug: string) {
-  return BUDGET_CATEGORIES.find((c) => c.value === slug)?.label ?? slug;
+  const id = resolveCabinetCategory(slug);
+  return BUDGET_CATEGORIES.find((c) => c.value === id)?.label ?? "Інше";
 }
 
 export function getBudget() {

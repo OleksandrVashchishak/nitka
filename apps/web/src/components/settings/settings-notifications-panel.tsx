@@ -27,12 +27,12 @@ const EVENT_ROWS: {
     "guestRsvp" | "upcomingPayments" | "taskDeadlines" | "partnerChanges"
   >;
   label: string;
-  icon: "guests" | "budget" | "tasks" | "vendors";
+  icon: "seating" | "budget" | "tasks" | "guests";
 }[] = [
-  { key: "guestRsvp", label: "Нові відповіді гостей", icon: "guests" },
+  { key: "guestRsvp", label: "Нові відповіді гостей", icon: "seating" },
   { key: "upcomingPayments", label: "Майбутні платежі", icon: "budget" },
   { key: "taskDeadlines", label: "Дедлайни завдань", icon: "tasks" },
-  { key: "partnerChanges", label: "Зміни від партнера", icon: "vendors" },
+  { key: "partnerChanges", label: "Зміни від партнера", icon: "guests" },
 ];
 
 export function SettingsNotificationsPanel({ prefs, onChange }: Props) {
@@ -90,7 +90,7 @@ export function SettingsNotificationsPanel({ prefs, onChange }: Props) {
         <ul className="cabinet-settings-notif-list">
           <li className="cabinet-settings-notif-row">
             <span className="cabinet-settings-notif-icon" aria-hidden>
-              <IconSettingsPush size={20} />
+              <IconSettingsMail size={20} />
             </span>
             <span className="cabinet-settings-notif-label">
               Push-повідомлення
@@ -103,7 +103,7 @@ export function SettingsNotificationsPanel({ prefs, onChange }: Props) {
           </li>
           <li className="cabinet-settings-notif-row">
             <span className="cabinet-settings-notif-icon" aria-hidden>
-              <IconSettingsMail size={20} />
+              <IconSettingsPush size={20} />
             </span>
             <span className="cabinet-settings-notif-label">
               Email-повідомлення

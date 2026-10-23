@@ -22,7 +22,7 @@ exports.TASK_ASSIGNEES = [
 ];
 class UpdateTaskDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { status: { required: false, type: () => Object }, dueDate: { required: false, type: () => String, nullable: true }, title: { required: false, type: () => String, minLength: 2 }, assignee: { required: false, type: () => Object, nullable: true, enum: exports.TASK_ASSIGNEES }, assigneeName: { required: false, type: () => String, nullable: true, description: "Custom label when assignee === \"other\".", maxLength: 80 } };
+        return { status: { required: false, type: () => Object }, dueDate: { required: false, type: () => String, nullable: true }, title: { required: false, type: () => String, minLength: 2 }, categorySlug: { required: false, type: () => String }, assignee: { required: false, type: () => Object, nullable: true, enum: exports.TASK_ASSIGNEES }, assigneeName: { required: false, type: () => String, nullable: true, description: "Custom label when assignee === \"other\".", maxLength: 80 } };
     }
 }
 exports.UpdateTaskDto = UpdateTaskDto;
@@ -43,6 +43,11 @@ __decorate([
     (0, class_validator_1.MinLength)(2),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "title", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateTaskDto.prototype, "categorySlug", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.ValidateIf)((_, value) => value !== null),

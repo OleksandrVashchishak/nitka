@@ -362,12 +362,13 @@
 }
 
 .cabinet-day-plan-shared-brand {
+  display: inline-block;
   margin: 0 0 28px;
-  font-family: var(--font-display, Georgia, serif);
-  font-size: 28px;
-  font-style: italic;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  line-height: 0;
+
+  img {
+    display: block;
+  }
 }
 
 .cabinet-day-plan-shared-head {
@@ -408,6 +409,17 @@
   min-width: 0;
   padding: 0 20px;
   border-width: 1.5px;
+}
+
+@media (max-width: 767px) {
+  .cabinet-day-plan-empty-state .cabinet-empty-actions {
+    align-self: stretch;
+    flex-direction: column;
+  }
+
+  .cabinet-day-plan-empty-state .cabinet-empty-actions .fata-button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 720px) {

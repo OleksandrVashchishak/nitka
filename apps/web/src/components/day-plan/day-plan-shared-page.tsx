@@ -148,7 +148,9 @@ export function DayPlanSharedPage() {
     return (
       <div className="cabinet-day-plan-shared">
         <div className="cabinet-day-plan-shared-inner">
-          <p className="cabinet-day-plan-shared-brand">fata</p>
+          <Link href="/" className="cabinet-day-plan-shared-brand" aria-label="fata.studio">
+            <img src="/landing/logo-dark.svg" alt="fata.studio" width={154} height={32} />
+          </Link>
           <h1>Посилання недійсне</h1>
           <p>{error}</p>
           <Link href="/">На головну</Link>
@@ -160,10 +162,12 @@ export function DayPlanSharedPage() {
   return (
     <div className="cabinet-day-plan-shared">
       <div className="cabinet-day-plan-shared-inner">
-        <p className="cabinet-day-plan-shared-brand">fata</p>
+        <Link href="/" className="cabinet-day-plan-shared-brand" aria-label="fata.studio">
+          <img src="/landing/logo-dark.svg" alt="fata.studio" width={154} height={32} />
+        </Link>
         <header className="cabinet-day-plan-shared-head">
           <div>
-            <p className="cabinet-day-plan-shared-eyebrow">План дня</p>
+            <p className="cabinet-day-plan-shared-eyebrow">План весільного дня</p>
             <h1>{coupleLabel}</h1>
             <p className="cabinet-day-plan-date">{dateLabel}</p>
           </div>

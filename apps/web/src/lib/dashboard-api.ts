@@ -284,6 +284,8 @@ export function updateTask(
 
     title?: string;
 
+    categorySlug?: string;
+
     assignee?: TaskAssignee | null;
 
     assigneeName?: string | null;

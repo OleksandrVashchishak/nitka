@@ -111,7 +111,7 @@ export function ContentBlogFilters({
             href={withQuery("/blog", q, city)}
             className={`blog-cat${!activeSlug ? " is-on" : ""}`}
           >
-            Усі
+            Всі
           </Link>
           {topics.map((topic) => (
             <Link

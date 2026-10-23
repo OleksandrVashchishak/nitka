@@ -15,8 +15,8 @@ export declare class WeddingsService {
     getMine(userId: string): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
+            sortOrder: number;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -31,16 +31,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                name: string;
                 id: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
-            userId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
+            createdAt: Date;
+            userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;
@@ -90,8 +90,8 @@ export declare class WeddingsService {
     upsert(userId: string, dto: UpsertWeddingDto): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
+            sortOrder: number;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -106,16 +106,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                name: string;
                 id: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
-            userId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
+            createdAt: Date;
+            userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;
@@ -151,8 +151,8 @@ export declare class WeddingsService {
     removePartner(userId: string): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
+            sortOrder: number;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -167,16 +167,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                name: string;
                 id: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
-            userId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
+            createdAt: Date;
+            userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;
@@ -198,8 +198,8 @@ export declare class WeddingsService {
     acceptPartnerInvite(userId: string, token: string): Promise<{
         tasks: ({
             id: string;
-            sortOrder: number;
             weddingId: string;
+            sortOrder: number;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -214,16 +214,16 @@ export declare class WeddingsService {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
-                name: string;
                 id: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
-            userId: string;
-            createdAt: Date;
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
+            createdAt: Date;
+            userId: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
         })[];
         id: string;
         userId: string;

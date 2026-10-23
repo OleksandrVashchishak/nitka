@@ -31,6 +31,7 @@ export type GuestPartyDraft = {
 const COMPANIONS_RE = /\bcompanions:(\S+)/;
 const NEED_RE = /\bneed:(\w+)/;
 const INVITE_RE = /\binvite:(\w+)/;
+const PARTY_RE = /\bparty:(\w+)/;
 
 const CHILD_NEEDS: ChildNeed[] = [
   "kids_table",
@@ -67,6 +68,15 @@ function isInviteMethod(value: unknown): value is InviteMethod {
 export function parseChildNeed(notes: string | null | undefined): ChildNeed | null {
   const match = notes?.match(NEED_RE);
   return isChildNeed(match?.[1]) ? match[1] : null;
+}
+
+/** Спільний id групи гостей, створених через «+1». */
+export function parsePartyId(notes: string | null | undefined): string | null {
+  return notes?.match(PARTY_RE)?.[1] ?? null;
+}
+
+export function newPartyId() {
+  return Math.random().toString(36).slice(2, 10);
 }
 
 export function parseInviteMethod(
@@ -162,11 +172,13 @@ export function buildGuestNotes(input: {
   method: InviteMethod;
   companions: GuestCompanion[];
   extra?: string | null;
+  partyId?: string | null;
 }) {
   const parts: string[] = [];
   if (input.child) parts.push("[child]");
   if (input.invited) parts.push("[invited]");
   parts.push(`invite:${input.method}`);
+  if (input.partyId) parts.push(`party:${input.partyId}`);
   if (input.child && input.childNeed) {
     parts.push(`need:${input.childNeed}`);
   }
@@ -185,7 +197,7 @@ export function buildGuestNotes(input: {
   }
 
   const extra = input.extra
-    ?.replace(/\[child\]|\[invited\]|invite:\w+|need:\w+|companions:\S+/g, "")
+    ?.replace(/\[child\]|\[invited\]|invite:\w+|party:\w+|need:\w+|companions:\S+/g, "")
     .trim();
   if (extra) parts.push(extra);
 

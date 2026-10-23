@@ -219,7 +219,7 @@ export function CityAutocomplete({
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => pick("")}
                   >
-                    Усі міста
+                    Всі міста
                   </button>
                 </li>
               ) : null}

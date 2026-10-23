@@ -392,11 +392,13 @@ function ChecklistInner() {
     weekLimit,
   ]);
 
-  const filtersActive =
-    statusFilter !== "all" ||
-    typeFilter !== "all" ||
-    dueFilter !== "all" ||
-    whoFilter !== "all";
+  const activeFilterCount = [
+    statusFilter !== "all",
+    typeFilter !== "all",
+    dueFilter !== "all",
+    whoFilter !== "all",
+  ].filter(Boolean).length;
+  const filtersActive = activeFilterCount > 0;
 
   function applyDraftFilters() {
     setStatusFilter(draftStatus);
@@ -479,6 +481,13 @@ function ChecklistInner() {
     window.setTimeout(() => resetDrawer(), 320);
   }
 
+  const editingStarter = Boolean(
+    editingId &&
+      wedding?.tasks
+        .find((t) => t.id === editingId)
+        ?.categorySlug?.startsWith("starter-"),
+  );
+
   function openCreate() {
     resetDrawer();
     setDrawerOpen(true);
@@ -520,6 +529,7 @@ function ChecklistInner() {
         const existing = wedding.tasks.find((t) => t.id === editingId);
         const payload: {
           title?: string;
+          categorySlug?: string;
           dueDate: string | null;
           assignee: TaskAssignee;
           assigneeName: string | null;
@@ -530,6 +540,14 @@ function ChecklistInner() {
         };
         if (existing?.isCustom) {
           payload.title = title;
+        }
+        if (
+          existing &&
+          !existing.categorySlug?.startsWith("starter-") &&
+          newType &&
+          newType !== resolveTaskType(existing.categorySlug, existing.title)
+        ) {
+          payload.categorySlug = typeToSlug(newType);
         }
         const updated = await updateTask(editingId, payload);
         patchLocal(editingId, updated);
@@ -782,6 +800,7 @@ function ChecklistInner() {
       <CabinetMobileFiltersBar
         onOpenFilters={() => setFiltersOpen(true)}
         filtersActive={filtersActive}
+        activeFilterCount={activeFilterCount}
         sortValue={sortMode}
         onSortChange={(value) => setSortMode(value as SortMode)}
         sortOptions={[
@@ -1084,7 +1103,7 @@ function ChecklistInner() {
         <CabinetFilterGroup
           title="За терміном"
           items={[
-            { id: "all", label: "Усі", count: counts.due.all },
+            { id: "all", label: "Всі", count: counts.due.all },
             {
               id: "overdue",
               label: "Прострочені",
@@ -1146,7 +1165,7 @@ function ChecklistInner() {
           onChange={(e) => setNewDue(e.target.value)}
           placeholder="Оберіть дату"
         />
-        {!editingId ? (
+        {!editingId || !editingStarter ? (
           <Select
             label="Категорія"
             value={newType}

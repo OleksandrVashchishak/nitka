@@ -18,6 +18,7 @@ import {
   updateBudgetItem,
   updateBudgetPlan,
 } from "@/lib/budget-api";
+import { resolveCabinetCategory } from "@/lib/cabinet-categories";
 import { confirmAction } from "@/lib/confirm";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import type { BudgetItem, BudgetResponse } from "@/lib/types";
@@ -164,7 +165,8 @@ export default function BudgetScreen() {
   const items = useMemo(() => {
     const all = budgetQ.data?.items ?? [];
     return all.filter((i) => {
-      if (catFilter !== "ALL" && i.category !== catFilter) return false;
+      if (catFilter !== "ALL" && resolveCabinetCategory(i.category) !== catFilter)
+        return false;
       if (mode === "payments") return true; // show all, unpaid can be toggled
       return true;
     });
@@ -214,7 +216,9 @@ export default function BudgetScreen() {
   }
 
   const { summary } = data;
-  const usedCategories = new Set((data.items ?? []).map((i) => i.category));
+  const usedCategories = new Set(
+    (data.items ?? []).map((i) => resolveCabinetCategory(i.category)),
+  );
   const unusedCategories = BUDGET_CATEGORIES.filter(
     (c) => !usedCategories.has(c.value),
   );
@@ -222,7 +226,7 @@ export default function BudgetScreen() {
     ? unusedCategories
     : BUDGET_CATEGORIES;
   const catOptions = [
-    { id: "ALL", label: "Усі" },
+    { id: "ALL", label: "Всі" },
     ...[...usedCategories].map((slug) => ({
       id: slug,
       label: categoryLabel(slug),

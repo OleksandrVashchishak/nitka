@@ -771,7 +771,7 @@ function BudgetInner() {
                 items={[
                   {
                     id: "all",
-                    label: "Усі",
+                    label: "Всі",
                     count: formatMoney(counts.payers.all, currency),
                   },
                   ...PAYERS.map((p) => ({
@@ -1105,7 +1105,7 @@ function BudgetInner() {
           items={[
             {
               id: "all",
-              label: "Усі",
+              label: "Всі",
               count: formatMoney(counts.payers.all, currency),
             },
             ...PAYERS.map((p) => ({

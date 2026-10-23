@@ -108,20 +108,8 @@ export class DayPlanService {
       return { access: null as 'EDIT' | 'VIEW' | null, canEdit: false };
     }
 
-    const member = await this.prisma.weddingMember.findFirst({
-      where: { weddingId: share.weddingId, userId },
-    });
-    if (member) {
-      return { access: 'EDIT' as const, canEdit: true };
-    }
-
-    const owned = await this.prisma.wedding.findFirst({
-      where: { id: share.weddingId, userId },
-    });
-    if (owned) {
-      return { access: 'EDIT' as const, canEdit: true };
-    }
-
+    // Редагування за посиланням — лише за явним доступом; власники й учасники
+    // редагують план у кабінеті.
     const grant = await this.prisma.dayPlanShareGrant.findFirst({
       where: {
         shareId: share.id,

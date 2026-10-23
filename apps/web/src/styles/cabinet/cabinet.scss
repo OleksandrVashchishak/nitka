@@ -1726,6 +1726,7 @@ margin-bottom: 25px;
 
   .cabinet-tasks-panel {
     order: 3;
+    align-self: stretch;
     padding: 0;
     border-radius: 0;
     background: transparent;
@@ -2939,6 +2940,11 @@ font-size: 12px;
 .cabinet-empty-cta {
   /* visual → .fata-button; layout */
   min-width: 229px;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .cabinet-empty-soft-primary {
@@ -3661,7 +3667,7 @@ font-size: 12px;
 }
 
 .cabinet-vendors-row.is-empty {
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto 32px;
 }
 
 .cabinet-vendors-row.is-filled {
@@ -3748,15 +3754,16 @@ font-size: 12px;
 .cabinet-vendors-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
   background: #f0f0f0;
   font-family: var(--font-sans), sans-serif;
   font-size: 12px;
   font-weight: 600;
-  color: #5c574e;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: #1a1a1a;
   white-space: nowrap;
 }
 
@@ -3769,8 +3776,7 @@ font-size: 12px;
 }
 
 .cabinet-vendors-badge.is-booked {
-  background: #eef8c8;
-  color: #3d6b1e;
+  background: #f0febb;
 }
 
 .cabinet-vendors-add-mini {
@@ -3778,10 +3784,6 @@ font-size: 12px;
   flex-shrink: 0;
   min-width: 127px;
   min-height: 46px;
-}
-
-.cabinet-vendors-mobile-bar {
-  display: none;
 }
 
 .cabinet-vendors-menu-wrap {
@@ -4303,20 +4305,6 @@ font-size: 12px;
     margin-top: 16px;
   }
 
-  .cabinet-vendors-mobile-bar {
-    display: block;
-    position: fixed;
-    right: 16px;
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-    left: 16px;
-    z-index: 44;
-  }
-
-  .cabinet-vendors-mobile-bar .cabinet-vendors-primary-btn {
-    width: 100%;
-    min-width: 0;
-  }
-
   .cabinet-vendors-money-row {
     grid-template-columns: 1.35fr 1fr;
     gap: 10px;
@@ -4344,14 +4332,16 @@ font-size: 12px;
   }
 
   .cabinet-vendors-drawer .cabinet-drawer-actions {
-    flex-direction: column-reverse;
-    gap: 10px;
-    padding: 24px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row;
+    gap: 16px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   .cabinet-vendors-drawer .cabinet-drawer-cancel,
   .cabinet-vendors-drawer .cabinet-drawer-save {
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 16px;
   }
 
   .cabinet-modal-root:has(.cabinet-vendors-plan-modal) {
@@ -5410,6 +5400,11 @@ font-size: 12px;
   .cabinet-smart-banner {
     padding: 20px;
   }
+
+  .cabinet-smart-banner-cta {
+    display: flex;
+    width: 100%;
+  }
 }
 
 /* ——— Day plan (План дня) ——— */
@@ -5606,7 +5601,7 @@ font-size: 12px;
 }
 
 .cabinet-day-plan-share-modal {
-  width: min(480px, 100%);
+  width: min(500px, 100%);
   padding: 32px;
   border-radius: 16px;
   gap: 0;
@@ -5655,7 +5650,7 @@ font-size: 12px;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
 }
 
 .cabinet-day-plan-share-row {
@@ -5663,8 +5658,8 @@ font-size: 12px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 52px;
-  padding: 8px 10px 8px 16px;
+  min-height: 62px;
+  padding: 12px 12px 12px 24px;
   border-radius: 6px;
   background: #f3f3f3;
 }
@@ -5690,7 +5685,7 @@ font-size: 12px;
 
 .cabinet-day-plan-share-row-select {
   flex: none;
-  width: 180px;
+  width: 222px;
 }
 
 .cabinet-day-plan-share-row-select .fata-select__control {
@@ -5703,9 +5698,9 @@ font-size: 12px;
   text-align: center;
   font-family: var(--font-sans), Montserrat, sans-serif;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
-  color: #8c8582;
+  color: #1a1a1a;
 }
 
 .cabinet-day-plan-share-copy-btn.fata-button {

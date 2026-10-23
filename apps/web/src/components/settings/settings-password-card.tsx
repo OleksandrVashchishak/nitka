@@ -82,7 +82,7 @@ export function SettingsPasswordCard({ busy = false, onSubmit }: Props) {
           </p>
         ) : null}
         <div className="cabinet-settings-card-actions">
-          <Button type="submit" tone="ghost" size="s" loading={busy}>
+          <Button type="submit" tone="ghost" size="m" loading={busy}>
             Змінити пароль
           </Button>
         </div>

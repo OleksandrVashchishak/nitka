@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { IconTrash } from "@/components/icon-trash";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/ui/text-input";
@@ -112,6 +113,7 @@ export function SettingsPartnerCard({
 }: Props) {
   const [name, setName] = useState(partner?.name ?? "");
   const [email, setEmail] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (status !== "form") return;
@@ -123,6 +125,13 @@ export function SettingsPartnerCard({
     e.preventDefault();
     await onSendInvite({ name: name.trim(), email: email.trim() });
   }
+
+  async function handleConfirmRemove() {
+    await onRemove();
+    setConfirmOpen(false);
+  }
+
+  const isConfirmed = status === "confirmed";
 
   return (
     <section
@@ -174,7 +183,7 @@ export function SettingsPartnerCard({
           partner={partner}
           busy={busy}
           removeLabel="Скасувати запрошення"
-          onRemove={() => void onRemove()}
+          onRemove={() => setConfirmOpen(true)}
           badge={
             <span className="cabinet-settings-partner-badge cabinet-settings-partner-badge--pending">
               <IconBadgeClock />
@@ -189,7 +198,7 @@ export function SettingsPartnerCard({
           partner={partner}
           busy={busy}
           removeLabel="Видалити партнера"
-          onRemove={() => void onRemove()}
+          onRemove={() => setConfirmOpen(true)}
           badge={
             <span className="cabinet-settings-partner-badge cabinet-settings-partner-badge--ok">
               <IconBadgeCheck />
@@ -205,7 +214,7 @@ export function SettingsPartnerCard({
             partner={partner}
             busy={busy}
             removeLabel="Видалити запрошення"
-            onRemove={() => void onRemove()}
+            onRemove={() => setConfirmOpen(true)}
             badge={
               <span className="cabinet-settings-partner-badge cabinet-settings-partner-badge--no">
                 <IconBadgeClose />
@@ -236,6 +245,19 @@ export function SettingsPartnerCard({
           </div>
         </>
       ) : null}
+
+      <DeleteConfirmModal
+        open={confirmOpen}
+        title={isConfirmed ? "Видалити партнера?" : "Видалити запрошення?"}
+        description={
+          isConfirmed
+            ? "Партнер втратить доступ до вашого весілля. Цю дію не можна скасувати."
+            : "Запрошення буде скасовано. Цю дію не можна скасувати."
+        }
+        loading={busy}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => void handleConfirmRemove()}
+      />
     </section>
   );
 }

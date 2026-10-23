@@ -60,14 +60,6 @@ export function guestsToCsv(guests: Guest[]) {
   return `\uFEFF${[header.join(","), ...rows.map((r) => r.join(","))].join("\r\n")}\r\n`;
 }
 
-function escapeXml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function budgetRows(items: BudgetItem[]) {
   return items.map((item) => ({
     category: categoryLabel(item.category),
@@ -79,8 +71,7 @@ function budgetRows(items: BudgetItem[]) {
   }));
 }
 
-/** Excel-compatible SpreadsheetML (.xls). */
-export function budgetToXlsXml(
+export function budgetToCsv(
   items: BudgetItem[],
   summary?: {
     totalBudget: number;
@@ -90,7 +81,6 @@ export function budgetToXlsXml(
     remaining: number;
   },
 ) {
-  const rows = budgetRows(items);
   const header = [
     "Категорія",
     "Стаття",
@@ -99,56 +89,32 @@ export function budgetToXlsXml(
     "Оплачено",
     "Нотатки",
   ];
-  const sheetRows = [
-    `<Row>${header
-      .map(
-        (h) =>
-          `<Cell><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`,
-      )
-      .join("")}</Row>`,
-    ...rows.map((row) => {
-      const cells = [
-        { type: "String", value: row.category },
-        { type: "String", value: row.title },
-        { type: "Number", value: String(row.estimated) },
-        { type: "Number", value: String(row.actual) },
-        { type: "String", value: row.paid },
-        { type: "String", value: row.notes },
-      ];
-      return `<Row>${cells
-        .map(
-          (c) =>
-            `<Cell><Data ss:Type="${c.type}">${escapeXml(c.value)}</Data></Cell>`,
-        )
-        .join("")}</Row>`;
-    }),
+  const lines = [
+    header,
+    ...budgetRows(items).map((row) => [
+      row.category,
+      row.title,
+      row.estimated,
+      row.actual,
+      row.paid,
+      row.notes,
+    ]),
   ];
-
   if (summary) {
-    sheetRows.push(
-      `<Row></Row>`,
-      `<Row><Cell><Data ss:Type="String">${escapeXml("Підсумок")}</Data></Cell></Row>`,
-      `<Row><Cell><Data ss:Type="String">${escapeXml("Бюджет")}</Data></Cell><Cell><Data ss:Type="Number">${summary.totalBudget}</Data></Cell></Row>`,
-      `<Row><Cell><Data ss:Type="String">${escapeXml("План")}</Data></Cell><Cell><Data ss:Type="Number">${summary.estimated}</Data></Cell></Row>`,
-      `<Row><Cell><Data ss:Type="String">${escapeXml("Факт")}</Data></Cell><Cell><Data ss:Type="Number">${summary.actual}</Data></Cell></Row>`,
-      `<Row><Cell><Data ss:Type="String">${escapeXml("Оплачено")}</Data></Cell><Cell><Data ss:Type="Number">${summary.paid}</Data></Cell></Row>`,
-      `<Row><Cell><Data ss:Type="String">${escapeXml("Залишок")}</Data></Cell><Cell><Data ss:Type="Number">${summary.remaining}</Data></Cell></Row>`,
+    lines.push(
+      [],
+      ["Підсумок"],
+      ["Бюджет", summary.totalBudget],
+      ["План", summary.estimated],
+      ["Факт", summary.actual],
+      ["Оплачено", summary.paid],
+      ["Залишок", summary.remaining],
     );
   }
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:html="http://www.w3.org/TR/REC-html40">
- <Worksheet ss:Name="Бюджет">
-  <Table>
-${sheetRows.join("\n")}
-  </Table>
- </Worksheet>
-</Workbook>`;
+  // BOM so Excel/Numbers open UTF-8 correctly
+  return `\uFEFF${lines
+    .map((line) => line.map((cell) => escapeCsvCell(String(cell))).join(","))
+    .join("\r\n")}\r\n`;
 }
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -324,12 +290,12 @@ export async function exportGuestsCsv() {
   return data.guests.length;
 }
 
-export async function exportBudgetXls() {
+export async function exportBudgetCsv() {
   const data = await getBudget();
-  const xml = budgetToXlsXml(data.items, data.summary);
+  const csv = budgetToCsv(data.items, data.summary);
   downloadBlob(
-    new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" }),
-    `fata-budget-${stamp()}.xls`,
+    new Blob([csv], { type: "text/csv;charset=utf-8" }),
+    `fata-budget-${stamp()}.csv`,
   );
   return data.items.length;
 }
@@ -349,6 +315,6 @@ export async function exportDayPlanPdf() {
 
 export async function runSettingsExport(id: SettingsExportId) {
   if (id === "guests") return exportGuestsCsv();
-  if (id === "budget") return exportBudgetXls();
+  if (id === "budget") return exportBudgetCsv();
   return exportDayPlanPdf();
 }
