@@ -19,8 +19,8 @@ export declare class WeddingsController {
     getMine(user: AuthUser, res: Response): Promise<{
         tasks: ({
             id: string;
-            weddingId: string;
             sortOrder: number;
+            weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -35,16 +35,16 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                name: string;
                 id: string;
                 email: string;
-                name: string;
             };
         } & {
             id: string;
-            weddingId: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            weddingId: string;
         })[];
         id: string;
         userId: string;
@@ -66,8 +66,8 @@ export declare class WeddingsController {
     upsert(user: AuthUser, dto: UpsertWeddingDto): Promise<{
         tasks: ({
             id: string;
-            weddingId: string;
             sortOrder: number;
+            weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -82,16 +82,16 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                name: string;
                 id: string;
                 email: string;
-                name: string;
             };
         } & {
             id: string;
-            weddingId: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            weddingId: string;
         })[];
         id: string;
         userId: string;
@@ -146,8 +146,8 @@ export declare class WeddingsController {
     removePartner(user: AuthUser): Promise<{
         tasks: ({
             id: string;
-            weddingId: string;
             sortOrder: number;
+            weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -162,16 +162,16 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                name: string;
                 id: string;
                 email: string;
-                name: string;
             };
         } & {
             id: string;
-            weddingId: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            weddingId: string;
         })[];
         id: string;
         userId: string;
@@ -193,8 +193,8 @@ export declare class WeddingsController {
     acceptPartnerInvite(user: AuthUser, token: string): Promise<{
         tasks: ({
             id: string;
-            weddingId: string;
             sortOrder: number;
+            weddingId: string;
             title: string;
             categorySlug: string | null;
             status: import(".prisma/client").$Enums.TaskStatus;
@@ -209,16 +209,16 @@ export declare class WeddingsController {
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                name: string;
                 id: string;
                 email: string;
-                name: string;
             };
         } & {
             id: string;
-            weddingId: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             role: import(".prisma/client").$Enums.WeddingMemberRole;
+            weddingId: string;
         })[];
         id: string;
         userId: string;

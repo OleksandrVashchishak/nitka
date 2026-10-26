@@ -101,38 +101,6 @@ function coupleLabel(wedding: Wedding | null, fallbackName: string) {
   return one || two || "Пара";
 }
 
-function pendingInviteKey(weddingId: string) {
-  return `fata-partner-invite-pending:${weddingId}`;
-}
-
-function loadPendingInvite(weddingId: string): PartnerInviteInfo | null {
-  try {
-    const raw = localStorage.getItem(pendingInviteKey(weddingId));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PartnerInviteInfo;
-    if (!parsed?.name || !parsed?.email) return null;
-    return { name: parsed.name, email: parsed.email };
-  } catch {
-    return null;
-  }
-}
-
-function savePendingInvite(weddingId: string, invite: PartnerInviteInfo) {
-  try {
-    localStorage.setItem(pendingInviteKey(weddingId), JSON.stringify(invite));
-  } catch {
-    /* ignore */
-  }
-}
-
-function clearPendingInvite(weddingId: string) {
-  try {
-    localStorage.removeItem(pendingInviteKey(weddingId));
-  } catch {
-    /* ignore */
-  }
-}
-
 function partnerFromWedding(
   wedding: Wedding | null,
 ): {
@@ -148,13 +116,6 @@ function partnerFromWedding(
         email: member.user.email,
       },
     };
-  }
-
-  if (wedding?.id) {
-    const pending = loadPendingInvite(wedding.id);
-    if (pending) {
-      return { status: "pending", partner: pending };
-    }
   }
 
   return { status: "form", partner: null };
@@ -193,8 +154,6 @@ function CoupleSettingsInner() {
   const [inviteBusy, setInviteBusy] = useState(false);
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
-  const [pendingInvite, setPendingInvite] =
-    useState<PartnerInviteInfo | null>(null);
   const [sessions, setSessions] = useState<SettingsSession[]>([]);
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -245,14 +204,6 @@ function CoupleSettingsInner() {
         const invite = partnerFromWedding(weddingData);
         setPartnerStatus(invite.status);
         setPartner(invite.partner);
-        setPendingInvite(
-          invite.status === "pending" || invite.status === "rejected"
-            ? invite.partner
-            : null,
-        );
-        if (invite.status === "confirmed" && weddingData?.id) {
-          clearPendingInvite(weddingData.id);
-        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -362,65 +313,25 @@ function CoupleSettingsInner() {
     toast.success("Лінк скопійовано", "Надішли партнеру — діятиме 14 днів");
   }
 
-  async function onSendInvite(input: { name: string; email: string }) {
+  async function onCopyInvite(input: { name: string }) {
     setInviteBusy(true);
     try {
       if (input.name) {
         await persistWeddingPatch({ partnerTwoName: input.name });
       }
       await copyInviteLink();
-      setPendingInvite(input);
-      setPartner(input);
-      setPartnerStatus("pending");
-      if (wedding?.id) savePendingInvite(wedding.id, input);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не створено лінк");
     } finally {
       setInviteBusy(false);
     }
-  }
-
-  async function onResendInvite() {
-    setInviteBusy(true);
-    try {
-      await copyInviteLink();
-      if (partnerStatus === "rejected") {
-        setPartnerStatus("pending");
-        if (wedding?.id && partner) savePendingInvite(wedding.id, partner);
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Не створено лінк");
-    } finally {
-      setInviteBusy(false);
-    }
-  }
-
-  function onSendOtherEmail() {
-    setPartnerStatus("form");
-    setPartner(pendingInvite);
-    if (wedding?.id) clearPendingInvite(wedding.id);
   }
 
   async function onRemovePartner() {
-    if (partnerStatus === "pending" || partnerStatus === "rejected") {
-      if (wedding?.id) clearPendingInvite(wedding.id);
-      setPendingInvite(null);
-      setPartner(
-        wedding?.partnerTwoName
-          ? { name: wedding.partnerTwoName, email: "" }
-          : null,
-      );
-      setPartnerStatus("form");
-      toast.success("Запрошення скасовано");
-      return;
-    }
-
     setInviteBusy(true);
     try {
       const updated = await removePartner();
       setWedding(updated);
-      if (updated.id) clearPendingInvite(updated.id);
-      setPendingInvite(null);
       setPartner(
         updated.partnerTwoName
           ? { name: updated.partnerTwoName, email: "" }
@@ -611,9 +522,7 @@ function CoupleSettingsInner() {
             onWeddingDateChange={setWeddingDate}
             onWeddingDateBlur={() => void onWeddingDateBlur()}
             onPasswordSubmit={onPasswordSubmit}
-            onSendInvite={onSendInvite}
-            onResendInvite={onResendInvite}
-            onSendOtherEmail={onSendOtherEmail}
+            onCopyInvite={onCopyInvite}
             onRemovePartner={onRemovePartner}
           />
         ) : null}

@@ -481,13 +481,6 @@ function ChecklistInner() {
     window.setTimeout(() => resetDrawer(), 320);
   }
 
-  const editingStarter = Boolean(
-    editingId &&
-      wedding?.tasks
-        .find((t) => t.id === editingId)
-        ?.categorySlug?.startsWith("starter-"),
-  );
-
   function openCreate() {
     resetDrawer();
     setDrawerOpen(true);
@@ -543,11 +536,13 @@ function ChecklistInner() {
         }
         if (
           existing &&
-          !existing.categorySlug?.startsWith("starter-") &&
           newType &&
           newType !== resolveTaskType(existing.categorySlug, existing.title)
         ) {
-          payload.categorySlug = typeToSlug(newType);
+          // Стартові задачі зберігають категорію суфіксом: starter-plan@decor
+          payload.categorySlug = existing.categorySlug?.startsWith("starter-")
+            ? `${existing.categorySlug.split("@")[0]}@${newType}`
+            : typeToSlug(newType);
         }
         const updated = await updateTask(editingId, payload);
         patchLocal(editingId, updated);
@@ -705,7 +700,7 @@ function ChecklistInner() {
     const starter = wedding.tasks.find(
       (t) =>
         !t.isCustom &&
-        (t.categorySlug === "starter-plan" ||
+        (t.categorySlug?.split("@")[0] === "starter-plan" ||
           t.title === "Побудувати список завдань"),
     );
     if (starter && starter.status !== "DONE") {
@@ -1165,22 +1160,20 @@ function ChecklistInner() {
           onChange={(e) => setNewDue(e.target.value)}
           placeholder="Оберіть дату"
         />
-        {!editingId || !editingStarter ? (
-          <Select
-            label="Категорія"
-            value={newType}
-            onChange={(e) =>
-              setNewType(e.target.value as CabinetCategoryId | "")
-            }
-          >
-            <option value="">Обрати категорію</option>
-            {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
-              <option key={opt.id} value={opt.id}>
-                {opt.label}
-              </option>
-            ))}
-          </Select>
-        ) : null}
+        <Select
+          label="Категорія"
+          value={newType}
+          onChange={(e) =>
+            setNewType(e.target.value as CabinetCategoryId | "")
+          }
+        >
+          <option value="">Обрати категорію</option>
+          {TYPE_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
+          ))}
+        </Select>
         <Select
           label="Відповідальний"
           value={newWho}

@@ -520,7 +520,8 @@ export class WeddingsService {
 
     if (
       dto.categorySlug !== undefined &&
-      task.categorySlug?.startsWith('starter-')
+      task.categorySlug?.startsWith('starter-') &&
+      dto.categorySlug.split('@')[0] !== task.categorySlug.split('@')[0]
     ) {
       throw new BadRequestException(
         'Категорію стартової задачі змінити не можна',

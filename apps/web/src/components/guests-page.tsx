@@ -394,13 +394,21 @@ function GuestsInner() {
     setDrawerOpen(true);
   }
 
-  function openEdit(guest: Guest) {
+  function openEdit(clicked: Guest) {
+    // Список йде від найновіших, тож у групі беремо порядок створення: перший — головний.
+    const partyId = parsePartyId(clicked.notes);
+    const members = partyId
+      ? guests
+          .filter((g) => parsePartyId(g.notes) === partyId)
+          .reverse()
+          .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      : [clicked];
+    const guest = members[0] ?? clicked;
     setEditingId(guest.id);
     setName(guest.name);
-    const partyId = parsePartyId(guest.notes);
     const linked: CompanionDraft[] = partyId
-      ? guests
-          .filter((g) => g.id !== guest.id && parsePartyId(g.notes) === partyId)
+      ? members
+          .filter((g) => g.id !== guest.id)
           .map((g) => ({
             key: newCompanionKey(),
             guestId: g.id,
@@ -969,12 +977,14 @@ function GuestsInner() {
                           </p>
                         </div>
                         <div className="cabinet-guest-meta">
-                          <span
-                            className={`cabinet-guest-status is-${ui.tone}`}
-                          >
-                            <StatusIcon tone={ui.tone} />
-                            {ui.label}
-                          </span>
+                          {isInvited(guest) ? (
+                            <span
+                              className={`cabinet-guest-status is-${ui.tone}`}
+                            >
+                              <StatusIcon tone={ui.tone} />
+                              {ui.label}
+                            </span>
+                          ) : null}
                           {guest.side === "BOTH" ? (
                             <ResponsibleAvatarDuo
                               ownerName={ownerName}
@@ -1369,6 +1379,7 @@ function GuestsInner() {
                   <option value="invited">Запрошено</option>
                 </Select>
 
+                {inviteStatus === "invited" ? (
                 <Field label="Результат запрошення">
                   <div className="cabinet-guests-rsvp-list">
                     <div className="cabinet-guests-rsvp-row">
@@ -1424,6 +1435,7 @@ function GuestsInner() {
                     })}
                   </div>
                 </Field>
+                ) : null}
               </div>
       </CabinetOverlay>
 

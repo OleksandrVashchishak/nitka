@@ -24,9 +24,7 @@ type Props = {
     currentPassword: string;
     newPassword: string;
   }) => Promise<void> | void;
-  onSendInvite: (input: { name: string; email: string }) => Promise<void> | void;
-  onResendInvite: () => Promise<void> | void;
-  onSendOtherEmail: () => void;
+  onCopyInvite: (input: { name: string }) => Promise<void> | void;
   onRemovePartner: () => Promise<void> | void;
 };
 
@@ -43,9 +41,7 @@ export function SettingsProfilePanel({
   onWeddingDateChange,
   onWeddingDateBlur,
   onPasswordSubmit,
-  onSendInvite,
-  onResendInvite,
-  onSendOtherEmail,
+  onCopyInvite,
   onRemovePartner,
 }: Props) {
   return (
@@ -73,9 +69,7 @@ export function SettingsProfilePanel({
         status={partnerStatus}
         partner={partner}
         busy={inviteBusy}
-        onSendInvite={onSendInvite}
-        onResend={onResendInvite}
-        onSendOtherEmail={onSendOtherEmail}
+        onCopyInvite={onCopyInvite}
         onRemove={onRemovePartner}
       />
     </div>

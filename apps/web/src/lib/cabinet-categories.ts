@@ -96,7 +96,11 @@ export function resolveCabinetCategory(
   slug: string | null | undefined,
   title = "",
 ): CabinetCategoryId {
-  const key = slug ?? "";
+  const [base, override] = (slug ?? "").split("@");
+  if (override && (CABINET_CATEGORY_IDS as readonly string[]).includes(override)) {
+    return override as CabinetCategoryId;
+  }
+  const key = base;
   const mapped = SLUG_TO_CABINET_CATEGORY[key];
   if (mapped) return mapped;
 

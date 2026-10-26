@@ -34,43 +34,40 @@ export function IconSettingsMail({ size = 20, className }: Props) {
   );
 }
 
-/** People cluster — TabProfile (1).svg, канал Push (coords remapped). */
+/** Bubbles — vuesax/linear/bubble.svg (Fata.Studio.zip), 24×24 без обрізання. */
 export function IconSettingsPush({ size = 20, className }: Props) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 20 20"
+      viewBox="0 0 24 24"
       fill="none"
       aria-hidden
       className={className}
     >
       <circle
-        cx="13.59"
-        cy="5.13"
+        cx="15.59"
+        cy="7.13"
         r="5.13"
         stroke="currentColor"
         strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeMiterlimit="10"
       />
       <circle
-        cx="4.36"
-        cy="14.36"
+        cx="6.36"
+        cy="16.36"
         r="3.08"
         stroke="currentColor"
         strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeMiterlimit="10"
       />
       <circle
-        cx="14.62"
-        cy="17.44"
+        cx="16.62"
+        cy="19.44"
         r="2.56"
         stroke="currentColor"
         strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeMiterlimit="10"
       />
     </svg>
   );
