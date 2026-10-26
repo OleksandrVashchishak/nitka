@@ -163,6 +163,8 @@ function ChecklistInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const editHandledRef = useRef<string | null>(null);
+  // Виконані на момент входу — внизу списку; під час сесії порядок не стрибає.
+  const doneOnLoadRef = useRef<Set<string>>(new Set());
   const [wedding, setWedding] = useState<Wedding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -196,7 +198,11 @@ function ChecklistInner() {
   useEffect(() => {
     void (async () => {
       try {
-        setWedding(await getMyWedding());
+        const loaded = await getMyWedding();
+        doneOnLoadRef.current = new Set(
+          (loaded?.tasks ?? []).filter((t) => t.status === "DONE").map((t) => t.id),
+        );
+        setWedding(loaded);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Помилка завантаження");
         setWedding(null);
@@ -363,6 +369,9 @@ function ChecklistInner() {
     });
 
     return list.sort((a, b) => {
+      const aDone = doneOnLoadRef.current.has(a.id) ? 1 : 0;
+      const bDone = doneOnLoadRef.current.has(b.id) ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
       if (sortMode === "alpha") {
         return a.title.localeCompare(b.title, "uk");
       }

@@ -1,7 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { IconDayPlanBack } from "@/components/day-plan/day-plan-icons";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +21,7 @@ import "@/styles/cabinet/cabinet.scss";
 import "@/styles/cabinet/support.scss";
 
 function SupportInner() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [initials, setInitials] = useState("П");
@@ -60,6 +63,14 @@ function SupportInner() {
     };
   }, [user?.email, user?.name]);
 
+  function onBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/dashboard");
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
@@ -91,7 +102,20 @@ function SupportInner() {
         summary={summary}
         initials={initials}
         accountDesktopOnly={false}
+        className="cabinet-support-page__desktop-top"
       />
+
+      <div className="cabinet-support-page__mobile-top">
+        <button
+          type="button"
+          className="cabinet-support-page__back"
+          aria-label="Назад"
+          onClick={onBack}
+        >
+          <IconDayPlanBack />
+        </button>
+        <h1 className="cabinet-support-page__mobile-title">Підтримка</h1>
+      </div>
 
       <form className="cabinet-support-card" onSubmit={onSubmit} noValidate>
         <div className="cabinet-support-fields">

@@ -6,11 +6,12 @@ import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 
 const MORE_LINKS = [
   { href: "/my-vendors", label: "Підрядники", icon: "vendors" },
-  { href: "/guests", label: "Гості", icon: "guests" },
   { href: "/seating", label: "Розсадка", icon: "seating" },
   { href: "/day-plan", label: "План дня", icon: "dayplan" },
   { href: "/inspiration", label: "Дошка натхнення", icon: "board" },
   { href: "/settings", label: "Налаштування", icon: "settings" },
+  { href: "/support", label: "Підтримка", icon: "support" },
+  { href: "/feedback", label: "Відгуки та пропозиції", icon: "feedback" },
 ] as const;
 
 const ANIM_MS = 320;
@@ -66,7 +67,7 @@ export function CabinetMoreMenu({
               onClick={onClose}
             >
               <span className="cabinet-more-icon" aria-hidden>
-                <CabinetNavIcon name={item.icon} size={22} />
+                <CabinetNavIcon name={item.icon} size={20} />
               </span>
               <span>{item.label}</span>
             </Link>

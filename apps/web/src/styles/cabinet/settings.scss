@@ -714,19 +714,29 @@
 }
 
 @media (max-width: 720px) {
-  .cabinet-settings-page {
+  .cabinet-settings-page.cabinet-tasks-page {
+    position: relative;
+    padding-top: 8px;
     padding-left: 16px;
     padding-right: 16px;
   }
 
   .cabinet-settings-desktop-top {
-    display: none;
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    height: 40px;
+    align-items: center;
+
+    .cabinet-tasks-title {
+      display: none;
+    }
   }
 
   .cabinet-settings-mobile-top {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 8px;
   }
 
@@ -747,8 +757,8 @@
   .cabinet-settings-mobile-title {
     margin: 0;
     font-family: var(--font-akzidenz), sans-serif;
-    font-size: 28px;
-    font-weight: 500;
+    font-size: 24px;
+    font-weight: 700;
     font-style: italic;
     line-height: 1;
     color: #1a1a1a;

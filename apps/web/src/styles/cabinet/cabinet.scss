@@ -424,7 +424,7 @@ background: #F3F3F3;
 .cabinet-notify-popover {
   position: absolute;
   top: calc(100% + 14px);
-  right: -4px;
+  right: -26px;
   z-index: 30;
   width: min(420px, calc(100vw - 32px));
   padding: 28px 28px 24px;
@@ -432,17 +432,29 @@ background: #F3F3F3;
   background: #fff;
   box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
   color: #1b1b19;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 72px;
+    left: 16px;
+    right: 4px;
+    width: auto;
+  }
 }
 
 .cabinet-notify-popover-arrow {
   position: absolute;
   top: -8px;
-  right: 18px;
+  right: 30px;
   width: 16px;
   height: 16px;
   background: #fff;
+  border-top-left-radius: 4px;
   transform: rotate(45deg);
-  box-shadow: -2px -2px 6px rgb(0 0 0 / 0.04);
+
+  @media (max-width: 768px) {
+    right: 20px;
+  }
 }
 
 .cabinet-notify-header {
@@ -1673,7 +1685,7 @@ margin-bottom: 25px;
     justify-content: center;
     gap: 8px;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 36px;
   }
 
   .cabinet-stat-label {
@@ -1681,7 +1693,7 @@ margin-bottom: 25px;
   }
 
   .cabinet-task-list {
-    margin-top: 22px;
+    margin-top: 12px;
   }
 
   .cabinet-stats .cabinet-stat:not(.is-cta) {
@@ -1962,8 +1974,8 @@ margin-bottom: 25px;
   padding: 28px 20px 24px;
   overflow: auto;
   background:
-    radial-gradient(ellipse 70% 45% at 50% 0%, rgb(255 120 120 / 0.18), transparent 70%),
-    #f7f5f4;
+    radial-gradient(ellipse 70% 30% at 50% 15%, rgb(255 120 100 / 0.12), transparent 70%),
+    #f4f4f4;
   transform: translate3d(100%, 0, 0);
   transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
@@ -1981,9 +1993,9 @@ margin-bottom: 25px;
 }
 
 .cabinet-more-title {
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   font-family: var(--font-sans), sans-serif;
-  font-size: 34px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1;
   color: #1a1a1a;
@@ -1998,10 +2010,10 @@ margin-bottom: 25px;
 .cabinet-more-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 4px;
+  gap: 12px;
+  padding: 21px 4px;
   font-family: var(--font-sans), sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   line-height: 1.2;
   color: #1a1a1a;
@@ -2012,8 +2024,8 @@ margin-bottom: 25px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   color: #1a1a1a;
 }
 
@@ -4772,6 +4784,7 @@ font-size: 12px;
   .cabinet-budget-stat {
     flex: none;
     height: 86px;
+    justify-content: flex-start;
     gap: 8px;
     padding: 16px 10px;
     border-radius: 10px;

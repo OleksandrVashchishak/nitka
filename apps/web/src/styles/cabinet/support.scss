@@ -4,6 +4,51 @@
   .cabinet-tasks-title {
     font-weight: 500;
   }
+
+  &__mobile-top {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    &__desktop-top {
+      display: none;
+    }
+
+    &__mobile-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    &__back {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin-left: -6px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #292d32;
+      cursor: pointer;
+    }
+
+    &__mobile-title {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+      font-size: 24px;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1;
+      letter-spacing: 0;
+      color: #1a1a1a;
+    }
+  }
 }
 
 .cabinet-support-card {

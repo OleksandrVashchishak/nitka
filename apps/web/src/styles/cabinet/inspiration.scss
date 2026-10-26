@@ -802,13 +802,14 @@
   .cabinet-inspiration-viewer {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 16px;
     margin-top: 0;
   }
 
   .cabinet-inspiration-viewer-hero {
     max-height: none;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 355 / 262;
     border-radius: 10px;
     box-shadow: none;
   }

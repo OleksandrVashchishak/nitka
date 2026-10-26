@@ -8,6 +8,7 @@ const usePolling =
 const nextConfig: NextConfig = {
   // Next 16: production build = Turbopack; порожній turbopack глушить конфлікт з optional webpack
   turbopack: {},
+  devIndicators: false,
   async redirects() {
     return [
       {
