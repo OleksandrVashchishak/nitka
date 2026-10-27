@@ -9,13 +9,6 @@ import {
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  keywords: [
-    "розсадка гостей весілля",
-    "схема розсадки весілля",
-    "план столів весілля",
-    "посадкова карта весілля",
-    "розсадка гостей онлайн",
-  ],
   alternates: { canonical: "/rozsadka-gostey" },
   openGraph: {
     title: PAGE_TITLE,

@@ -128,9 +128,17 @@ export default async function BlogSlugPage({ params, searchParams }: Props) {
   if (!post) notFound();
 
   const html = renderEditorJsHtml(post.body);
-  const relatedRaw = await getContentPosts({ limit: 12 });
-  const related = relatedRaw.items
-    .filter((item) => item.slug !== post.slug)
+  const [sameTopic, latest] = await Promise.all([
+    getContentPosts({ topic: post.topic.slug, limit: 6 }),
+    getContentPosts({ limit: 12 }),
+  ]);
+  // Спершу статті з тієї ж теми, якщо їх мало — добираємо найновішими
+  const related = [...sameTopic.items, ...latest.items]
+    .filter(
+      (item, index, all) =>
+        item.slug !== post.slug &&
+        all.findIndex((other) => other.id === item.id) === index,
+    )
     .slice(0, 3);
 
   const siteUrl = getSiteUrl();

@@ -9,13 +9,6 @@ import {
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  keywords: [
-    "весільний сайт",
-    "сайт запрошення на весілля",
-    "онлайн запрошення на весілля",
-    "сайт-візитка весілля",
-    "весільний сайт українською",
-  ],
   alternates: { canonical: "/vesilnyy-sayt" },
   openGraph: {
     title: PAGE_TITLE,

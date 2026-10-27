@@ -1,0 +1,125 @@
+.fata-legal {
+  background: #fff;
+  color: var(--ink);
+
+  &__inner {
+    width: min(100%, 860px);
+    margin: 0 auto;
+    padding: 120px 20px 120px;
+
+    @media (max-width: 640px) {
+      padding: 48px 16px 72px;
+    }
+  }
+
+  &__head {
+    padding-bottom: 40px;
+    border-bottom: 1px solid #cacaca;
+  }
+
+  &__eyebrow {
+    margin: 0 0 20px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--font-display), sans-serif;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--ink);
+
+    @media (max-width: 640px) {
+      font-size: 28px;
+    }
+  }
+
+  &__lead {
+    margin: 20px 0 0;
+    max-width: 560px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+  }
+
+  &__updated {
+    margin: 20px 0 0;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 14px;
+    color: #838383;
+  }
+
+  &__body {
+    padding-top: 16px;
+  }
+
+  &__section {
+    padding-top: 32px;
+  }
+
+  &__heading {
+    margin: 0 0 16px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+
+    @media (max-width: 640px) {
+      font-size: 20px;
+    }
+  }
+
+  &__text {
+    margin: 0 0 12px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+  }
+
+  &__list {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    li::marker {
+      color: #61040f;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid #cacaca;
+  }
+
+  &__nav-link {
+    font-family: var(--font-sans), sans-serif;
+    font-size: 14px;
+    color: #61040f;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: #4a030c;
+    }
+  }
+}

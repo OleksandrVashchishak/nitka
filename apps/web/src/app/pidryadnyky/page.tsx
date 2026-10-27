@@ -9,13 +9,6 @@ import {
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  keywords: [
-    "підрядники весілля",
-    "облік підрядників весілля",
-    "весільні підрядники список",
-    "контроль авансів весілля",
-    "організація підрядників онлайн",
-  ],
   alternates: { canonical: "/pidryadnyky" },
   openGraph: {
     title: PAGE_TITLE,

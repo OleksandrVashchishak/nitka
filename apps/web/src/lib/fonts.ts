@@ -4,7 +4,6 @@ import {
   Manrope,
   Marck_Script,
   Montserrat,
-  Poppins,
 } from "next/font/google";
 
 /** Standard width — nav, buttons, kickers */
@@ -56,12 +55,14 @@ export const scriptCyr = Marck_Script({
   variable: "--font-script-cyr",
   weight: "400",
   subsets: ["cyrillic", "latin", "latin-ext"],
+  preload: false,
 });
 
 export const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["300", "400", "500", "600", "700", "800"],
+  preload: false,
 });
 
 export const montserrat = Montserrat({
@@ -69,10 +70,4 @@ export const montserrat = Montserrat({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
-});
-
-export const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin", "latin-ext"],
-  weight: ["500"],
 });

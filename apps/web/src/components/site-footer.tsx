@@ -19,10 +19,10 @@ const PRODUCT_LINKS = [
 const INSTAGRAM_URL = "https://instagram.com";
 const FACEBOOK_URL = "https://facebook.com";
 
-// TODO: сторінок умов і політики ще немає
 const SUPPORT_LINKS = [
   { href: "/terms", label: "Умови використання" },
   { href: "/privacy", label: "Політика конфіденційності" },
+  { href: "/cookies", label: "Політика cookie" },
   { href: "/napyshit-nam", label: "Напишіть нам" },
 ] as const;
 

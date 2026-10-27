@@ -9,13 +9,6 @@ import {
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  keywords: [
-    "бюджет весілля",
-    "калькулятор витрат на весілля",
-    "облік весільних витрат",
-    "весільний бюджет онлайн",
-    "планування витрат на весілля",
-  ],
   alternates: { canonical: "/vesilnyy-byudzhet" },
   openGraph: {
     title: PAGE_TITLE,

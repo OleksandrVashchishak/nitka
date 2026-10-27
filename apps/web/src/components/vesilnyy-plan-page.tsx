@@ -2,7 +2,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 import { Reveal } from "@/components/landing/reveal";
-import { getSiteUrl, SITE_NAME } from "@/lib/site";
+import {
+  buildServiceJsonLd,
+  serializeJsonLd,
+} from "@/lib/service-json-ld";
 import "@/styles/landing/service.scss";
 
 const FEATURES = [
@@ -53,20 +56,12 @@ const COMPARE_ROWS = [
 
 function CompareScribble() {
   return (
-    <svg
-      className="fata-service-compare__scribble"
-      viewBox="0 0 420 140"
-      fill="none"
+    <img
+      src="/landing/comparison-scribble.svg"
+      alt=""
       aria-hidden
-    >
-      <path
-        d="M70 34C150 4 330 6 390 44c36 24 14 66-80 82-100 16-220 10-270-18C2 88 20 52 70 34c26-9 60-14 96-16"
-        stroke="#FF4200"
-        strokeWidth={3.25}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      className="fata-service-compare__scribble"
+    />
   );
 }
 
@@ -89,12 +84,6 @@ function ServiceCompare() {
               </h3>
               <p className="fata-service-compare__text">{row.problem.text}</p>
             </Reveal>
-            <img
-              src="/landing/comparison-arrow.svg"
-              alt=""
-              aria-hidden
-              className="fata-service-compare__arrow"
-            />
             <Reveal className="fata-service-compare__solution" delay={120}>
               <CompareScribble />
               <p className="fata-service-compare__eyebrow">Рішення</p>
@@ -331,7 +320,7 @@ function ServiceOtherTools() {
               <h3 className="fata-service-other__card-title">{tool.title}</h3>
               <p className="fata-service-other__card-text">{tool.text}</p>
               <Link href={tool.href} className="fata-service-other__link">
-                Читати <span aria-hidden>›</span>
+                Читати <img src="/landing/chevron-right.svg" alt="" width={14} height={14} />
               </Link>
             </Reveal>
           ))}
@@ -346,53 +335,19 @@ export const PAGE_DESCRIPTION =
   "Український весільний планер: персональний список справ за 3 кроки, розподіл обов'язків і дедлайни під контролем.";
 
 export function VesilnyyPlanPage() {
-  const siteUrl = getSiteUrl();
-  const pageUrl = `${siteUrl}/vesilnyy-plan`;
-
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Головна",
-          item: siteUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: PAGE_TITLE,
-          item: pageUrl,
-        },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: PAGE_TITLE,
-      description: PAGE_DESCRIPTION,
-      url: pageUrl,
-      inLanguage: "uk-UA",
-      isPartOf: { "@type": "WebSite", name: SITE_NAME, url: siteUrl },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: FAQ.map((item) => ({
-        "@type": "Question",
-        name: item.q,
-        acceptedAnswer: { "@type": "Answer", text: item.a },
-      })),
-    },
-  ];
+  const jsonLd = buildServiceJsonLd({
+    path: "/vesilnyy-plan",
+    title: PAGE_TITLE,
+    shortName: "План весілля",
+    description: PAGE_DESCRIPTION,
+    faq: FAQ,
+  });
 
   return (
     <div className="fata-service-hero">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <div className="fata-service-hero__main">
         <div className="fata-service-hero__copy">
