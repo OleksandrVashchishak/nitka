@@ -13,7 +13,14 @@ import {
 } from '@nestjs/common';
 import { ContactService } from '../contact/contact.service';
 import { AdminAnalyticsService } from './admin-analytics.service';
+import { AdminInsightsService } from './admin-insights.service';
+import { AdminWebsitesService } from './admin-websites.service';
+import {
+  ReplyContactDto,
+  UpdateContactStatusDto,
+} from './dto/admin-contact.dto';
 import { CreateAdminNoteDto } from './dto/admin-note.dto';
+import { SetWebsiteHiddenDto } from './dto/admin-website.dto';
 import { SuperadminGuard } from './superadmin.guard';
 
 @Controller('admin')
@@ -21,6 +28,8 @@ import { SuperadminGuard } from './superadmin.guard';
 export class AdminAnalyticsController {
   constructor(
     private readonly analytics: AdminAnalyticsService,
+    private readonly insights: AdminInsightsService,
+    private readonly websites: AdminWebsitesService,
     private readonly contact: ContactService,
   ) {}
 
@@ -78,6 +87,57 @@ export class AdminAnalyticsController {
   @Patch('contact-messages/:id/read')
   markContactRead(@Param('id') id: string) {
     return this.contact.markRead(id);
+  }
+
+  @Patch('contact-messages/:id/status')
+  setContactStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateContactStatusDto,
+  ) {
+    return this.contact.setStatus(id, dto.status);
+  }
+
+  @Post('contact-messages/:id/reply')
+  replyContact(@Param('id') id: string, @Body() dto: ReplyContactDto) {
+    return this.contact.reply(id, dto.body);
+  }
+
+  @Get('timeseries')
+  getTimeseries(
+    @Query('granularity') granularity = 'day',
+    @Query('periods', new DefaultValuePipe(0), ParseIntPipe) periods?: number,
+  ) {
+    return this.insights.getTimeseries(granularity, periods || undefined);
+  }
+
+  @Get('cohorts')
+  getCohorts(
+    @Query('weeks', new DefaultValuePipe(0), ParseIntPipe) weeks?: number,
+  ) {
+    return this.insights.getCohorts(weeks || undefined);
+  }
+
+  @Get('websites')
+  listWebsites(
+    @Query('q') q?: string,
+    @Query('status') status?: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(25), ParseIntPipe) limit?: number,
+  ) {
+    return this.websites.list({ q, status, page, limit });
+  }
+
+  @Patch('websites/:id/hidden')
+  setWebsiteHidden(
+    @Param('id') id: string,
+    @Body() dto: SetWebsiteHiddenDto,
+  ) {
+    return this.websites.setHidden(id, dto.hidden);
+  }
+
+  @Delete('websites/:id')
+  deleteWebsite(@Param('id') id: string) {
+    return this.websites.remove(id);
   }
 
   @Delete('contact-messages/:id')

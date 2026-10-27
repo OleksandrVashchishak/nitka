@@ -299,6 +299,44 @@ END $$`,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`,
   `CREATE INDEX IF NOT EXISTS contact_messages_created_at_idx ON contact_messages(created_at)`,
+
+  // --- Contact message workflow (status + reply) ---
+  `DO $$ BEGIN
+  CREATE TYPE "ContactStatus" AS ENUM ('NEW', 'IN_PROGRESS', 'CLOSED');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$`,
+  `ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS status "ContactStatus" NOT NULL DEFAULT 'NEW'`,
+  `ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS reply_body TEXT`,
+  `ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS replied_at TIMESTAMP(3)`,
+
+  // --- Admin moderation of couple websites ---
+  `ALTER TABLE wedding_websites ADD COLUMN IF NOT EXISTS admin_hidden BOOLEAN NOT NULL DEFAULT false`,
+
+  // --- Daily activity (dynamics + cohorts) ---
+  `CREATE TABLE IF NOT EXISTS user_activity_days (
+  user_id TEXT NOT NULL,
+  day DATE NOT NULL,
+  PRIMARY KEY (user_id, day)
+)`,
+  `CREATE INDEX IF NOT EXISTS user_activity_days_day_idx ON user_activity_days(day)`,
+  // Seed history once from the only data we had: last login.
+  `DO $$
+BEGIN
+  IF to_regclass('public._schema_patches') IS NULL THEN
+    CREATE TABLE _schema_patches (
+      id TEXT PRIMARY KEY,
+      applied_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM _schema_patches WHERE id = 'user_activity_days_seed_v1'
+  ) THEN
+    INSERT INTO user_activity_days (user_id, day)
+    SELECT id, last_login_at::date FROM users WHERE last_login_at IS NOT NULL
+    ON CONFLICT DO NOTHING;
+    INSERT INTO _schema_patches (id) VALUES ('user_activity_days_seed_v1');
+  END IF;
+END $$`,
 ];
 
 async function main() {

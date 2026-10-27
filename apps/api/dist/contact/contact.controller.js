@@ -28,7 +28,7 @@ let ContactController = class ContactController {
 exports.ContactController = ContactController;
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: Object }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_contact_dto_1.CreateContactDto]),

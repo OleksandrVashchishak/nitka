@@ -17,11 +17,17 @@ const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const contact_service_1 = require("../contact/contact.service");
 const admin_analytics_service_1 = require("./admin-analytics.service");
+const admin_insights_service_1 = require("./admin-insights.service");
+const admin_websites_service_1 = require("./admin-websites.service");
+const admin_contact_dto_1 = require("./dto/admin-contact.dto");
 const admin_note_dto_1 = require("./dto/admin-note.dto");
+const admin_website_dto_1 = require("./dto/admin-website.dto");
 const superadmin_guard_1 = require("./superadmin.guard");
 let AdminAnalyticsController = class AdminAnalyticsController {
-    constructor(analytics, contact) {
+    constructor(analytics, insights, websites, contact) {
         this.analytics = analytics;
+        this.insights = insights;
+        this.websites = websites;
         this.contact = contact;
     }
     getStats() {
@@ -53,6 +59,27 @@ let AdminAnalyticsController = class AdminAnalyticsController {
     }
     markContactRead(id) {
         return this.contact.markRead(id);
+    }
+    setContactStatus(id, dto) {
+        return this.contact.setStatus(id, dto.status);
+    }
+    replyContact(id, dto) {
+        return this.contact.reply(id, dto.body);
+    }
+    getTimeseries(granularity = 'day', periods) {
+        return this.insights.getTimeseries(granularity, periods || undefined);
+    }
+    getCohorts(weeks) {
+        return this.insights.getCohorts(weeks || undefined);
+    }
+    listWebsites(q, status, page, limit) {
+        return this.websites.list({ q, status, page, limit });
+    }
+    setWebsiteHidden(id, dto) {
+        return this.websites.setHidden(id, dto.hidden);
+    }
+    deleteWebsite(id) {
+        return this.websites.remove(id);
     }
     deleteContactMessage(id) {
         return this.contact.remove(id);
@@ -118,12 +145,75 @@ __decorate([
 ], AdminAnalyticsController.prototype, "listContactMessages", null);
 __decorate([
     (0, common_1.Patch)('contact-messages/:id/read'),
-    openapi.ApiResponse({ status: 200, type: Object }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AdminAnalyticsController.prototype, "markContactRead", null);
+__decorate([
+    (0, common_1.Patch)('contact-messages/:id/status'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, admin_contact_dto_1.UpdateContactStatusDto]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "setContactStatus", null);
+__decorate([
+    (0, common_1.Post)('contact-messages/:id/reply'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, admin_contact_dto_1.ReplyContactDto]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "replyContact", null);
+__decorate([
+    (0, common_1.Get)('timeseries'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Query)('granularity')),
+    __param(1, (0, common_1.Query)('periods', new common_1.DefaultValuePipe(0), common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "getTimeseries", null);
+__decorate([
+    (0, common_1.Get)('cohorts'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Query)('weeks', new common_1.DefaultValuePipe(0), common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "getCohorts", null);
+__decorate([
+    (0, common_1.Get)('websites'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)('status')),
+    __param(2, (0, common_1.Query)('page', new common_1.DefaultValuePipe(1), common_1.ParseIntPipe)),
+    __param(3, (0, common_1.Query)('limit', new common_1.DefaultValuePipe(25), common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Number, Number]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "listWebsites", null);
+__decorate([
+    (0, common_1.Patch)('websites/:id/hidden'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, admin_website_dto_1.SetWebsiteHiddenDto]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "setWebsiteHidden", null);
+__decorate([
+    (0, common_1.Delete)('websites/:id'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminAnalyticsController.prototype, "deleteWebsite", null);
 __decorate([
     (0, common_1.Delete)('contact-messages/:id'),
     openapi.ApiResponse({ status: 200 }),
@@ -136,6 +226,8 @@ exports.AdminAnalyticsController = AdminAnalyticsController = __decorate([
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(superadmin_guard_1.SuperadminGuard),
     __metadata("design:paramtypes", [admin_analytics_service_1.AdminAnalyticsService,
+        admin_insights_service_1.AdminInsightsService,
+        admin_websites_service_1.AdminWebsitesService,
         contact_service_1.ContactService])
 ], AdminAnalyticsController);
 //# sourceMappingURL=admin-analytics.controller.js.map

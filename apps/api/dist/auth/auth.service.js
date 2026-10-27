@@ -76,6 +76,7 @@ let AuthService = class AuthService {
                 role,
             },
         });
+        await this.touchActivityDay(user.id);
         return this.issueTokens(user);
     }
     async login(dto) {
@@ -95,7 +96,19 @@ let AuthService = class AuthService {
             where: { id: user.id },
             data: { lastLoginAt: new Date() },
         });
+        await this.touchActivityDay(user.id);
         return this.issueTokens(user);
+    }
+    async touchActivityDay(userId) {
+        try {
+            await this.prisma.$executeRaw `
+        INSERT INTO user_activity_days (user_id, day)
+        VALUES (${userId}, CURRENT_DATE)
+        ON CONFLICT DO NOTHING
+      `;
+        }
+        catch {
+        }
     }
     async refresh(refreshToken) {
         let payload;
@@ -117,6 +130,7 @@ let AuthService = class AuthService {
         if (!match) {
             throw new common_1.UnauthorizedException('Refresh token недійсний');
         }
+        await this.touchActivityDay(user.id);
         return this.issueTokens(user);
     }
     async logout(userId) {

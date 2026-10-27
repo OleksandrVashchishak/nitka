@@ -290,14 +290,130 @@ export function deleteAdminNote(
   );
 }
 
+export type AdminContactStatus = "NEW" | "IN_PROGRESS" | "CLOSED";
+
 export type AdminContactMessage = {
   id: string;
   name: string;
   email: string;
   message: string;
   readAt: string | null;
+  status: AdminContactStatus;
+  replyBody: string | null;
+  repliedAt: string | null;
   createdAt: string;
 };
+
+export type AdminTimeseries = {
+  granularity: "day" | "week";
+  points: Array<{ date: string; registrations: number; active: number }>;
+};
+
+export type AdminCohorts = {
+  weeks: number;
+  cohorts: Array<{
+    cohort: string;
+    size: number;
+    retained: Array<number | null>;
+  }>;
+};
+
+export type AdminWebsiteStatus = "" | "published" | "draft" | "hidden";
+
+export type AdminWebsiteItem = {
+  id: string;
+  slug: string;
+  templateId: string;
+  published: boolean;
+  publishedAt: string | null;
+  hidden: boolean;
+  createdAt: string;
+  updatedAt: string;
+  couple: string;
+  owner: { id: string; email: string; name: string };
+};
+
+export type AdminWebsitesResponse = {
+  page: number;
+  limit: number;
+  total: number;
+  items: AdminWebsiteItem[];
+};
+
+export function fetchAdminTimeseries(
+  accessToken: string,
+  granularity: "day" | "week",
+  periods?: number,
+) {
+  const search = new URLSearchParams({ granularity });
+  if (periods) search.set("periods", String(periods));
+  return adminFetch<AdminTimeseries>(
+    `/api/admin/timeseries?${search.toString()}`,
+    accessToken,
+  );
+}
+
+export function fetchAdminCohorts(accessToken: string, weeks?: number) {
+  const qs = weeks ? `?weeks=${weeks}` : "";
+  return adminFetch<AdminCohorts>(`/api/admin/cohorts${qs}`, accessToken);
+}
+
+export function fetchAdminWebsites(
+  accessToken: string,
+  params?: { q?: string; status?: AdminWebsiteStatus; page?: number },
+) {
+  const search = new URLSearchParams();
+  if (params?.q) search.set("q", params.q);
+  if (params?.status) search.set("status", params.status);
+  if (params?.page) search.set("page", String(params.page));
+  const qs = search.toString();
+  return adminFetch<AdminWebsitesResponse>(
+    `/api/admin/websites${qs ? `?${qs}` : ""}`,
+    accessToken,
+  );
+}
+
+export function setAdminWebsiteHidden(
+  accessToken: string,
+  id: string,
+  hidden: boolean,
+) {
+  return adminFetch<{ id: string; hidden: boolean }>(
+    `/api/admin/websites/${id}/hidden`,
+    accessToken,
+    { method: "PATCH", body: JSON.stringify({ hidden }) },
+  );
+}
+
+export function deleteAdminWebsite(accessToken: string, id: string) {
+  return adminFetch<{ ok: boolean }>(`/api/admin/websites/${id}`, accessToken, {
+    method: "DELETE",
+  });
+}
+
+export function setAdminContactStatus(
+  accessToken: string,
+  id: string,
+  status: AdminContactStatus,
+) {
+  return adminFetch<AdminContactMessage>(
+    `/api/admin/contact-messages/${id}/status`,
+    accessToken,
+    { method: "PATCH", body: JSON.stringify({ status }) },
+  );
+}
+
+export function replyAdminContact(
+  accessToken: string,
+  id: string,
+  body: string,
+) {
+  return adminFetch<{ message: AdminContactMessage; dryRun: boolean }>(
+    `/api/admin/contact-messages/${id}/reply`,
+    accessToken,
+    { method: "POST", body: JSON.stringify({ body }) },
+  );
+}
 
 export type AdminContactMessagesResponse = {
   page: number;

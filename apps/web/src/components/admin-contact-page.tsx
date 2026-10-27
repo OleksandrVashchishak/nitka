@@ -3,13 +3,22 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   type AdminContactMessagesResponse,
+  type AdminContactStatus,
   deleteAdminContactMessage,
   fetchAdminContactMessages,
   markAdminContactRead,
+  replyAdminContact,
+  setAdminContactStatus,
 } from "@/lib/admin-api";
 import { useAdminAuthStore } from "@/lib/admin-auth-store";
 import "@/styles/admin/admin.scss";
 import "@/styles/admin/admin-contact.scss";
+
+const STATUS_OPTIONS: Array<{ value: AdminContactStatus; label: string }> = [
+  { value: "NEW", label: "Нове" },
+  { value: "IN_PROGRESS", label: "В роботі" },
+  { value: "CLOSED", label: "Закрито" },
+];
 
 function fmtDate(value: string) {
   return new Date(value).toLocaleString("uk-UA");
@@ -22,6 +31,9 @@ export function AdminContactPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [replyId, setReplyId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!accessToken) return;
@@ -57,6 +69,40 @@ export function AdminContactPage() {
     }
   }
 
+  async function onStatus(id: string, status: AdminContactStatus) {
+    if (!accessToken || busyId) return;
+    setBusyId(id);
+    try {
+      await setAdminContactStatus(accessToken, id, status);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не вдалося змінити статус");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function onReply(id: string) {
+    if (!accessToken || busyId || !replyText.trim()) return;
+    setBusyId(id);
+    setNotice(null);
+    try {
+      const res = await replyAdminContact(accessToken, id, replyText.trim());
+      setReplyId(null);
+      setReplyText("");
+      setNotice(
+        res.dryRun
+          ? "SMTP не налаштовано: лист не надіслано, відповідь збережено (див. логи API)."
+          : "Лист надіслано.",
+      );
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не вдалося надіслати");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function onDelete(id: string) {
     if (!accessToken || busyId) return;
     if (!window.confirm("Видалити це повідомлення?")) return;
@@ -82,6 +128,7 @@ export function AdminContactPage() {
       </p>
 
       {error ? <p className="admin-error">{error}</p> : null}
+      {notice ? <p className="admin-muted">{notice}</p> : null}
 
       {loading && !data ? (
         <div className="admin-loader">Завантаження…</div>
@@ -110,7 +157,30 @@ export function AdminContactPage() {
                   </time>
                 </div>
                 <p className="admin-contact-card__body">{item.message}</p>
+                {item.replyBody ? (
+                  <div className="admin-contact-card__reply">
+                    <span className="admin-muted">
+                      Відповідь · {item.repliedAt ? fmtDate(item.repliedAt) : ""}
+                    </span>
+                    <p>{item.replyBody}</p>
+                  </div>
+                ) : null}
                 <div className="admin-contact-card__actions">
+                  <select
+                    className="admin-contact-card__status"
+                    value={item.status}
+                    disabled={busyId === item.id}
+                    onChange={(e) =>
+                      void onStatus(item.id, e.target.value as AdminContactStatus)
+                    }
+                    aria-label="Статус"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
                   {unread ? (
                     <button
                       type="button"
@@ -127,11 +197,46 @@ export function AdminContactPage() {
                     type="button"
                     className="admin-btn admin-btn--ghost"
                     disabled={busyId === item.id}
+                    onClick={() => {
+                      setReplyId(replyId === item.id ? null : item.id);
+                      setReplyText("");
+                    }}
+                  >
+                    {item.replyBody ? "Відповісти ще" : "Відповісти"}
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--ghost"
+                    disabled={busyId === item.id}
                     onClick={() => void onDelete(item.id)}
                   >
                     Видалити
                   </button>
                 </div>
+                {replyId === item.id ? (
+                  <form
+                    className="admin-contact-card__form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void onReply(item.id);
+                    }}
+                  >
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder={`Відповідь для ${item.email}`}
+                      rows={5}
+                      maxLength={5000}
+                    />
+                    <button
+                      type="submit"
+                      className="admin-btn"
+                      disabled={busyId === item.id || !replyText.trim()}
+                    >
+                      Надіслати на пошту
+                    </button>
+                  </form>
+                ) : null}
               </li>
             );
           })}

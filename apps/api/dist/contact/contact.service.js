@@ -11,10 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContactService = void 0;
 const common_1 = require("@nestjs/common");
+const email_service_1 = require("../email/email.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 let ContactService = class ContactService {
-    constructor(prisma) {
+    constructor(prisma, email) {
         this.prisma = prisma;
+        this.email = email;
     }
     create(dto) {
         return this.prisma.contactMessage.create({
@@ -55,6 +57,48 @@ let ContactService = class ContactService {
             data: { readAt: new Date() },
         });
     }
+    async setStatus(id, status) {
+        await this.requireMessage(id);
+        return this.prisma.contactMessage.update({
+            where: { id },
+            data: { status },
+        });
+    }
+    async reply(id, body) {
+        const msg = await this.requireMessage(id);
+        const text = body.trim();
+        const { html } = this.email.renderSimple({
+            title: 'Відповідь від fata.studio',
+            body: text,
+        });
+        const result = await this.email.send({
+            to: msg.email,
+            subject: 'Відповідь від fata.studio',
+            text: `${text}\n\n— fata.studio`,
+            html,
+        });
+        if (!result.sent && !result.dryRun) {
+            throw new common_1.BadGatewayException('Не вдалося надіслати лист');
+        }
+        const updated = await this.prisma.contactMessage.update({
+            where: { id },
+            data: {
+                replyBody: text,
+                repliedAt: new Date(),
+                readAt: msg.readAt ?? new Date(),
+                status: 'CLOSED',
+            },
+        });
+        return { message: updated, dryRun: result.dryRun };
+    }
+    async requireMessage(id) {
+        const existing = await this.prisma.contactMessage.findUnique({
+            where: { id },
+        });
+        if (!existing)
+            throw new common_1.NotFoundException('Повідомлення не знайдено');
+        return existing;
+    }
     async remove(id) {
         const existing = await this.prisma.contactMessage.findUnique({
             where: { id },
@@ -69,6 +113,7 @@ let ContactService = class ContactService {
 exports.ContactService = ContactService;
 exports.ContactService = ContactService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        email_service_1.EmailService])
 ], ContactService);
 //# sourceMappingURL=contact.service.js.map

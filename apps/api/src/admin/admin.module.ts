@@ -5,6 +5,8 @@ import { AdminAnalyticsController } from './admin-analytics.controller';
 import { AdminAnalyticsService } from './admin-analytics.service';
 import { AdminAuthController } from './admin-auth.controller';
 import { AdminAuthService } from './admin-auth.service';
+import { AdminInsightsService } from './admin-insights.service';
+import { AdminWebsitesService } from './admin-websites.service';
 import { SuperadminGuard } from './superadmin.guard';
 
 @Module({
@@ -15,6 +17,12 @@ import { SuperadminGuard } from './superadmin.guard';
     ContactModule,
   ],
   controllers: [AdminAuthController, AdminAnalyticsController],
-  providers: [AdminAuthService, AdminAnalyticsService, SuperadminGuard],
+  providers: [
+    AdminAuthService,
+    AdminAnalyticsService,
+    AdminInsightsService,
+    AdminWebsitesService,
+    SuperadminGuard,
+  ],
 })
 export class AdminModule {}

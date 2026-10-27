@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminInsightsSection } from "@/components/admin-insights-section";
 import {
   type AdminStats,
   fetchAdminStats,
@@ -102,6 +103,8 @@ export function AdminDashboardPage() {
           <p className="admin-stat-card__value">{stats.users.emptyAccounts}</p>
         </div>
       </div>
+
+      <AdminInsightsSection />
 
       <section className="admin-section">
         <h2>Активні vs мертві</h2>

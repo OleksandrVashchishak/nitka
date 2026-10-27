@@ -46,6 +46,7 @@ export class AuthService {
         role,
       },
     });
+    await this.touchActivityDay(user.id);
 
     return this.issueTokens(user);
   }
@@ -70,8 +71,21 @@ export class AuthService {
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     });
+    await this.touchActivityDay(user.id);
 
     return this.issueTokens(user);
+  }
+
+  private async touchActivityDay(userId: string) {
+    try {
+      await this.prisma.$executeRaw`
+        INSERT INTO user_activity_days (user_id, day)
+        VALUES (${userId}, CURRENT_DATE)
+        ON CONFLICT DO NOTHING
+      `;
+    } catch {
+      // Table may be missing until ensure-schema runs; never block auth.
+    }
   }
 
   async refresh(refreshToken: string) {
@@ -96,6 +110,7 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token недійсний');
     }
 
+    await this.touchActivityDay(user.id);
     return this.issueTokens(user);
   }
 

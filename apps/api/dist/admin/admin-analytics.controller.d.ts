@@ -1,10 +1,16 @@
 import { ContactService } from '../contact/contact.service';
 import { AdminAnalyticsService } from './admin-analytics.service';
+import { AdminInsightsService } from './admin-insights.service';
+import { AdminWebsitesService } from './admin-websites.service';
+import { ReplyContactDto, UpdateContactStatusDto } from './dto/admin-contact.dto';
 import { CreateAdminNoteDto } from './dto/admin-note.dto';
+import { SetWebsiteHiddenDto } from './dto/admin-website.dto';
 export declare class AdminAnalyticsController {
     private readonly analytics;
+    private readonly insights;
+    private readonly websites;
     private readonly contact;
-    constructor(analytics: AdminAnalyticsService, contact: ContactService);
+    constructor(analytics: AdminAnalyticsService, insights: AdminInsightsService, websites: AdminWebsitesService, contact: ContactService);
     getStats(): Promise<{
         generatedAt: string;
         users: {
@@ -232,13 +238,85 @@ export declare class AdminAnalyticsController {
             name: string;
             id: string;
             createdAt: Date;
+            status: import(".prisma/client").$Enums.ContactStatus;
             message: string;
             readAt: Date | null;
+            replyBody: string | null;
+            repliedAt: Date | null;
         }[];
     }>;
     markContactRead(id: string): Promise<{
         id: string;
         readAt: Date | null;
+    }>;
+    setContactStatus(id: string, dto: UpdateContactStatusDto): Promise<{
+        email: string;
+        name: string;
+        id: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.ContactStatus;
+        message: string;
+        readAt: Date | null;
+        replyBody: string | null;
+        repliedAt: Date | null;
+    }>;
+    replyContact(id: string, dto: ReplyContactDto): Promise<{
+        message: {
+            email: string;
+            name: string;
+            id: string;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.ContactStatus;
+            message: string;
+            readAt: Date | null;
+            replyBody: string | null;
+            repliedAt: Date | null;
+        };
+        dryRun: boolean;
+    }>;
+    getTimeseries(granularity?: string, periods?: number): Promise<{
+        granularity: import("./admin-insights.service").TimeseriesGranularity;
+        points: {
+            date: string;
+            registrations: number;
+            active: number;
+        }[];
+    }>;
+    getCohorts(weeks?: number): Promise<{
+        weeks: number;
+        cohorts: {
+            cohort: string;
+            size: number;
+            retained: (number | null)[];
+        }[];
+    }>;
+    listWebsites(q?: string, status?: string, page?: number, limit?: number): Promise<{
+        page: number;
+        limit: number;
+        total: number;
+        items: {
+            id: string;
+            slug: string;
+            templateId: string;
+            published: boolean;
+            publishedAt: Date | null;
+            hidden: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            couple: string;
+            owner: {
+                email: string;
+                name: string;
+                id: string;
+            };
+        }[];
+    }>;
+    setWebsiteHidden(id: string, dto: SetWebsiteHiddenDto): Promise<{
+        id: string;
+        hidden: boolean;
+    }>;
+    deleteWebsite(id: string): Promise<{
+        ok: boolean;
     }>;
     deleteContactMessage(id: string): Promise<{
         ok: boolean;

@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ContactStatus } from '@prisma/client';
+import { EmailService } from '../email/email.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 
 @Injectable()
 export class ContactService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly email: EmailService,
+  ) {}
 
   create(dto: CreateContactDto) {
     return this.prisma.contactMessage.create({
@@ -47,6 +56,51 @@ export class ContactService {
       where: { id },
       data: { readAt: new Date() },
     });
+  }
+
+  async setStatus(id: string, status: ContactStatus) {
+    await this.requireMessage(id);
+    return this.prisma.contactMessage.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  async reply(id: string, body: string) {
+    const msg = await this.requireMessage(id);
+    const text = body.trim();
+    const { html } = this.email.renderSimple({
+      title: 'Відповідь від fata.studio',
+      body: text,
+    });
+    const result = await this.email.send({
+      to: msg.email,
+      subject: 'Відповідь від fata.studio',
+      text: `${text}\n\n— fata.studio`,
+      html,
+    });
+    if (!result.sent && !result.dryRun) {
+      throw new BadGatewayException('Не вдалося надіслати лист');
+    }
+
+    const updated = await this.prisma.contactMessage.update({
+      where: { id },
+      data: {
+        replyBody: text,
+        repliedAt: new Date(),
+        readAt: msg.readAt ?? new Date(),
+        status: 'CLOSED',
+      },
+    });
+    return { message: updated, dryRun: result.dryRun };
+  }
+
+  private async requireMessage(id: string) {
+    const existing = await this.prisma.contactMessage.findUnique({
+      where: { id },
+    });
+    if (!existing) throw new NotFoundException('Повідомлення не знайдено');
+    return existing;
   }
 
   async remove(id: string) {

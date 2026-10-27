@@ -382,7 +382,7 @@ let WebsiteService = class WebsiteService {
             where: { slug },
             include: { wedding: true },
         });
-        if (!site || !site.published) {
+        if (!site || !site.published || site.adminHidden) {
             throw new common_1.NotFoundException('Сайт не знайдено');
         }
         const publishedAt = await this.getPublishedAt(site.id);

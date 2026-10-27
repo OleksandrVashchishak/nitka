@@ -14,6 +14,8 @@ const admin_analytics_controller_1 = require("./admin-analytics.controller");
 const admin_analytics_service_1 = require("./admin-analytics.service");
 const admin_auth_controller_1 = require("./admin-auth.controller");
 const admin_auth_service_1 = require("./admin-auth.service");
+const admin_insights_service_1 = require("./admin-insights.service");
+const admin_websites_service_1 = require("./admin-websites.service");
 const superadmin_guard_1 = require("./superadmin.guard");
 let AdminModule = class AdminModule {
 };
@@ -27,7 +29,13 @@ exports.AdminModule = AdminModule = __decorate([
             contact_module_1.ContactModule,
         ],
         controllers: [admin_auth_controller_1.AdminAuthController, admin_analytics_controller_1.AdminAnalyticsController],
-        providers: [admin_auth_service_1.AdminAuthService, admin_analytics_service_1.AdminAnalyticsService, superadmin_guard_1.SuperadminGuard],
+        providers: [
+            admin_auth_service_1.AdminAuthService,
+            admin_analytics_service_1.AdminAnalyticsService,
+            admin_insights_service_1.AdminInsightsService,
+            admin_websites_service_1.AdminWebsitesService,
+            superadmin_guard_1.SuperadminGuard,
+        ],
     })
 ], AdminModule);
 //# sourceMappingURL=admin.module.js.map

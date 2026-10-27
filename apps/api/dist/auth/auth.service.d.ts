@@ -30,6 +30,7 @@ export declare class AuthService {
             role: import(".prisma/client").$Enums.Role;
         };
     }>;
+    private touchActivityDay;
     refresh(refreshToken: string): Promise<{
         accessToken: string;
         refreshToken: string;
