@@ -11,7 +11,16 @@ export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
   user: AuthUser;
+  /** Тільки після реєстрації: на пошту надіслано лист для підтвердження. */
+  verificationRequired?: boolean;
 };
+
+export class EmailNotVerifiedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EmailNotVerifiedError";
+  }
+}
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -63,6 +72,64 @@ export async function loginRequest(input: {
   password: string;
 }): Promise<AuthResponse> {
   const res = await fetch(`${API_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (res.status === 403) {
+    const body = (await res
+      .clone()
+      .json()
+      .catch(() => null)) as { code?: string; message?: string } | null;
+    if (body?.code === "EMAIL_NOT_VERIFIED") {
+      throw new EmailNotVerifiedError(body.message ?? "Підтвердь email");
+    }
+  }
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
+export async function verifyEmailRequest(
+  token: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/api/auth/verify-email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
+export async function resendVerificationRequest(
+  email: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/api/auth/resend-verification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.trim() }),
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
+export async function forgotPasswordRequest(
+  email: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.trim() }),
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
+export async function resetPasswordRequest(input: {
+  token: string;
+  password: string;
+}): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/api/auth/reset-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

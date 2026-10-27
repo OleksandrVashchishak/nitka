@@ -469,7 +469,7 @@ position: absolute;
   margin-top: 150px;
 }
 
-@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) {
   .fata-mobile-copy {
     opacity: 0;
     transform: translateY(36px);
@@ -478,6 +478,12 @@ position: absolute;
   .fata-dl {
     opacity: 0;
     transform: translateX(-71px) translateY(36px);
+  }
+
+  @media (max-width: 1023px) {
+    .fata-dl {
+      transform: translateY(36px);
+    }
   }
 }
 
@@ -827,29 +833,40 @@ position: absolute;
   }
 
   .fata-mobile {
-    padding-top: 72px;
+    height: calc(100vh - var(--fata-header-h, 72px));
+    height: calc(100svh - var(--fata-header-h, 72px));
+    padding-top: 0;
     padding-bottom: 0;
   }
 
   .fata-mobile-stage {
     flex-direction: column;
-    padding: 56px 0;
-    gap: 32px;
+    justify-content: center;
+    padding: 24px 0;
+    gap: 20px;
   }
 
   .fata-mobile-band {
-    height: calc(100% - 72px);
-    top: 72px;
+    height: 100%;
+    top: 0;
   }
 
   .fata-phrase {
     top: 38%;
     font-size: 51.89px;
+    line-height: 0.8;
+  }
+
+  .fata-phrase span {
+    font-size: 53.75px;
+    text-transform: uppercase;
   }
 
   .fata-phone {
     order: -1;
-    height: 560px;
+    height: min(560px, calc(100svh - var(--fata-header-h, 72px) - 260px));
+    min-height: 240px;
+    transform: none;
   }
 
   .fata-dl,
@@ -863,18 +880,41 @@ position: absolute;
 
   .fata-mobile-copy p {
     max-width: none;
-    text-align: center;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
   }
 
   .fata-features {
-    --fata-feature-stack-h: 88px;
+    --fata-feature-stack-h: 72px;
+  }
+
+  /* Each card is one stack step shorter than the previous → at section end the stuck
+     titles leave in order, 1 step apart, instead of being covered by the next card. */
+  .fata-feature {
+    --fata-feature-min-h: 560px;
+    min-height: calc(var(--fata-feature-min-h) + 3 * var(--fata-feature-stack-h));
+
+    &:nth-child(2) {
+      min-height: calc(var(--fata-feature-min-h) + 2 * var(--fata-feature-stack-h));
+    }
+
+    &:nth-child(3) {
+      min-height: calc(var(--fata-feature-min-h) + var(--fata-feature-stack-h));
+    }
+
+    &:nth-child(4) {
+      min-height: var(--fata-feature-min-h);
+    }
   }
 
   .fata-feature-head {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 16px clamp(16px, 5.13vw, 28px);
+    grid-template-columns: 44px minmax(0, 1fr);
+    height: var(--fata-feature-stack-h);
+    padding: 0 clamp(16px, 5.13vw, 28px);
     border-top-width: 1px;
-    align-items: start;
+    align-items: center;
   }
 
   .fata-feature-main {
@@ -883,14 +923,14 @@ position: absolute;
   }
 
   .fata-feature-n {
-    font-size: clamp(40px, 12vw, 56px);
-    line-height: 0.82;
-    margin: 0 0 6px;
+    font-size: 36px;
+    line-height: 1;
+    margin: 0;
   }
 
   .fata-feature h3 {
     margin: 0;
-    font-size: 32px;
+    font-size: 22px;
     line-height: 1.1;
     overflow-wrap: break-word;
   }

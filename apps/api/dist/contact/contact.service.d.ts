@@ -6,9 +6,10 @@ export declare class ContactService {
     private readonly prisma;
     private readonly email;
     constructor(prisma: PrismaService, email: EmailService);
-    create(dto: CreateContactDto): import(".prisma/client").Prisma.Prisma__ContactMessageClient<{
+    create(dto: CreateContactDto): Promise<{
         id: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    }>;
+    private notifyAdmin;
     list(params?: {
         page?: number;
         limit?: number;

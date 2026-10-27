@@ -3,7 +3,7 @@ import { CreateContactDto } from './dto/create-contact.dto';
 export declare class ContactController {
     private readonly contact;
     constructor(contact: ContactService);
-    create(dto: CreateContactDto): import(".prisma/client").Prisma.Prisma__ContactMessageClient<{
+    create(dto: CreateContactDto): Promise<{
         id: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    }>;
 }

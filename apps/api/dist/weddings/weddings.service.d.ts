@@ -1,3 +1,4 @@
+import { EmailService } from '../email/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -6,7 +7,8 @@ import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 export declare class WeddingsService {
     private readonly prisma;
     private readonly notifications;
-    constructor(prisma: PrismaService, notifications: NotificationsService);
+    private readonly email;
+    constructor(prisma: PrismaService, notifications: NotificationsService, email: EmailService);
     private loadWeddingWithMeta;
     private attachTaskAssignees;
     private setTaskAssignee;
@@ -134,10 +136,11 @@ export declare class WeddingsService {
         seatingDraft: import("@prisma/client/runtime/library").JsonValue | null;
         seatingPlan: import("@prisma/client/runtime/library").JsonValue | null;
     } | null>;
-    createPartnerInvite(userId: string): Promise<{
+    createPartnerInvite(userId: string, partnerEmail?: string): Promise<{
         token: string;
         expiresAt: Date;
         path: string;
+        emailed: boolean;
     }>;
     getPartnerInvitePreview(token: string): Promise<{
         token: string;

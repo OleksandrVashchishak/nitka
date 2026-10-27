@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
           "/moyi-pidryadnyky",
           "/login",
           "/forgot-password",
+          "/reset-password",
           "/confirm-email",
           "/email-confirmed",
           "/verify-email",

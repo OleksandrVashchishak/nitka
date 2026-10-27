@@ -14,6 +14,7 @@ import {
   absoluteUrl,
   DEFAULT_OG_IMAGE,
   getSiteUrl,
+  noIndexRobots,
   SITE_NAME,
   truncateMeta,
 } from "@/lib/site";
@@ -29,10 +30,15 @@ type Props = {
   searchParams: Promise<{ q?: string; city?: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
   const { slug } = await params;
   const topic = await getContentTopic(slug);
   if (topic) {
+    const { q, city } = await searchParams;
+    const isFiltered = Boolean(q || city);
     const title = `${topic.name} — гайди з планування весілля`;
     const description =
       topic.description || `Статті про ${topic.name.toLowerCase()} на fata.studio.`;
@@ -41,7 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title,
       description,
-      alternates: { canonical: path },
+      alternates: { canonical: isFiltered ? undefined : path },
+      ...(isFiltered ? { robots: noIndexRobots } : {}),
       openGraph: {
         title,
         description,

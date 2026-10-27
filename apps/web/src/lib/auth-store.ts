@@ -61,6 +61,12 @@ export const useAuthStore = create<AuthState>()(
         if (!options?.silent) {
           toast.success("Акаунт створено", "Ласкаво просимо");
         }
+        if (data.verificationRequired) {
+          toast.info(
+            "Підтвердь email",
+            `Ми надіслали лист на ${data.user.email}`,
+          );
+        }
       },
 
       logout: async () => {

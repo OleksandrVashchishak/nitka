@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WeddingsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const email_service_1 = require("../email/email.service");
 const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const task_assignee_1 = require("./task-assignee");
@@ -35,9 +36,10 @@ const MEMBER_INCLUDE = {
     user: { select: { id: true, name: true, email: true } },
 };
 let WeddingsService = class WeddingsService {
-    constructor(prisma, notifications) {
+    constructor(prisma, notifications, email) {
         this.prisma = prisma;
         this.notifications = notifications;
+        this.email = email;
     }
     async loadWeddingWithMeta(weddingId, userId) {
         const wedding = await this.prisma.wedding.findUnique({
@@ -267,7 +269,7 @@ let WeddingsService = class WeddingsService {
         });
         return this.loadWeddingWithMeta(wedding.id, userId);
     }
-    async createPartnerInvite(userId) {
+    async createPartnerInvite(userId, partnerEmail) {
         const { wedding } = await (0, wedding_access_1.requireWeddingOwner)(this.prisma, userId);
         const partnerCount = await this.prisma.weddingMember.count({
             where: { weddingId: wedding.id, role: client_1.WeddingMemberRole.PARTNER },
@@ -283,10 +285,32 @@ let WeddingsService = class WeddingsService {
                 expiresAt,
             },
         });
+        const path = `/partner-invite/${invite.token}`;
+        let emailed = false;
+        if (partnerEmail) {
+            const inviter = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { name: true },
+            });
+            const rendered = this.email.renderSimple({
+                title: 'Вас запрошують планувати весілля разом',
+                body: `${inviter?.name?.trim() || 'Ваш партнер'} запрошує вас до спільного кабінету весілля у fata.studio. Посилання діє 14 днів.`,
+                ctaLabel: 'Прийняти запрошення',
+                ctaUrl: `${this.email.webUrl}${path}`,
+            });
+            const result = await this.email.send({
+                to: partnerEmail.trim().toLowerCase(),
+                subject: 'Запрошення до весілля — fata.studio',
+                text: rendered.text,
+                html: rendered.html,
+            });
+            emailed = result.sent || result.dryRun;
+        }
         return {
             token: invite.token,
             expiresAt: invite.expiresAt,
-            path: `/partner-invite/${invite.token}`,
+            path,
+            emailed,
         };
     }
     async getPartnerInvitePreview(token) {
@@ -524,6 +548,7 @@ exports.WeddingsService = WeddingsService;
 exports.WeddingsService = WeddingsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        notifications_service_1.NotificationsService])
+        notifications_service_1.NotificationsService,
+        email_service_1.EmailService])
 ], WeddingsService);
 //# sourceMappingURL=weddings.service.js.map

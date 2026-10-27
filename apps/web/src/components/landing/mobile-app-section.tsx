@@ -28,12 +28,16 @@ export function MobileAppSection() {
       const mm = gsap.matchMedia();
 
       mm.add(
-        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        "(prefers-reduced-motion: no-preference)",
         () => {
+          const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+          // Layout offsets from CSS: desktop shifts phone/CTA, mobile stacks them.
+          const phoneX = isDesktop ? -32 : 0;
+          const ctaX = isDesktop ? -71 : 0;
           const travel = () =>
             Math.round(
               (phrase.scrollWidth + window.innerWidth) * 0.7 +
-                window.innerHeight * 0.35,
+                window.innerHeight * (isDesktop ? 0.35 : 0.2),
             );
           const headerOffset = () => {
             const header = document.querySelector(".fata-site-header");
@@ -51,12 +55,12 @@ export function MobileAppSection() {
 
           // CTA keeps its layout offset (CSS translateX(-71px)); animate y+opacity only.
           gsap.set(copy, { opacity: 0, y: 36 });
-          gsap.set(cta, { opacity: 0, x: -71, y: 36 });
+          gsap.set(cta, { opacity: 0, x: ctaX, y: 36 });
           gsap.set(band, { y: 0, force3D: true });
           // Keep CSS translateX(-32px) under GSAP so runway y doesn't wipe it
           if (phone) {
             gsap.set(phone, {
-              x: -32,
+              x: phoneX,
               y: 40,
               rotateX: 0,
               rotateY: 0,
@@ -80,7 +84,7 @@ export function MobileAppSection() {
 
           gsap.to(cta, {
             opacity: 1,
-            x: -71,
+            x: ctaX,
             y: 0,
             duration: 1.2,
             delay: 0.12,
@@ -95,7 +99,7 @@ export function MobileAppSection() {
           // Phone settles before pin — low scrub so it doesn't lag into the lock
           if (phone) {
             gsap.to(phone, {
-              x: -32,
+              x: phoneX,
               y: 0,
               ease: "none",
               scrollTrigger: {
@@ -145,9 +149,9 @@ export function MobileAppSection() {
             pinTl.to(
               phone,
               {
-                y: -42,
-                rotateY: -7,
-                rotateX: 3.5,
+                y: isDesktop ? -42 : -20,
+                rotateY: isDesktop ? -7 : -4,
+                rotateX: isDesktop ? 3.5 : 2,
                 ease: "none",
               },
               0,
@@ -161,7 +165,7 @@ export function MobileAppSection() {
       );
 
       mm.add(
-        "(max-width: 1023px), (prefers-reduced-motion: reduce)",
+        "(prefers-reduced-motion: reduce)",
         () => {
           const phone = section.querySelector<HTMLElement>(".fata-phone");
           gsap.set(phrase, {

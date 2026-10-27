@@ -5,6 +5,17 @@
 const { PrismaClient } = require('@prisma/client');
 
 const STATEMENTS = [
+  // Підтвердження email: існуючих користувачів вважаємо підтвердженими (один раз, при створенні колонки).
+  `DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'email_verified_at'
+  ) THEN
+    ALTER TABLE users ADD COLUMN email_verified_at TIMESTAMP(3);
+    UPDATE users SET email_verified_at = created_at;
+  END IF;
+END $$`,
+
   `DO $$ BEGIN
   CREATE TYPE "TaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
 EXCEPTION WHEN duplicate_object THEN null;

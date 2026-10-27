@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { AuthUser } from '../auth/current-user.decorator';
+import { PartnerInviteDto } from './dto/partner-invite.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
@@ -138,10 +139,11 @@ export declare class WeddingsController {
             counts: Record<string, number>;
         };
     } | null>;
-    createPartnerInvite(user: AuthUser): Promise<{
+    createPartnerInvite(user: AuthUser, dto: PartnerInviteDto): Promise<{
         token: string;
         expiresAt: Date;
         path: string;
+        emailed: boolean;
     }>;
     removePartner(user: AuthUser): Promise<{
         tasks: ({

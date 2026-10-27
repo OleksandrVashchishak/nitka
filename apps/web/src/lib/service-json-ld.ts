@@ -36,7 +36,7 @@ export function buildServiceJsonLd({
         url: siteUrl,
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/landing/logo-dark.svg`,
+          url: `${siteUrl}/landing/logo-512.png`,
         },
       },
       {
@@ -121,7 +121,7 @@ export function buildHomeJsonLd() {
         url: siteUrl,
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/landing/logo-dark.svg`,
+          url: `${siteUrl}/landing/logo-512.png`,
         },
       },
       {

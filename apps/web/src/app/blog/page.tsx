@@ -17,7 +17,7 @@ type Props = {
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const { page: pageRaw } = await searchParams;
+  const { page: pageRaw, q, city } = await searchParams;
   const page = Math.max(1, Number(pageRaw) || 1);
   const base = {
     title: "Гайди з планування весілля",
@@ -33,6 +33,13 @@ export async function generateMetadata({
       images: [DEFAULT_OG_IMAGE],
     },
   };
+  if (q || city) {
+    return {
+      ...base,
+      alternates: { canonical: undefined },
+      robots: noIndexRobots,
+    };
+  }
   if (page > 1) {
     return {
       ...base,

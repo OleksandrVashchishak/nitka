@@ -15,6 +15,7 @@ function shouldHideHeader(pathname: string) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/partner-invite") ||
     pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password") ||
     pathname.startsWith("/confirm-email") ||
     pathname.startsWith("/email-confirmed") ||
     pathname.startsWith("/verify-email") ||

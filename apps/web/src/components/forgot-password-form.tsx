@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLogo, AuthSplitShell } from "@/components/auth-split-shell";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/ui/text-input";
+import { forgotPasswordRequest } from "@/lib/auth-api";
 import { toast } from "@/lib/toast";
 
 function ForgotPasswordFormInner() {
@@ -23,15 +24,16 @@ function ForgotPasswordFormInner() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Backend endpoint for reset still pending — keep UI ready.
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await forgotPasswordRequest(email);
       const params = new URLSearchParams({
         email: email.trim(),
         flow: "forgot",
       });
       router.push(`/confirm-email?${params.toString()}`);
-    } catch {
-      toast.error("Не вдалось надіслати інструкції");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Не вдалось надіслати інструкції",
+      );
     } finally {
       setLoading(false);
     }

@@ -44,6 +44,7 @@ model User {
   role             Role     @default(COUPLE)
   blocked          Boolean  @default(false)
   refreshTokenHash String?  @map("refresh_token_hash")
+  emailVerifiedAt  DateTime? @map("email_verified_at")
   notifGuestRsvp         Boolean  @default(true)  @map("notif_guest_rsvp")
   notifUpcomingPayments  Boolean  @default(false) @map("notif_upcoming_payments")
   notifTaskDeadlines     Boolean  @default(false) @map("notif_task_deadlines")

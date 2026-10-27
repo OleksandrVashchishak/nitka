@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { TaskStatus, WeddingMemberRole } from '@prisma/client';
+import { EmailService } from '../email/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -46,6 +47,7 @@ export class WeddingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly email: EmailService,
   ) {}
 
   private async loadWeddingWithMeta(weddingId: string, userId: string) {
@@ -317,7 +319,7 @@ export class WeddingsService {
     return this.loadWeddingWithMeta(wedding.id, userId);
   }
 
-  async createPartnerInvite(userId: string) {
+  async createPartnerInvite(userId: string, partnerEmail?: string) {
     const { wedding } = await requireWeddingOwner(this.prisma, userId);
 
     const partnerCount = await this.prisma.weddingMember.count({
@@ -337,10 +339,34 @@ export class WeddingsService {
       },
     });
 
+    const path = `/partner-invite/${invite.token}`;
+
+    let emailed = false;
+    if (partnerEmail) {
+      const inviter = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true },
+      });
+      const rendered = this.email.renderSimple({
+        title: 'Вас запрошують планувати весілля разом',
+        body: `${inviter?.name?.trim() || 'Ваш партнер'} запрошує вас до спільного кабінету весілля у fata.studio. Посилання діє 14 днів.`,
+        ctaLabel: 'Прийняти запрошення',
+        ctaUrl: `${this.email.webUrl}${path}`,
+      });
+      const result = await this.email.send({
+        to: partnerEmail.trim().toLowerCase(),
+        subject: 'Запрошення до весілля — fata.studio',
+        text: rendered.text,
+        html: rendered.html,
+      });
+      emailed = result.sent || result.dryRun;
+    }
+
     return {
       token: invite.token,
       expiresAt: invite.expiresAt,
-      path: `/partner-invite/${invite.token}`,
+      path,
+      emailed,
     };
   }
 

@@ -15,15 +15,42 @@ export class ContactService {
     private readonly email: EmailService,
   ) {}
 
-  create(dto: CreateContactDto) {
-    return this.prisma.contactMessage.create({
-      data: {
-        name: dto.name.trim(),
-        email: dto.email.trim().toLowerCase(),
-        message: dto.message.trim(),
-      },
+  async create(dto: CreateContactDto) {
+    const name = dto.name.trim();
+    const email = dto.email.trim().toLowerCase();
+    const message = dto.message.trim();
+    const created = await this.prisma.contactMessage.create({
+      data: { name, email, message },
       select: { id: true },
     });
+    void this.notifyAdmin({ name, email, message });
+    return created;
+  }
+
+  private async notifyAdmin(input: {
+    name: string;
+    email: string;
+    message: string;
+  }) {
+    const to = (
+      process.env.ADMIN_NOTIFY_EMAIL || process.env.SUPERADMIN_EMAIL || ''
+    ).trim();
+    if (!to.includes('@')) return;
+
+    const rendered = this.email.renderSimple({
+      title: 'Нове звернення з сайту',
+      body: `${input.name} <${input.email}>\n\n${input.message}`,
+      ctaLabel: 'Відкрити в адмінці',
+      ctaUrl: `${this.email.webUrl}/admin`,
+    });
+    await this.email
+      .send({
+        to,
+        subject: `Нове звернення від ${input.name} — fata.studio`,
+        text: rendered.text,
+        html: rendered.html,
+      })
+      .catch(() => undefined);
   }
 
   async list(params?: { page?: number; limit?: number }) {

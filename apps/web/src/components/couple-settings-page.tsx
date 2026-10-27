@@ -312,20 +312,25 @@ function CoupleSettingsInner() {
     }
   }
 
-  async function copyInviteLink() {
-    const invite = await createPartnerInvite();
+  async function copyInviteLink(email?: string) {
+    const invite = await createPartnerInvite(email);
     const url = `${window.location.origin}${invite.path}`;
     await navigator.clipboard.writeText(url);
-    toast.success("Лінк скопійовано", "Надішли партнеру — діятиме 14 днів");
+    toast.success(
+      "Лінк скопійовано",
+      invite.emailed
+        ? "Лист із запрошенням надіслано — діятиме 14 днів"
+        : "Надішли партнеру — діятиме 14 днів",
+    );
   }
 
-  async function onCopyInvite(input: { name: string }) {
+  async function onCopyInvite(input: { name: string; email: string }) {
     setInviteBusy(true);
     try {
       if (input.name) {
         await persistWeddingPatch({ partnerTwoName: input.name });
       }
-      await copyInviteLink();
+      await copyInviteLink(input.email || undefined);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не створено лінк");
     } finally {

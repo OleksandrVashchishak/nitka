@@ -19,6 +19,7 @@ const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
+const partner_invite_dto_1 = require("./dto/partner-invite.dto");
 const create_task_dto_1 = require("./dto/create-task.dto");
 const update_task_dto_1 = require("./dto/update-task.dto");
 const upsert_wedding_dto_1 = require("./dto/upsert-wedding.dto");
@@ -44,8 +45,8 @@ let WeddingsController = class WeddingsController {
     getInsights(user) {
         return this.weddingsService.getInsights(user.id);
     }
-    createPartnerInvite(user) {
-        return this.weddingsService.createPartnerInvite(user.id);
+    createPartnerInvite(user, dto) {
+        return this.weddingsService.createPartnerInvite(user.id, dto.email);
     }
     removePartner(user) {
         return this.weddingsService.removePartner(user.id);
@@ -110,8 +111,9 @@ __decorate([
     (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, partner_invite_dto_1.PartnerInviteDto]),
     __metadata("design:returntype", void 0)
 ], WeddingsController.prototype, "createPartnerInvite", null);
 __decorate([

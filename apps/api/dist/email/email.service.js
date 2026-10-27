@@ -35,6 +35,9 @@ let EmailService = EmailService_1 = class EmailService {
                 : undefined,
         });
     }
+    get canSend() {
+        return Boolean(this.transporter);
+    }
     get enabled() {
         return Boolean(this.transporter) || process.env.EMAIL_LOG === '1';
     }

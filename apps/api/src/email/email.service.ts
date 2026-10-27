@@ -31,6 +31,11 @@ export class EmailService {
     });
   }
 
+  /** Є справжній SMTP (а не лише dry-run лог). */
+  get canSend() {
+    return Boolean(this.transporter);
+  }
+
   get enabled() {
     return Boolean(this.transporter) || process.env.EMAIL_LOG === '1';
   }

@@ -7,6 +7,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/ui/text-input";
 import { BrandLogo } from "@/components/brand-logo";
+import {
+  EmailNotVerifiedError,
+  resendVerificationRequest,
+} from "@/lib/auth-api";
 import { useAuthStore } from "@/lib/auth-store";
 import { getHomePath } from "@/lib/routes";
 import { getErrorMessage, toast } from "@/lib/toast";
@@ -28,6 +32,13 @@ export function LoginForm() {
       const role = useAuthStore.getState().user?.role;
       router.push(getHomePath(role));
     } catch (err) {
+      if (err instanceof EmailNotVerifiedError) {
+        await resendVerificationRequest(email).catch(() => undefined);
+        router.push(
+          `/confirm-email?flow=register&email=${encodeURIComponent(email.trim())}`,
+        );
+        return;
+      }
       toast.error(getErrorMessage(err, "Не вдалось увійти"));
     } finally {
       setLoading(false);

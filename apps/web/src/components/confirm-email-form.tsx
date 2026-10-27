@@ -5,6 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AuthLogo, AuthSplitShell } from "@/components/auth-split-shell";
 import { Button } from "@/components/ui/button";
+import {
+  forgotPasswordRequest,
+  resendVerificationRequest,
+} from "@/lib/auth-api";
 import { toast } from "@/lib/toast";
 
 const RESEND_COOLDOWN_MS = 30_000;
@@ -31,10 +35,15 @@ export function ConfirmEmailForm() {
 
     setLoading(true);
     try {
-      // Backend email endpoint still pending — keep UI ready.
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      if (flow === "forgot") {
+        await forgotPasswordRequest(email);
+      } else {
+        await resendVerificationRequest(email);
+      }
       setLastSentAt(Date.now());
       toast.success("Лист надіслано повторно");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не вдалось надіслати");
     } finally {
       setLoading(false);
     }

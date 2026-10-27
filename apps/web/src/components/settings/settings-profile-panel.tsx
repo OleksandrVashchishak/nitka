@@ -24,7 +24,10 @@ type Props = {
     currentPassword: string;
     newPassword: string;
   }) => Promise<void> | void;
-  onCopyInvite: (input: { name: string }) => Promise<void> | void;
+  onCopyInvite: (input: {
+    name: string;
+    email: string;
+  }) => Promise<void> | void;
   onRemovePartner: () => Promise<void> | void;
 };
 

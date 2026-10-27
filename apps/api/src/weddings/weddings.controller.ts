@@ -15,6 +15,7 @@ import type { Response } from 'express';
 import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
+import { PartnerInviteDto } from './dto/partner-invite.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
@@ -61,8 +62,11 @@ export class WeddingsController {
   @Post('me/partner-invite')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.COUPLE)
-  createPartnerInvite(@CurrentUser() user: AuthUser) {
-    return this.weddingsService.createPartnerInvite(user.id);
+  createPartnerInvite(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: PartnerInviteDto,
+  ) {
+    return this.weddingsService.createPartnerInvite(user.id, dto.email);
   }
 
   @Delete('me/partner')

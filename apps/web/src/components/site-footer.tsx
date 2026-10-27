@@ -31,6 +31,7 @@ const HIDDEN_PREFIXES = [
   "/login",
   "/partner-invite",
   "/forgot-password",
+  "/reset-password",
   "/confirm-email",
   "/email-confirmed",
   "/verify-email",

@@ -17,7 +17,10 @@ type Props = {
   status: PartnerInviteStatus;
   partner: PartnerInviteInfo | null;
   busy?: boolean;
-  onCopyInvite: (input: { name: string }) => Promise<void> | void;
+  onCopyInvite: (input: {
+    name: string;
+    email: string;
+  }) => Promise<void> | void;
   onRemove: () => Promise<void> | void;
 };
 
@@ -76,6 +79,7 @@ export function SettingsPartnerCard({
   onRemove,
 }: Props) {
   const [name, setName] = useState(partner?.name ?? "");
+  const [inviteEmail, setInviteEmail] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
@@ -85,7 +89,7 @@ export function SettingsPartnerCard({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    await onCopyInvite({ name: name.trim() });
+    await onCopyInvite({ name: name.trim(), email: inviteEmail.trim() });
   }
 
   async function handleConfirmRemove() {
@@ -114,6 +118,15 @@ export function SettingsPartnerCard({
             onChange={(e) => setName(e.target.value)}
             placeholder="Роман"
             required
+          />
+          <TextInput
+            label="Email партнера"
+            size="m"
+            type="email"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            placeholder="name@example.com"
+            hint="Необов'язково — надішлемо лист із запрошенням"
           />
           <div className="cabinet-settings-card-actions">
             <Button type="submit" tone="ink" size="m" loading={busy}>

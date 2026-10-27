@@ -388,7 +388,7 @@ async function ensureAdmin(passwordHash: string) {
 
     where: { email: 'admin@nitka.local' },
 
-    update: { name: 'Admin', role: 'COUPLE', password: passwordHash },
+    update: { name: 'Admin', role: 'COUPLE', emailVerifiedAt: new Date(), password: passwordHash },
 
     create: {
 
@@ -396,7 +396,7 @@ async function ensureAdmin(passwordHash: string) {
 
       name: 'Admin',
 
-      role: 'COUPLE',
+      role: 'COUPLE', emailVerifiedAt: new Date(),
 
       password: passwordHash,
 
@@ -700,7 +700,7 @@ async function seedCouple(passwordHash: string) {
 
       name: 'Марія і Андрій',
 
-      role: 'COUPLE',
+      role: 'COUPLE', emailVerifiedAt: new Date(),
 
       password: passwordHash,
 
@@ -712,7 +712,7 @@ async function seedCouple(passwordHash: string) {
 
       name: 'Марія і Андрій',
 
-      role: 'COUPLE',
+      role: 'COUPLE', emailVerifiedAt: new Date(),
 
       password: passwordHash,
 
@@ -730,7 +730,7 @@ async function seedCouple(passwordHash: string) {
 
       name: 'Катя і Саша',
 
-      role: 'COUPLE',
+      role: 'COUPLE', emailVerifiedAt: new Date(),
 
       password: passwordHash,
 
@@ -742,7 +742,7 @@ async function seedCouple(passwordHash: string) {
 
       name: 'Катя і Саша',
 
-      role: 'COUPLE',
+      role: 'COUPLE', emailVerifiedAt: new Date(),
 
       password: passwordHash,
 

@@ -142,15 +142,17 @@ export function getMyWedding() {
 
 
 
-export function createPartnerInvite() {
+export function createPartnerInvite(email?: string) {
 
-  return apiFetch<{ token: string; expiresAt: string; path: string }>(
-
-    "/api/weddings/me/partner-invite",
-
-    { method: "POST" },
-
-  );
+  return apiFetch<{
+    token: string;
+    expiresAt: string;
+    path: string;
+    emailed: boolean;
+  }>("/api/weddings/me/partner-invite", {
+    method: "POST",
+    body: JSON.stringify(email ? { email } : {}),
+  });
 
 }
 
