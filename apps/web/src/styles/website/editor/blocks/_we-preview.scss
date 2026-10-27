@@ -152,6 +152,17 @@
     padding: 8px 16px 16px;
     min-height: 0;
 
+    &__toolbar,
+    &__chrome {
+      display: none;
+    }
+
+    &__browser,
+    &__browser--mobile {
+      border-radius: 16px 16px 0 0;
+      box-shadow: none;
+    }
+
     &__stage {
       align-items: stretch;
     }

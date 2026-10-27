@@ -26,12 +26,6 @@ type Props = {
   onNamesChange: (bride: string, groom: string) => void;
 };
 
-function splitHeadline(headline: string): [string, string] {
-  const parts = headline.split(/\s+(?:та|and|&)\s+/i);
-  if (parts.length >= 2) return [parts[0].trim(), parts.slice(1).join(" ").trim()];
-  return [headline.trim(), ""];
-}
-
 export function WebsiteEditorContentTab({
   content,
   brideName,
@@ -120,8 +114,8 @@ export function WebsiteEditorContentTab({
     });
   }
 
-  const bride = brideName || splitHeadline(content.headline)[0];
-  const groom = groomName || splitHeadline(content.headline)[1];
+  const bride = brideName;
+  const groom = groomName;
 
   return (
     <section className="we-blocks" aria-labelledby="we-blocks-title">

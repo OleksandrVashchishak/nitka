@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { IconClose } from "@/components/icon-close";
 import { RequireAuth } from "@/components/require-auth";
 import { PageLoader } from "@/components/ui-loader";
 import {
@@ -354,13 +355,17 @@ function WebsiteEditorInner() {
               mobilePreviewOpen ? " we-editor__preview-wrap--open" : ""
             }`}
           >
-            <button
-              type="button"
-              className="we-editor__preview-close"
-              onClick={() => setMobilePreviewOpen(false)}
-            >
-              Закрити передогляд
-            </button>
+            <div className="we-editor__preview-head">
+              <h2 className="we-editor__preview-title">Передогляд сайту</h2>
+              <button
+                type="button"
+                className="we-editor__preview-close"
+                aria-label="Закрити передогляд"
+                onClick={() => setMobilePreviewOpen(false)}
+              >
+                <IconClose size={24} />
+              </button>
+            </div>
             <WebsiteEditorPreview
               mode={previewMode}
               onModeChange={setPreviewMode}
