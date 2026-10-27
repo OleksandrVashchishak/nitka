@@ -7,7 +7,7 @@ import {
 } from "@/lib/content-api";
 import { ContentCard } from "@/components/content-card";
 import { ContentBlogHero } from "@/components/content-blog-hero";
-import { noIndexRobots } from "@/lib/site";
+import { DEFAULT_OG_IMAGE, noIndexRobots } from "@/lib/site";
 import "@/styles/blog/blog.scss";
 
 type Props = {
@@ -30,6 +30,7 @@ export async function generateMetadata({
         "Практичні гайди: чеклист, бюджет, гості, запрошення і план дня.",
       url: "/blog",
       type: "website" as const,
+      images: [DEFAULT_OG_IMAGE],
     },
   };
   if (page > 1) {

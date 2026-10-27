@@ -69,6 +69,7 @@ const FEATURES = [
     n: "01",
     title: "Планування",
     img: "/landing/feat-1.jpg",
+    alt: "Рука нареченої з каблучкою на тлі моря",
     points: [
       {
         title: "Персоналізований чекліст та таймлайн",
@@ -84,6 +85,7 @@ const FEATURES = [
     n: "02",
     title: "Гості, запрошення та зв’язок",
     img: "/landing/feat-2.jpg",
+    alt: "Онлайн-запрошення на весілля на екранах двох смартфонів",
     points: [
       {
         title: "Конструктор сайтів-запрошень",
@@ -99,6 +101,7 @@ const FEATURES = [
     n: "03",
     title: "Фінанси та окупність",
     img: "/landing/feat-3.jpg",
+    alt: "Скринька для весільних конвертів із квітами та написом «Весілля»",
     points: [
       {
         title: "Бюджет без сюрпризів",
@@ -114,6 +117,7 @@ const FEATURES = [
     n: "04",
     title: "Візуалізація та Print Studio",
     img: "/landing/feat-4.jpg",
+    alt: "Схема розсадки гостей за столами з ілюстрацією танцюючої пари",
     points: [
       {
         title: "Готові макети для поліграфії",
@@ -158,7 +162,7 @@ function FeaturesStack() {
               <div className="fata-feature-img">
                 <Image
                   src={feature.img}
-                  alt=""
+                  alt={feature.alt}
                   fill
                   sizes="(max-width: 1023px) 100vw, 390px"
                 />
@@ -564,13 +568,13 @@ function HeroArtboard() {
               <p className="fata-tagline">
                 Єдина платформа <em>для всіх весільних завдань</em>
               </p>
-              <h1 className="fata-title">
+              <div role="heading" aria-level={1} className="fata-title">
                 <span className="fata-title-serif">
                   <span className="fata-title-you">Ваше</span>{" "}
                   <span className="fata-title-fill">ВЕСІЛЛЯ</span>
                 </span>
                 <span className="fata-title-sans">починається тут</span>
-              </h1>
+              </div>
               <p className="fata-desc">
                 Плануйте бюджет, запрошуйте гостей, ведіть списки справ,
                 контролюйте таймлайни — усе вдвох, в одному місці і без зайвого
@@ -582,7 +586,7 @@ function HeroArtboard() {
               <div ref={photoMediaRef} className="fata-photo-media">
                 <Image
                   src="/landing/hero-photo.jpg"
-                  alt="Сукня нареченої"
+                  alt="Руки застібають ґудзики на білій весільній сукні нареченої"
                   fill
                   priority
                   sizes="555px"
@@ -612,7 +616,7 @@ function HeroArtboard() {
           <div className="fata-m-photo">
             <Image
               src="/landing/hero-photo.jpg"
-              alt="Сукня нареченої"
+              alt="Руки застібають ґудзики на білій весільній сукні нареченої"
               fill
               className="object-cover"
               sizes="(max-width: 1023px) 100vw, 555px"
@@ -636,11 +640,21 @@ export function HomeLanding() {
       <section className="fata-sec2">
         <div className="fata-sec2-photos">
           <RevealPhoto>
-            <Image src="/landing/compare-1.jpg" alt="" fill sizes="42vw" />
+            <Image
+              src="/landing/compare-1.jpg"
+              alt="Наречений і наречена йдуть, тримаючись за руки, чорно-біле фото"
+              fill
+              sizes="42vw"
+            />
           </RevealPhoto>
 
           <RevealPhoto>
-            <Image src="/landing/compare-2.jpg" alt="" fill sizes="42vw" />
+            <Image
+              src="/landing/compare-2.jpg"
+              alt="Наречений надягає каблучку нареченій на палець, чорно-біле фото"
+              fill
+              sizes="42vw"
+            />
           </RevealPhoto>
 
           <RevealPhoto>

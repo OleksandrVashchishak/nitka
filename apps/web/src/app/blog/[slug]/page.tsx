@@ -10,7 +10,13 @@ import {
   getContentTopic,
   getContentTopics,
 } from "@/lib/content-api";
-import { absoluteUrl, getSiteUrl, SITE_NAME, truncateMeta } from "@/lib/site";
+import {
+  absoluteUrl,
+  DEFAULT_OG_IMAGE,
+  getSiteUrl,
+  SITE_NAME,
+  truncateMeta,
+} from "@/lib/site";
 import { renderEditorJsHtml } from "@/components/content-blocks";
 import { ContentCard } from "@/components/content-card";
 import { ContentBlogHero } from "@/components/content-blog-hero";
@@ -54,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     post.seoDescription || post.excerpt || post.title,
   );
   const path = contentHref(post);
-  const image = absoluteUrl(post.ogImageUrl || post.coverUrl);
+  const image = absoluteUrl(post.ogImageUrl || post.coverUrl || DEFAULT_OG_IMAGE);
 
   return {
     title,

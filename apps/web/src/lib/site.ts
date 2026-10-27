@@ -14,6 +14,9 @@ export const SITE_NAME = "fata.studio";
 export const SITE_DESCRIPTION =
   "Платформа планування весілля: чекліст, бюджет, гості, запрошення та сайт пари.";
 
+/** Дефолтна OG-картинка (файл-конвенція app/opengraph-image.jpg), для сторінок зі своїм openGraph. */
+export const DEFAULT_OG_IMAGE = "/opengraph-image.jpg";
+
 /** Metadata для кабінетів / адмінки — не індексувати. */
 export const noIndexRobots = {
   index: false,

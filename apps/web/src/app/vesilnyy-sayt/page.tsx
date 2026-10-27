@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 import {
   PAGE_DESCRIPTION,
   PAGE_TITLE,
@@ -21,9 +22,11 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTION,
     url: "/vesilnyy-sayt",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    images: [DEFAULT_OG_IMAGE],
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
   },
