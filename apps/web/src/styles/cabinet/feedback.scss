@@ -32,6 +32,10 @@
       background: #fff;
     }
 
+    body:has(.cabinet-more-menu) .cabinet-feedback-page__mobile-bar {
+      display: none;
+    }
+
     &__cancel.fata-button,
     &__submit.fata-button {
       flex: 1;

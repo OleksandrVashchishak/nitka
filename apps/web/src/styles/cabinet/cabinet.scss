@@ -5875,6 +5875,10 @@ font-size: 12px;
     align-items: center;
     gap: 4px;
     margin-bottom: 28px;
+
+    .cabinet-back-title {
+      flex: 1;
+    }
   }
 
   .cabinet-day-plan-mobile-share.fata-button {

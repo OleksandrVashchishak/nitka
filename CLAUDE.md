@@ -6,7 +6,6 @@
 |-------|------|-------|
 | `apps/api` | NestJS + Prisma + Postgres | API (`:3001`, префікс `/api`) |
 | `apps/web` | Next.js (App Router) + SCSS | сайт, кабінет пари, редактор сайту, публічний `/w/[slug]` |
-| `apps/mobile` | Expo | мобільний клієнт до того ж API (див. `apps/mobile/README.md`) |
 | `scripts/` | `local.cjs`, `LOCAL.md` | локальний сетап |
 
 Прод: Render (`render.yaml`).
