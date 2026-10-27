@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconClose } from "@/components/icon-close";
 import { useToastStore, type ToastTone } from "@/lib/toast";
 
@@ -70,8 +70,34 @@ function ToastCard({
     return () => window.clearTimeout(timer);
   }, [id, onDismiss]);
 
+  const startY = useRef<number | null>(null);
+  const [dragY, setDragY] = useState(0);
+
+  const endDrag = (dismiss: boolean) => {
+    startY.current = null;
+    if (dismiss) onDismiss();
+    else setDragY(0);
+  };
+
   return (
-    <div className="pointer-events-auto animate-toast-in w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-white shadow-[0_18px_50px_rgba(22,26,23,0.16)]">
+    <div
+      className="pointer-events-auto animate-toast-in w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-white shadow-[0_18px_50px_rgba(22,26,23,0.16)]"
+      style={{
+        touchAction: "none",
+        transform: dragY ? `translateY(${dragY}px)` : undefined,
+        opacity: dragY ? Math.max(0.3, 1 + dragY / 120) : undefined,
+        transition: startY.current === null ? "transform 0.2s, opacity 0.2s" : undefined,
+      }}
+      onPointerDown={(e) => {
+        startY.current = e.clientY;
+      }}
+      onPointerMove={(e) => {
+        if (startY.current === null) return;
+        setDragY(Math.min(0, e.clientY - startY.current));
+      }}
+      onPointerUp={() => endDrag(dragY < -40)}
+      onPointerCancel={() => endDrag(false)}
+    >
       <div className={`h-1 w-full ${style.bar}`} />
       <div className="flex items-start gap-3 px-4 py-3.5">
         <span

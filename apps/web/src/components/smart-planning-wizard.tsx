@@ -36,13 +36,12 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
             {i > 0 ? <span className="smart-plan-step-line" aria-hidden /> : null}
             <span className="smart-plan-step-dot">
               {done ? (
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path
-                    d="M3.5 8.2 6.4 11l6-6.5"
+                    d="M16 9L10.5 14.5L8 12"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
-                    strokeLinejoin="round"
                   />
                 </svg>
               ) : (
@@ -148,7 +147,15 @@ export function SmartPlanningWizard({
 
       <div className="smart-plan-back-row">
         <button type="button" className="smart-plan-back" onClick={onClose}>
-          ← Назад до Завдань
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+            <path
+              d="M6.99982 2.91602L2.91602 6.99982L6.99982 11.0836M2.91602 6.99982H11.0836"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+          Назад до Завдань
         </button>
       </div>
 
@@ -278,19 +285,21 @@ export function SmartPlanningWizard({
                                   onClick={() => removePlanTask(task.id)}
                                 >
                                   <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 16 16"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 14 14"
                                     fill="none"
                                     aria-hidden
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                   >
-                                    <path
-                                      d="M3.5 4.5h9M6.5 4.5V3.25A.75.75 0 0 1 7.25 2.5h1.5a.75.75 0 0 1 .75.75V4.5m1.5 0v8.25a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1-.75-.75V4.5"
-                                      stroke="currentColor"
-                                      strokeWidth="1.2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
+                                    <path d="M12.25 3.48844C10.3075 3.29594 8.35333 3.19678 6.405 3.19678C5.25 3.19678 4.095 3.25511 2.94 3.37178L1.75 3.48844" />
+                                    <path d="M4.95801 2.899L5.08634 2.13484C5.17967 1.58067 5.24967 1.1665 6.23551 1.1665H7.76384C8.74968 1.1665 8.82551 1.604 8.91301 2.14067L9.04134 2.899" />
+                                    <path d="M10.9956 5.33154L10.6164 11.2057C10.5522 12.1215 10.4997 12.8332 8.87224 12.8332H5.12724C3.49974 12.8332 3.44724 12.1215 3.38307 11.2057L3.00391 5.33154" />
+                                    <path d="M6.02539 9.625H7.96789" />
+                                    <path d="M5.54199 7.2915H8.45866" />
                                   </svg>
                                 </button>
                               </li>

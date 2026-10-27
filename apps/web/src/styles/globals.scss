@@ -224,4 +224,12 @@ body {
   border-radius: 16px;
 }
 
+// iOS Safari зумить сторінку при фокусі на полі з font-size < 16px.
+@supports (-webkit-touch-callout: none) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
 
