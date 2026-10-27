@@ -94,13 +94,13 @@ body:has(.login-page) main {
   font-family: var(--font-sans), sans-serif;
   font-weight: 500;
   font-size: 13px;
-  line-height: 1;
+  line-height: 1.4;
   letter-spacing: 0;
   color: #ff4200;
   text-decoration: underline;
   text-decoration-style: solid;
-  text-underline-offset: 0;
-  text-decoration-skip-ink: auto;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
   cursor: pointer;
 }
 
@@ -120,8 +120,8 @@ body:has(.login-page) main {
   text-align: center;
   text-decoration: underline;
   text-decoration-style: solid;
-  text-underline-offset: 0;
-  text-decoration-skip-ink: auto;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
 }
 
 .login-back:hover {
@@ -159,7 +159,7 @@ body:has(.login-page) main {
   font-family: var(--font-sans), sans-serif;
   font-weight: 400;
   font-size: 14px;
-  line-height: 1;
+  line-height: 1.5;
   letter-spacing: 0;
   color: #1b1b19;
   text-align: center;
@@ -170,8 +170,8 @@ body:has(.login-page) main {
   color: #61040f;
   text-decoration: underline;
   text-decoration-style: solid;
-  text-underline-offset: 0;
-  text-decoration-skip-ink: auto;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
 }
 
 .login-right {

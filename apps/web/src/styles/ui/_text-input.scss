@@ -86,6 +86,20 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  /* iOS Safari: time/date інпути ігнорують height/width без цього */
+  &[type="time"],
+  &[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1em;
+  }
 }
 
 /* ——— sizes ——— */

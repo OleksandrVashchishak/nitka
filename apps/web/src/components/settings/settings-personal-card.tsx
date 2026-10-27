@@ -1,5 +1,6 @@
 "use client";
 
+import { DateInput } from "@/components/ui/date-input";
 import { TextInput } from "@/components/ui/text-input";
 
 type Props = {
@@ -48,10 +49,9 @@ export function SettingsPersonalCard({
           autoComplete="email"
           placeholder="anna@example.com"
         />
-        <TextInput
+        <DateInput
           label="Дата весілля"
-          size="m"
-          type="date"
+          inputClassName="fata-date-input__control--m"
           value={weddingDate}
           onChange={(e) => onWeddingDateChange(e.target.value)}
           onBlur={onWeddingDateBlur}

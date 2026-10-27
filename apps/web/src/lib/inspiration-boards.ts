@@ -113,24 +113,24 @@ const DEFAULT_INSPIRATION_IMAGE_SET = new Set(
   DEFAULT_INSPIRATION_BOARDS.flatMap((b) => b.images),
 );
 
-/** True when the couple has uploaded at least one of their own images. */
-export function hasUserInspirationContent(weddingId: string): boolean {
-  if (typeof window === "undefined") return false;
+/** Images the couple uploaded themselves (starter photos excluded). */
+export function userInspirationImages(weddingId: string): string[] {
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(inspirationBoardsStorageKey(weddingId));
-    if (!raw) return false;
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as InspirationBoard[];
-    if (!Array.isArray(parsed)) return false;
-    return parsed.some(
-      (b) =>
-        b &&
-        Array.isArray(b.images) &&
-        b.images.some(
-          (src) => typeof src === "string" && !DEFAULT_INSPIRATION_IMAGE_SET.has(src),
-        ),
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((b) =>
+      b && Array.isArray(b.images)
+        ? b.images.filter(
+            (src): src is string =>
+              typeof src === "string" && !DEFAULT_INSPIRATION_IMAGE_SET.has(src),
+          )
+        : [],
     );
   } catch {
-    return false;
+    return [];
   }
 }
 

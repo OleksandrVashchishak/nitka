@@ -8,6 +8,8 @@ import {
   type DragEvent,
   type PointerEvent,
 } from "react";
+import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
+import { CabinetBackButton } from "@/components/cabinet-back-title";
 import type { Guest, RsvpStatus } from "@/lib/guests-api";
 import { updateGuest } from "@/lib/guests-api";
 import { isChildGuest, parseCompanions } from "@/lib/guest-party";
@@ -43,7 +45,13 @@ import {
 } from "@/lib/seating-api";
 import { shapedSeatPosition, defaultShapedSeatCount } from "@/lib/seat-layout";
 import { toast } from "@/lib/toast";
-import { uaGuestsOfLabel } from "@/lib/ua-name-case";
+import {
+  detectUaNameGender,
+  uaGuestsOfLabel,
+  uaNameAccusative,
+  uaNameGenitive,
+  uaNameInstrumental,
+} from "@/lib/ua-name-case";
 import "@/styles/seating/plan.scss";
 
 
@@ -520,6 +528,13 @@ export function SeatingPlan({
     tableId: string;
     seatId: string;
   } | null>(null);
+  const [seatConflict, setSeatConflict] = useState<{
+    tableId: string;
+    seatId: string;
+    guestKey: string;
+    partnerKey: string;
+  } | null>(null);
+  const [conflictSwapOpen, setConflictSwapOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>("guests");
   const [isMobile, setIsMobile] = useState(false);
   const [draftSeatFilter, setDraftSeatFilter] = useState<SeatFilter>("all");
@@ -529,7 +544,9 @@ export function SeatingPlan({
   const addRef = useRef<HTMLDivElement>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
+  const canvasScrollRef = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState({ w: 0, h: 0 });
+  const [mapArea, setMapArea] = useState({ w: 0, h: 0 });
   const dragRef = useRef<{
     id: string;
     startX: number;
@@ -544,7 +561,30 @@ export function SeatingPlan({
   } | null>(null);
 
   const contentSize = useMemo(() => canvasContentSize(tables), [tables]);
+  // Mobile: fit the whole plan into the visible area (no scrolling).
+  const mobileFit = useMemo(() => {
+    if (!isMobile || mapArea.w < 1 || mapArea.h < 1) return null;
+    const scale = Math.min(
+      1,
+      mapArea.w / contentSize.width,
+      mapArea.h / contentSize.height,
+    );
+    return {
+      scale,
+      x: (mapArea.w - contentSize.width * scale) / 2,
+      y: (mapArea.h - contentSize.height * scale) / 2,
+    };
+  }, [isMobile, mapArea, contentSize]);
+  const canvasScale = mobileFit?.scale ?? 1;
   const canvasStyle = useMemo(() => {
+    if (mobileFit) {
+      return {
+        width: contentSize.width,
+        height: contentSize.height,
+        transform: `translate(${mobileFit.x}px, ${mobileFit.y}px) scale(${mobileFit.scale})`,
+        transformOrigin: "0 0",
+      };
+    }
     // Fill the visible wrap at minimum; grow only when tables need more room.
     const barReserve = 52;
     const minW = Math.max(viewport.w, 1);
@@ -553,7 +593,17 @@ export function SeatingPlan({
       width: Math.max(contentSize.width, minW),
       height: Math.max(contentSize.height, minH),
     };
-  }, [contentSize, viewport]);
+  }, [contentSize, viewport, mobileFit]);
+
+  useEffect(() => {
+    const el = canvasScrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const sync = () => setMapArea({ w: el.clientWidth, h: el.clientHeight });
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [mobileTab]);
 
   useEffect(() => {
     const el = canvasWrapRef.current;
@@ -943,6 +993,82 @@ export function SeatingPlan({
     );
   }
 
+  function partnerOf(key: string): string | null {
+    const guest = guestMap.get(key);
+    if (!guest || detachedKeys.has(key)) return null;
+    if (guest.linkedKey) {
+      return detachedKeys.has(guest.linkedKey) ? null : guest.linkedKey;
+    }
+    const companion = flat.find(
+      (g) => g.linkedKey === key && !detachedKeys.has(g.key),
+    );
+    return companion?.key ?? null;
+  }
+
+  function seatGuests(
+    tableId: string,
+    placements: { seatId: string; guestKey: string }[],
+    freeKeys: string[] = [],
+  ) {
+    const moving = new Set(placements.map((p) => p.guestKey));
+    const freed = new Set(freeKeys);
+    setTables((prev) =>
+      prev.map((table) => ({
+        ...table,
+        seats: table.seats.map((seat) => {
+          const place =
+            table.id === tableId
+              ? placements.find((p) => p.seatId === seat.id)
+              : undefined;
+          if (place) return { ...seat, guestKey: place.guestKey };
+          if (
+            seat.guestKey &&
+            (moving.has(seat.guestKey) || freed.has(seat.guestKey))
+          ) {
+            return { ...seat, guestKey: null };
+          }
+          return seat;
+        }),
+      })),
+    );
+  }
+
+  /** Посадити гостя з клікнутого місця; зв’язану пару — разом, якщо вистачає місць. */
+  function seatFromPicker(tableId: string, seatId: string, guestKey: string) {
+    const partnerKey = partnerOf(guestKey);
+    const table = tables.find((t) => t.id === tableId);
+    const partnerHere = table?.seats.some((s) => s.guestKey === partnerKey);
+    if (!partnerKey || !table || partnerHere) {
+      assignToSeat(tableId, seatId, guestKey);
+      setSelectedKey(guestKey);
+      setSeatPick(null);
+      closePopover();
+      return;
+    }
+    const other = table.seats.find((s) => !s.guestKey && s.id !== seatId);
+    if (other) {
+      seatGuests(tableId, [
+        { seatId, guestKey },
+        { seatId: other.id, guestKey: partnerKey },
+      ]);
+      setSelectedKey(guestKey);
+      setSeatPick(null);
+      closePopover();
+      return;
+    }
+    setConflictSwapOpen(false);
+    setSeatConflict({ tableId, seatId, guestKey, partnerKey });
+  }
+
+  function closeSeatConflict(done: boolean) {
+    setSeatConflict(null);
+    setConflictSwapOpen(false);
+    if (done) {
+      setSeatPick(null);
+      closePopover();
+    }
+  }
+
   function assignToFirstEmptySeat(tableId: string, guestKey: string) {
     const table = tables.find((t) => t.id === tableId);
     const empty = table?.seats.find((s) => !s.guestKey);
@@ -1136,8 +1262,8 @@ export function SeatingPlan({
   function onTablePointerMove(event: PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
     if (!drag) return;
-    const dx = event.clientX - drag.startX;
-    const dy = event.clientY - drag.startY;
+    const dx = (event.clientX - drag.startX) / canvasScale;
+    const dy = (event.clientY - drag.startY) / canvasScale;
     if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
     const x = snap(drag.origX + dx);
     const y = snap(drag.origY + dy);
@@ -1171,6 +1297,38 @@ export function SeatingPlan({
     return m;
   }, [flat, draft.guests]);
 
+  const groupChips = (
+    <div className="seat-plan-group-chips">
+      {draft.tables.hasPresidium ? (
+        <span className="seat-plan-chip">
+          <span
+            className="seat-plan-chip-dot"
+            style={{ background: colorForAssign("presidium", draft.guests.groups) }}
+          />
+          Президіум
+        </span>
+      ) : null}
+      {namedGroups.map((g, i) => (
+        <span key={g.id} className="seat-plan-chip">
+          <span
+            className="seat-plan-chip-dot"
+            style={{ background: GROUP_COLORS[i % GROUP_COLORS.length] }}
+          />
+          {g.name}
+        </span>
+      ))}
+      {draft.tables.hasKidsTable ? (
+        <span className="seat-plan-chip">
+          <span
+            className="seat-plan-chip-dot"
+            style={{ background: "#E07A9A" }}
+          />
+          Діти
+        </span>
+      ) : null}
+    </div>
+  );
+
   return (
     <div
       className={`seat-plan is-tab-${mobileTab}${
@@ -1179,9 +1337,15 @@ export function SeatingPlan({
     >
       <div className="seat-plan-top">
         <div className="seat-plan-title-wrap">
-          <h1 className="seat-plan-title">
-            {mobileTab === "map" ? "План розсадки" : "Розсадка"}
-          </h1>
+          <div className="cabinet-tasks-top__lead">
+            <CabinetBackButton
+              className="cabinet-tasks-top__back"
+              onClick={openCabinetMoreMenu}
+            />
+            <h1 className="seat-plan-title">
+              {mobileTab === "map" ? "План розсадки" : "Розсадка"}
+            </h1>
+          </div>
           <span className="seat-plan-autosave">
             <span className="seat-plan-autosave-dot" aria-hidden />
             Авто-збереження
@@ -1320,44 +1484,42 @@ export function SeatingPlan({
                 </span>
               ) : null}
             </button>
-            <button
-              type="button"
-              className="seat-plan-filters-btn seat-plan-groups-btn"
-              aria-label="Редагувати групи"
-              onClick={onEditGuests}
-            >
-              <PencilIcon />
-            </button>
           </div>
 
-          {activeFilterChips.length > 0 ? (
+          {namedGroups.length > 0 || activeFilterChips.length > 0 ? (
             <div className="seat-plan-active-chips">
-              {activeFilterChips.map((chip) => (
+              {namedGroups.map((g, i) => (
                 <button
-                  key={chip.id}
+                  key={g.id}
                   type="button"
-                  className="seat-plan-active-chip"
-                  onClick={chip.onClear}
+                  className={`seat-plan-active-chip${
+                    groupFilter === g.id ? " is-active" : ""
+                  }`}
+                  onClick={() =>
+                    setGroupFilter(groupFilter === g.id ? "all" : g.id)
+                  }
                 >
-                  {chip.id.startsWith("group-") ? (
-                    <span
-                      className="seat-plan-chip-dot"
-                      style={{
-                        background:
-                          GROUP_COLORS[
-                            Math.max(
-                              0,
-                              namedGroups.findIndex(
-                                (g) => g.id === groupFilter,
-                              ),
-                            ) % GROUP_COLORS.length
-                          ],
-                      }}
-                    />
-                  ) : null}
-                  {chip.label}
+                  <span
+                    className="seat-plan-chip-dot"
+                    style={{
+                      background: GROUP_COLORS[i % GROUP_COLORS.length],
+                    }}
+                  />
+                  {g.name}
                 </button>
               ))}
+              {activeFilterChips
+                .filter((chip) => !chip.id.startsWith("group-"))
+                .map((chip) => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    className="seat-plan-active-chip"
+                    onClick={chip.onClear}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
             </div>
           ) : null}
 
@@ -1570,28 +1732,7 @@ export function SeatingPlan({
                 <CollapseChevronIcon />
               </span>
             </button>
-            {groupsOpen ? (
-              <div className="seat-plan-group-chips">
-                {namedGroups.map((g, i) => (
-                  <span key={g.id} className="seat-plan-chip">
-                    <span
-                      className="seat-plan-chip-dot"
-                      style={{ background: GROUP_COLORS[i % GROUP_COLORS.length] }}
-                    />
-                    {g.name}
-                  </span>
-                ))}
-                {draft.tables.hasKidsTable ? (
-                  <span className="seat-plan-chip">
-                    <span
-                      className="seat-plan-chip-dot"
-                      style={{ background: "#E07A9A" }}
-                    />
-                    Діти
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
+            {groupsOpen ? groupChips : null}
           </div>
         </aside>
 
@@ -1643,7 +1784,7 @@ export function SeatingPlan({
             </label>
           </div>
 
-          <div className="seat-plan-canvas-scroll">
+          <div className="seat-plan-canvas-scroll" ref={canvasScrollRef}>
           <div className="seat-plan-canvas" style={canvasStyle}>
             {tables.map((table) => (
               <div
@@ -1792,6 +1933,43 @@ export function SeatingPlan({
             ))}
           </div>
           </div>
+
+          <div className="seat-plan-map-groups">
+            <div className="seat-plan-map-groups-head">
+              <button
+                type="button"
+                className="seat-plan-groups-head"
+                aria-expanded={groupsOpen}
+                onClick={() => setGroupsOpen((v) => !v)}
+              >
+                Групи
+              </button>
+              <button
+                type="button"
+                className="seat-plan-icon-btn"
+                aria-label="Редагувати групи"
+                onClick={onEditGuests}
+              >
+                <PencilIcon />
+              </button>
+              <button
+                type="button"
+                className="seat-plan-icon-btn"
+                aria-label={groupsOpen ? "Згорнути групи" : "Розгорнути групи"}
+                onClick={() => setGroupsOpen((v) => !v)}
+              >
+                <span
+                  className={`seat-plan-collapse-chevron${
+                    groupsOpen ? " is-open" : ""
+                  }`}
+                  aria-hidden
+                >
+                  <CollapseChevronIcon />
+                </span>
+              </button>
+            </div>
+            {groupsOpen ? groupChips : null}
+          </div>
         </div>
       </div>
 
@@ -1894,6 +2072,10 @@ export function SeatingPlan({
           onClose={() => setEditingTableId(null)}
           onSave={saveTableDraft}
           onDelete={deleteTable}
+          onSeatClick={(tableId, seatId) => {
+            if (!editingTable.seats.some((s) => s.id === seatId)) return;
+            setSeatPick({ tableId, seatId });
+          }}
         />
       ) : null}
 
@@ -2077,10 +2259,7 @@ export function SeatingPlan({
                     className="seat-pick-row"
                     onClick={() => {
                       if (!seatPick) return;
-                      assignToSeat(seatPick.tableId, seatPick.seatId, g.key);
-                      setSelectedKey(g.key);
-                      setSeatPick(null);
-                      closePopover();
+                      seatFromPicker(seatPick.tableId, seatPick.seatId, g.key);
                     }}
                   >
                     <span
@@ -2135,6 +2314,142 @@ export function SeatingPlan({
           </div>
         </CabinetOverlay>
       ) : null}
+
+      {seatConflict
+        ? (() => {
+            const guest = guestMap.get(seatConflict.guestKey);
+            const partner = guestMap.get(seatConflict.partnerKey);
+            const table = tables.find((t) => t.id === seatConflict.tableId);
+            if (!guest || !partner || !table) return null;
+            const firstName = guest.name.trim().split(/\s+/)[0] ?? "";
+            const linkedWord =
+              detectUaNameGender(firstName) === "feminine"
+                ? "зв’язана"
+                : "зв’язаний";
+            const tableNo = table.label.replace(/^стіл\s*/i, "") || table.label;
+            const emptyIds = table.seats
+              .filter((s) => !s.guestKey)
+              .map((s) => s.id);
+            const deficit = 2 - emptyIds.length;
+            const seen = new Set<string>();
+            const units: { keys: string[]; seatIds: string[] }[] = [];
+            for (const seat of table.seats) {
+              const k = seat.guestKey;
+              if (!k || seen.has(k)) continue;
+              const pk = partnerOf(k);
+              const pairSeat = pk
+                ? table.seats.find((s) => s.guestKey === pk)
+                : undefined;
+              const keys = pairSeat && pk ? [k, pk] : [k];
+              keys.forEach((x) => seen.add(x));
+              units.push({
+                keys,
+                seatIds: keys.map(
+                  (x) => table.seats.find((s) => s.guestKey === x)!.id,
+                ),
+              });
+            }
+            const swapUnits = units.filter((u) => u.keys.length >= deficit);
+            return (
+              <div className="seat-plan-sheet seat-conflict">
+                <button
+                  type="button"
+                  className="seat-plan-sheet__backdrop"
+                  aria-label="Закрити"
+                  onClick={() => closeSeatConflict(false)}
+                />
+                <div className="seat-plan-sheet__panel seat-conflict__panel">
+                  <p className="seat-conflict__title">
+                    {guest.name} {linkedWord} з{" "}
+                    {uaNameInstrumental(partner.name)}. А за столом {tableNo}{" "}
+                    лише {emptyIds.length}{" "}
+                    {emptyIds.length === 1 ? "місце" : "місць"}. Що робимо?
+                  </p>
+                  <button
+                    type="button"
+                    className="seat-conflict__option"
+                    onClick={() => {
+                      assignToSeat(
+                        seatConflict.tableId,
+                        seatConflict.seatId,
+                        seatConflict.guestKey,
+                      );
+                      setSelectedKey(seatConflict.guestKey);
+                      closeSeatConflict(true);
+                    }}
+                  >
+                    Садимо {uaNameAccusative(firstName)} без{" "}
+                    {uaNameGenitive(partner.name)} за {table.label}
+                  </button>
+                  <button
+                    type="button"
+                    className="seat-conflict__option"
+                    onClick={() => closeSeatConflict(false)}
+                  >
+                    Не садимо їх за цей стіл
+                  </button>
+                  {swapUnits.length > 0 ? (
+                    <div
+                      className={`seat-conflict__swap${
+                        conflictSwapOpen ? " is-open" : ""
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        className="seat-conflict__option"
+                        aria-expanded={conflictSwapOpen}
+                        onClick={() => setConflictSwapOpen((v) => !v)}
+                      >
+                        <span>
+                          Садимо обох, але пересаджуємо когось іншого з цього
+                          стола в непосаджені
+                        </span>
+                        <ChevronDownIcon />
+                      </button>
+                      {conflictSwapOpen
+                        ? swapUnits.map((unit) => (
+                            <button
+                              key={unit.keys.join("|")}
+                              type="button"
+                              className="seat-conflict__option seat-conflict__option--sub"
+                              onClick={() => {
+                                const free = [
+                                  ...emptyIds.filter(
+                                    (id) => id !== seatConflict.seatId,
+                                  ),
+                                  ...unit.seatIds,
+                                ];
+                                seatGuests(
+                                  seatConflict.tableId,
+                                  [
+                                    {
+                                      seatId: seatConflict.seatId,
+                                      guestKey: seatConflict.guestKey,
+                                    },
+                                    {
+                                      seatId: free[0],
+                                      guestKey: seatConflict.partnerKey,
+                                    },
+                                  ],
+                                  unit.keys,
+                                );
+                                setSelectedKey(seatConflict.guestKey);
+                                closeSeatConflict(true);
+                              }}
+                            >
+                              {unit.keys
+                                .map((k) => guestMap.get(k)?.name ?? "")
+                                .join(" і ")}
+                            </button>
+                          ))
+                        : null}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })()
+        : null}
 
       <CabinetFiltersSheet
         open={mobileFiltersOpen}

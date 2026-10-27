@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { CabinetBackTitle } from "@/components/cabinet-back-title";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
 import { DayPlanEventModal } from "@/components/day-plan/day-plan-event-modal";
 import {
-  IconDayPlanBack,
   IconDayPlanPlus,
   IconDayPlanShare,
 } from "@/components/day-plan/day-plan-icons";
-import { DayPlanShareModal } from "@/components/day-plan/day-plan-share-modal";
 import { DayPlanTimeline } from "@/components/day-plan/day-plan-timeline";
 import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { RequireAuth } from "@/components/require-auth";
@@ -28,8 +27,8 @@ import {
   type DayPlanEvent,
 } from "@/lib/day-plan";
 import {
+  dayPlanSharedUrl,
   fetchDayPlanShare,
-  type DayPlanSharePerson,
   type DayPlanShareState,
 } from "@/lib/day-plan-share-api";
 import {
@@ -48,7 +47,6 @@ function newEventId() {
 }
 
 function DayPlanInner() {
-  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [loading, setLoading] = useState(true);
   const [weddingId, setWeddingId] = useState<string | null>(null);
@@ -59,7 +57,6 @@ function DayPlanInner() {
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [partnerInitials, setPartnerInitials] = useState("П");
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
-  const [shareOpen, setShareOpen] = useState(false);
   const [editing, setEditing] = useState<DayPlanEvent | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DayPlanEvent | null>(null);
 
@@ -103,26 +100,19 @@ function DayPlanInner() {
 
   async function openShare() {
     if (!weddingId || shareLoading) return;
-    if (share) {
-      setShareOpen(true);
-      return;
-    }
     setShareLoading(true);
     try {
-      const next = await fetchDayPlanShare();
-      setShare(next);
-      setShareOpen(true);
+      const state = share ?? (await fetchDayPlanShare());
+      setShare(state);
+      await navigator.clipboard.writeText(dayPlanSharedUrl(state.token));
+      toast.success("Скопійовано", "Посилання на план дня в буфері");
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Не вдалося відкрити доступ",
+        err instanceof Error ? err.message : "Не вдалося скопіювати посилання",
       );
     } finally {
       setShareLoading(false);
     }
-  }
-
-  function onShareChange(next: DayPlanShareState) {
-    setShare(next);
   }
 
   function openCreate() {
@@ -142,11 +132,7 @@ function DayPlanInner() {
   }
 
   function onBack() {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/dashboard");
+    openCabinetMoreMenu();
   }
 
   function onSave(payload: {
@@ -191,7 +177,6 @@ function DayPlanInner() {
   }
 
   const dateLabel = formatDayPlanDate(weddingDate);
-  const sharePeople: DayPlanSharePerson[] = share?.people ?? [];
   const hasPlan = events.length > 0;
 
   return (
@@ -204,28 +189,25 @@ function DayPlanInner() {
       />
 
       <div className="cabinet-day-plan-mobile-top">
-        <button
-          type="button"
-          className="cabinet-day-plan-back"
-          aria-label="Назад"
-          onClick={onBack}
-        >
-          <IconDayPlanBack />
-        </button>
-        <h1 className="cabinet-day-plan-mobile-title">План дня</h1>
-        {hasPlan ? (
-          <Button
-            type="button"
-            tone="ghost"
-            size="s"
-            className="cabinet-day-plan-mobile-share"
-            onClick={() => void openShare()}
-            disabled={!weddingId}
-          >
-            <IconDayPlanShare size={16} />
-            Поділитися
-          </Button>
-        ) : null}
+        <CabinetBackTitle
+          title="План дня"
+          onBack={onBack}
+          end={
+            hasPlan ? (
+              <Button
+                type="button"
+                tone="ghost"
+                size="s"
+                className="cabinet-day-plan-mobile-share"
+                onClick={() => void openShare()}
+                disabled={!weddingId}
+              >
+                <IconDayPlanShare size={16} />
+                Поділитися
+              </Button>
+            ) : null
+          }
+        />
       </div>
 
       {hasPlan ? (
@@ -326,15 +308,6 @@ function DayPlanInner() {
             setEditing(null);
           }}
           onSave={onSave}
-        />
-      ) : null}
-
-      {shareOpen && share && !shareLoading ? (
-        <DayPlanShareModal
-          shareToken={share.token}
-          people={sharePeople}
-          onClose={() => setShareOpen(false)}
-          onShareChange={onShareChange}
         />
       ) : null}
 

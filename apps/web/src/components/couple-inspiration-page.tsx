@@ -24,7 +24,10 @@ import {
   IconPlus,
   IconShareNodes,
 } from "@/components/inspiration-icons";
-import { IconDayPlanBack, IconDayPlanPlus } from "@/components/day-plan/day-plan-icons";
+import { CabinetBackTitle } from "@/components/cabinet-back-title";
+import { IconCabinetBack } from "@/components/icon-cabinet-back";
+import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
+import { IconDayPlanPlus } from "@/components/day-plan/day-plan-icons";
 import { IconEdit } from "@/components/icon-edit";
 import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
@@ -473,11 +476,7 @@ function InspirationListInner() {
   }
 
   function onBack() {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/dashboard");
+    openCabinetMoreMenu();
   }
 
   if (loading) {
@@ -511,15 +510,7 @@ function InspirationListInner() {
       </div>
 
       <div className="cabinet-inspiration-mobile-top">
-        <button
-          type="button"
-          className="cabinet-inspiration-mobile-back"
-          aria-label="Назад"
-          onClick={onBack}
-        >
-          <IconDayPlanBack />
-        </button>
-        <h1 className="cabinet-inspiration-mobile-title">Дошка натхнення</h1>
+        <CabinetBackTitle title="Дошка натхнення" onBack={onBack} />
       </div>
 
       <div className="cabinet-inspiration-grid">
@@ -721,10 +712,34 @@ function InspirationBoardInner() {
         ? url
         : `${window.location.origin}${url.startsWith("/") ? "" : "/"}${url}`;
     try {
-      await navigator.clipboard.writeText(absolute);
-      toast.success("Скопійовано", "Посилання на зображення в буфері");
-    } catch {
-      toast.error("Не вдалося скопіювати посилання");
+      const res = await fetch(absolute);
+      const source = await res.blob();
+      let png = source;
+      if (source.type !== "image/png") {
+        const bitmap = await createImageBitmap(source);
+        const canvas = document.createElement("canvas");
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        canvas.getContext("2d")?.drawImage(bitmap, 0, 0);
+        png = await new Promise<Blob>((resolve, reject) =>
+          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob"))), "image/png"),
+        );
+      }
+      const file = new File([png], "fata-inspiration.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
+      }
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+      toast.success("Скопійовано", "Зображення в буфері — можна вставити в чат");
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
+      try {
+        await navigator.clipboard.writeText(absolute);
+        toast.success("Скопійовано", "Посилання на зображення в буфері");
+      } catch {
+        toast.error("Не вдалося скопіювати зображення");
+      }
     }
   }
 
@@ -921,7 +936,7 @@ function InspirationBoardInner() {
           aria-label="Назад"
           onClick={() => router.push("/inspiration")}
         >
-          <IconDayPlanBack />
+          <IconCabinetBack />
         </button>
         <h1 className="cabinet-inspiration-board-mobile-title">{board.title}</h1>
         <button
@@ -971,21 +986,22 @@ function InspirationBoardInner() {
       {board.images.length ? (
         <div className="cabinet-inspiration-photos">
           {board.images.map((src, index) => (
-            <button
-              key={`${src}-${index}`}
-              type="button"
-              className="cabinet-inspiration-photo-btn"
-              onClick={() => openPhoto(index)}
-              aria-label={`Відкрити зображення ${index + 1}`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className="cabinet-inspiration-photo"
-                src={src}
-                alt=""
-                style={{ aspectRatio: String(inspirationTileAspect(index)) }}
-              />
-            </button>
+            <div key={`${src}-${index}`} className="cabinet-inspiration-photo-cell">
+              <button
+                type="button"
+                className="cabinet-inspiration-photo-btn"
+                onClick={() => openPhoto(index)}
+                aria-label={`Відкрити зображення ${index + 1}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="cabinet-inspiration-photo"
+                  src={src}
+                  alt=""
+                  style={{ aspectRatio: String(inspirationTileAspect(index)) }}
+                />
+              </button>
+            </div>
           ))}
         </div>
       ) : (

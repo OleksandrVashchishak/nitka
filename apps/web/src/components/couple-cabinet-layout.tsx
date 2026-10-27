@@ -12,6 +12,7 @@ import { createPartnerInvite, getMyWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
 import { detectUaNameGender, uaNameAccusative } from "@/lib/ua-name-case";
 import "@/styles/cabinet/cabinet.scss";
+import "@/styles/cabinet/back-title.scss";
 
 
 const CabinetCtx = createContext(false);
@@ -41,7 +42,7 @@ export function CoupleCabinetLayout({ children }: { children: ReactNode }) {
     <CabinetCtx.Provider value={true}>
       <div className="cabinet-ui min-h-screen text-ink">
         <CoupleSidebar />
-        <div className="cabinet-main min-h-screen lg:pl-[256px]">{children}</div>
+        <div className="cabinet-main min-h-screen">{children}</div>
         <CabinetBottomNav />
       </div>
     </CabinetCtx.Provider>

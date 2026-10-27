@@ -1,6 +1,8 @@
 "use client";
 
+import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import type { ReactNode } from "react";
+import { CabinetBackButton } from "@/components/cabinet-back-title";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import type { NotificationsSummary } from "@/lib/notifications-api";
@@ -21,6 +23,8 @@ export type CabinetPageHeaderProps = {
   accountDesktopOnly?: boolean;
   /** Extra class on `.cabinet-tasks-top` */
   className?: string;
+  /** Mobile-only back arrow before the title (pages opened from the «Ще» menu) */
+  showBack?: boolean;
 };
 
 export function CabinetPageHeader({
@@ -31,6 +35,7 @@ export function CabinetPageHeader({
   endActions,
   accountDesktopOnly = true,
   className,
+  showBack = false,
 }: CabinetPageHeaderProps) {
   const showAccount = initials != null;
   const showActionsRow =
@@ -46,7 +51,17 @@ export function CabinetPageHeader({
 
   return (
     <div className={rootClass}>
-      <h1 className="cabinet-tasks-title">{title}</h1>
+      {showBack ? (
+        <div className="cabinet-tasks-top__lead">
+          <CabinetBackButton
+            className="cabinet-tasks-top__back"
+            onClick={openCabinetMoreMenu}
+          />
+          <h1 className="cabinet-tasks-title">{title}</h1>
+        </div>
+      ) : (
+        <h1 className="cabinet-tasks-title">{title}</h1>
+      )}
       {showActionsRow ? (
         <div className="cabinet-tasks-top-actions">
           {actions}

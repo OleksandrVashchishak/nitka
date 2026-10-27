@@ -23,6 +23,12 @@ type Props = {
   onLogout?: () => void;
 };
 
+export const SETTINGS_TAB_TITLES: Record<SettingsTab, string> = {
+  profile: "Профіль",
+  security: "Безпека і дані",
+  notifications: "Сповіщення",
+};
+
 const TABS: {
   id: SettingsTab;
   label: string;

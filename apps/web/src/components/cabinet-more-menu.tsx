@@ -8,6 +8,7 @@ const MORE_LINKS = [
   { href: "/my-vendors", label: "Підрядники", icon: "vendors" },
   { href: "/seating", label: "Розсадка", icon: "seating" },
   { href: "/day-plan", label: "План дня", icon: "dayplan" },
+  { href: "/website", label: "Сайт-запрошення", icon: "website" },
   { href: "/inspiration", label: "Дошка натхнення", icon: "board" },
   { href: "/settings", label: "Налаштування", icon: "settings" },
   { href: "/support", label: "Підтримка", icon: "support" },

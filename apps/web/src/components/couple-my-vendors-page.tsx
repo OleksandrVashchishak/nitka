@@ -366,6 +366,7 @@ function MyVendorsInner() {
     <div className="cabinet-tasks-page cabinet-vendors-page">
       <CabinetPageHeader
         title="Підрядники"
+        showBack
         summary={summary}
         initials={partnerInitials}
         actions={

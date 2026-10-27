@@ -27,9 +27,9 @@ const EVENT_ROWS: {
     "guestRsvp" | "upcomingPayments" | "taskDeadlines" | "partnerChanges"
   >;
   label: string;
-  icon: "seating" | "budget" | "tasks" | "guests";
+  icon: "vendors" | "budget" | "tasks" | "guests";
 }[] = [
-  { key: "guestRsvp", label: "Нові відповіді гостей", icon: "seating" },
+  { key: "guestRsvp", label: "Нові відповіді гостей", icon: "vendors" },
   { key: "upcomingPayments", label: "Майбутні платежі", icon: "budget" },
   { key: "taskDeadlines", label: "Дедлайни завдань", icon: "tasks" },
   { key: "partnerChanges", label: "Зміни від партнера", icon: "guests" },

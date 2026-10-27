@@ -1,8 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CabinetBackTitle } from "@/components/cabinet-back-title";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { PageLoader } from "@/components/ui-loader";
 import { RequireAuth } from "@/components/require-auth";
 import { SettingsDeleteAccountModal } from "@/components/settings/settings-delete-account-modal";
@@ -16,6 +19,7 @@ import type {
   PartnerInviteStatus,
 } from "@/components/settings/settings-partner-card";
 import {
+  SETTINGS_TAB_TITLES,
   SettingsSideNav,
   type SettingsTab,
 } from "@/components/settings/settings-side-nav";
@@ -156,6 +160,8 @@ function CoupleSettingsInner() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [sessions, setSessions] = useState<SettingsSession[]>([]);
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [logoutBusy, setLogoutBusy] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [exportBusy, setExportBusy] = useState<SettingsExportId | null>(null);
@@ -352,14 +358,11 @@ function CoupleSettingsInner() {
       router.replace("/settings", { scroll: false });
       return;
     }
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/dashboard");
+    openCabinetMoreMenu();
   }
 
   async function onLogout() {
+    setLogoutBusy(true);
     await logout();
     router.replace("/login");
   }
@@ -453,7 +456,7 @@ function CoupleSettingsInner() {
       }`}
     >
       <CabinetPageHeader
-        title="Налаштування"
+        title={SETTINGS_TAB_TITLES[tab]}
         summary={summary}
         initials={initials}
         accountDesktopOnly={false}
@@ -461,23 +464,10 @@ function CoupleSettingsInner() {
       />
 
       <div className="cabinet-settings-mobile-top">
-        <button
-          type="button"
-          className="cabinet-settings-mobile-back"
-          aria-label="Назад"
-          onClick={onMobileBack}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path
-              d="M15 5 8 12l7 7"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <h1 className="cabinet-settings-mobile-title">Налаштування</h1>
+        <CabinetBackTitle
+          title={mobileDetail ? SETTINGS_TAB_TITLES[tab] : "Налаштування"}
+          onBack={onMobileBack}
+        />
       </div>
 
       <div className="cabinet-settings-layout">
@@ -488,7 +478,7 @@ function CoupleSettingsInner() {
           activeTab={tab}
           photoBusy={photoBusy}
           hubMode
-          onLogout={() => void onLogout()}
+          onLogout={() => setLogoutOpen(true)}
           onTabChange={(next) => {
             setTab(next);
             setMobileDetail(true);
@@ -544,6 +534,16 @@ function CoupleSettingsInner() {
           />
         ) : null}
       </div>
+
+      <DeleteConfirmModal
+        open={logoutOpen}
+        title="Вийти з акаунту?"
+        description="Ви впевнені, що хочете вийти з акаунту?"
+        confirmLabel="Так, вийти"
+        loading={logoutBusy}
+        onClose={() => setLogoutOpen(false)}
+        onConfirm={() => void onLogout()}
+      />
 
       <SettingsDeleteAccountModal
         open={deleteOpen}

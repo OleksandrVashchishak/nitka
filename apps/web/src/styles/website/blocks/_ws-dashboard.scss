@@ -20,6 +20,11 @@
     margin-bottom: 24px;
   }
 
+  &__mobile-top {
+    display: none;
+    margin-bottom: 28px;
+  }
+
   &__title {
     margin: 0;
     font-family: var(--ws-font);
@@ -85,10 +90,14 @@
   }
 
   @media (max-width: 768px) {
-    padding: 16px 16px 40px;
+    padding: 36px 16px 40px;
 
-    &__title {
-      font-size: 24px;
+    &__mobile-top {
+      display: flex;
+    }
+
+    &__top {
+      display: none;
     }
 
     &__solo {

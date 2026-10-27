@@ -494,6 +494,10 @@
   display: contents;
 }
 
+.seat-plan-map-groups {
+  display: none;
+}
+
 .seat-plan-canvas-bar {
   position: sticky;
   top: 0;
@@ -1181,6 +1185,10 @@
   align-items: center;
   gap: 4px;
   transform: translate(-50%, -50%) rotate(var(--seat-rot, 0deg));
+
+  &[role="button"] {
+    cursor: pointer;
+  }
 }
 
 .seat-table-modal-chip {
@@ -1268,6 +1276,125 @@
 
 .seat-table-modal-footer {
   margin-top: 20px;
+}
+
+/* Mobile — Figma: bottom sheet, full-bleed preview, single wine CTA */
+@media (max-width: 767px) {
+  .seat-table-modal {
+    width: 100%;
+    max-height: 100dvh;
+    padding: 16px;
+  }
+
+  .seat-table-modal .cabinet-modal-head {
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0;
+  }
+
+  .seat-table-modal .cabinet-modal-head h2 {
+    font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+    font-size: 24px;
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  .seat-table-modal-preview {
+    flex-shrink: 0;
+    min-height: 0;
+    padding: 64px 8px;
+    border-radius: 0;
+  }
+
+  .seat-table-modal-preview.is-round {
+    min-height: 0;
+  }
+
+  .seat-table-modal-stage {
+    width: 190px;
+    height: 190px;
+  }
+
+  .seat-table-modal-preview.is-round .seat-table-modal-body {
+    width: 96px;
+    height: 96px;
+  }
+
+  .seat-table-modal-chip {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+
+  .seat-table-modal-name {
+    max-width: 76px;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .seat-table-modal-seat.is-radial .seat-table-modal-name {
+    width: max-content;
+  }
+
+  .seat-table-modal-seat.is-radial-right .seat-table-modal-name {
+    top: 50%;
+    left: calc(100% + 6px);
+    text-align: left;
+    transform: translateY(-50%);
+  }
+
+  .seat-table-modal-seat.is-radial-left .seat-table-modal-name {
+    top: 50%;
+    right: calc(100% + 6px);
+    left: auto;
+    text-align: right;
+    transform: translateY(-50%);
+  }
+
+  .seat-table-modal-seat.is-radial-top .seat-table-modal-name {
+    top: auto;
+    bottom: calc(100% + 4px);
+  }
+
+  .seat-table-modal-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+    margin-top: 0;
+    padding: 8px 0 0;
+  }
+
+  .seat-table-modal-divider {
+    display: none;
+  }
+
+  .seat-table-modal-col {
+    gap: 0;
+  }
+
+  .seat-table-modal-col button {
+    padding: 14px 0;
+    border-bottom: 1px solid #ebebeb;
+  }
+
+  .seat-table-modal-footer {
+    margin-top: 0;
+    padding: 24px 0 0;
+  }
+
+  .seat-table-modal-cancel {
+    display: none;
+  }
+
+  .seat-table-modal .fata-button.seat-table-modal-save {
+    width: 100%;
+    height: 52px;
+    border-radius: 40px;
+    background: #61040f;
+    font-style: italic;
+    color: #fff;
+  }
 }
 
 /* Add table modal — Figma Add table Modal ~790×466 */
@@ -1474,6 +1601,52 @@
   border-radius: 20px 20px 0 0;
 }
 
+.seat-conflict {
+  z-index: 100;
+}
+
+.seat-conflict__panel {
+  max-height: 100dvh;
+  overflow-y: auto;
+  border-radius: 16px 16px 0 0;
+}
+
+.seat-conflict__title {
+  margin: 0;
+  padding: 16px 16px 20px;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+
+.seat-conflict__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.seat-conflict__swap.is-open {
+  background: #f0febb;
+}
+
+.seat-conflict__option--sub {
+  padding-left: 32px;
+}
+
 .seat-plan-mobile-tabs,
 .seat-plan-filters-btn,
 .seat-plan-active-chips,
@@ -1500,7 +1673,7 @@
 
   .seat-plan-top {
     align-items: center;
-    padding: 8px 16px 0;
+    padding: 8px 0 0;
     gap: 12px;
   }
 
@@ -1540,13 +1713,16 @@
   .seat-plan-mobile-tabs {
     display: flex;
     gap: 0;
-    margin: 8px 16px 0;
+    margin: 8px 0 0;
     border-bottom: 1px solid rgb(26 26 26 / 0.05);
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .seat-plan-mobile-tab {
-    flex: 1;
+    flex: 1 0 auto;
     padding: 12px 4px 14px;
+    white-space: nowrap;
     border: 0;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
@@ -1568,14 +1744,15 @@
   .seat-plan-layout {
     display: block;
     margin-top: 0;
-    padding: 0 16px;
+    padding: 0;
   }
 
   .seat-plan-panel {
     width: 100%;
     max-height: none;
     min-height: calc(100vh - 180px);
-    padding: 16px 0 0;
+    padding: 0;
+    gap: 0;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
@@ -1632,6 +1809,10 @@
     margin-top: 12px;
   }
 
+  .seat-plan-active-chip.is-active {
+    border-color: #1a1a1a;
+  }
+
   .seat-plan-active-chip {
     display: inline-flex;
     align-items: center;
@@ -1653,7 +1834,7 @@
   }
 
   .seat-plan-guest-scroll {
-    margin-top: 16px;
+    margin-top: 12px;
     max-height: none;
     overflow: visible;
   }
@@ -1661,11 +1842,11 @@
   .seat-plan-guest-row-wrap {
     background: #fff;
     border-radius: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   .seat-plan-guest-row {
-    min-height: 56px;
+    min-height: 52px;
     padding: 12px 8px 12px 12px;
   }
 
@@ -1687,8 +1868,8 @@
   }
 
   .seat-plan-guest-name {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 500;
   }
 
   .seat-plan.is-tab-map .seat-plan-panel,
@@ -1701,11 +1882,32 @@
     display: none;
   }
 
+  .seat-plan.is-tab-tables .seat-plan-layout {
+    flex: 0 0 auto;
+  }
+
+  /* Fill the viewport between page top padding and the bottom nav */
+  .seat-plan.is-tab-map {
+    height: calc(100dvh - 101px);
+    /* page reserves 40 + 72px below, nav is 65px — cancel the extra so the page does not scroll */
+    margin-bottom: -47px;
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .seat-plan.is-tab-map .seat-plan-layout {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
   .seat-plan.is-tab-map .seat-plan-canvas-wrap {
     display: flex;
     flex-direction: column;
     margin: 0;
-    min-height: calc(100vh - 180px);
+    flex: 1 1 auto;
+    min-height: 0;
     border-radius: 0;
     background: transparent;
     overflow: hidden;
@@ -1745,12 +1947,39 @@
 
   .seat-plan.is-tab-map .seat-plan-canvas-scroll {
     display: block;
-    flex: 1 1 auto;
+    position: relative;
+    flex: 1 1 0;
     min-height: 0;
     margin: 0;
     border-radius: 0;
-    overflow: auto;
+    overflow: hidden;
     background: #f3f3f3;
+  }
+
+  .seat-plan.is-tab-map .seat-plan-canvas {
+    padding: 0;
+  }
+
+  .seat-plan.is-tab-map .seat-plan-map-groups {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px 16px 0 0;
+    background: #fff;
+    box-shadow: 0 -2px 12px rgb(0 0 0 / 0.05);
+  }
+
+  .seat-plan-map-groups-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .seat-plan-groups-head {
+      flex: 1;
+      font-size: 18px;
+    }
   }
 
   .seat-plan.is-tab-map .seat-plan-seat {
@@ -1764,10 +1993,6 @@
     height: 23px;
     border: 1px dashed #1a1a1a;
     background: #fff;
-  }
-
-  .seat-plan.is-tab-map .seat-plan-canvas {
-    padding-top: 16px;
   }
 
   .seat-plan.is-tab-tables .seat-plan-tables-mobile {
@@ -1892,11 +2117,6 @@
     display: none;
   }
 
-  .seat-plan-groups-btn {
-    width: 35px;
-    padding: 0;
-  }
-
   .seat-groups-modal {
     width: 100%;
     max-width: none;
@@ -1904,6 +2124,7 @@
     height: 100%;
     border-radius: 0;
     padding: 16px 16px 0;
+    overflow: hidden;
   }
 
   .cabinet-modal-root[data-mobile-variant="fullscreen"]
@@ -1917,12 +2138,25 @@
   }
 
   .seat-groups-modal-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 28px;
+    overflow-y: auto;
+    padding-bottom: 16px;
+  }
+
+  .seat-groups-modal-col {
+    flex: 0 0 auto;
   }
 
   .seat-groups-modal-guests {
     max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .seat-groups-modal-footer {
+    flex: 0 0 auto;
   }
 
   .seat-groups-modal-title {

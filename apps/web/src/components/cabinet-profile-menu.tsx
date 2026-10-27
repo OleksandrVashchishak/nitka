@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { useAuthStore } from "@/lib/auth-store";
 
 export function CabinetProfileMenu({ initials }: { initials: string }) {
   const [open, setOpen] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [logoutBusy, setLogoutBusy] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
@@ -29,7 +32,7 @@ export function CabinetProfileMenu({ initials }: { initials: string }) {
   }, []);
 
   async function onLogout() {
-    setOpen(false);
+    setLogoutBusy(true);
     await logout();
     router.replace("/login");
   }
@@ -71,16 +74,21 @@ export function CabinetProfileMenu({ initials }: { initials: string }) {
             className="cabinet-profile-menu-item"
             onClick={() => setOpen(false)}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
               <path
-                d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+                d="M12.5 10C12.5 11.3807 11.3807 12.5 10 12.5C8.61929 12.5 7.5 11.3807 7.5 10C7.5 8.61929 8.61929 7.5 10 7.5C11.3807 7.5 12.5 8.61929 12.5 10Z"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
-                d="M19.4 13a7.8 7.8 0 0 0 .05-2l2.05-1.55-2-3.46-2.4.9a7.7 7.7 0 0 0-1.75-1L14.9 2h-5.8l-.45 2.89a7.7 7.7 0 0 0-1.75 1l-2.4-.9-2 3.46L4.55 11a7.8 7.8 0 0 0 0 2l-2.05 1.55 2 3.46 2.4-.9a7.7 7.7 0 0 0 1.75 1L9.1 22h5.8l.45-2.89a7.7 7.7 0 0 0 1.75-1l2.4.9 2-3.46L19.4 13Z"
+                d="M1.66675 10.7334V9.26669C1.66675 8.40003 2.37508 7.68336 3.25008 7.68336C4.75841 7.68336 5.37508 6.6167 4.61675 5.30836C4.18341 4.55836 4.44175 3.58336 5.20008 3.15003L6.64175 2.32503C7.30008 1.93336 8.15008 2.1667 8.54175 2.82503L8.63341 2.98336C9.38341 4.2917 10.6167 4.2917 11.3751 2.98336L11.4667 2.82503C11.8584 2.1667 12.7084 1.93336 13.3667 2.32503L14.8084 3.15003C15.5667 3.58336 15.8251 4.55836 15.3917 5.30836C14.6334 6.6167 15.2501 7.68336 16.7584 7.68336C17.6251 7.68336 18.3417 8.39169 18.3417 9.26669V10.7334C18.3417 11.6 17.6334 12.3167 16.7584 12.3167C15.2501 12.3167 14.6334 13.3834 15.3917 14.6917C15.8251 15.45 15.5667 16.4167 14.8084 16.85L13.3667 17.675C12.7084 18.0667 11.8584 17.8334 11.4667 17.175L11.3751 17.0167C10.6251 15.7084 9.39175 15.7084 8.63341 17.0167L8.54175 17.175C8.15008 17.8334 7.30008 18.0667 6.64175 17.675L5.20008 16.85C4.44175 16.4167 4.18341 15.4417 4.61675 14.6917C5.37508 13.3834 4.75841 12.3167 3.25008 12.3167C2.37508 12.3167 1.66675 11.6 1.66675 10.7334Z"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
@@ -124,7 +132,10 @@ export function CabinetProfileMenu({ initials }: { initials: string }) {
             type="button"
             role="menuitem"
             className="cabinet-profile-menu-item is-logout"
-            onClick={() => void onLogout()}
+            onClick={() => {
+              setOpen(false);
+              setLogoutOpen(true);
+            }}
           >
             <svg width="18" height="18" viewBox="38 170 14 14" fill="none" aria-hidden>
               <path
@@ -138,6 +149,16 @@ export function CabinetProfileMenu({ initials }: { initials: string }) {
           </button>
         </div>
       ) : null}
+
+      <DeleteConfirmModal
+        open={logoutOpen}
+        title="Вийти з акаунту?"
+        description="Ви впевнені, що хочете вийти з акаунту?"
+        confirmLabel="Так, вийти"
+        loading={logoutBusy}
+        onClose={() => setLogoutOpen(false)}
+        onConfirm={() => void onLogout()}
+      />
     </div>
   );
 }

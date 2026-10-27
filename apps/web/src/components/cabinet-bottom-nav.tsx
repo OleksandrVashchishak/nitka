@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 import { CabinetMoreMenu } from "@/components/cabinet-more-menu";
+import { OPEN_MORE_MENU_EVENT } from "@/lib/cabinet-more-menu";
 
 const BOTTOM_TABS = [
   { href: "/dashboard", label: "Огляд", icon: "overview" },
@@ -42,6 +43,12 @@ export function CabinetBottomNav() {
   useEffect(() => {
     setMoreOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const onOpen = () => setMoreOpen(true);
+    window.addEventListener(OPEN_MORE_MENU_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_MORE_MENU_EVENT, onOpen);
+  }, []);
 
   useEffect(() => {
     if (!moreOpen) return;

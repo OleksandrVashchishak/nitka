@@ -37,6 +37,7 @@ type Props = {
   onClose: () => void;
   onSave: (next: SeatTableDraft) => void;
   onDelete: (id: string) => void;
+  onSeatClick?: (tableId: string, seatId: string) => void;
 };
 
 const ROTATIONS = [30, 60, 90, 180] as const;
@@ -105,6 +106,21 @@ function nameSide(
   return index < half ? "top" : "bottom";
 }
 
+function radialDir(
+  index: number,
+  total: number,
+  rotation: number,
+): "left" | "right" | "top" | "bottom" {
+  const angle =
+    (Math.PI * 2 * index) / Math.max(total, 1) -
+    Math.PI / 2 +
+    (rotation * Math.PI) / 180;
+  const x = Math.cos(angle);
+  const y = Math.sin(angle);
+  if (Math.abs(x) > 0.5) return x > 0 ? "right" : "left";
+  return y < 0 ? "top" : "bottom";
+}
+
 function TableShapeSilhouette({ kind }: { kind: SeatTableKind }) {
   if (kind === "t-shape") {
     return (
@@ -133,6 +149,7 @@ export function SeatingTableModal({
   onClose,
   onSave,
   onDelete,
+  onSeatClick,
 }: Props) {
   const [draft, setDraft] = useState<SeatTableDraft>(table);
 
@@ -203,7 +220,7 @@ export function SeatingTableModal({
       title={draft.label}
       variant="modal"
       width={420}
-      mobileVariant="center"
+      mobileVariant="sheet"
       panelClassName="seat-table-modal"
       footerClassName="cabinet-modal-actions seat-table-modal-footer"
       footer={
@@ -211,8 +228,8 @@ export function SeatingTableModal({
           onCancel={onClose}
           saveType="button"
           onSave={() => onSave(draft)}
-          cancelClassName=""
-          saveClassName=""
+          cancelClassName="seat-table-modal-cancel"
+          saveClassName="seat-table-modal-save"
         />
       }
     >
@@ -251,9 +268,13 @@ export function SeatingTableModal({
             return (
               <div
                 key={seat.id}
+                role={onSeatClick ? "button" : undefined}
+                onClick={
+                  onSeatClick ? () => onSeatClick(draft.id, seat.id) : undefined
+                }
                 className={`seat-table-modal-seat is-${side}${
-                  guest ? "" : " is-empty"
-                }`}
+                  side === "radial" ? ` is-radial-${radialDir(index, draft.seats.length, draft.rotation)}` : ""
+                }${guest ? "" : " is-empty"}`}
                 style={{
                   left: pos.left,
                   top: pos.top,
@@ -286,21 +307,21 @@ export function SeatingTableModal({
             Додати крісло
           </button>
           <button type="button" onClick={clearTable}>
-            Очистити
+            Очистити стіл
           </button>
           <CabinetActionItem
             danger
             icon={<IconTrash size={16} />}
             onClick={() => onDelete(draft.id)}
           >
-            Видалити
+            Видалити стіл
           </CabinetActionItem>
         </div>
         <div className="seat-table-modal-divider" aria-hidden />
         <div className="seat-table-modal-col">
           {ROTATIONS.map((deg) => (
             <button key={deg} type="button" onClick={() => rotateBy(deg)}>
-              Повернути {deg}°
+              Повернути на {deg}°
             </button>
           ))}
         </div>

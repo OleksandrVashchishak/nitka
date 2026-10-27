@@ -141,7 +141,7 @@ function SeatingInner() {
   if (!data) {
     return (
       <div className="cabinet-tasks-page">
-        <CabinetPageHeader title="Розсадка" />
+        <CabinetPageHeader title="Розсадка" showBack />
         <div className="cabinet-panel" style={{ marginTop: 24 }}>
           <p style={{ margin: 0, color: "#666" }}>
             Спочатку збережи дату весілля в огляді — тоді відкриється розсадка.
@@ -209,6 +209,7 @@ function SeatingInner() {
     <div className="cabinet-tasks-page">
       <CabinetPageHeader
         title="Розсадка"
+        showBack
         summary={summary}
         initials={partnerInitials}
       />

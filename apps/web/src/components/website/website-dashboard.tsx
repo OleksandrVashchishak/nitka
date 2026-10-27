@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { CabinetBackTitle } from "@/components/cabinet-back-title";
 import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { RequireAuth } from "@/components/require-auth";
@@ -10,6 +11,7 @@ import { PageLoader } from "@/components/ui-loader";
 import { WebsiteEmptyState } from "@/components/website/website-empty-state";
 import { WebsiteInvitesPanel } from "@/components/website/website-invites-panel";
 import { WebsiteSummary } from "@/components/website/website-summary";
+import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { getMyWedding } from "@/lib/dashboard-api";
 import {
   getGuestList,
@@ -240,7 +242,12 @@ function WebsiteDashboardInner() {
   if (needWedding) {
     return (
       <div className="ws-dashboard">
-        <div className="ws-dashboard__top">
+        <CabinetBackTitle
+        className="ws-dashboard__mobile-top"
+        title="Сайт-запрошення"
+        onBack={openCabinetMoreMenu}
+      />
+      <div className="ws-dashboard__top">
           <h1 className="ws-dashboard__title">Сайт-запрошення</h1>
           <div className="ws-dashboard__actions">
             <CabinetNotificationsBell summary={summary} />
@@ -292,6 +299,11 @@ function WebsiteDashboardInner() {
 
   return (
     <div className="ws-dashboard">
+      <CabinetBackTitle
+        className="ws-dashboard__mobile-top"
+        title="Сайт-запрошення"
+        onBack={openCabinetMoreMenu}
+      />
       <div className="ws-dashboard__top">
         <h1 className="ws-dashboard__title">Сайт-запрошення</h1>
         <div className="ws-dashboard__actions">

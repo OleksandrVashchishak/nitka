@@ -15,6 +15,12 @@
   color: #fff;
 }
 
+.cabinet-main {
+  @media (min-width: 1024px) {
+    padding-left: var(--cab-sidebar);
+  }
+}
+
 .cabinet-sidebar-logo {
   display: inline-flex;
   align-items: center;
@@ -1166,6 +1172,19 @@ color: #1A1A1A;
   object-fit: cover;
 }
 
+.cabinet-photo__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+
+  &--active {
+    opacity: 1;
+  }
+}
+
 /* Figma @1x — white pill CTA over empty inspiration preview */
 .cabinet-photo-cta {
   position: absolute;
@@ -1543,8 +1562,7 @@ color: #1A1A1A;
 
 @media (max-width: 1023px) {
   .cabinet-main {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-  }
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));  }
 
   .cabinet-bottom-nav {
     display: flex;
@@ -2095,6 +2113,21 @@ margin-bottom: 25px;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+
+  &__lead {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  &__back.cabinet-back-button {
+    display: none;
+
+    @media (max-width: 767px) {
+      display: inline-flex;
+    }
+  }
 }
 
 .cabinet-tasks-title {
@@ -2713,7 +2746,8 @@ font-size: 12px;
   }
 
   .cabinet-drawer-head {
-    padding: 20px 16px 0;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid #f3f3f3;
   }
 
   .cabinet-drawer-head h2 {
@@ -2788,7 +2822,8 @@ font-size: 12px;
   }
 
   .cabinet-tasks-drawer .cabinet-drawer-head {
-    padding: 20px 16px 0;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid #f3f3f3;
   }
 
   .cabinet-tasks-drawer .cabinet-drawer-head h2 {
@@ -2868,6 +2903,15 @@ font-size: 12px;
   background: #fff;
   box-shadow: 0 2px 25px #00000014;
   text-align: center;
+
+  /* mobile: топбар + картка + нижнє меню = 100dvh */
+  @media (max-width: 1023px) {
+    /* -40px гасить нижній падинг .cabinet-tasks-page, щоб не було скролу */
+    min-height: calc(100dvh - 72px - 100px - env(safe-area-inset-bottom, 0px));
+    margin-bottom: -40px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
 }
 
 .cabinet-empty--soft {
@@ -2949,6 +2993,10 @@ font-size: 12px;
   justify-content: center;
   gap: 12px;
   margin-top: 24px;
+
+  @media (max-width: 767px) {
+    align-self: stretch;
+  }
 }
 
 .cabinet-empty--soft .cabinet-empty-actions {
@@ -4203,7 +4251,13 @@ font-size: 12px;
 
 @media (max-width: 767px) {
   .cabinet-vendors-page {
+    min-height: calc(100dvh - 72px);
     padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* порожній стан: гасимо нижній падинг сторінки, щоб не було скролу */
+  .cabinet-vendors-page .cabinet-empty {
+    margin-bottom: calc(-120px - env(safe-area-inset-bottom, 0px));
   }
 
   .cabinet-vendors-page .cabinet-tasks-title {
@@ -4336,7 +4390,8 @@ font-size: 12px;
   }
 
   .cabinet-vendors-drawer .cabinet-drawer-head {
-    padding: 20px 16px 10px;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid #f3f3f3;
   }
 
   .cabinet-vendors-drawer .cabinet-drawer-head h2 {
@@ -4924,7 +4979,8 @@ font-size: 12px;
   }
 
   .cabinet-budget-drawer .cabinet-drawer-head {
-    padding: 20px 16px 0;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid #f3f3f3;
   }
 
   .cabinet-budget-drawer .cabinet-drawer-head h2 {
@@ -5776,7 +5832,17 @@ font-size: 12px;
 
 @media (max-width: 767px) {
   .cabinet-day-plan-page {
-    padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px));
+    padding: 36px 16px calc(140px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cabinet-budget-page > .cabinet-empty {
+    min-height: calc(100dvh - 156px - env(safe-area-inset-bottom, 0px));
+  }
+
+  /* порожній стан: гасимо нижній падинг сторінки, щоб не було скролу */
+  .cabinet-day-plan-page .cabinet-empty {
+    min-height: calc(100dvh - 156px - env(safe-area-inset-bottom, 0px));
+    margin-bottom: calc(-140px - env(safe-area-inset-bottom, 0px));
   }
 
   .cabinet-day-plan-desktop-top,
@@ -5787,37 +5853,8 @@ font-size: 12px;
   .cabinet-day-plan-mobile-top {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 28px;
-  }
-
-  .cabinet-day-plan-back {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    margin-left: -6px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: #292d32;
-    cursor: pointer;
-  }
-
-  .cabinet-day-plan-mobile-title {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    font-family: var(--font-akzidenz), sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    font-style: italic;
-    line-height: 1;
-    letter-spacing: 0;
-    color: #1a1a1a;
   }
 
   .cabinet-day-plan-mobile-share.fata-button {
@@ -5885,7 +5922,7 @@ font-size: 12px;
     max-width: none;
     height: 70px;
     min-height: 70px;
-    padding: 8px;
+    padding: 8px 9px 8px 8px;
     border-radius: 10px;
     box-shadow: 0 4px 16px 0 #0000000d;
   }
@@ -5923,7 +5960,7 @@ font-size: 12px;
   }
 
   .cabinet-day-plan-card-actions {
-    gap: 8px;
+    gap: 16px;
     padding-top: 0;
   }
 

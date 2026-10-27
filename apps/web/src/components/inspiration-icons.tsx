@@ -82,17 +82,22 @@ export function IconShareNodes({ size = 18, className }: Props) {
 /** Black circle + gold plus — mobile board FAB glyph. */
 export function IconInspirationFab() {
   return (
-    <span className="cabinet-inspiration-fab" aria-hidden>
-      <span className="cabinet-inspiration-fab-dot">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path
-            d="M6 2.5v7M2.5 6h7"
-            stroke="#1a1a1a"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      </span>
-    </span>
+    <svg
+      className="cabinet-inspiration-fab"
+      width="36"
+      height="36"
+      viewBox="0 0 36 36"
+      fill="none"
+      aria-hidden
+    >
+      <rect width="36" height="36" rx="18" fill="#1A1A1A" />
+      <path
+        d="M18 24V12M12 18H24"
+        stroke="#F0FEBB"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

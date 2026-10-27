@@ -199,15 +199,19 @@
   margin-top: 24px;
 }
 
+.cabinet-inspiration-photo-cell {
+  margin: 0 0 12px;
+  break-inside: avoid;
+}
+
 .cabinet-inspiration-photo-btn {
   display: block;
   width: 100%;
-  margin: 0 0 12px;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
-  break-inside: avoid;
   text-align: left;
 }
 
@@ -567,7 +571,7 @@
 
 @media (max-width: 767px) {
   .cabinet-inspiration-page {
-    padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px));
+    padding: 36px 16px calc(140px + env(safe-area-inset-bottom, 0px));
     background:
       radial-gradient(
         ellipse 120% 48% at 50% -8%,
@@ -584,37 +588,8 @@
   .cabinet-inspiration-mobile-top {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 24px;
-  }
-
-  .cabinet-inspiration-mobile-back {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    margin-left: -6px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: #292d32;
-    cursor: pointer;
-  }
-
-  .cabinet-inspiration-mobile-title {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
-    font-size: 24px;
-    font-weight: 500;
-    font-style: italic;
-    line-height: 1;
-    letter-spacing: 0;
-    color: #1a1a1a;
   }
 
   .cabinet-inspiration-grid {
@@ -741,9 +716,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    margin: 0;
+    width: 36px;
+    height: 36px;
+    margin: 0 12px 0 0;
     padding: 0;
     border: 0;
     border-radius: 999px;
@@ -752,23 +727,9 @@
   }
 
   .cabinet-inspiration-fab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    background: #1a1a1a;
-  }
-
-  .cabinet-inspiration-fab-dot {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 999px;
-    background: #f0febb;
+    display: block;
+    width: 36px;
+    height: 36px;
   }
 
   .cabinet-inspiration-board-page .cabinet-inspiration-menu-wrap {
@@ -786,7 +747,7 @@
     box-shadow: none;
   }
 
-  .cabinet-inspiration-photo-btn {
+  .cabinet-inspiration-photo-cell {
     margin-bottom: 10px;
   }
 

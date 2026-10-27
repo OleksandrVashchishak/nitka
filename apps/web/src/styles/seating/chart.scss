@@ -536,14 +536,13 @@
 
   .seat-chart-editor__left {
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 12px;
   }
 
   .seat-chart-editor__back {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
     background: #f4f4f5;
   }
 
@@ -584,12 +583,14 @@
   }
 
   .seat-chart-editor__list {
+    flex: 0 0 auto;
     gap: 14px;
     overflow: visible;
     padding-right: 0;
   }
 
   .seat-chart-editor__card {
+    flex-shrink: 0;
     border-radius: 9px;
     border: 1px solid #eaeaea;
     background: #fafafa;
@@ -597,7 +598,7 @@
 
   .seat-chart-editor__card.is-active {
     border: 2px solid var(--sc-orange);
-    background: #fafafa;
+    background: #fff;
   }
 
   .seat-chart-editor__card-main {
@@ -640,16 +641,23 @@
   }
 
   .seat-chart-editor__card-desc {
-    font-size: 13px;
+    font-size: 16px;
+    line-height: 150%;
     color: #7f7e7c;
   }
 
+  .seat-chart-editor__badge {
+    min-width: 72px;
+    height: 20px;
+    font-size: 11px;
+  }
+
   .seat-chart-editor__view {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 4px;
-    align-self: flex-start;
-    margin: 12px 6px 16px;
+    justify-content: space-between;
+    align-self: stretch;
+    margin: 18px 17px 16px;
     padding: 0;
     border: 0;
     background: transparent;

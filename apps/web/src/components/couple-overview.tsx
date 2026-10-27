@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { getBudget } from "@/lib/budget-api";
@@ -21,7 +20,10 @@ import {
   sortDayPlanEvents,
   type DayPlanEvent,
 } from "@/lib/day-plan";
-import { hasUserInspirationContent } from "@/lib/inspiration-boards";
+import {
+  DEFAULT_INSPIRATION_BOARDS,
+  userInspirationImages,
+} from "@/lib/inspiration-boards";
 import {
   CabinetContextMenu,
   CabinetContextMenuDivider,
@@ -216,7 +218,8 @@ export function CoupleOverview({
   const [editSaving, setEditSaving] = useState(false);
   /** taskId → коли чекнули; тримаємо на огляді 24 год. */
   const [doneLinger, setDoneLinger] = useState<DoneLingerMap>({});
-  const [hasInspiration, setHasInspiration] = useState(false);
+  const [inspirationImages, setInspirationImages] = useState<string[]>([]);
+  const [inspirationIndex, setInspirationIndex] = useState(0);
   const lingerExpiryTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -235,7 +238,15 @@ export function CoupleOverview({
 
   useEffect(() => {
     function refreshInspiration() {
-      setHasInspiration(hasUserInspirationContent(wedding.id));
+      const own = userInspirationImages(wedding.id);
+      const next = own.length
+        ? own
+        : DEFAULT_INSPIRATION_BOARDS.flatMap((b) => b.images);
+      setInspirationImages((prev) =>
+        prev.length === next.length && prev.every((src, i) => src === next[i])
+          ? prev
+          : next,
+      );
     }
     refreshInspiration();
     window.addEventListener("focus", refreshInspiration);
@@ -245,6 +256,14 @@ export function CoupleOverview({
       window.removeEventListener("storage", refreshInspiration);
     };
   }, [wedding.id]);
+
+  useEffect(() => {
+    if (inspirationImages.length < 2) return;
+    const id = window.setInterval(() => {
+      setInspirationIndex((i) => (i + 1) % inspirationImages.length);
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [inspirationImages]);
 
   // Коли спливе найближчий 24h-термін — прибрати з списку без релоаду.
   useEffect(() => {
@@ -401,7 +420,6 @@ export function CoupleOverview({
       : daysLeft === 0
         ? "сьогодні"
         : "вже відбулось";
-  const photo = wedding.couplePhotoUrl || "/landing/couple.jpg";
 
   function markDoneLinger(taskId: string) {
     setDoneLinger((prev) => {
@@ -685,34 +703,27 @@ export function CoupleOverview({
             </article>
           ) : null}
 
-          {hasInspiration ? (
+          {inspirationImages.length > 0 ? (
             <Link
               href="/inspiration"
               className="cabinet-photo"
               aria-label="Дошка натхнення"
             >
-              <Image
-                src={photo}
-                alt="Дошка натхнення"
-                fill
-                className="object-cover"
-                sizes="361px"
-              />
+              {inspirationImages.map((src, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={src}
+                  src={src}
+                  alt=""
+                  className={`cabinet-photo__slide${
+                    i === inspirationIndex % inspirationImages.length
+                      ? " cabinet-photo__slide--active"
+                      : ""
+                  }`}
+                />
+              ))}
             </Link>
-          ) : (
-            <div className="cabinet-photo">
-              <Image
-                src={photo}
-                alt="Фото пари"
-                fill
-                className="object-cover"
-                sizes="361px"
-              />
-              <Link href="/inspiration" className="cabinet-photo-cta">
-                Побудувати спільну дошку натхнення
-              </Link>
-            </div>
-          )}
+          ) : null}
 
           {hasGuests ? (
             <article className="cabinet-overview-guests">
