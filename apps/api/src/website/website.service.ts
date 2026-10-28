@@ -308,7 +308,7 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
       raw.scheduleTitle ?? fallback.scheduleTitle,
       'Деталі нашого свята',
     ),
-    scheduleItems: scheduleItems.length ? scheduleItems : fallback.scheduleItems,
+    scheduleItems,
     dressCodeTitle: canonicalTitle(
       raw.dressCodeTitle ?? fallback.dressCodeTitle,
       'Дрес-код',

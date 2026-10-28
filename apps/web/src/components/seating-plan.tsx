@@ -43,7 +43,11 @@ import {
   saveSeatingPlan,
   type SeatingPlanPayload,
 } from "@/lib/seating-api";
-import { shapedSeatPosition, defaultShapedSeatCount } from "@/lib/seat-layout";
+import {
+  shapedSeatPosition,
+  defaultShapedSeatCount,
+  tableBodyDims,
+} from "@/lib/seat-layout";
 import { toast } from "@/lib/toast";
 import {
   detectUaNameGender,
@@ -112,14 +116,8 @@ function snap(n: number) {
 }
 
 function tableBodySize(table: PlanTable): { w: number; h: number } {
-  if (table.kind === "presidium") return { w: 320, h: 56 };
-  if (table.kind === "round") return { w: 120, h: 120 };
-  if (table.kind === "long") return { w: 280, h: 48 };
-  if (table.kind === "t-shape" || table.kind === "p-shape") {
-    return { w: 280, h: 200 };
-  }
-  if (table.shape === "long") return { w: 240, h: 48 };
-  return { w: 100, h: 100 };
+  const { w, h } = tableBodyDims(table.kind, table.shape, table.seats.length);
+  return { w, h };
 }
 
 /** Content box the canvas must cover (tables + seat bleed + pad). */
@@ -200,17 +198,24 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
     const companions = parseCompanions(g.notes, g).filter((c) =>
       c.name.trim(),
     );
-    rows.push({
-      key: mainKey,
-      guestId: g.id,
-      name: g.name,
-      isPlusOne: false,
-      isChild: isChild(g),
-      side: g.side,
-      rsvpStatus: g.rsvpStatus,
-      linkedKey: companions[0] ? `${g.id}:plus` : null,
-    });
+    const mainComing = g.rsvpStatus !== "NO";
+    if (mainComing) {
+      rows.push({
+        key: mainKey,
+        guestId: g.id,
+        name: g.name,
+        isPlusOne: false,
+        isChild: isChild(g),
+        side: g.side,
+        rsvpStatus: g.rsvpStatus,
+        linkedKey:
+          companions[0] && companions[0].rsvpStatus !== "NO"
+            ? `${g.id}:plus`
+            : null,
+      });
+    }
     companions.forEach((companion, index) => {
+      if (companion.rsvpStatus === "NO") return;
       rows.push({
         key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
         guestId: g.id,
@@ -219,7 +224,7 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
         isChild: companion.isChild,
         side: g.side,
         rsvpStatus: companion.rsvpStatus,
-        linkedKey: mainKey,
+        linkedKey: mainComing ? mainKey : null,
       });
     });
   }
@@ -423,6 +428,9 @@ function autoSeat(
   return next;
 }
 
+/** Відступ центру стільця від краю столу (стілець 26px + зазор). */
+const SEAT_GAP = 22;
+
 function seatPosition(
   kind: PlanTable["kind"],
   index: number,
@@ -437,27 +445,41 @@ function seatPosition(
     kind === "round" || (kind === "kids" && shape !== "long");
   if (asRound) {
     const angle = (Math.PI * 2 * index) / Math.max(total, 1) - Math.PI / 2;
-    const r = kind === "kids" ? 52 : 62;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
     return {
-      left: `${50 + Math.cos(angle) * r * 0.85}%`,
-      top: `${50 + Math.sin(angle) * r * 0.85}%`,
+      left: `calc(50% + ${cos} * (50% + ${SEAT_GAP}px))`,
+      top: `calc(50% + ${sin} * (50% + ${SEAT_GAP}px))`,
     };
   }
 
   if (kind === "presidium") {
     const t = total <= 1 ? 0.5 : index / (total - 1);
-    return { left: `${10 + t * 80}%`, top: "0%" };
+    return { left: `${10 + t * 80}%`, top: `-${SEAT_GAP}px` };
   }
 
   const half = Math.ceil(total / 2);
   if (index < half) {
     const t = half <= 1 ? 0.5 : index / (half - 1);
-    return { left: `${10 + t * 80}%`, top: "0%" };
+    return { left: `${10 + t * 80}%`, top: `-${SEAT_GAP}px` };
   }
   const j = index - half;
   const bottom = Math.max(total - half, 1);
   const t = bottom <= 1 ? 0.5 : j / (bottom - 1);
-  return { left: `${10 + t * 80}%`, top: "100%" };
+  return { left: `${10 + t * 80}%`, top: `calc(100% + ${SEAT_GAP}px)` };
+}
+
+function bodyStyle(table: PlanTable): React.CSSProperties {
+  const { w, h, scale } = tableBodyDims(
+    table.kind,
+    table.shape,
+    table.seats.length,
+  );
+  return {
+    width: w,
+    height: h,
+    ...(scale ? ({ "--shape-scale": scale } as React.CSSProperties) : null),
+  };
 }
 
 function TableShapeSilhouette({ kind }: { kind: PlanTable["kind"] }) {
@@ -653,6 +675,25 @@ export function SeatingPlan({
     // Only hydrate once per mount (key resets when plan cleared).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [weddingId]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const present = new Set(flat.map((g) => g.key));
+    setTables((prev) => {
+      const stale = prev.some((t) =>
+        t.seats.some((s) => s.guestKey && !present.has(s.guestKey)),
+      );
+      if (!stale) return prev;
+      return prev.map((t) => ({
+        ...t,
+        seats: t.seats.map((s) =>
+          s.guestKey && !present.has(s.guestKey)
+            ? { ...s, guestKey: null }
+            : s,
+        ),
+      }));
+    });
+  }, [flat, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -1821,9 +1862,19 @@ export function SeatingPlan({
                 }}
                 onDrop={(e) => onTableDrop(e, table.id)}
               >
-                <div className="seat-plan-table-body">
+                <div
+                  className="seat-plan-table-body"
+                  style={bodyStyle(table)}
+                >
                   <TableShapeSilhouette kind={table.kind} />
-                  <div className="seat-plan-table-label">
+                  <div
+                    className="seat-plan-table-label"
+                    style={{
+                      transform: table.rotation
+                        ? `rotate(${-table.rotation}deg)`
+                        : undefined,
+                    }}
+                  >
                     <span className="seat-plan-table-label-name">
                       {table.label}
                     </span>

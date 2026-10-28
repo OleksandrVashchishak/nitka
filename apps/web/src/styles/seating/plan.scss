@@ -709,27 +709,27 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 48px;
+  height: calc(48px * var(--shape-scale, 1));
 }
 
 .seat-plan-table.is-t-shape .seat-plan-shape-stem {
-  top: 40px;
+  top: calc(40px * var(--shape-scale, 1));
   left: 50%;
-  width: 48px;
-  height: calc(100% - 40px);
+  width: calc(48px * var(--shape-scale, 1));
+  height: calc(100% - 40px * var(--shape-scale, 1));
   transform: translateX(-50%);
 }
 
 .seat-plan-table.is-p-shape .seat-plan-shape-top {
   top: 0;
-  left: 40px;
-  width: calc(100% - 80px);
-  height: 48px;
+  left: calc(40px * var(--shape-scale, 1));
+  width: calc(100% - 80px * var(--shape-scale, 1));
+  height: calc(48px * var(--shape-scale, 1));
 }
 
 .seat-plan-table.is-p-shape .seat-plan-shape-leg {
   top: 0;
-  width: 48px;
+  width: calc(48px * var(--shape-scale, 1));
   height: 100%;
 }
 

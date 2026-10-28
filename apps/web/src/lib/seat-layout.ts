@@ -39,6 +39,42 @@ function along(count: number, index: number): number {
   return index / (count - 1);
 }
 
+/** Min distance between seat centers along a table edge / ring (seat is 26px). */
+const SEAT_STEP = 34;
+
+/**
+ * Table body size that grows with seat count so seats keep their spacing.
+ * `scale` is only set for T/P shapes (their stem/legs scale with the body).
+ */
+export function tableBodyDims(
+  kind: SeatTableKind,
+  shape: "round" | "long" | undefined,
+  seats: number,
+): { w: number; h: number; scale?: number } {
+  const n = Math.max(seats, 1);
+  if (kind === "t-shape" || kind === "p-shape") {
+    const scale = Math.max(1, n / defaultShapedSeatCount(kind));
+    return { w: 280 * scale, h: 200 * scale, scale };
+  }
+  if (kind === "presidium") {
+    return { w: Math.max(320, Math.ceil((n - 1) * (SEAT_STEP / 0.8))), h: 56 };
+  }
+  if (kind === "round") {
+    const d = Math.max(120, Math.ceil((n * SEAT_STEP) / 3.3));
+    return { w: d, h: d };
+  }
+  if (kind === "kids" && shape !== "long") {
+    const d = Math.max(100, Math.ceil((n * SEAT_STEP) / 3.3));
+    return { w: d, h: d };
+  }
+  const half = Math.ceil(n / 2);
+  const base = kind === "kids" ? 240 : 280;
+  return {
+    w: Math.max(base, Math.ceil((half - 1) * (SEAT_STEP / 0.8))),
+    h: 48,
+  };
+}
+
 /** `n` is already on a 0–100 percentage scale (not 0–1). */
 function pct(n: number): string {
   return `${Math.round(n * 10) / 10}%`;

@@ -12,7 +12,13 @@ import { IconTrash } from "@/components/icon-trash";
 import { RadioGroup, RadioOption } from "@/components/ui/radio";
 import { TextInput } from "@/components/ui/text-input";
 import type { Guest } from "@/lib/guests-api";
-import { isChildGuest, parseCompanions } from "@/lib/guest-party";
+import { IconBaby } from "@/components/icon-baby";
+import {
+  isChildGuest,
+  orderByParty,
+  parseChildNeed,
+  parseCompanions,
+} from "@/lib/guest-party";
 import "@/styles/seating/wizard.scss";
 
 export type SeatingFormatId =
@@ -110,20 +116,27 @@ type FlatGuest = {
   isPlusOne: boolean;
   linkedTo: string | null;
   isChild: boolean;
+  toKidsTable: boolean;
   side: Guest["side"];
 };
 
 function flattenGuests(guests: Guest[]): FlatGuest[] {
   const rows: FlatGuest[] = [];
-  for (const g of guests) {
+  const { ordered, leaderOf } = orderByParty(
+    guests.filter((g) => g.rsvpStatus !== "NO"),
+  );
+  for (const g of ordered) {
     const key = g.id;
+    const leader = leaderOf.get(g.id) ?? null;
     rows.push({
       key,
       guestId: g.id,
       name: g.name,
-      isPlusOne: false,
-      linkedTo: null,
+      isPlusOne: Boolean(leader),
+      linkedTo: leader,
       isChild: isChildGuest(g.notes),
+      toKidsTable:
+        isChildGuest(g.notes) && parseChildNeed(g.notes) === "kids_table",
       side: g.side,
     });
     const companions = parseCompanions(g.notes, g).filter((c) =>
@@ -137,6 +150,7 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
         isPlusOne: true,
         linkedTo: key,
         isChild: companion.isChild,
+        toKidsTable: companion.isChild && companion.childNeed === "kids_table",
         side: g.side,
       });
     });
@@ -173,10 +187,7 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
   const [kidsTableShape, setKidsTableShape] =
     useState<KidsTableShape>("round");
 
-  const [groups, setGroups] = useState<SeatingGuestGroup[]>([
-    { id: uid("grp"), name: "Друзі" },
-    { id: uid("grp"), name: "" },
-  ]);
+  const [groups, setGroups] = useState<SeatingGuestGroup[]>([]);
   const [assignments, setAssignments] = useState<
     Record<string, SeatingGuestAssign>
   >({});
@@ -239,7 +250,7 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
       let changed = false;
       for (const row of flatGuests) {
         if (next[row.key] !== undefined) continue;
-        if (row.isChild && hasKidsTable) {
+        if (row.toKidsTable && hasKidsTable) {
           next[row.key] = "kids";
           changed = true;
         } else {
@@ -258,7 +269,7 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
       if (row && !row.isPlusOne) {
         for (const plus of flatGuests.filter((g) => g.linkedTo === key)) {
           if (detachedKeys.has(plus.key)) continue;
-          if (plus.isChild) continue;
+          if (plus.toKidsTable) continue;
           if (prev[plus.key] === "kids") continue;
           next[plus.key] = value;
         }
@@ -731,7 +742,6 @@ function StepGuests({
                   className="seat-wiz-icon-btn seat-wiz-icon-btn--danger"
                   aria-label="Видалити групу"
                   onClick={() => onRemoveGroup(group.id)}
-                  disabled={groups.length <= 1}
                 >
                   <IconTrash size={22} />
                 </button>
@@ -807,7 +817,7 @@ function StepGuests({
                         title="Дитина"
                         aria-label="Дитина"
                       >
-                        <ChildIcon />
+                        <IconBaby />
                       </span>
                     ) : linked ? (
                       <span className="seat-wiz-link-ico" aria-hidden>
@@ -1049,20 +1059,6 @@ function LinkGlyph() {
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
       <path
         d="M5.5 8.5 8.5 5.5M6.2 4.2l.9-.9a2.2 2.2 0 1 1 3.1 3.1l-.9.9M7.8 9.8l-.9.9a2.2 2.2 0 1 1-3.1-3.1l.9-.9"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ChildIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <circle cx="7" cy="4.2" r="2.1" stroke="currentColor" strokeWidth="1.3" />
-      <path
-        d="M3.2 12c.4-2.2 1.8-3.4 3.8-3.4s3.4 1.2 3.8 3.4"
         stroke="currentColor"
         strokeWidth="1.3"
         strokeLinecap="round"

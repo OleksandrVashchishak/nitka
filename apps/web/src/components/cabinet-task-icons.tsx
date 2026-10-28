@@ -3,34 +3,27 @@ type Props = {
   className?: string;
 };
 
-/** Black circle + lime ring + plus — mobile quick-add (Figma QuickAdd @1x 44). */
+/** Black circle + lime plus — mobile quick-add (Figma QuickAdd 36). */
 export function IconQuickAdd({ size = 40, className }: Props) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 44 44"
+      viewBox="0 0 36 36"
       fill="none"
       aria-hidden
       className={className}
     >
-      <rect width="44" height="44" rx="22" fill="#1A1A1A" />
+      <rect width="36" height="36" rx="18" fill="#1A1A1A" />
       <path
-        d="M22 32C27.5 32 32 27.5 32 22C32 16.5 27.5 12 22 12C16.5 12 12 16.5 12 22C12 27.5 16.5 32 22 32Z"
+        d="M18 24V12"
         stroke="#F0FEBB"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
-        d="M18 22H26"
-        stroke="#F0FEBB"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M22 26V18"
+        d="M12 18H24"
         stroke="#F0FEBB"
         strokeWidth="1.5"
         strokeLinecap="round"

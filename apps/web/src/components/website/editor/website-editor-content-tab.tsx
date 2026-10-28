@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   IconChevron,
   WebsiteToggle,
@@ -8,6 +8,7 @@ import {
 import { IconCalendar } from "@/components/icon-calendar";
 import { IconTrash } from "@/components/icon-trash";
 import { WebsiteImageField } from "@/components/website/editor/website-image-field";
+import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
 import { Textarea } from "@/components/ui/textarea";
 import type {
@@ -26,6 +27,17 @@ type Props = {
   onNamesChange: (bride: string, groom: string) => void;
 };
 
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) =>
+  `${String(Math.floor(i / 2)).padStart(2, "0")}:${i % 2 ? "30" : "00"}`,
+);
+
+function dateLabelToIso(label?: string) {
+  const m = label?.match(/(\d{1,2})[./](\d{1,2})[./](\d{2,4})/);
+  if (!m) return "";
+  const year = m[3].length === 2 ? `20${m[3]}` : m[3];
+  return `${year}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+}
+
 export function WebsiteEditorContentTab({
   content,
   brideName,
@@ -33,6 +45,7 @@ export function WebsiteEditorContentTab({
   onChange,
   onNamesChange,
 }: Props) {
+  const dateRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState<Record<BlockId, boolean>>({
     hero: true,
     timer: false,
@@ -47,7 +60,6 @@ export function WebsiteEditorContentTab({
     sections.registry ||
     sections.travel ||
     sections.gallery ||
-    sections.rsvp ||
     sections.qa;
 
   function patch(partial: Partial<WebsiteContent>) {
@@ -99,7 +111,6 @@ export function WebsiteEditorContentTab({
         registry: true,
         travel: sections.travel,
         gallery: sections.gallery,
-        rsvp: sections.rsvp,
         qa: sections.qa,
       });
       return;
@@ -109,7 +120,6 @@ export function WebsiteEditorContentTab({
       registry: false,
       travel: false,
       gallery: false,
-      rsvp: false,
       qa: false,
     });
   }
@@ -154,7 +164,42 @@ export function WebsiteEditorContentTab({
               value={content.dateLabel}
               onChange={(e) => patch({ dateLabel: e.target.value })}
               placeholder="25.08.27"
-              endAdornment={<IconCalendar size={14} />}
+              endAdornment={
+                <>
+                  <button
+                    type="button"
+                    aria-label="Обрати дату"
+                    onClick={() => {
+                      const el = dateRef.current;
+                      if (!el) return;
+                      if (typeof el.showPicker === "function") el.showPicker();
+                      else el.click();
+                    }}
+                  >
+                    <IconCalendar size={14} />
+                  </button>
+                  <input
+                    ref={dateRef}
+                    type="date"
+                    tabIndex={-1}
+                    aria-hidden
+                    value={dateLabelToIso(content.dateLabel)}
+                    onChange={(e) => {
+                      const m = e.target.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                      if (m) patch({ dateLabel: `${m[3]}.${m[2]}.${m[1].slice(2)}` });
+                    }}
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      bottom: 0,
+                      width: 1,
+                      height: 1,
+                      opacity: 0,
+                      pointerEvents: "none",
+                    }}
+                  />
+                </>
+              }
             />
             <WebsiteImageField
               label="Головне фото"
@@ -197,13 +242,22 @@ export function WebsiteEditorContentTab({
                 </button>
               </div>
               <div className="we-blocks__event-grid">
-                <TextInput
+                <Select
                   size="s"
                   label="Час"
                   value={item.time}
                   onChange={(e) => updateEvent(index, { time: e.target.value })}
-                  placeholder="16:00"
-                />
+                >
+                  <option value="">—</option>
+                  {item.time && !TIME_OPTIONS.includes(item.time) ? (
+                    <option value={item.time}>{item.time}</option>
+                  ) : null}
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </Select>
                 <TextInput
                   size="s"
                   label="Подія"
@@ -281,9 +335,9 @@ export function WebsiteEditorContentTab({
               <Textarea
                 plain
                 inputClassName="we-blocks__textarea"
-                value={content.subheadline.trim()}
+                value={content.subheadline === " " ? "" : content.subheadline}
                 onChange={(e) => patch({ subheadline: e.target.value })}
-                placeholder="Наприклад: трохи про наречену…"
+                placeholder="Наприклад: Наречена любить…"
               />
             </NestedItem>
             <NestedItem
@@ -302,9 +356,9 @@ export function WebsiteEditorContentTab({
               <Textarea
                 plain
                 inputClassName="we-blocks__textarea"
-                value={content.groomBio.trim()}
+                value={content.groomBio === " " ? "" : content.groomBio}
                 onChange={(e) => patch({ groomBio: e.target.value })}
-                placeholder="Наприклад: трохи про нареченого…"
+                placeholder="Наприклад: Наречений полюбляє…"
               />
               <WebsiteImageField
                 label="Фото нареченого"
@@ -313,7 +367,7 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Як відбулася пропозиція"
+              label="Як відбулась пропозиція"
               checked={content.proposalBody.length > 0}
               onCheckedChange={(v) => {
                 if (v) {
@@ -330,9 +384,9 @@ export function WebsiteEditorContentTab({
               <Textarea
                 plain
                 inputClassName="we-blocks__textarea"
-                value={content.proposalBody.trim()}
+                value={content.proposalBody === " " ? "" : content.proposalBody}
                 onChange={(e) => patch({ proposalBody: e.target.value })}
-                placeholder="Наприклад: як відбулася пропозиція…"
+                placeholder="Наприклад: Ми поїхали в гори…"
               />
               <WebsiteImageField
                 label="Фото зліва"
@@ -406,19 +460,6 @@ export function WebsiteEditorContentTab({
                 value={content.galleryTitle}
                 onChange={(e) => patch({ galleryTitle: e.target.value })}
                 placeholder="Наприклад: буде няня та ігрова зона…"
-              />
-            </NestedItem>
-            <NestedItem
-              label="Підтвердіть свою присутність"
-              checked={sections.rsvp}
-              onCheckedChange={(v) => patchSections({ rsvp: v })}
-            >
-              <Textarea
-                plain
-                inputClassName="we-blocks__textarea"
-                value={content.rsvpBody}
-                onChange={(e) => patch({ rsvpBody: e.target.value })}
-                placeholder="Наприклад: будь ласка, до 1 червня…"
               />
             </NestedItem>
             <NestedItem

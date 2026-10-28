@@ -1,5 +1,5 @@
 export function splitCoupleNames(headline: string): [string, string] {
-  const parts = headline.split(/\s+(?:та|and|&|·)\s+/i);
+  const parts = headline.split(/\s+(?:та|і|й|and|&|·)\s+/i);
   if (parts.length >= 2) {
     return [parts[0].trim(), parts.slice(1).join(" ").trim()];
   }

@@ -5,13 +5,11 @@ import { WsiteCouple } from "@/components/wedding-site/sections/wsite-couple";
 import { WsiteDetails } from "@/components/wedding-site/sections/wsite-details";
 import { WsiteHero } from "@/components/wedding-site/sections/wsite-hero";
 import { WsiteProposal } from "@/components/wedding-site/sections/wsite-proposal";
-import { WsiteRsvp } from "@/components/wedding-site/sections/wsite-rsvp";
 import { WsiteSchedule } from "@/components/wedding-site/sections/wsite-schedule";
 import { WsiteStory } from "@/components/wedding-site/sections/wsite-story";
 import {
   coupleInitials,
   parseWeddingDate,
-  safeHref,
   splitCoupleNames,
   themeClass,
 } from "@/components/wedding-site/wsite-utils";
@@ -138,6 +136,7 @@ export function WeddingSite({
 
       {sections.story ? (
         <WsiteStory
+          eyebrow="Історія кохання"
           title={content.storyTitle || "Наша історія"}
           body={content.storyBody}
           imageUrl={storyImage}
@@ -172,14 +171,6 @@ export function WeddingSite({
 
       {detailItems.length ? (
         <WsiteDetails title="Деталі весілля" items={detailItems} />
-      ) : null}
-
-      {sections.rsvp ? (
-        <WsiteRsvp
-          title={content.rsvpTitle || "Підтвердіть свою присутність"}
-          body={content.rsvpBody}
-          href={safeHref(content.rsvpUrl, "#")}
-        />
       ) : null}
 
       <WsiteClosing

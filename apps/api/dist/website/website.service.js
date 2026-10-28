@@ -209,7 +209,7 @@ function asContent(value, fallback) {
         storyBody: String(raw.storyBody ?? fallback.storyBody),
         storyImageUrl: String(raw.storyImageUrl ?? fallback.storyImageUrl ?? ''),
         scheduleTitle: canonicalTitle(raw.scheduleTitle ?? fallback.scheduleTitle, 'Деталі нашого свята'),
-        scheduleItems: scheduleItems.length ? scheduleItems : fallback.scheduleItems,
+        scheduleItems,
         dressCodeTitle: canonicalTitle(raw.dressCodeTitle ?? fallback.dressCodeTitle, 'Дрес-код'),
         dressCodeBody: String(raw.dressCodeBody ?? fallback.dressCodeBody),
         galleryTitle,

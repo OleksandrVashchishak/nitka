@@ -86,6 +86,33 @@ export function parseInviteMethod(
   return isInviteMethod(match?.[1]) ? match[1] : "phone";
 }
 
+/** Ставить гостей з одним `party:` поруч; leaderOf — id першого гостя партії для решти. */
+export function orderByParty<T extends { id: string; notes: string | null }>(
+  guests: T[],
+): { ordered: T[]; leaderOf: Map<string, string> } {
+  const byParty = new Map<string, T[]>();
+  for (const g of guests) {
+    const partyId = parsePartyId(g.notes);
+    if (partyId) byParty.set(partyId, [...(byParty.get(partyId) ?? []), g]);
+  }
+  const ordered: T[] = [];
+  const leaderOf = new Map<string, string>();
+  const seen = new Set<string>();
+  for (const g of guests) {
+    const partyId = parsePartyId(g.notes);
+    const members = partyId ? byParty.get(partyId)! : [g];
+    if (partyId) {
+      if (seen.has(partyId)) continue;
+      seen.add(partyId);
+    }
+    members.forEach((m, i) => {
+      ordered.push(m);
+      if (i > 0) leaderOf.set(m.id, members[0].id);
+    });
+  }
+  return { ordered, leaderOf };
+}
+
 export function isChildGuest(notes: string | null | undefined) {
   return (notes ?? "").includes("[child]");
 }
