@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model UserActivityDay
+ * 
+ */
+export type UserActivityDay = $Result.DefaultSelection<Prisma.$UserActivityDayPayload>
+/**
  * Model AdminUserNote
  * 
  */
@@ -184,6 +189,15 @@ export const ContentStatus: {
 
 export type ContentStatus = (typeof ContentStatus)[keyof typeof ContentStatus]
 
+
+export const ContactStatus: {
+  NEW: 'NEW',
+  IN_PROGRESS: 'IN_PROGRESS',
+  CLOSED: 'CLOSED'
+};
+
+export type ContactStatus = (typeof ContactStatus)[keyof typeof ContactStatus]
+
 }
 
 export type Role = $Enums.Role
@@ -221,6 +235,10 @@ export const ContentKind: typeof $Enums.ContentKind
 export type ContentStatus = $Enums.ContentStatus
 
 export const ContentStatus: typeof $Enums.ContentStatus
+
+export type ContactStatus = $Enums.ContactStatus
+
+export const ContactStatus: typeof $Enums.ContactStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -349,6 +367,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userActivityDay`: Exposes CRUD operations for the **UserActivityDay** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserActivityDays
+    * const userActivityDays = await prisma.userActivityDay.findMany()
+    * ```
+    */
+  get userActivityDay(): Prisma.UserActivityDayDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.adminUserNote`: Exposes CRUD operations for the **AdminUserNote** model.
@@ -951,6 +979,7 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    UserActivityDay: 'UserActivityDay',
     AdminUserNote: 'AdminUserNote',
     PushDevice: 'PushDevice',
     ExternalVendor: 'ExternalVendor',
@@ -985,7 +1014,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "adminUserNote" | "pushDevice" | "externalVendor" | "wedding" | "dayPlanShare" | "dayPlanShareGrant" | "weddingWebsite" | "weddingInvitation" | "weddingMember" | "weddingInvite" | "task" | "guest" | "budgetItem" | "contentTopic" | "contentPost" | "contactMessage"
+      modelProps: "user" | "userActivityDay" | "adminUserNote" | "pushDevice" | "externalVendor" | "wedding" | "dayPlanShare" | "dayPlanShareGrant" | "weddingWebsite" | "weddingInvitation" | "weddingMember" | "weddingInvite" | "task" | "guest" | "budgetItem" | "contentTopic" | "contentPost" | "contactMessage"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1060,6 +1089,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserActivityDay: {
+        payload: Prisma.$UserActivityDayPayload<ExtArgs>
+        fields: Prisma.UserActivityDayFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserActivityDayFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserActivityDayFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>
+          }
+          findFirst: {
+            args: Prisma.UserActivityDayFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserActivityDayFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>
+          }
+          findMany: {
+            args: Prisma.UserActivityDayFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>[]
+          }
+          create: {
+            args: Prisma.UserActivityDayCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>
+          }
+          createMany: {
+            args: Prisma.UserActivityDayCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserActivityDayCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>[]
+          }
+          delete: {
+            args: Prisma.UserActivityDayDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>
+          }
+          update: {
+            args: Prisma.UserActivityDayUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserActivityDayDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserActivityDayUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserActivityDayUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserActivityDayUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserActivityDayPayload>
+          }
+          aggregate: {
+            args: Prisma.UserActivityDayAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserActivityDay>
+          }
+          groupBy: {
+            args: Prisma.UserActivityDayGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserActivityDayGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserActivityDayCountArgs<ExtArgs>
+            result: $Utils.Optional<UserActivityDayCountAggregateOutputType> | number
           }
         }
       }
@@ -2344,6 +2447,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    userActivityDay?: UserActivityDayOmit
     adminUserNote?: AdminUserNoteOmit
     pushDevice?: PushDeviceOmit
     externalVendor?: ExternalVendorOmit
@@ -2445,6 +2549,7 @@ export namespace Prisma {
     pushDevices: number
     adminNotes: number
     dayPlanShareGrants: number
+    activityDays: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2453,6 +2558,7 @@ export namespace Prisma {
     pushDevices?: boolean | UserCountOutputTypeCountPushDevicesArgs
     adminNotes?: boolean | UserCountOutputTypeCountAdminNotesArgs
     dayPlanShareGrants?: boolean | UserCountOutputTypeCountDayPlanShareGrantsArgs
+    activityDays?: boolean | UserCountOutputTypeCountActivityDaysArgs
   }
 
   // Custom InputTypes
@@ -2499,6 +2605,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountDayPlanShareGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DayPlanShareGrantWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountActivityDaysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserActivityDayWhereInput
   }
 
 
@@ -2653,6 +2766,7 @@ export namespace Prisma {
     role: $Enums.Role | null
     blocked: boolean | null
     refreshTokenHash: string | null
+    emailVerifiedAt: Date | null
     notifGuestRsvp: boolean | null
     notifUpcomingPayments: boolean | null
     notifTaskDeadlines: boolean | null
@@ -2671,6 +2785,7 @@ export namespace Prisma {
     role: $Enums.Role | null
     blocked: boolean | null
     refreshTokenHash: string | null
+    emailVerifiedAt: Date | null
     notifGuestRsvp: boolean | null
     notifUpcomingPayments: boolean | null
     notifTaskDeadlines: boolean | null
@@ -2689,6 +2804,7 @@ export namespace Prisma {
     role: number
     blocked: number
     refreshTokenHash: number
+    emailVerifiedAt: number
     notifGuestRsvp: number
     notifUpcomingPayments: number
     notifTaskDeadlines: number
@@ -2709,6 +2825,7 @@ export namespace Prisma {
     role?: true
     blocked?: true
     refreshTokenHash?: true
+    emailVerifiedAt?: true
     notifGuestRsvp?: true
     notifUpcomingPayments?: true
     notifTaskDeadlines?: true
@@ -2727,6 +2844,7 @@ export namespace Prisma {
     role?: true
     blocked?: true
     refreshTokenHash?: true
+    emailVerifiedAt?: true
     notifGuestRsvp?: true
     notifUpcomingPayments?: true
     notifTaskDeadlines?: true
@@ -2745,6 +2863,7 @@ export namespace Prisma {
     role?: true
     blocked?: true
     refreshTokenHash?: true
+    emailVerifiedAt?: true
     notifGuestRsvp?: true
     notifUpcomingPayments?: true
     notifTaskDeadlines?: true
@@ -2836,6 +2955,7 @@ export namespace Prisma {
     role: $Enums.Role
     blocked: boolean
     refreshTokenHash: string | null
+    emailVerifiedAt: Date | null
     notifGuestRsvp: boolean
     notifUpcomingPayments: boolean
     notifTaskDeadlines: boolean
@@ -2871,6 +2991,7 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    emailVerifiedAt?: boolean
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -2886,6 +3007,7 @@ export namespace Prisma {
     pushDevices?: boolean | User$pushDevicesArgs<ExtArgs>
     adminNotes?: boolean | User$adminNotesArgs<ExtArgs>
     dayPlanShareGrants?: boolean | User$dayPlanShareGrantsArgs<ExtArgs>
+    activityDays?: boolean | User$activityDaysArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2897,6 +3019,7 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    emailVerifiedAt?: boolean
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -2915,6 +3038,7 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    emailVerifiedAt?: boolean
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -2933,6 +3057,7 @@ export namespace Prisma {
     role?: boolean
     blocked?: boolean
     refreshTokenHash?: boolean
+    emailVerifiedAt?: boolean
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -2943,7 +3068,7 @@ export namespace Prisma {
     lastLoginAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "blocked" | "refreshTokenHash" | "notifGuestRsvp" | "notifUpcomingPayments" | "notifTaskDeadlines" | "notifPartnerChanges" | "notifPush" | "notifEmail" | "createdAt" | "lastLoginAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "blocked" | "refreshTokenHash" | "emailVerifiedAt" | "notifGuestRsvp" | "notifUpcomingPayments" | "notifTaskDeadlines" | "notifPartnerChanges" | "notifPush" | "notifEmail" | "createdAt" | "lastLoginAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | User$weddingArgs<ExtArgs>
     weddingMember?: boolean | User$weddingMemberArgs<ExtArgs>
@@ -2952,6 +3077,7 @@ export namespace Prisma {
     pushDevices?: boolean | User$pushDevicesArgs<ExtArgs>
     adminNotes?: boolean | User$adminNotesArgs<ExtArgs>
     dayPlanShareGrants?: boolean | User$dayPlanShareGrantsArgs<ExtArgs>
+    activityDays?: boolean | User$activityDaysArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2967,6 +3093,7 @@ export namespace Prisma {
       pushDevices: Prisma.$PushDevicePayload<ExtArgs>[]
       adminNotes: Prisma.$AdminUserNotePayload<ExtArgs>[]
       dayPlanShareGrants: Prisma.$DayPlanShareGrantPayload<ExtArgs>[]
+      activityDays: Prisma.$UserActivityDayPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2976,6 +3103,7 @@ export namespace Prisma {
       role: $Enums.Role
       blocked: boolean
       refreshTokenHash: string | null
+      emailVerifiedAt: Date | null
       notifGuestRsvp: boolean
       notifUpcomingPayments: boolean
       notifTaskDeadlines: boolean
@@ -3385,6 +3513,7 @@ export namespace Prisma {
     pushDevices<T extends User$pushDevicesArgs<ExtArgs> = {}>(args?: Subset<T, User$pushDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     adminNotes<T extends User$adminNotesArgs<ExtArgs> = {}>(args?: Subset<T, User$adminNotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminUserNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dayPlanShareGrants<T extends User$dayPlanShareGrantsArgs<ExtArgs> = {}>(args?: Subset<T, User$dayPlanShareGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DayPlanShareGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activityDays<T extends User$activityDaysArgs<ExtArgs> = {}>(args?: Subset<T, User$activityDaysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3421,6 +3550,7 @@ export namespace Prisma {
     readonly role: FieldRef<"User", 'Role'>
     readonly blocked: FieldRef<"User", 'Boolean'>
     readonly refreshTokenHash: FieldRef<"User", 'String'>
+    readonly emailVerifiedAt: FieldRef<"User", 'DateTime'>
     readonly notifGuestRsvp: FieldRef<"User", 'Boolean'>
     readonly notifUpcomingPayments: FieldRef<"User", 'Boolean'>
     readonly notifTaskDeadlines: FieldRef<"User", 'Boolean'>
@@ -3975,6 +4105,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.activityDays
+   */
+  export type User$activityDaysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    where?: UserActivityDayWhereInput
+    orderBy?: UserActivityDayOrderByWithRelationInput | UserActivityDayOrderByWithRelationInput[]
+    cursor?: UserActivityDayWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserActivityDayScalarFieldEnum | UserActivityDayScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3990,6 +4144,1025 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserActivityDay
+   */
+
+  export type AggregateUserActivityDay = {
+    _count: UserActivityDayCountAggregateOutputType | null
+    _min: UserActivityDayMinAggregateOutputType | null
+    _max: UserActivityDayMaxAggregateOutputType | null
+  }
+
+  export type UserActivityDayMinAggregateOutputType = {
+    userId: string | null
+    day: Date | null
+  }
+
+  export type UserActivityDayMaxAggregateOutputType = {
+    userId: string | null
+    day: Date | null
+  }
+
+  export type UserActivityDayCountAggregateOutputType = {
+    userId: number
+    day: number
+    _all: number
+  }
+
+
+  export type UserActivityDayMinAggregateInputType = {
+    userId?: true
+    day?: true
+  }
+
+  export type UserActivityDayMaxAggregateInputType = {
+    userId?: true
+    day?: true
+  }
+
+  export type UserActivityDayCountAggregateInputType = {
+    userId?: true
+    day?: true
+    _all?: true
+  }
+
+  export type UserActivityDayAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserActivityDay to aggregate.
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserActivityDays to fetch.
+     */
+    orderBy?: UserActivityDayOrderByWithRelationInput | UserActivityDayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserActivityDayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserActivityDays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserActivityDays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserActivityDays
+    **/
+    _count?: true | UserActivityDayCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserActivityDayMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserActivityDayMaxAggregateInputType
+  }
+
+  export type GetUserActivityDayAggregateType<T extends UserActivityDayAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserActivityDay]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserActivityDay[P]>
+      : GetScalarType<T[P], AggregateUserActivityDay[P]>
+  }
+
+
+
+
+  export type UserActivityDayGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserActivityDayWhereInput
+    orderBy?: UserActivityDayOrderByWithAggregationInput | UserActivityDayOrderByWithAggregationInput[]
+    by: UserActivityDayScalarFieldEnum[] | UserActivityDayScalarFieldEnum
+    having?: UserActivityDayScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserActivityDayCountAggregateInputType | true
+    _min?: UserActivityDayMinAggregateInputType
+    _max?: UserActivityDayMaxAggregateInputType
+  }
+
+  export type UserActivityDayGroupByOutputType = {
+    userId: string
+    day: Date
+    _count: UserActivityDayCountAggregateOutputType | null
+    _min: UserActivityDayMinAggregateOutputType | null
+    _max: UserActivityDayMaxAggregateOutputType | null
+  }
+
+  type GetUserActivityDayGroupByPayload<T extends UserActivityDayGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserActivityDayGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserActivityDayGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserActivityDayGroupByOutputType[P]>
+            : GetScalarType<T[P], UserActivityDayGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserActivityDaySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    day?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userActivityDay"]>
+
+  export type UserActivityDaySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    day?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userActivityDay"]>
+
+  export type UserActivityDaySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    day?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userActivityDay"]>
+
+  export type UserActivityDaySelectScalar = {
+    userId?: boolean
+    day?: boolean
+  }
+
+  export type UserActivityDayOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "day", ExtArgs["result"]["userActivityDay"]>
+  export type UserActivityDayInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserActivityDayIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserActivityDayIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserActivityDayPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserActivityDay"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      userId: string
+      day: Date
+    }, ExtArgs["result"]["userActivityDay"]>
+    composites: {}
+  }
+
+  type UserActivityDayGetPayload<S extends boolean | null | undefined | UserActivityDayDefaultArgs> = $Result.GetResult<Prisma.$UserActivityDayPayload, S>
+
+  type UserActivityDayCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserActivityDayFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserActivityDayCountAggregateInputType | true
+    }
+
+  export interface UserActivityDayDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserActivityDay'], meta: { name: 'UserActivityDay' } }
+    /**
+     * Find zero or one UserActivityDay that matches the filter.
+     * @param {UserActivityDayFindUniqueArgs} args - Arguments to find a UserActivityDay
+     * @example
+     * // Get one UserActivityDay
+     * const userActivityDay = await prisma.userActivityDay.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserActivityDayFindUniqueArgs>(args: SelectSubset<T, UserActivityDayFindUniqueArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserActivityDay that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserActivityDayFindUniqueOrThrowArgs} args - Arguments to find a UserActivityDay
+     * @example
+     * // Get one UserActivityDay
+     * const userActivityDay = await prisma.userActivityDay.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserActivityDayFindUniqueOrThrowArgs>(args: SelectSubset<T, UserActivityDayFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserActivityDay that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayFindFirstArgs} args - Arguments to find a UserActivityDay
+     * @example
+     * // Get one UserActivityDay
+     * const userActivityDay = await prisma.userActivityDay.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserActivityDayFindFirstArgs>(args?: SelectSubset<T, UserActivityDayFindFirstArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserActivityDay that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayFindFirstOrThrowArgs} args - Arguments to find a UserActivityDay
+     * @example
+     * // Get one UserActivityDay
+     * const userActivityDay = await prisma.userActivityDay.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserActivityDayFindFirstOrThrowArgs>(args?: SelectSubset<T, UserActivityDayFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserActivityDays that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserActivityDays
+     * const userActivityDays = await prisma.userActivityDay.findMany()
+     * 
+     * // Get first 10 UserActivityDays
+     * const userActivityDays = await prisma.userActivityDay.findMany({ take: 10 })
+     * 
+     * // Only select the `userId`
+     * const userActivityDayWithUserIdOnly = await prisma.userActivityDay.findMany({ select: { userId: true } })
+     * 
+     */
+    findMany<T extends UserActivityDayFindManyArgs>(args?: SelectSubset<T, UserActivityDayFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserActivityDay.
+     * @param {UserActivityDayCreateArgs} args - Arguments to create a UserActivityDay.
+     * @example
+     * // Create one UserActivityDay
+     * const UserActivityDay = await prisma.userActivityDay.create({
+     *   data: {
+     *     // ... data to create a UserActivityDay
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserActivityDayCreateArgs>(args: SelectSubset<T, UserActivityDayCreateArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserActivityDays.
+     * @param {UserActivityDayCreateManyArgs} args - Arguments to create many UserActivityDays.
+     * @example
+     * // Create many UserActivityDays
+     * const userActivityDay = await prisma.userActivityDay.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserActivityDayCreateManyArgs>(args?: SelectSubset<T, UserActivityDayCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserActivityDays and returns the data saved in the database.
+     * @param {UserActivityDayCreateManyAndReturnArgs} args - Arguments to create many UserActivityDays.
+     * @example
+     * // Create many UserActivityDays
+     * const userActivityDay = await prisma.userActivityDay.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserActivityDays and only return the `userId`
+     * const userActivityDayWithUserIdOnly = await prisma.userActivityDay.createManyAndReturn({
+     *   select: { userId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserActivityDayCreateManyAndReturnArgs>(args?: SelectSubset<T, UserActivityDayCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserActivityDay.
+     * @param {UserActivityDayDeleteArgs} args - Arguments to delete one UserActivityDay.
+     * @example
+     * // Delete one UserActivityDay
+     * const UserActivityDay = await prisma.userActivityDay.delete({
+     *   where: {
+     *     // ... filter to delete one UserActivityDay
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserActivityDayDeleteArgs>(args: SelectSubset<T, UserActivityDayDeleteArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserActivityDay.
+     * @param {UserActivityDayUpdateArgs} args - Arguments to update one UserActivityDay.
+     * @example
+     * // Update one UserActivityDay
+     * const userActivityDay = await prisma.userActivityDay.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserActivityDayUpdateArgs>(args: SelectSubset<T, UserActivityDayUpdateArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserActivityDays.
+     * @param {UserActivityDayDeleteManyArgs} args - Arguments to filter UserActivityDays to delete.
+     * @example
+     * // Delete a few UserActivityDays
+     * const { count } = await prisma.userActivityDay.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserActivityDayDeleteManyArgs>(args?: SelectSubset<T, UserActivityDayDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserActivityDays.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserActivityDays
+     * const userActivityDay = await prisma.userActivityDay.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserActivityDayUpdateManyArgs>(args: SelectSubset<T, UserActivityDayUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserActivityDays and returns the data updated in the database.
+     * @param {UserActivityDayUpdateManyAndReturnArgs} args - Arguments to update many UserActivityDays.
+     * @example
+     * // Update many UserActivityDays
+     * const userActivityDay = await prisma.userActivityDay.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserActivityDays and only return the `userId`
+     * const userActivityDayWithUserIdOnly = await prisma.userActivityDay.updateManyAndReturn({
+     *   select: { userId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserActivityDayUpdateManyAndReturnArgs>(args: SelectSubset<T, UserActivityDayUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserActivityDay.
+     * @param {UserActivityDayUpsertArgs} args - Arguments to update or create a UserActivityDay.
+     * @example
+     * // Update or create a UserActivityDay
+     * const userActivityDay = await prisma.userActivityDay.upsert({
+     *   create: {
+     *     // ... data to create a UserActivityDay
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserActivityDay we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserActivityDayUpsertArgs>(args: SelectSubset<T, UserActivityDayUpsertArgs<ExtArgs>>): Prisma__UserActivityDayClient<$Result.GetResult<Prisma.$UserActivityDayPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserActivityDays.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayCountArgs} args - Arguments to filter UserActivityDays to count.
+     * @example
+     * // Count the number of UserActivityDays
+     * const count = await prisma.userActivityDay.count({
+     *   where: {
+     *     // ... the filter for the UserActivityDays we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserActivityDayCountArgs>(
+      args?: Subset<T, UserActivityDayCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserActivityDayCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserActivityDay.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserActivityDayAggregateArgs>(args: Subset<T, UserActivityDayAggregateArgs>): Prisma.PrismaPromise<GetUserActivityDayAggregateType<T>>
+
+    /**
+     * Group by UserActivityDay.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserActivityDayGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserActivityDayGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserActivityDayGroupByArgs['orderBy'] }
+        : { orderBy?: UserActivityDayGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserActivityDayGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserActivityDayGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserActivityDay model
+   */
+  readonly fields: UserActivityDayFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserActivityDay.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserActivityDayClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserActivityDay model
+   */
+  interface UserActivityDayFieldRefs {
+    readonly userId: FieldRef<"UserActivityDay", 'String'>
+    readonly day: FieldRef<"UserActivityDay", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserActivityDay findUnique
+   */
+  export type UserActivityDayFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * Filter, which UserActivityDay to fetch.
+     */
+    where: UserActivityDayWhereUniqueInput
+  }
+
+  /**
+   * UserActivityDay findUniqueOrThrow
+   */
+  export type UserActivityDayFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * Filter, which UserActivityDay to fetch.
+     */
+    where: UserActivityDayWhereUniqueInput
+  }
+
+  /**
+   * UserActivityDay findFirst
+   */
+  export type UserActivityDayFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * Filter, which UserActivityDay to fetch.
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserActivityDays to fetch.
+     */
+    orderBy?: UserActivityDayOrderByWithRelationInput | UserActivityDayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserActivityDays.
+     */
+    cursor?: UserActivityDayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserActivityDays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserActivityDays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserActivityDays.
+     */
+    distinct?: UserActivityDayScalarFieldEnum | UserActivityDayScalarFieldEnum[]
+  }
+
+  /**
+   * UserActivityDay findFirstOrThrow
+   */
+  export type UserActivityDayFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * Filter, which UserActivityDay to fetch.
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserActivityDays to fetch.
+     */
+    orderBy?: UserActivityDayOrderByWithRelationInput | UserActivityDayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserActivityDays.
+     */
+    cursor?: UserActivityDayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserActivityDays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserActivityDays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserActivityDays.
+     */
+    distinct?: UserActivityDayScalarFieldEnum | UserActivityDayScalarFieldEnum[]
+  }
+
+  /**
+   * UserActivityDay findMany
+   */
+  export type UserActivityDayFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * Filter, which UserActivityDays to fetch.
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserActivityDays to fetch.
+     */
+    orderBy?: UserActivityDayOrderByWithRelationInput | UserActivityDayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserActivityDays.
+     */
+    cursor?: UserActivityDayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserActivityDays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserActivityDays.
+     */
+    skip?: number
+    distinct?: UserActivityDayScalarFieldEnum | UserActivityDayScalarFieldEnum[]
+  }
+
+  /**
+   * UserActivityDay create
+   */
+  export type UserActivityDayCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserActivityDay.
+     */
+    data: XOR<UserActivityDayCreateInput, UserActivityDayUncheckedCreateInput>
+  }
+
+  /**
+   * UserActivityDay createMany
+   */
+  export type UserActivityDayCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserActivityDays.
+     */
+    data: UserActivityDayCreateManyInput | UserActivityDayCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserActivityDay createManyAndReturn
+   */
+  export type UserActivityDayCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserActivityDays.
+     */
+    data: UserActivityDayCreateManyInput | UserActivityDayCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserActivityDay update
+   */
+  export type UserActivityDayUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserActivityDay.
+     */
+    data: XOR<UserActivityDayUpdateInput, UserActivityDayUncheckedUpdateInput>
+    /**
+     * Choose, which UserActivityDay to update.
+     */
+    where: UserActivityDayWhereUniqueInput
+  }
+
+  /**
+   * UserActivityDay updateMany
+   */
+  export type UserActivityDayUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserActivityDays.
+     */
+    data: XOR<UserActivityDayUpdateManyMutationInput, UserActivityDayUncheckedUpdateManyInput>
+    /**
+     * Filter which UserActivityDays to update
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * Limit how many UserActivityDays to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserActivityDay updateManyAndReturn
+   */
+  export type UserActivityDayUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * The data used to update UserActivityDays.
+     */
+    data: XOR<UserActivityDayUpdateManyMutationInput, UserActivityDayUncheckedUpdateManyInput>
+    /**
+     * Filter which UserActivityDays to update
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * Limit how many UserActivityDays to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserActivityDay upsert
+   */
+  export type UserActivityDayUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserActivityDay to update in case it exists.
+     */
+    where: UserActivityDayWhereUniqueInput
+    /**
+     * In case the UserActivityDay found by the `where` argument doesn't exist, create a new UserActivityDay with this data.
+     */
+    create: XOR<UserActivityDayCreateInput, UserActivityDayUncheckedCreateInput>
+    /**
+     * In case the UserActivityDay was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserActivityDayUpdateInput, UserActivityDayUncheckedUpdateInput>
+  }
+
+  /**
+   * UserActivityDay delete
+   */
+  export type UserActivityDayDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
+    /**
+     * Filter which UserActivityDay to delete.
+     */
+    where: UserActivityDayWhereUniqueInput
+  }
+
+  /**
+   * UserActivityDay deleteMany
+   */
+  export type UserActivityDayDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserActivityDays to delete
+     */
+    where?: UserActivityDayWhereInput
+    /**
+     * Limit how many UserActivityDays to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserActivityDay without action
+   */
+  export type UserActivityDayDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserActivityDay
+     */
+    select?: UserActivityDaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserActivityDay
+     */
+    omit?: UserActivityDayOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserActivityDayInclude<ExtArgs> | null
   }
 
 
@@ -11004,6 +12177,7 @@ export namespace Prisma {
     templateId: string | null
     published: boolean | null
     publishedAt: Date | null
+    adminHidden: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11015,6 +12189,7 @@ export namespace Prisma {
     templateId: string | null
     published: boolean | null
     publishedAt: Date | null
+    adminHidden: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11026,6 +12201,7 @@ export namespace Prisma {
     templateId: number
     published: number
     publishedAt: number
+    adminHidden: number
     content: number
     createdAt: number
     updatedAt: number
@@ -11040,6 +12216,7 @@ export namespace Prisma {
     templateId?: true
     published?: true
     publishedAt?: true
+    adminHidden?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11051,6 +12228,7 @@ export namespace Prisma {
     templateId?: true
     published?: true
     publishedAt?: true
+    adminHidden?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11062,6 +12240,7 @@ export namespace Prisma {
     templateId?: true
     published?: true
     publishedAt?: true
+    adminHidden?: true
     content?: true
     createdAt?: true
     updatedAt?: true
@@ -11147,6 +12326,7 @@ export namespace Prisma {
     templateId: string
     published: boolean
     publishedAt: Date | null
+    adminHidden: boolean
     content: JsonValue
     createdAt: Date
     updatedAt: Date
@@ -11176,6 +12356,7 @@ export namespace Prisma {
     templateId?: boolean
     published?: boolean
     publishedAt?: boolean
+    adminHidden?: boolean
     content?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11189,6 +12370,7 @@ export namespace Prisma {
     templateId?: boolean
     published?: boolean
     publishedAt?: boolean
+    adminHidden?: boolean
     content?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11202,6 +12384,7 @@ export namespace Prisma {
     templateId?: boolean
     published?: boolean
     publishedAt?: boolean
+    adminHidden?: boolean
     content?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11215,12 +12398,13 @@ export namespace Prisma {
     templateId?: boolean
     published?: boolean
     publishedAt?: boolean
+    adminHidden?: boolean
     content?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WeddingWebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "slug" | "templateId" | "published" | "publishedAt" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["weddingWebsite"]>
+  export type WeddingWebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weddingId" | "slug" | "templateId" | "published" | "publishedAt" | "adminHidden" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["weddingWebsite"]>
   export type WeddingWebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wedding?: boolean | WeddingDefaultArgs<ExtArgs>
   }
@@ -11243,6 +12427,7 @@ export namespace Prisma {
       templateId: string
       published: boolean
       publishedAt: Date | null
+      adminHidden: boolean
       content: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
@@ -11676,6 +12861,7 @@ export namespace Prisma {
     readonly templateId: FieldRef<"WeddingWebsite", 'String'>
     readonly published: FieldRef<"WeddingWebsite", 'Boolean'>
     readonly publishedAt: FieldRef<"WeddingWebsite", 'DateTime'>
+    readonly adminHidden: FieldRef<"WeddingWebsite", 'Boolean'>
     readonly content: FieldRef<"WeddingWebsite", 'Json'>
     readonly createdAt: FieldRef<"WeddingWebsite", 'DateTime'>
     readonly updatedAt: FieldRef<"WeddingWebsite", 'DateTime'>
@@ -21252,6 +22438,9 @@ export namespace Prisma {
     email: string | null
     message: string | null
     readAt: Date | null
+    status: $Enums.ContactStatus | null
+    replyBody: string | null
+    repliedAt: Date | null
     createdAt: Date | null
   }
 
@@ -21261,6 +22450,9 @@ export namespace Prisma {
     email: string | null
     message: string | null
     readAt: Date | null
+    status: $Enums.ContactStatus | null
+    replyBody: string | null
+    repliedAt: Date | null
     createdAt: Date | null
   }
 
@@ -21270,6 +22462,9 @@ export namespace Prisma {
     email: number
     message: number
     readAt: number
+    status: number
+    replyBody: number
+    repliedAt: number
     createdAt: number
     _all: number
   }
@@ -21281,6 +22476,9 @@ export namespace Prisma {
     email?: true
     message?: true
     readAt?: true
+    status?: true
+    replyBody?: true
+    repliedAt?: true
     createdAt?: true
   }
 
@@ -21290,6 +22488,9 @@ export namespace Prisma {
     email?: true
     message?: true
     readAt?: true
+    status?: true
+    replyBody?: true
+    repliedAt?: true
     createdAt?: true
   }
 
@@ -21299,6 +22500,9 @@ export namespace Prisma {
     email?: true
     message?: true
     readAt?: true
+    status?: true
+    replyBody?: true
+    repliedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -21381,6 +22585,9 @@ export namespace Prisma {
     email: string
     message: string
     readAt: Date | null
+    status: $Enums.ContactStatus
+    replyBody: string | null
+    repliedAt: Date | null
     createdAt: Date
     _count: ContactMessageCountAggregateOutputType | null
     _min: ContactMessageMinAggregateOutputType | null
@@ -21407,6 +22614,9 @@ export namespace Prisma {
     email?: boolean
     message?: boolean
     readAt?: boolean
+    status?: boolean
+    replyBody?: boolean
+    repliedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["contactMessage"]>
 
@@ -21416,6 +22626,9 @@ export namespace Prisma {
     email?: boolean
     message?: boolean
     readAt?: boolean
+    status?: boolean
+    replyBody?: boolean
+    repliedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["contactMessage"]>
 
@@ -21425,6 +22638,9 @@ export namespace Prisma {
     email?: boolean
     message?: boolean
     readAt?: boolean
+    status?: boolean
+    replyBody?: boolean
+    repliedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["contactMessage"]>
 
@@ -21434,10 +22650,13 @@ export namespace Prisma {
     email?: boolean
     message?: boolean
     readAt?: boolean
+    status?: boolean
+    replyBody?: boolean
+    repliedAt?: boolean
     createdAt?: boolean
   }
 
-  export type ContactMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "message" | "readAt" | "createdAt", ExtArgs["result"]["contactMessage"]>
+  export type ContactMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "message" | "readAt" | "status" | "replyBody" | "repliedAt" | "createdAt", ExtArgs["result"]["contactMessage"]>
 
   export type $ContactMessagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ContactMessage"
@@ -21448,6 +22667,9 @@ export namespace Prisma {
       email: string
       message: string
       readAt: Date | null
+      status: $Enums.ContactStatus
+      replyBody: string | null
+      repliedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["contactMessage"]>
     composites: {}
@@ -21877,6 +23099,9 @@ export namespace Prisma {
     readonly email: FieldRef<"ContactMessage", 'String'>
     readonly message: FieldRef<"ContactMessage", 'String'>
     readonly readAt: FieldRef<"ContactMessage", 'DateTime'>
+    readonly status: FieldRef<"ContactMessage", 'ContactStatus'>
+    readonly replyBody: FieldRef<"ContactMessage", 'String'>
+    readonly repliedAt: FieldRef<"ContactMessage", 'DateTime'>
     readonly createdAt: FieldRef<"ContactMessage", 'DateTime'>
   }
     
@@ -22266,6 +23491,7 @@ export namespace Prisma {
     role: 'role',
     blocked: 'blocked',
     refreshTokenHash: 'refreshTokenHash',
+    emailVerifiedAt: 'emailVerifiedAt',
     notifGuestRsvp: 'notifGuestRsvp',
     notifUpcomingPayments: 'notifUpcomingPayments',
     notifTaskDeadlines: 'notifTaskDeadlines',
@@ -22277,6 +23503,14 @@ export namespace Prisma {
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const UserActivityDayScalarFieldEnum: {
+    userId: 'userId',
+    day: 'day'
+  };
+
+  export type UserActivityDayScalarFieldEnum = (typeof UserActivityDayScalarFieldEnum)[keyof typeof UserActivityDayScalarFieldEnum]
 
 
   export const AdminUserNoteScalarFieldEnum: {
@@ -22375,6 +23609,7 @@ export namespace Prisma {
     templateId: 'templateId',
     published: 'published',
     publishedAt: 'publishedAt',
+    adminHidden: 'adminHidden',
     content: 'content',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -22516,6 +23751,9 @@ export namespace Prisma {
     email: 'email',
     message: 'message',
     readAt: 'readAt',
+    status: 'status',
+    replyBody: 'replyBody',
+    repliedAt: 'repliedAt',
     createdAt: 'createdAt'
   };
 
@@ -22765,6 +24003,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ContactStatus'
+   */
+  export type EnumContactStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ContactStatus[]'
+   */
+  export type ListEnumContactStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -22792,6 +24044,7 @@ export namespace Prisma {
     role?: EnumRoleFilter<"User"> | $Enums.Role
     blocked?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
+    emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     notifGuestRsvp?: BoolFilter<"User"> | boolean
     notifUpcomingPayments?: BoolFilter<"User"> | boolean
     notifTaskDeadlines?: BoolFilter<"User"> | boolean
@@ -22807,6 +24060,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceListRelationFilter
     adminNotes?: AdminUserNoteListRelationFilter
     dayPlanShareGrants?: DayPlanShareGrantListRelationFilter
+    activityDays?: UserActivityDayListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -22817,6 +24071,7 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrderInput | SortOrder
+    emailVerifiedAt?: SortOrderInput | SortOrder
     notifGuestRsvp?: SortOrder
     notifUpcomingPayments?: SortOrder
     notifTaskDeadlines?: SortOrder
@@ -22832,6 +24087,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceOrderByRelationAggregateInput
     adminNotes?: AdminUserNoteOrderByRelationAggregateInput
     dayPlanShareGrants?: DayPlanShareGrantOrderByRelationAggregateInput
+    activityDays?: UserActivityDayOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -22845,6 +24101,7 @@ export namespace Prisma {
     role?: EnumRoleFilter<"User"> | $Enums.Role
     blocked?: BoolFilter<"User"> | boolean
     refreshTokenHash?: StringNullableFilter<"User"> | string | null
+    emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     notifGuestRsvp?: BoolFilter<"User"> | boolean
     notifUpcomingPayments?: BoolFilter<"User"> | boolean
     notifTaskDeadlines?: BoolFilter<"User"> | boolean
@@ -22860,6 +24117,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceListRelationFilter
     adminNotes?: AdminUserNoteListRelationFilter
     dayPlanShareGrants?: DayPlanShareGrantListRelationFilter
+    activityDays?: UserActivityDayListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -22870,6 +24128,7 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrderInput | SortOrder
+    emailVerifiedAt?: SortOrderInput | SortOrder
     notifGuestRsvp?: SortOrder
     notifUpcomingPayments?: SortOrder
     notifTaskDeadlines?: SortOrder
@@ -22894,6 +24153,7 @@ export namespace Prisma {
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     blocked?: BoolWithAggregatesFilter<"User"> | boolean
     refreshTokenHash?: StringNullableWithAggregatesFilter<"User"> | string | null
+    emailVerifiedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     notifGuestRsvp?: BoolWithAggregatesFilter<"User"> | boolean
     notifUpcomingPayments?: BoolWithAggregatesFilter<"User"> | boolean
     notifTaskDeadlines?: BoolWithAggregatesFilter<"User"> | boolean
@@ -22902,6 +24162,47 @@ export namespace Prisma {
     notifEmail?: BoolWithAggregatesFilter<"User"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  }
+
+  export type UserActivityDayWhereInput = {
+    AND?: UserActivityDayWhereInput | UserActivityDayWhereInput[]
+    OR?: UserActivityDayWhereInput[]
+    NOT?: UserActivityDayWhereInput | UserActivityDayWhereInput[]
+    userId?: StringFilter<"UserActivityDay"> | string
+    day?: DateTimeFilter<"UserActivityDay"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserActivityDayOrderByWithRelationInput = {
+    userId?: SortOrder
+    day?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserActivityDayWhereUniqueInput = Prisma.AtLeast<{
+    userId_day?: UserActivityDayUserIdDayCompoundUniqueInput
+    AND?: UserActivityDayWhereInput | UserActivityDayWhereInput[]
+    OR?: UserActivityDayWhereInput[]
+    NOT?: UserActivityDayWhereInput | UserActivityDayWhereInput[]
+    userId?: StringFilter<"UserActivityDay"> | string
+    day?: DateTimeFilter<"UserActivityDay"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "userId_day">
+
+  export type UserActivityDayOrderByWithAggregationInput = {
+    userId?: SortOrder
+    day?: SortOrder
+    _count?: UserActivityDayCountOrderByAggregateInput
+    _max?: UserActivityDayMaxOrderByAggregateInput
+    _min?: UserActivityDayMinOrderByAggregateInput
+  }
+
+  export type UserActivityDayScalarWhereWithAggregatesInput = {
+    AND?: UserActivityDayScalarWhereWithAggregatesInput | UserActivityDayScalarWhereWithAggregatesInput[]
+    OR?: UserActivityDayScalarWhereWithAggregatesInput[]
+    NOT?: UserActivityDayScalarWhereWithAggregatesInput | UserActivityDayScalarWhereWithAggregatesInput[]
+    userId?: StringWithAggregatesFilter<"UserActivityDay"> | string
+    day?: DateTimeWithAggregatesFilter<"UserActivityDay"> | Date | string
   }
 
   export type AdminUserNoteWhereInput = {
@@ -23397,6 +24698,7 @@ export namespace Prisma {
     templateId?: StringFilter<"WeddingWebsite"> | string
     published?: BoolFilter<"WeddingWebsite"> | boolean
     publishedAt?: DateTimeNullableFilter<"WeddingWebsite"> | Date | string | null
+    adminHidden?: BoolFilter<"WeddingWebsite"> | boolean
     content?: JsonFilter<"WeddingWebsite">
     createdAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
     updatedAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
@@ -23410,6 +24712,7 @@ export namespace Prisma {
     templateId?: SortOrder
     published?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
+    adminHidden?: SortOrder
     content?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23426,6 +24729,7 @@ export namespace Prisma {
     templateId?: StringFilter<"WeddingWebsite"> | string
     published?: BoolFilter<"WeddingWebsite"> | boolean
     publishedAt?: DateTimeNullableFilter<"WeddingWebsite"> | Date | string | null
+    adminHidden?: BoolFilter<"WeddingWebsite"> | boolean
     content?: JsonFilter<"WeddingWebsite">
     createdAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
     updatedAt?: DateTimeFilter<"WeddingWebsite"> | Date | string
@@ -23439,6 +24743,7 @@ export namespace Prisma {
     templateId?: SortOrder
     published?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
+    adminHidden?: SortOrder
     content?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23457,6 +24762,7 @@ export namespace Prisma {
     templateId?: StringWithAggregatesFilter<"WeddingWebsite"> | string
     published?: BoolWithAggregatesFilter<"WeddingWebsite"> | boolean
     publishedAt?: DateTimeNullableWithAggregatesFilter<"WeddingWebsite"> | Date | string | null
+    adminHidden?: BoolWithAggregatesFilter<"WeddingWebsite"> | boolean
     content?: JsonWithAggregatesFilter<"WeddingWebsite">
     createdAt?: DateTimeWithAggregatesFilter<"WeddingWebsite"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WeddingWebsite"> | Date | string
@@ -24121,6 +25427,9 @@ export namespace Prisma {
     email?: StringFilter<"ContactMessage"> | string
     message?: StringFilter<"ContactMessage"> | string
     readAt?: DateTimeNullableFilter<"ContactMessage"> | Date | string | null
+    status?: EnumContactStatusFilter<"ContactMessage"> | $Enums.ContactStatus
+    replyBody?: StringNullableFilter<"ContactMessage"> | string | null
+    repliedAt?: DateTimeNullableFilter<"ContactMessage"> | Date | string | null
     createdAt?: DateTimeFilter<"ContactMessage"> | Date | string
   }
 
@@ -24130,6 +25439,9 @@ export namespace Prisma {
     email?: SortOrder
     message?: SortOrder
     readAt?: SortOrderInput | SortOrder
+    status?: SortOrder
+    replyBody?: SortOrderInput | SortOrder
+    repliedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
   }
 
@@ -24142,6 +25454,9 @@ export namespace Prisma {
     email?: StringFilter<"ContactMessage"> | string
     message?: StringFilter<"ContactMessage"> | string
     readAt?: DateTimeNullableFilter<"ContactMessage"> | Date | string | null
+    status?: EnumContactStatusFilter<"ContactMessage"> | $Enums.ContactStatus
+    replyBody?: StringNullableFilter<"ContactMessage"> | string | null
+    repliedAt?: DateTimeNullableFilter<"ContactMessage"> | Date | string | null
     createdAt?: DateTimeFilter<"ContactMessage"> | Date | string
   }, "id">
 
@@ -24151,6 +25466,9 @@ export namespace Prisma {
     email?: SortOrder
     message?: SortOrder
     readAt?: SortOrderInput | SortOrder
+    status?: SortOrder
+    replyBody?: SortOrderInput | SortOrder
+    repliedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: ContactMessageCountOrderByAggregateInput
     _max?: ContactMessageMaxOrderByAggregateInput
@@ -24166,6 +25484,9 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"ContactMessage"> | string
     message?: StringWithAggregatesFilter<"ContactMessage"> | string
     readAt?: DateTimeNullableWithAggregatesFilter<"ContactMessage"> | Date | string | null
+    status?: EnumContactStatusWithAggregatesFilter<"ContactMessage"> | $Enums.ContactStatus
+    replyBody?: StringNullableWithAggregatesFilter<"ContactMessage"> | string | null
+    repliedAt?: DateTimeNullableWithAggregatesFilter<"ContactMessage"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ContactMessage"> | Date | string
   }
 
@@ -24177,6 +25498,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -24192,6 +25514,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -24202,6 +25525,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -24217,6 +25541,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -24227,6 +25552,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -24242,6 +25568,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -24252,6 +25579,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -24267,6 +25595,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -24277,6 +25606,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -24295,6 +25625,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -24313,6 +25644,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -24321,6 +25653,40 @@ export namespace Prisma {
     notifEmail?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserActivityDayCreateInput = {
+    day: Date | string
+    user: UserCreateNestedOneWithoutActivityDaysInput
+  }
+
+  export type UserActivityDayUncheckedCreateInput = {
+    userId: string
+    day: Date | string
+  }
+
+  export type UserActivityDayUpdateInput = {
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutActivityDaysNestedInput
+  }
+
+  export type UserActivityDayUncheckedUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserActivityDayCreateManyInput = {
+    userId: string
+    day: Date | string
+  }
+
+  export type UserActivityDayUpdateManyMutationInput = {
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserActivityDayUncheckedUpdateManyInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminUserNoteCreateInput = {
@@ -24859,6 +26225,7 @@ export namespace Prisma {
     templateId?: string
     published?: boolean
     publishedAt?: Date | string | null
+    adminHidden?: boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24872,6 +26239,7 @@ export namespace Prisma {
     templateId?: string
     published?: boolean
     publishedAt?: Date | string | null
+    adminHidden?: boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24883,6 +26251,7 @@ export namespace Prisma {
     templateId?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adminHidden?: BoolFieldUpdateOperationsInput | boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24896,6 +26265,7 @@ export namespace Prisma {
     templateId?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adminHidden?: BoolFieldUpdateOperationsInput | boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24908,6 +26278,7 @@ export namespace Prisma {
     templateId?: string
     published?: boolean
     publishedAt?: Date | string | null
+    adminHidden?: boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24919,6 +26290,7 @@ export namespace Prisma {
     templateId?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adminHidden?: BoolFieldUpdateOperationsInput | boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24931,6 +26303,7 @@ export namespace Prisma {
     templateId?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adminHidden?: BoolFieldUpdateOperationsInput | boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25657,6 +27030,9 @@ export namespace Prisma {
     email: string
     message: string
     readAt?: Date | string | null
+    status?: $Enums.ContactStatus
+    replyBody?: string | null
+    repliedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -25666,6 +27042,9 @@ export namespace Prisma {
     email: string
     message: string
     readAt?: Date | string | null
+    status?: $Enums.ContactStatus
+    replyBody?: string | null
+    repliedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -25675,6 +27054,9 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     message?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumContactStatusFieldUpdateOperationsInput | $Enums.ContactStatus
+    replyBody?: NullableStringFieldUpdateOperationsInput | string | null
+    repliedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25684,6 +27066,9 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     message?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumContactStatusFieldUpdateOperationsInput | $Enums.ContactStatus
+    replyBody?: NullableStringFieldUpdateOperationsInput | string | null
+    repliedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25693,6 +27078,9 @@ export namespace Prisma {
     email: string
     message: string
     readAt?: Date | string | null
+    status?: $Enums.ContactStatus
+    replyBody?: string | null
+    repliedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -25702,6 +27090,9 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     message?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumContactStatusFieldUpdateOperationsInput | $Enums.ContactStatus
+    replyBody?: NullableStringFieldUpdateOperationsInput | string | null
+    repliedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25711,6 +27102,9 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     message?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumContactStatusFieldUpdateOperationsInput | $Enums.ContactStatus
+    replyBody?: NullableStringFieldUpdateOperationsInput | string | null
+    repliedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25756,17 +27150,6 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -25776,6 +27159,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type WeddingNullableScalarRelationFilter = {
@@ -25818,6 +27212,12 @@ export namespace Prisma {
     none?: DayPlanShareGrantWhereInput
   }
 
+  export type UserActivityDayListRelationFilter = {
+    every?: UserActivityDayWhereInput
+    some?: UserActivityDayWhereInput
+    none?: UserActivityDayWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -25843,6 +27243,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type UserActivityDayOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
@@ -25851,6 +27255,7 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrder
+    emailVerifiedAt?: SortOrder
     notifGuestRsvp?: SortOrder
     notifUpcomingPayments?: SortOrder
     notifTaskDeadlines?: SortOrder
@@ -25869,6 +27274,7 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrder
+    emailVerifiedAt?: SortOrder
     notifGuestRsvp?: SortOrder
     notifUpcomingPayments?: SortOrder
     notifTaskDeadlines?: SortOrder
@@ -25887,6 +27293,7 @@ export namespace Prisma {
     role?: SortOrder
     blocked?: SortOrder
     refreshTokenHash?: SortOrder
+    emailVerifiedAt?: SortOrder
     notifGuestRsvp?: SortOrder
     notifUpcomingPayments?: SortOrder
     notifTaskDeadlines?: SortOrder
@@ -25951,20 +27358,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -25979,9 +27372,43 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type UserActivityDayUserIdDayCompoundUniqueInput = {
+    userId: string
+    day: Date | string
+  }
+
+  export type UserActivityDayCountOrderByAggregateInput = {
+    userId?: SortOrder
+    day?: SortOrder
+  }
+
+  export type UserActivityDayMaxOrderByAggregateInput = {
+    userId?: SortOrder
+    day?: SortOrder
+  }
+
+  export type UserActivityDayMinOrderByAggregateInput = {
+    userId?: SortOrder
+    day?: SortOrder
   }
 
   export type AdminUserNoteCountOrderByAggregateInput = {
@@ -26464,6 +27891,7 @@ export namespace Prisma {
     templateId?: SortOrder
     published?: SortOrder
     publishedAt?: SortOrder
+    adminHidden?: SortOrder
     content?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -26476,6 +27904,7 @@ export namespace Prisma {
     templateId?: SortOrder
     published?: SortOrder
     publishedAt?: SortOrder
+    adminHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -26487,6 +27916,7 @@ export namespace Prisma {
     templateId?: SortOrder
     published?: SortOrder
     publishedAt?: SortOrder
+    adminHidden?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -26973,12 +28403,22 @@ export namespace Prisma {
     _max?: NestedEnumContentStatusFilter<$PrismaModel>
   }
 
+  export type EnumContactStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContactStatus | EnumContactStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumContactStatusFilter<$PrismaModel> | $Enums.ContactStatus
+  }
+
   export type ContactMessageCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
     message?: SortOrder
     readAt?: SortOrder
+    status?: SortOrder
+    replyBody?: SortOrder
+    repliedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -26988,6 +28428,9 @@ export namespace Prisma {
     email?: SortOrder
     message?: SortOrder
     readAt?: SortOrder
+    status?: SortOrder
+    replyBody?: SortOrder
+    repliedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -26997,7 +28440,20 @@ export namespace Prisma {
     email?: SortOrder
     message?: SortOrder
     readAt?: SortOrder
+    status?: SortOrder
+    replyBody?: SortOrder
+    repliedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type EnumContactStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContactStatus | EnumContactStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumContactStatusWithAggregatesFilter<$PrismaModel> | $Enums.ContactStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumContactStatusFilter<$PrismaModel>
+    _max?: NestedEnumContactStatusFilter<$PrismaModel>
   }
 
   export type WeddingCreateNestedOneWithoutUserInput = {
@@ -27047,6 +28503,13 @@ export namespace Prisma {
     connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
   }
 
+  export type UserActivityDayCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserActivityDayCreateWithoutUserInput, UserActivityDayUncheckedCreateWithoutUserInput> | UserActivityDayCreateWithoutUserInput[] | UserActivityDayUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserActivityDayCreateOrConnectWithoutUserInput | UserActivityDayCreateOrConnectWithoutUserInput[]
+    createMany?: UserActivityDayCreateManyUserInputEnvelope
+    connect?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+  }
+
   export type WeddingUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<WeddingCreateWithoutUserInput, WeddingUncheckedCreateWithoutUserInput>
     connectOrCreate?: WeddingCreateOrConnectWithoutUserInput
@@ -27094,6 +28557,13 @@ export namespace Prisma {
     connect?: DayPlanShareGrantWhereUniqueInput | DayPlanShareGrantWhereUniqueInput[]
   }
 
+  export type UserActivityDayUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserActivityDayCreateWithoutUserInput, UserActivityDayUncheckedCreateWithoutUserInput> | UserActivityDayCreateWithoutUserInput[] | UserActivityDayUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserActivityDayCreateOrConnectWithoutUserInput | UserActivityDayCreateOrConnectWithoutUserInput[]
+    createMany?: UserActivityDayCreateManyUserInputEnvelope
+    connect?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -27110,12 +28580,12 @@ export namespace Prisma {
     set?: string | null
   }
 
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
-  }
-
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type WeddingUpdateOneWithoutUserNestedInput = {
@@ -27208,6 +28678,20 @@ export namespace Prisma {
     deleteMany?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
   }
 
+  export type UserActivityDayUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserActivityDayCreateWithoutUserInput, UserActivityDayUncheckedCreateWithoutUserInput> | UserActivityDayCreateWithoutUserInput[] | UserActivityDayUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserActivityDayCreateOrConnectWithoutUserInput | UserActivityDayCreateOrConnectWithoutUserInput[]
+    upsert?: UserActivityDayUpsertWithWhereUniqueWithoutUserInput | UserActivityDayUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserActivityDayCreateManyUserInputEnvelope
+    set?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    disconnect?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    delete?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    connect?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    update?: UserActivityDayUpdateWithWhereUniqueWithoutUserInput | UserActivityDayUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserActivityDayUpdateManyWithWhereWithoutUserInput | UserActivityDayUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserActivityDayScalarWhereInput | UserActivityDayScalarWhereInput[]
+  }
+
   export type WeddingUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<WeddingCreateWithoutUserInput, WeddingUncheckedCreateWithoutUserInput>
     connectOrCreate?: WeddingCreateOrConnectWithoutUserInput
@@ -27296,6 +28780,34 @@ export namespace Prisma {
     update?: DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput | DayPlanShareGrantUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: DayPlanShareGrantUpdateManyWithWhereWithoutUserInput | DayPlanShareGrantUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: DayPlanShareGrantScalarWhereInput | DayPlanShareGrantScalarWhereInput[]
+  }
+
+  export type UserActivityDayUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserActivityDayCreateWithoutUserInput, UserActivityDayUncheckedCreateWithoutUserInput> | UserActivityDayCreateWithoutUserInput[] | UserActivityDayUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserActivityDayCreateOrConnectWithoutUserInput | UserActivityDayCreateOrConnectWithoutUserInput[]
+    upsert?: UserActivityDayUpsertWithWhereUniqueWithoutUserInput | UserActivityDayUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserActivityDayCreateManyUserInputEnvelope
+    set?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    disconnect?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    delete?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    connect?: UserActivityDayWhereUniqueInput | UserActivityDayWhereUniqueInput[]
+    update?: UserActivityDayUpdateWithWhereUniqueWithoutUserInput | UserActivityDayUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserActivityDayUpdateManyWithWhereWithoutUserInput | UserActivityDayUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserActivityDayScalarWhereInput | UserActivityDayScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutActivityDaysInput = {
+    create?: XOR<UserCreateWithoutActivityDaysInput, UserUncheckedCreateWithoutActivityDaysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivityDaysInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutActivityDaysNestedInput = {
+    create?: XOR<UserCreateWithoutActivityDaysInput, UserUncheckedCreateWithoutActivityDaysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivityDaysInput
+    upsert?: UserUpsertWithoutActivityDaysInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutActivityDaysInput, UserUpdateWithoutActivityDaysInput>, UserUncheckedUpdateWithoutActivityDaysInput>
   }
 
   export type UserCreateNestedOneWithoutAdminNotesInput = {
@@ -28030,6 +29542,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutContentPostsInput, UserUpdateWithoutContentPostsInput>, UserUncheckedUpdateWithoutContentPostsInput>
   }
 
+  export type EnumContactStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ContactStatus
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -28070,17 +29586,6 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -28090,6 +29595,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -28166,20 +29682,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -28192,6 +29694,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type NestedEnumVendorPipelineStageFilter<$PrismaModel = never> = {
@@ -28443,6 +29959,23 @@ export namespace Prisma {
     _max?: NestedEnumContentStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumContactStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContactStatus | EnumContactStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumContactStatusFilter<$PrismaModel> | $Enums.ContactStatus
+  }
+
+  export type NestedEnumContactStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ContactStatus | EnumContactStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ContactStatus[] | ListEnumContactStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumContactStatusWithAggregatesFilter<$PrismaModel> | $Enums.ContactStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumContactStatusFilter<$PrismaModel>
+    _max?: NestedEnumContactStatusFilter<$PrismaModel>
+  }
+
   export type WeddingCreateWithoutUserInput = {
     id?: string
     date: Date | string
@@ -28688,6 +30221,24 @@ export namespace Prisma {
 
   export type DayPlanShareGrantCreateManyUserInputEnvelope = {
     data: DayPlanShareGrantCreateManyUserInput | DayPlanShareGrantCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserActivityDayCreateWithoutUserInput = {
+    day: Date | string
+  }
+
+  export type UserActivityDayUncheckedCreateWithoutUserInput = {
+    day: Date | string
+  }
+
+  export type UserActivityDayCreateOrConnectWithoutUserInput = {
+    where: UserActivityDayWhereUniqueInput
+    create: XOR<UserActivityDayCreateWithoutUserInput, UserActivityDayUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserActivityDayCreateManyUserInputEnvelope = {
+    data: UserActivityDayCreateManyUserInput | UserActivityDayCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -28939,6 +30490,150 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"DayPlanShareGrant"> | Date | string
   }
 
+  export type UserActivityDayUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserActivityDayWhereUniqueInput
+    update: XOR<UserActivityDayUpdateWithoutUserInput, UserActivityDayUncheckedUpdateWithoutUserInput>
+    create: XOR<UserActivityDayCreateWithoutUserInput, UserActivityDayUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserActivityDayUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserActivityDayWhereUniqueInput
+    data: XOR<UserActivityDayUpdateWithoutUserInput, UserActivityDayUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserActivityDayUpdateManyWithWhereWithoutUserInput = {
+    where: UserActivityDayScalarWhereInput
+    data: XOR<UserActivityDayUpdateManyMutationInput, UserActivityDayUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserActivityDayScalarWhereInput = {
+    AND?: UserActivityDayScalarWhereInput | UserActivityDayScalarWhereInput[]
+    OR?: UserActivityDayScalarWhereInput[]
+    NOT?: UserActivityDayScalarWhereInput | UserActivityDayScalarWhereInput[]
+    userId?: StringFilter<"UserActivityDay"> | string
+    day?: DateTimeFilter<"UserActivityDay"> | Date | string
+  }
+
+  export type UserCreateWithoutActivityDaysInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
+    createdAt?: Date | string
+    lastLoginAt?: Date | string | null
+    wedding?: WeddingCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberCreateNestedOneWithoutUserInput
+    externalVendors?: ExternalVendorCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutActivityDaysInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: $Enums.Role
+    blocked?: boolean
+    refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
+    notifGuestRsvp?: boolean
+    notifUpcomingPayments?: boolean
+    notifTaskDeadlines?: boolean
+    notifPartnerChanges?: boolean
+    notifPush?: boolean
+    notifEmail?: boolean
+    createdAt?: Date | string
+    lastLoginAt?: Date | string | null
+    wedding?: WeddingUncheckedCreateNestedOneWithoutUserInput
+    weddingMember?: WeddingMemberUncheckedCreateNestedOneWithoutUserInput
+    externalVendors?: ExternalVendorUncheckedCreateNestedManyWithoutUserInput
+    contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
+    pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
+    adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutActivityDaysInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutActivityDaysInput, UserUncheckedCreateWithoutActivityDaysInput>
+  }
+
+  export type UserUpsertWithoutActivityDaysInput = {
+    update: XOR<UserUpdateWithoutActivityDaysInput, UserUncheckedUpdateWithoutActivityDaysInput>
+    create: XOR<UserCreateWithoutActivityDaysInput, UserUncheckedCreateWithoutActivityDaysInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutActivityDaysInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutActivityDaysInput, UserUncheckedUpdateWithoutActivityDaysInput>
+  }
+
+  export type UserUpdateWithoutActivityDaysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wedding?: WeddingUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUpdateOneWithoutUserNestedInput
+    externalVendors?: ExternalVendorUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutActivityDaysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    blocked?: BoolFieldUpdateOperationsInput | boolean
+    refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
+    notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
+    notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
+    notifPartnerChanges?: BoolFieldUpdateOperationsInput | boolean
+    notifPush?: BoolFieldUpdateOperationsInput | boolean
+    notifEmail?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wedding?: WeddingUncheckedUpdateOneWithoutUserNestedInput
+    weddingMember?: WeddingMemberUncheckedUpdateOneWithoutUserNestedInput
+    externalVendors?: ExternalVendorUncheckedUpdateManyWithoutUserNestedInput
+    contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
+    pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+    adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutAdminNotesInput = {
     id?: string
     email: string
@@ -28947,6 +30642,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -28961,6 +30657,7 @@ export namespace Prisma {
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAdminNotesInput = {
@@ -28971,6 +30668,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -28985,6 +30683,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAdminNotesInput = {
@@ -29011,6 +30710,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29025,6 +30725,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminNotesInput = {
@@ -29035,6 +30736,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29049,6 +30751,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPushDevicesInput = {
@@ -29059,6 +30762,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -29073,6 +30777,7 @@ export namespace Prisma {
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPushDevicesInput = {
@@ -29083,6 +30788,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -29097,6 +30803,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPushDevicesInput = {
@@ -29123,6 +30830,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29137,6 +30845,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPushDevicesInput = {
@@ -29147,6 +30856,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29161,6 +30871,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutExternalVendorsInput = {
@@ -29171,6 +30882,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -29185,6 +30897,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutExternalVendorsInput = {
@@ -29195,6 +30908,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -29209,6 +30923,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutExternalVendorsInput = {
@@ -29264,6 +30979,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29278,6 +30994,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutExternalVendorsInput = {
@@ -29288,6 +31005,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29302,6 +31020,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetItemUpsertWithoutExternalVendorInput = {
@@ -29347,6 +31066,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -29361,6 +31081,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeddingInput = {
@@ -29371,6 +31092,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -29385,6 +31107,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeddingInput = {
@@ -29564,6 +31287,7 @@ export namespace Prisma {
     templateId?: string
     published?: boolean
     publishedAt?: Date | string | null
+    adminHidden?: boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -29575,6 +31299,7 @@ export namespace Prisma {
     templateId?: string
     published?: boolean
     publishedAt?: Date | string | null
+    adminHidden?: boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -29646,6 +31371,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29660,6 +31386,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeddingInput = {
@@ -29670,6 +31397,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -29684,6 +31412,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingMemberUpsertWithWhereUniqueWithoutWeddingInput = {
@@ -29861,6 +31590,7 @@ export namespace Prisma {
     templateId?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adminHidden?: BoolFieldUpdateOperationsInput | boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29872,6 +31602,7 @@ export namespace Prisma {
     templateId?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adminHidden?: BoolFieldUpdateOperationsInput | boolean
     content?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30128,6 +31859,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -30142,6 +31874,7 @@ export namespace Prisma {
     contentPosts?: ContentPostCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDayPlanShareGrantsInput = {
@@ -30152,6 +31885,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -30166,6 +31900,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUncheckedCreateNestedManyWithoutAuthorInput
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDayPlanShareGrantsInput = {
@@ -30219,6 +31954,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -30233,6 +31969,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDayPlanShareGrantsInput = {
@@ -30243,6 +31980,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -30257,6 +31995,7 @@ export namespace Prisma {
     contentPosts?: ContentPostUncheckedUpdateManyWithoutAuthorNestedInput
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingCreateWithoutWebsiteInput = {
@@ -30564,6 +32303,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -30578,6 +32318,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeddingMemberInput = {
@@ -30588,6 +32329,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -30602,6 +32344,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeddingMemberInput = {
@@ -30691,6 +32434,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -30705,6 +32449,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeddingMemberInput = {
@@ -30715,6 +32460,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -30729,6 +32475,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WeddingCreateWithoutInvitesInput = {
@@ -31386,6 +33133,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -31400,6 +33148,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContentPostsInput = {
@@ -31410,6 +33159,7 @@ export namespace Prisma {
     role?: $Enums.Role
     blocked?: boolean
     refreshTokenHash?: string | null
+    emailVerifiedAt?: Date | string | null
     notifGuestRsvp?: boolean
     notifUpcomingPayments?: boolean
     notifTaskDeadlines?: boolean
@@ -31424,6 +33174,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedCreateNestedManyWithoutUserInput
     adminNotes?: AdminUserNoteUncheckedCreateNestedManyWithoutUserInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedCreateNestedManyWithoutUserInput
+    activityDays?: UserActivityDayUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContentPostsInput = {
@@ -31481,6 +33232,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -31495,6 +33247,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContentPostsInput = {
@@ -31505,6 +33258,7 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     blocked?: BoolFieldUpdateOperationsInput | boolean
     refreshTokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifGuestRsvp?: BoolFieldUpdateOperationsInput | boolean
     notifUpcomingPayments?: BoolFieldUpdateOperationsInput | boolean
     notifTaskDeadlines?: BoolFieldUpdateOperationsInput | boolean
@@ -31519,6 +33273,7 @@ export namespace Prisma {
     pushDevices?: PushDeviceUncheckedUpdateManyWithoutUserNestedInput
     adminNotes?: AdminUserNoteUncheckedUpdateManyWithoutUserNestedInput
     dayPlanShareGrants?: DayPlanShareGrantUncheckedUpdateManyWithoutUserNestedInput
+    activityDays?: UserActivityDayUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ExternalVendorCreateManyUserInput = {
@@ -31579,6 +33334,10 @@ export namespace Prisma {
     inviteToken?: string
     acceptedAt?: Date | string | null
     createdAt?: Date | string
+  }
+
+  export type UserActivityDayCreateManyUserInput = {
+    day: Date | string
   }
 
   export type ExternalVendorUpdateWithoutUserInput = {
@@ -31761,6 +33520,18 @@ export namespace Prisma {
     inviteToken?: StringFieldUpdateOperationsInput | string
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserActivityDayUpdateWithoutUserInput = {
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserActivityDayUncheckedUpdateWithoutUserInput = {
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserActivityDayUncheckedUpdateManyWithoutUserInput = {
+    day?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WeddingMemberCreateManyWeddingInput = {

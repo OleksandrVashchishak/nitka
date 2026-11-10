@@ -129,6 +129,7 @@ exports.Prisma.UserScalarFieldEnum = {
   role: 'role',
   blocked: 'blocked',
   refreshTokenHash: 'refreshTokenHash',
+  emailVerifiedAt: 'emailVerifiedAt',
   notifGuestRsvp: 'notifGuestRsvp',
   notifUpcomingPayments: 'notifUpcomingPayments',
   notifTaskDeadlines: 'notifTaskDeadlines',
@@ -137,6 +138,11 @@ exports.Prisma.UserScalarFieldEnum = {
   notifEmail: 'notifEmail',
   createdAt: 'createdAt',
   lastLoginAt: 'lastLoginAt'
+};
+
+exports.Prisma.UserActivityDayScalarFieldEnum = {
+  userId: 'userId',
+  day: 'day'
 };
 
 exports.Prisma.AdminUserNoteScalarFieldEnum = {
@@ -217,6 +223,7 @@ exports.Prisma.WeddingWebsiteScalarFieldEnum = {
   templateId: 'templateId',
   published: 'published',
   publishedAt: 'publishedAt',
+  adminHidden: 'adminHidden',
   content: 'content',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -331,6 +338,9 @@ exports.Prisma.ContactMessageScalarFieldEnum = {
   email: 'email',
   message: 'message',
   readAt: 'readAt',
+  status: 'status',
+  replyBody: 'replyBody',
+  repliedAt: 'repliedAt',
   createdAt: 'createdAt'
 };
 
@@ -418,8 +428,15 @@ exports.ContentStatus = exports.$Enums.ContentStatus = {
   ARCHIVED: 'ARCHIVED'
 };
 
+exports.ContactStatus = exports.$Enums.ContactStatus = {
+  NEW: 'NEW',
+  IN_PROGRESS: 'IN_PROGRESS',
+  CLOSED: 'CLOSED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
+  UserActivityDay: 'UserActivityDay',
   AdminUserNote: 'AdminUserNote',
   PushDevice: 'PushDevice',
   ExternalVendor: 'ExternalVendor',

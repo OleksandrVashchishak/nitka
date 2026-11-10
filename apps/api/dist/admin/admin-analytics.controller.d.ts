@@ -138,8 +138,8 @@ export declare class AdminAnalyticsController {
             email: boolean;
         };
         pushDevices: {
-            platform: string;
             updatedAt: Date;
+            platform: string;
         }[];
         vendors: {
             total: number;
@@ -149,9 +149,9 @@ export declare class AdminAnalyticsController {
             role: import(".prisma/client").$Enums.WeddingMemberRole;
             weddingId: string;
             owner: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
             city: string;
             date: Date;
@@ -194,12 +194,12 @@ export declare class AdminAnalyticsController {
                 };
             };
             members: {
+                role: import(".prisma/client").$Enums.WeddingMemberRole;
                 user: {
+                    id: string;
                     email: string;
                     name: string;
-                    id: string;
                 };
-                role: import(".prisma/client").$Enums.WeddingMemberRole;
             }[];
             recentInvites: {
                 createdAt: Date;
@@ -207,15 +207,15 @@ export declare class AdminAnalyticsController {
                 acceptedAt: Date | null;
             }[];
             website: {
-                updatedAt: Date;
-                slug: string;
-                publishedAt: Date | null;
-                templateId: string;
                 published: boolean;
+                slug: string;
+                templateId: string;
+                publishedAt: Date | null;
+                updatedAt: Date;
             } | null;
             invitation: {
-                updatedAt: Date;
                 templateId: string;
+                updatedAt: Date;
             } | null;
         } | null;
     }>;
@@ -234,13 +234,13 @@ export declare class AdminAnalyticsController {
         total: number;
         unread: number;
         items: {
+            id: string;
             email: string;
             name: string;
-            id: string;
             createdAt: Date;
-            status: import(".prisma/client").$Enums.ContactStatus;
             message: string;
             readAt: Date | null;
+            status: import(".prisma/client").$Enums.ContactStatus;
             replyBody: string | null;
             repliedAt: Date | null;
         }[];
@@ -250,25 +250,25 @@ export declare class AdminAnalyticsController {
         readAt: Date | null;
     }>;
     setContactStatus(id: string, dto: UpdateContactStatusDto): Promise<{
+        id: string;
         email: string;
         name: string;
-        id: string;
         createdAt: Date;
-        status: import(".prisma/client").$Enums.ContactStatus;
         message: string;
         readAt: Date | null;
+        status: import(".prisma/client").$Enums.ContactStatus;
         replyBody: string | null;
         repliedAt: Date | null;
     }>;
     replyContact(id: string, dto: ReplyContactDto): Promise<{
         message: {
+            id: string;
             email: string;
             name: string;
-            id: string;
             createdAt: Date;
-            status: import(".prisma/client").$Enums.ContactStatus;
             message: string;
             readAt: Date | null;
+            status: import(".prisma/client").$Enums.ContactStatus;
             replyBody: string | null;
             repliedAt: Date | null;
         };
@@ -305,9 +305,9 @@ export declare class AdminAnalyticsController {
             updatedAt: Date;
             couple: string;
             owner: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
         }[];
     }>;

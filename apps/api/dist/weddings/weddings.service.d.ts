@@ -17,29 +17,29 @@ export declare class WeddingsService {
     getMine(userId: string): Promise<{
         tasks: ({
             id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
             weddingId: string;
             title: string;
             categorySlug: string | null;
-            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
             sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assignee: "owner" | "partner" | "both" | "none" | "other" | null;
             assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             createdAt: Date;
             userId: string;
             weddingId: string;
@@ -92,29 +92,29 @@ export declare class WeddingsService {
     upsert(userId: string, dto: UpsertWeddingDto): Promise<{
         tasks: ({
             id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
             weddingId: string;
             title: string;
             categorySlug: string | null;
-            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
             sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assignee: "owner" | "partner" | "both" | "none" | "other" | null;
             assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             createdAt: Date;
             userId: string;
             weddingId: string;
@@ -154,29 +154,29 @@ export declare class WeddingsService {
     removePartner(userId: string): Promise<{
         tasks: ({
             id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
             weddingId: string;
             title: string;
             categorySlug: string | null;
-            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
             sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assignee: "owner" | "partner" | "both" | "none" | "other" | null;
             assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             createdAt: Date;
             userId: string;
             weddingId: string;
@@ -201,29 +201,29 @@ export declare class WeddingsService {
     acceptPartnerInvite(userId: string, token: string): Promise<{
         tasks: ({
             id: string;
+            status: import(".prisma/client").$Enums.TaskStatus;
             weddingId: string;
             title: string;
             categorySlug: string | null;
-            status: import(".prisma/client").$Enums.TaskStatus;
             dueDate: Date | null;
             dueRemindedAt: Date | null;
             sortOrder: number;
             isCustom: boolean;
             assignee: string | null;
         } & {
-            assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+            assignee: "owner" | "partner" | "both" | "none" | "other" | null;
             assigneeName: string | null;
         })[];
         myRole: import(".prisma/client").$Enums.WeddingMemberRole;
         members: ({
             user: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
         } & {
-            role: import(".prisma/client").$Enums.WeddingMemberRole;
             id: string;
+            role: import(".prisma/client").$Enums.WeddingMemberRole;
             createdAt: Date;
             userId: string;
             weddingId: string;
@@ -249,14 +249,14 @@ export declare class WeddingsService {
         id: string;
         weddingId: string;
     } & {
-        assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+        assignee: "owner" | "partner" | "both" | "none" | "other" | null;
         assigneeName: string | null;
     }>;
     updateTask(userId: string, taskId: string, dto: UpdateTaskDto): Promise<{
         id: string;
         weddingId: string;
     } & {
-        assignee: "none" | "owner" | "partner" | "both" | "other" | null;
+        assignee: "owner" | "partner" | "both" | "none" | "other" | null;
         assigneeName: string | null;
     }>;
     deleteTask(userId: string, taskId: string): Promise<{

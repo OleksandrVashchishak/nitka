@@ -22,9 +22,9 @@ export declare class AdminWebsitesService {
             updatedAt: Date;
             couple: string;
             owner: {
+                id: string;
                 email: string;
                 name: string;
-                id: string;
             };
         }[];
     }>;

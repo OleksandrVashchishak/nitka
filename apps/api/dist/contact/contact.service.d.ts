@@ -19,13 +19,13 @@ export declare class ContactService {
         total: number;
         unread: number;
         items: {
+            id: string;
             email: string;
             name: string;
-            id: string;
             createdAt: Date;
-            status: import(".prisma/client").$Enums.ContactStatus;
             message: string;
             readAt: Date | null;
+            status: import(".prisma/client").$Enums.ContactStatus;
             replyBody: string | null;
             repliedAt: Date | null;
         }[];
@@ -35,25 +35,25 @@ export declare class ContactService {
         readAt: Date | null;
     }>;
     setStatus(id: string, status: ContactStatus): Promise<{
+        id: string;
         email: string;
         name: string;
-        id: string;
         createdAt: Date;
-        status: import(".prisma/client").$Enums.ContactStatus;
         message: string;
         readAt: Date | null;
+        status: import(".prisma/client").$Enums.ContactStatus;
         replyBody: string | null;
         repliedAt: Date | null;
     }>;
     reply(id: string, body: string): Promise<{
         message: {
+            id: string;
             email: string;
             name: string;
-            id: string;
             createdAt: Date;
-            status: import(".prisma/client").$Enums.ContactStatus;
             message: string;
             readAt: Date | null;
+            status: import(".prisma/client").$Enums.ContactStatus;
             replyBody: string | null;
             repliedAt: Date | null;
         };

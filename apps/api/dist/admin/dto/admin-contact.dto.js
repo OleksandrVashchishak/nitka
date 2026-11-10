@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReplyContactDto = exports.UpdateContactStatusDto = void 0;
 const openapi = require("@nestjs/swagger");
@@ -22,7 +21,7 @@ class UpdateContactStatusDto {
 exports.UpdateContactStatusDto = UpdateContactStatusDto;
 __decorate([
     (0, class_validator_1.IsEnum)(client_1.ContactStatus),
-    __metadata("design:type", typeof (_a = typeof client_1.ContactStatus !== "undefined" && client_1.ContactStatus) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], UpdateContactStatusDto.prototype, "status", void 0);
 class ReplyContactDto {
     static _OPENAPI_METADATA_FACTORY() {

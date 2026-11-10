@@ -68,10 +68,10 @@ export declare class AuthService {
         ok: boolean;
     }>;
     me(userId: string): Promise<{
+        id: string;
         email: string;
         name: string;
         role: import(".prisma/client").$Enums.Role;
-        id: string;
         createdAt: Date;
     }>;
     changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{
