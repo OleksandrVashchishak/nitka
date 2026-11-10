@@ -86,6 +86,9 @@ export function WeddingSite({
           text: content.travelBody,
         }
       : null,
+    sections.rsvp && content.rsvpBody.trim()
+      ? { title: "Коли треба дати відповідь", text: content.rsvpBody }
+      : null,
     sections.qa && (content.qaItems[0]?.answer || "").trim()
       ? {
           title: content.qaItems[0]?.question || "Інше",

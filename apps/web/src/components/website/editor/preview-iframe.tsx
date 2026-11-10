@@ -12,6 +12,7 @@ type Props = {
   children: ReactNode;
   title?: string;
   className?: string;
+  scrollable?: boolean;
 };
 
 function styleKey(node: Element, index: number) {
@@ -69,6 +70,7 @@ export function PreviewIframe({
   children,
   title = "Превʼю сайту",
   className,
+  scrollable = true,
 }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
@@ -96,6 +98,7 @@ export function PreviewIframe({
 
       doc.body.replaceChildren();
       doc.documentElement.style.height = "100%";
+      if (!scrollable) doc.documentElement.style.overflow = "hidden";
       doc.body.style.margin = "0";
       doc.body.style.minHeight = "100%";
       doc.body.style.background = "#fff";
@@ -127,7 +130,7 @@ export function PreviewIframe({
       observer?.disconnect();
       setMountNode(null);
     };
-  }, []);
+  }, [scrollable]);
 
   return (
     <>

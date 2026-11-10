@@ -51,8 +51,13 @@ export function WsiteClosing({ title, names, imageUrl }: Props) {
           target="_blank"
           rel="noreferrer"
         >
-          fata.studio
-          <span className="wsite-closing__dot" aria-hidden />
+          <img
+            src="/wedding-site/logo-fata-studio.svg"
+            alt="fata.studio"
+            className="wsite-closing__logo"
+            width={154}
+            height={32}
+          />
         </a>
       </div>
     </section>

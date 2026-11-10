@@ -310,8 +310,7 @@ function WebsiteEditorInner() {
     >
       <WebsiteEditorHeader
         autosave={autosave}
-        publishing={publishing}
-        onPublish={() => void onPublish()}
+        published={site.published}
       />
       <div className="we-editor__body">
         <WebsiteEditorNav active={tab} onChange={setTab} />

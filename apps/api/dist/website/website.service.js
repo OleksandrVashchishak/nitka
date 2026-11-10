@@ -58,8 +58,8 @@ function formatDate(date, format) {
             .toUpperCase();
     }
     return new Intl.DateTimeFormat('uk-UA', {
-        day: 'numeric',
-        month: 'long',
+        day: '2-digit',
+        month: '2-digit',
         year: 'numeric',
     }).format(date);
 }

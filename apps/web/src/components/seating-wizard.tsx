@@ -11,7 +11,8 @@ import { IconMore } from "@/components/icon-more";
 import { IconTrash } from "@/components/icon-trash";
 import { RadioGroup, RadioOption } from "@/components/ui/radio";
 import { TextInput } from "@/components/ui/text-input";
-import type { Guest } from "@/lib/guests-api";
+import type { Guest, RsvpStatus } from "@/lib/guests-api";
+import { GuestRowMenu } from "@/components/seating-plan-popovers";
 import { IconBaby } from "@/components/icon-baby";
 import {
   isChildGuest,
@@ -118,6 +119,7 @@ type FlatGuest = {
   isChild: boolean;
   toKidsTable: boolean;
   side: Guest["side"];
+  rsvpStatus: RsvpStatus;
 };
 
 function flattenGuests(guests: Guest[]): FlatGuest[] {
@@ -138,11 +140,13 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
       toKidsTable:
         isChildGuest(g.notes) && parseChildNeed(g.notes) === "kids_table",
       side: g.side,
+      rsvpStatus: g.rsvpStatus,
     });
     const companions = parseCompanions(g.notes, g).filter((c) =>
       c.name.trim(),
     );
     companions.forEach((companion, index) => {
+      if (companion.rsvpStatus === "NO") return;
       rows.push({
         key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
         guestId: g.id,
@@ -152,6 +156,7 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
         isChild: companion.isChild,
         toKidsTable: companion.isChild && companion.childNeed === "kids_table",
         side: g.side,
+        rsvpStatus: companion.rsvpStatus,
       });
     });
   }
@@ -266,12 +271,15 @@ export function SeatingWizard({ guests, onClose, onComplete }: Props) {
     setAssignments((prev) => {
       const next = { ...prev, [key]: value };
       const row = flatGuests.find((g) => g.key === key);
-      if (row && !row.isPlusOne) {
-        for (const plus of flatGuests.filter((g) => g.linkedTo === key)) {
-          if (detachedKeys.has(plus.key)) continue;
-          if (plus.toKidsTable) continue;
-          if (prev[plus.key] === "kids") continue;
-          next[plus.key] = value;
+      if (row && !detachedKeys.has(row.key)) {
+        const root = row.linkedTo ?? row.key;
+        for (const mate of flatGuests) {
+          if (mate.key === key) continue;
+          if (mate.key !== root && mate.linkedTo !== root) continue;
+          if (detachedKeys.has(mate.key)) continue;
+          if (mate.toKidsTable) continue;
+          if (prev[mate.key] === "kids") continue;
+          next[mate.key] = value;
         }
       }
       return next;
@@ -792,13 +800,10 @@ function StepGuests({
               const clusterMid = linked;
               const clusterEnd =
                 (clusterStart || clusterMid) && !nextInCluster;
-              const canDetach =
-                linked ||
-                (!row.linkedTo &&
-                  flatGuests.some(
-                    (g) =>
-                      g.linkedTo === row.key && !detachedKeys.has(g.key),
-                  ));
+              const linkedName = linked
+                ? (flatGuests.find((g) => g.key === row.linkedTo)?.name ??
+                  null)
+                : null;
               const assign = assignments[row.key] ?? null;
 
               return (
@@ -841,7 +846,7 @@ function StepGuests({
                       title={sideLabel(row.side)}
                       aria-label={sideLabel(row.side)}
                     >
-                      {row.name.trim().charAt(0).toUpperCase() || "·"}
+                      {sideShort(row.side)}
                     </span>
 
                     <div className="seat-wiz-more-wrap">
@@ -858,63 +863,14 @@ function StepGuests({
                       </button>
                       {menuKey === row.key ? (
                         <div className="seat-wiz-more-menu" role="menu">
-                          {hasPresidium ? (
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() => {
-                                onAssign(row.key, "presidium");
-                                setMenuKey(null);
-                              }}
-                            >
-                              У президіум
-                            </button>
-                          ) : null}
-                          {hasKidsTable ? (
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() => {
-                                onAssign(row.key, "kids");
-                                setMenuKey(null);
-                              }}
-                            >
-                              На дитячий стіл
-                            </button>
-                          ) : null}
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              onAssign(row.key, null);
+                          <GuestRowMenu
+                            status={row.rsvpStatus}
+                            linkedName={linkedName}
+                            onDetach={() => {
+                              onDetach(row.key);
                               setMenuKey(null);
                             }}
-                          >
-                            Без групи
-                          </button>
-                          {canDetach ? (
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() => {
-                                if (linked) {
-                                  onDetach(row.key);
-                                  return;
-                                }
-                                onDetach(
-                                  flatGuests
-                                    .filter(
-                                      (g) =>
-                                        g.linkedTo === row.key &&
-                                        !detachedKeys.has(g.key),
-                                    )
-                                    .map((g) => g.key),
-                                );
-                              }}
-                            >
-                              Роз’єднати
-                            </button>
-                          ) : null}
+                          />
                         </div>
                       ) : null}
                     </div>
@@ -998,6 +954,13 @@ function AssignControl({
   );
 }
 
+function sideShort(side: Guest["side"]) {
+  if (side === "BRIDE") return "♀";
+  if (side === "GROOM") return "♂";
+  if (side === "BOTH") return "Сп";
+  return "·";
+}
+
 function sideLabel(side: Guest["side"]) {
   if (side === "BRIDE") return "Сторона нареченої";
   if (side === "GROOM") return "Сторона нареченого";
@@ -1042,12 +1005,12 @@ function CheckIcon() {
 
 function AddCircleIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <circle cx="10" cy="10" r="7.25" stroke="currentColor" strokeWidth="1.5" />
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.75" />
       <path
         d="M7 10h6M10 7v6"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.75"
         strokeLinecap="round"
       />
     </svg>

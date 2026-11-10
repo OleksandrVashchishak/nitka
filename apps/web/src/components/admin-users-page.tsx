@@ -148,12 +148,14 @@ export function AdminUsersPage() {
           type="date"
           value={dateFrom}
           onChange={(e) => setDateFrom(e.target.value)}
+          onClick={(e) => e.currentTarget.showPicker?.()}
           title="Дата весілля від"
         />
         <input
           type="date"
           value={dateTo}
           onChange={(e) => setDateTo(e.target.value)}
+          onClick={(e) => e.currentTarget.showPicker?.()}
           title="Дата весілля до"
         />
         <select

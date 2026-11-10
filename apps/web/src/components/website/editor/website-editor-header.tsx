@@ -8,8 +8,7 @@ type AutosaveState = "saved" | "saving" | "error";
 
 type Props = {
   autosave: AutosaveState;
-  publishing: boolean;
-  onPublish: () => void;
+  published: boolean;
 };
 
 const AUTOSAVE_LABEL: Record<AutosaveState, string> = {
@@ -20,8 +19,7 @@ const AUTOSAVE_LABEL: Record<AutosaveState, string> = {
 
 export function WebsiteEditorHeader({
   autosave,
-  publishing,
-  onPublish,
+  published,
 }: Props) {
   return (
     <header className="we-header">
@@ -49,14 +47,9 @@ export function WebsiteEditorHeader({
           />
           {AUTOSAVE_LABEL[autosave]}
         </span>
-        <button
-          type="button"
-          className="we-header__publish"
-          disabled={publishing}
-          onClick={onPublish}
-        >
-          {publishing ? "Публікуємо…" : "Опублікувати"}
-        </button>
+        {published && (
+          <span className="we-header__published">Опубліковано</span>
+        )}
       </div>
     </header>
   );

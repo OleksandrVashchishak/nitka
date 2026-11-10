@@ -95,14 +95,10 @@
     letter-spacing: 0;
   }
 
-  &__dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1.5px solid currentColor;
-    background:
-      radial-gradient(circle at 35% 35%, #ff4200 0 35%, transparent 36%),
-      transparent;
+  &__logo {
+    display: block;
+    width: 154px;
+    height: 32px;
   }
 
   // Figma mobile 1109:8835 — gap32 / px24 py64 / title32 / names28 / footer py32 gap12 text10

@@ -162,6 +162,30 @@ function GuestPopHeader({
   );
 }
 
+export function GuestRowMenu({
+  status,
+  linkedName,
+  onDetach,
+}: {
+  status: RsvpStatus;
+  linkedName: string | null;
+  onDetach: () => void;
+}) {
+  return (
+    <>
+      {linkedName ? (
+        <button type="button" role="menuitem" onClick={onDetach}>
+          Від’єднати від {uaNameGenitive(linkedName)}
+        </button>
+      ) : null}
+      <div className="seat-wiz-more-status">
+        <span className="seat-wiz-more-status__label">Статус</span>
+        <GuestPopFooter status={status} />
+      </div>
+    </>
+  );
+}
+
 function GuestPopFooter({ status }: { status: RsvpStatus }) {
   return (
     <div className="seat-pop-footer">

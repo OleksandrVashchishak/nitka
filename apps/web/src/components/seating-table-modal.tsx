@@ -241,7 +241,14 @@ export function SeatingTableModal({
           {isShaped ? (
             <TableShapeSilhouette kind={draft.kind} />
           ) : (
-            <div className="seat-table-modal-body">
+            <div
+              className="seat-table-modal-body"
+              style={
+                isRoundVisual && draft.rotation
+                  ? { transform: `rotate(${-draft.rotation}deg)` }
+                  : undefined
+              }
+            >
               <span className="seat-table-modal-body-label">{draft.label}</span>
               <span className="seat-table-modal-body-count">
                 {filled}/{draft.seats.length}

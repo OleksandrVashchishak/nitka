@@ -65,7 +65,7 @@ paths:
 - Linked cluster: shared bg, vertical connector `#C8D2E0` 2px left; companions indented 28px
 - Companion icon: link glyph; child icon для `isChild`
 - Assign control: завжди pill-select з шевроном — empty / group (color) / президіум (wine) / дитячий стіл (pink, UPPERCASE)
-- ⋮ меню: президіум / дитячий / без групи / **Роз’єднати** (локальний `detachedKeys`)
+- ⋮ меню: якщо гість приєднаний — **Від’єднати від {ім’я}** (локальний `detachedKeys`); завжди блок «Статус» відповіді (`GuestRowMenu`)
 - Parent→companions sync: не оверайтить `isChild` і assignment `kids`
 - Content card width ~612px (`seat-wiz-body.is-narrow`)
 - Add group btn: lime `#F0FEBB` / `#F0FCBA`, pill 44px (див. AddButton.svg)
@@ -79,7 +79,7 @@ paths:
 - «Розпочати розсадку» на empty state відкриває wizard
 - Степ 1 → Далі → степ 2; Назад / стрілка — попередній степ / закриття
 - Plus-one з гостя показується окремим linked-рядком
-- Діти (`[child]` у notes) автоматом на «дитячий стіл», якщо він увімкнений на степі 1
+- Дитина автоматом на «дитячий стіл» лише якщо в гостях позначено `need:kids_table` (і стіл увімкнено); `high_chair` / `with_parents` — не автоматом. Старі збережені `kids` для таких дітей чистяться при завантаженні (`dropStaleKidsAssignments`)
 - Дитячий стіл (степ 1, якщо «Так»): кількість столів + форма «Круглий» / «Довгий»; місць на стіл — фікс 8
 - Selected format border лишається wine `#61040F` (не lime)
 - Формати (президіум окремим радіо): **Круглі столи** / **Довгі столи** / **Довгі + Круглі** / **П-форма** / **Т-форма**
@@ -104,6 +104,6 @@ paths:
 - `PlanTable.rotation` (deg) — CSS transform на canvas; seats counter-rotate
 - localStorage: ~~legacy~~ → **Postgres** `weddings.seating_draft` + `weddings.seating_plan` via `GET/PUT /api/seating`
 - One-time migrate from old `fata-seating-*:v1` localStorage if DB empty
-- Interaction guests: select guest left → click empty seat; **drag guest from list (or seat) → drop on seat / table** (table = first empty); click seated seat (no selection) opens popover; DnD desktop-only (mobile лишає seat-pick)
+- Interaction guests: **лише drag guest from list (or seat) → drop on seat / table** (table = first empty), без «вибрав гостя → клік по місцю»; drag image — кружечок з ініціалами + ім’я (`.seat-plan-drag-ghost`), не вся плитка; click seated seat opens popover; click empty seat → seat-pick модалка «Посадити» (desktop + mobile; кнопка «Фільтри» в ній лише на mobile); DnD desktop-only
 - Pencil «Редагувати групи» → `SeatingGroupsModal` (2 колонки), не fullscreen wizard; сейв оновлює лише `draft.guests`, план столів не валить
 - `detachedKeys` from wizard/modal breaks link only (гості лишаються у списку)

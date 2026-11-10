@@ -12,7 +12,7 @@ const DEFAULT_SECTIONS: WebsiteSections = {
   qa: false,
   travel: false,
   registry: false,
-  rsvp: true,
+  rsvp: false,
 };
 
 /** Old shipped defaults → current template labels. */

@@ -6,7 +6,8 @@ import { IconTrash } from "@/components/icon-trash";
 import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { TextInput } from "@/components/ui/text-input";
-import type { Guest } from "@/lib/guests-api";
+import type { Guest, RsvpStatus } from "@/lib/guests-api";
+import { GuestRowMenu } from "@/components/seating-plan-popovers";
 import { IconBaby } from "@/components/icon-baby";
 import {
   isChildGuest,
@@ -31,6 +32,7 @@ type FlatGuest = {
   isChild: boolean;
   toKidsTable: boolean;
   side: Guest["side"];
+  rsvpStatus: RsvpStatus;
 };
 
 type Props = {
@@ -73,11 +75,13 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
       toKidsTable:
         isChildGuest(g.notes) && parseChildNeed(g.notes) === "kids_table",
       side: g.side,
+      rsvpStatus: g.rsvpStatus,
     });
     const companions = parseCompanions(g.notes, g).filter((c) =>
       c.name.trim(),
     );
     companions.forEach((companion, index) => {
+      if (companion.rsvpStatus === "NO") return;
       rows.push({
         key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
         guestId: g.id,
@@ -87,10 +91,18 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
         isChild: companion.isChild,
         toKidsTable: companion.isChild && companion.childNeed === "kids_table",
         side: g.side,
+        rsvpStatus: companion.rsvpStatus,
       });
     });
   }
   return rows;
+}
+
+function sideShort(side: Guest["side"]) {
+  if (side === "BRIDE") return "♀";
+  if (side === "GROOM") return "♂";
+  if (side === "BOTH") return "Сп";
+  return "·";
 }
 
 function sideLabel(side: Guest["side"]) {
@@ -150,12 +162,15 @@ export function SeatingGroupsModal({
     setAssignments((prev) => {
       const next = { ...prev, [key]: value };
       const row = flatGuests.find((g) => g.key === key);
-      if (row && !row.isPlusOne) {
-        for (const plus of flatGuests.filter((g) => g.linkedTo === key)) {
-          if (detachedKeys.has(plus.key)) continue;
-          if (plus.toKidsTable) continue;
-          if (prev[plus.key] === "kids") continue;
-          next[plus.key] = value;
+      if (row && !detachedKeys.has(row.key)) {
+        const root = row.linkedTo ?? row.key;
+        for (const mate of flatGuests) {
+          if (mate.key === key) continue;
+          if (mate.key !== root && mate.linkedTo !== root) continue;
+          if (detachedKeys.has(mate.key)) continue;
+          if (mate.toKidsTable) continue;
+          if (prev[mate.key] === "kids") continue;
+          next[mate.key] = value;
         }
       }
       return next;
@@ -296,13 +311,10 @@ export function SeatingGroupsModal({
                   const clusterMid = linked;
                   const clusterEnd =
                     (clusterStart || clusterMid) && !nextInCluster;
-                  const canDetach =
-                    linked ||
-                    (!row.linkedTo &&
-                      flatGuests.some(
-                        (g) =>
-                          g.linkedTo === row.key && !detachedKeys.has(g.key),
-                      ));
+                  const linkedName = linked
+                    ? (flatGuests.find((g) => g.key === row.linkedTo)?.name ??
+                      null)
+                    : null;
                   const assign = assignments[row.key] ?? null;
 
                   return (
@@ -345,7 +357,7 @@ export function SeatingGroupsModal({
                           title={sideLabel(row.side)}
                           aria-label={sideLabel(row.side)}
                         >
-                          {row.name.trim().charAt(0).toUpperCase() || "·"}
+                          {sideShort(row.side)}
                         </span>
 
                         <div className="seat-wiz-more-wrap">
@@ -362,63 +374,11 @@ export function SeatingGroupsModal({
                           </button>
                           {menuKey === row.key ? (
                             <div className="seat-wiz-more-menu" role="menu">
-                              {hasPresidium ? (
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  onClick={() => {
-                                    setAssign(row.key, "presidium");
-                                    setMenuKey(null);
-                                  }}
-                                >
-                                  У президіум
-                                </button>
-                              ) : null}
-                              {hasKidsTable ? (
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  onClick={() => {
-                                    setAssign(row.key, "kids");
-                                    setMenuKey(null);
-                                  }}
-                                >
-                                  На дитячий стіл
-                                </button>
-                              ) : null}
-                              <button
-                                type="button"
-                                role="menuitem"
-                                onClick={() => {
-                                  setAssign(row.key, null);
-                                  setMenuKey(null);
-                                }}
-                              >
-                                Без групи
-                              </button>
-                              {canDetach ? (
-                                <button
-                                  type="button"
-                                  role="menuitem"
-                                  onClick={() => {
-                                    if (linked) {
-                                      detachGuest(row.key);
-                                      return;
-                                    }
-                                    detachGuest(
-                                      flatGuests
-                                        .filter(
-                                          (g) =>
-                                            g.linkedTo === row.key &&
-                                            !detachedKeys.has(g.key),
-                                        )
-                                        .map((g) => g.key),
-                                    );
-                                  }}
-                                >
-                                  Роз’єднати
-                                </button>
-                              ) : null}
+                              <GuestRowMenu
+                                status={row.rsvpStatus}
+                                linkedName={linkedName}
+                                onDetach={() => detachGuest(row.key)}
+                              />
                             </div>
                           ) : null}
                         </div>

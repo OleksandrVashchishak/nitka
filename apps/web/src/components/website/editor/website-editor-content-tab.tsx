@@ -27,8 +27,8 @@ type Props = {
   onNamesChange: (bride: string, groom: string) => void;
 };
 
-const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) =>
-  `${String(Math.floor(i / 2)).padStart(2, "0")}:${i % 2 ? "30" : "00"}`,
+const TIME_OPTIONS = Array.from({ length: 96 }, (_, i) =>
+  `${String(Math.floor(i / 4)).padStart(2, "0")}:${String((i % 4) * 15).padStart(2, "0")}`,
 );
 
 function dateLabelToIso(label?: string) {
@@ -60,6 +60,7 @@ export function WebsiteEditorContentTab({
     sections.registry ||
     sections.travel ||
     sections.gallery ||
+    sections.rsvp ||
     sections.qa;
 
   function patch(partial: Partial<WebsiteContent>) {
@@ -111,6 +112,7 @@ export function WebsiteEditorContentTab({
         registry: true,
         travel: sections.travel,
         gallery: sections.gallery,
+        rsvp: sections.rsvp,
         qa: sections.qa,
       });
       return;
@@ -120,6 +122,7 @@ export function WebsiteEditorContentTab({
       registry: false,
       travel: false,
       gallery: false,
+      rsvp: false,
       qa: false,
     });
   }
@@ -164,6 +167,12 @@ export function WebsiteEditorContentTab({
               value={content.dateLabel}
               onChange={(e) => patch({ dateLabel: e.target.value })}
               placeholder="25.08.27"
+              onClick={() => {
+                const el = dateRef.current;
+                if (!el) return;
+                if (typeof el.showPicker === "function") el.showPicker();
+                else el.click();
+              }}
               endAdornment={
                 <>
                   <button
@@ -186,7 +195,7 @@ export function WebsiteEditorContentTab({
                     value={dateLabelToIso(content.dateLabel)}
                     onChange={(e) => {
                       const m = e.target.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-                      if (m) patch({ dateLabel: `${m[3]}.${m[2]}.${m[1].slice(2)}` });
+                      if (m) patch({ dateLabel: `${m[3]}.${m[2]}.${m[1]}` });
                     }}
                     style={{
                       position: "absolute",
@@ -411,7 +420,7 @@ export function WebsiteEditorContentTab({
         >
           <div className="we-blocks__nested">
             <NestedItem
-              label="Побажання щодо подарунків"
+              label="Що дарувати"
               checked={sections.registry}
               onCheckedChange={(v) => patchSections({ registry: v })}
             >
@@ -420,11 +429,11 @@ export function WebsiteEditorContentTab({
                 inputClassName="we-blocks__textarea"
                 value={content.registryBody}
                 onChange={(e) => patch({ registryBody: e.target.value })}
-                placeholder="Наприклад: не приносьте квіти…"
+                placeholder="Наприклад: не приносьте квіти, а приносьте донати, на зоні церемонії буде скринька для збору донатів"
               />
             </NestedItem>
             <NestedItem
-              label="Дрес-код"
+              label="Дрескод"
               checked={sections.dressCode}
               onCheckedChange={(v) => patchSections({ dressCode: v })}
             >
@@ -450,7 +459,7 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Діти на нашому святі"
+              label="Дитячі зони"
               checked={sections.gallery}
               onCheckedChange={(v) => patchSections({ gallery: v })}
             >
@@ -463,7 +472,20 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Квіти"
+              label="Коли треба дати відповідь"
+              checked={sections.rsvp}
+              onCheckedChange={(v) => patchSections({ rsvp: v })}
+            >
+              <Textarea
+                plain
+                inputClassName="we-blocks__textarea"
+                value={content.rsvpBody}
+                onChange={(e) => patch({ rsvpBody: e.target.value })}
+                placeholder="Наприклад: просимо підтвердити присутність до 1 серпня"
+              />
+            </NestedItem>
+            <NestedItem
+              label="Інша"
               checked={sections.qa}
               onCheckedChange={(v) => patchSections({ qa: v })}
             >
@@ -475,7 +497,7 @@ export function WebsiteEditorContentTab({
                   patch({
                     qaItems: [
                       {
-                        question: content.qaItems[0]?.question || "Квіти",
+                        question: content.qaItems[0]?.question || "Інша",
                         answer: e.target.value,
                       },
                       ...content.qaItems.slice(1),

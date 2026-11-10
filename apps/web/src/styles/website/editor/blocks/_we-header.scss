@@ -110,6 +110,22 @@
     }
   }
 
+  &__published {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #f1f9c7;
+    color: #1a1a1a;
+    font-family: var(--we-font);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 140%;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
   @media (max-width: 960px) {
     position: relative;
     justify-content: center;
@@ -126,10 +142,17 @@
     }
 
     &__back {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+      box-sizing: border-box;
+      width: 32px;
+      height: 32px;
+      padding: 8px;
+      border-radius: 8px;
       background: var(--we-panel);
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     &__brand {

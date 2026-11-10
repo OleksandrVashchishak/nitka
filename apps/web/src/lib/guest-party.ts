@@ -86,20 +86,28 @@ export function parseInviteMethod(
   return isInviteMethod(match?.[1]) ? match[1] : "phone";
 }
 
-/** Ставить гостей з одним `party:` поруч; leaderOf — id першого гостя партії для решти. */
-export function orderByParty<T extends { id: string; notes: string | null }>(
-  guests: T[],
-): { ordered: T[]; leaderOf: Map<string, string> } {
+/** Ключ родини: явний `party:`, інакше — однакове прізвище (останнє слово імені). */
+function familyKey(g: { name?: string; notes: string | null }): string | null {
+  const partyId = parsePartyId(g.notes);
+  if (partyId) return `party:${partyId}`;
+  const words = (g.name ?? "").trim().toLowerCase().split(/\s+/);
+  return words.length >= 2 ? `surname:${words[words.length - 1]}` : null;
+}
+
+/** Ставить гостей однієї родини поруч (`party:` або однакове прізвище); leaderOf — id першого гостя родини для решти. */
+export function orderByParty<
+  T extends { id: string; name?: string; notes: string | null },
+>(guests: T[]): { ordered: T[]; leaderOf: Map<string, string> } {
   const byParty = new Map<string, T[]>();
   for (const g of guests) {
-    const partyId = parsePartyId(g.notes);
-    if (partyId) byParty.set(partyId, [...(byParty.get(partyId) ?? []), g]);
+    const key = familyKey(g);
+    if (key) byParty.set(key, [...(byParty.get(key) ?? []), g]);
   }
   const ordered: T[] = [];
   const leaderOf = new Map<string, string>();
   const seen = new Set<string>();
   for (const g of guests) {
-    const partyId = parsePartyId(g.notes);
+    const partyId = familyKey(g);
     const members = partyId ? byParty.get(partyId)! : [g];
     if (partyId) {
       if (seen.has(partyId)) continue;
@@ -126,6 +134,36 @@ export function partyHasChild(guest: {
 }) {
   if (isChildGuest(guest.notes)) return true;
   return parseCompanions(guest.notes, guest).some((c) => c.isChild);
+}
+
+/**
+ * Прибирає застарілі призначення «kids» у дітей, яких не позначено «За дитячий стіл»
+ * (раніше всі діти автоматом йшли на дитячий стіл).
+ */
+export function dropStaleKidsAssignments<T extends string | null>(
+  assignments: Record<string, T>,
+  guests: Array<{
+    id: string;
+    notes: string | null;
+    plusOne?: boolean;
+    plusOneName?: string | null;
+    plusOneAttending?: boolean | null;
+    rsvpStatus?: RsvpStatus;
+  }>,
+): Record<string, T | null> {
+  const next: Record<string, T | null> = { ...assignments };
+  const check = (key: string, isChild: boolean, need: ChildNeed | null) => {
+    if (isChild && need !== "kids_table" && next[key] === "kids") {
+      next[key] = null;
+    }
+  };
+  for (const g of guests) {
+    check(g.id, isChildGuest(g.notes), parseChildNeed(g.notes));
+    parseCompanions(g.notes, g).forEach((c, i) => {
+      check(i === 0 ? `${g.id}:plus` : `${g.id}:plus:${i}`, c.isChild, c.childNeed);
+    });
+  }
+  return next;
 }
 
 export function isInvitedGuest(guest: {

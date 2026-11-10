@@ -27,6 +27,7 @@ import {
   type SeatingDraftPayload,
   type SeatingPlanPayload,
 } from "@/lib/seating-api";
+import { dropStaleKidsAssignments } from "@/lib/guest-party";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
 import "@/styles/cabinet/cabinet.scss";
@@ -74,6 +75,10 @@ function SeatingInner() {
               tables: seating.draft.tables,
               guests: {
                 ...seating.draft.guests,
+                assignments: dropStaleKidsAssignments(
+                  seating.draft.guests.assignments,
+                  list.guests,
+                ),
                 detachedKeys: seating.draft.guests.detachedKeys ?? [],
               },
             }

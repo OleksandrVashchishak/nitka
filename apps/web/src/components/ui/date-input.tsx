@@ -52,6 +52,12 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
           type="date"
           value={value}
           {...props}
+          onClick={(e) => {
+            props.onClick?.(e);
+            try {
+              e.currentTarget.showPicker?.();
+            } catch {}
+          }}
         />
         {!hasValue ? (
           <span className="fata-date-input__placeholder" aria-hidden>

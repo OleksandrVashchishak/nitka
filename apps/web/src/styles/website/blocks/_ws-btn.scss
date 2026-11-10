@@ -68,6 +68,26 @@
     min-width: 0;
   }
 
+  &--bar {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 52px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  &--bar-outline {
+    background: #fff;
+    border-color: var(--ws-ink);
+    color: var(--ws-ink);
+  }
+
+  &--bar-solid {
+    background: #000;
+    border-color: #000;
+    color: var(--ws-lime);
+  }
+
   &__icon {
     display: inline-flex;
     flex-shrink: 0;

@@ -77,6 +77,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         type={type}
         className={controlClass}
         {...props}
+        onClick={(e) => {
+          props.onClick?.(e);
+          if (type === "date") {
+            try {
+              e.currentTarget.showPicker?.();
+            } catch {}
+          }
+        }}
       />
     );
 

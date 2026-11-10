@@ -1,7 +1,7 @@
 .ws-dashboard {
   box-sizing: border-box;
   min-height: 100%;
-  padding: 32px 32px 48px;
+  padding: 40px 40px 48px 48px;
   color: var(--ws-ink);
   font-family: var(--ws-font);
   background: var(--ws-paper);
@@ -14,10 +14,11 @@
 
   &__top {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 24px;
+    min-height: 50px;
+    margin-bottom: 33px;
   }
 
   &__mobile-top {
@@ -52,28 +53,8 @@
     line-height: 140%;
   }
 
-  &__layout {
-    display: grid;
-    grid-template-columns: var(--ws-left-w) minmax(0, 1fr);
-    gap: var(--ws-gap);
-    align-items: start;
-  }
-
-  &__col {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 0;
-  }
-
-  &__col--right {
-    gap: 0;
-  }
-
   &__solo {
-    display: flex;
-    justify-content: center;
-    padding: 24px 0 40px;
+    padding: 0;
     background:
       radial-gradient(
         60% 50% at 35% 20%,
@@ -83,14 +64,8 @@
       transparent;
   }
 
-  @media (max-width: 1100px) {
-    &__layout {
-      grid-template-columns: 1fr;
-    }
-  }
-
   @media (max-width: 768px) {
-    padding: 36px 16px 40px;
+    padding: 36px 16px 120px;
 
     &__mobile-top {
       display: flex;
@@ -101,7 +76,6 @@
     }
 
     &__solo {
-      justify-content: stretch;
       padding: 8px 0 32px;
     }
   }

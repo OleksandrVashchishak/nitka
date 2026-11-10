@@ -1,6 +1,8 @@
 /* Seating wizard — shared across steps (see .cursor/rules/seating-wizard.mdc) */
 
-.seat-wiz-root {
+/* .seat-groups-modal рендериться в оверлеї поза .seat-wiz-root — потрібні ті самі токени */
+.seat-wiz-root,
+.seat-groups-modal {
   --seat-wiz-bg: #f3f3f3;
   --seat-wiz-lime: #f0febb;
   --seat-wiz-lime-dot: #f0fcba;
@@ -10,7 +12,9 @@
   --seat-wiz-ink: #1a1a1a;
   --seat-wiz-card-radius: 12px;
   --seat-wiz-content: 928px;
+}
 
+.seat-wiz-root {
   position: fixed;
   inset: 0;
   z-index: 90;
@@ -390,13 +394,14 @@
   gap: 8px;
   height: 44px;
   margin-top: 16px;
-  padding: 0 20px 0 16px;
+  padding: 0 20px 0 14px;
   border: 0;
   border-radius: 22px;
-  background: var(--seat-wiz-lime);
+  background: var(--seat-wiz-lime-dot);
   font-family: var(--font-sans), "Montserrat", sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-style: italic;
+  font-weight: 700;
   color: var(--seat-wiz-ink);
   cursor: pointer;
 }
@@ -645,6 +650,35 @@
   background: #f7f7f7;
 }
 
+.seat-wiz-more-menu button + .seat-wiz-more-status {
+  margin-top: 6px;
+  border-top: 1px solid var(--seat-wiz-border);
+}
+
+.seat-wiz-more-status {
+  padding: 10px 12px 6px;
+
+  &__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--seat-wiz-ink);
+  }
+
+  .seat-pop-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--seat-wiz-ink);
+    white-space: nowrap;
+  }
+}
+
 .seat-wiz-sr {
   position: absolute;
   width: 1px;
@@ -675,27 +709,12 @@
   }
 
   .seat-wiz-header {
-    padding: 12px 16px 4px;
-  }
-
-  .seat-wiz-header .seat-wiz-logo {
     display: none;
-  }
-
-  .seat-wiz-back {
-    width: auto;
-    height: auto;
-    padding: 4px 0;
-    border-radius: 0;
-  }
-
-  .seat-wiz-back-label {
-    display: inline;
   }
 
   .seat-wiz-footer {
     padding: 12px 16px 20px;
-    background: var(--seat-wiz-bg);
+    background: #fff;
   }
 
   .seat-wiz-body {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { BrandLogo } from "@/components/brand-logo";
 import {
   NAME_CARD_DEMO_NAMES,
@@ -22,7 +23,7 @@ function BackIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
       <path
-        d="M11.5 4.5 7 9l4.5 4.5"
+        d="M14 9H4m0 0 4.5-4.5M4 9l4.5 4.5"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
@@ -106,6 +107,7 @@ function NameCardThumb({
 export function NameCardsDesign({ names, onClose }: Props) {
   const [designId, setDesignId] = useState<NameCardDesignId>("simple");
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const hasRealGuests = names.length > 0;
 
   const previewNames = useMemo(
@@ -119,6 +121,8 @@ export function NameCardsDesign({ names, onClose }: Props) {
   const activeDesign = NAME_CARD_DESIGNS.find((d) => d.id === designId);
   const isSimple = designId === "simple";
   const thumbName = previewNames[0] ?? "Марія Левченко";
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -247,15 +251,8 @@ export function NameCardsDesign({ names, onClose }: Props) {
                           <span className="name-cards-editor__badge">
                             Обраний
                           </span>
-                        ) : soon ? (
-                          <span className="name-cards-editor__badge name-cards-editor__badge--soon">
-                            Скоро
-                          </span>
                         ) : null}
                       </div>
-                      <p className="name-cards-editor__card-desc">
-                        {option.description}
-                      </p>
                     </div>
                   </button>
                   <button
@@ -302,18 +299,23 @@ export function NameCardsDesign({ names, onClose }: Props) {
         </button>
       </div>
 
-      <div className="name-cards-print" aria-hidden>
-        {hasRealGuests && isSimple
-          ? pages.map((pageNames, pageIndex) => (
-              <NameCardSheet
-                key={pageIndex}
-                names={pageNames}
-                designId={designId}
-                forPrint
-              />
-            ))
-          : null}
-      </div>
+      {mounted
+        ? createPortal(
+            <div className="name-cards-print" aria-hidden>
+              {hasRealGuests && isSimple
+                ? pages.map((pageNames, pageIndex) => (
+                    <NameCardSheet
+                      key={pageIndex}
+                      names={pageNames}
+                      designId={designId}
+                      forPrint
+                    />
+                  ))
+                : null}
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
