@@ -106,21 +106,19 @@
       grid-template-areas:
         "heading"
         "left"
-        "text";
+        "text"
+        "right";
       gap: 24px;
       justify-items: stretch;
     }
 
-    &__photo--left {
+    &__photo--left,
+    &__photo--right {
       max-width: 100%;
       width: 100%;
       height: 240px;
       aspect-ratio: auto;
       border-radius: 8px;
-    }
-
-    &__photo--right {
-      display: none;
     }
 
     &__heading {

@@ -25,6 +25,8 @@ export type CabinetPageHeaderProps = {
   className?: string;
   /** Mobile-only back arrow before the title (pages opened from the «Ще» menu) */
   showBack?: boolean;
+  /** Не показувати дзвінок сповіщень (напр. в налаштуваннях) */
+  hideNotifications?: boolean;
 };
 
 export function CabinetPageHeader({
@@ -36,7 +38,8 @@ export function CabinetPageHeader({
   accountDesktopOnly = true,
   className,
   showBack = false,
-}: CabinetPageHeaderProps) {
+  hideNotifications = false,
+}:CabinetPageHeaderProps) {
   const showAccount = initials != null;
   const showActionsRow =
     showAccount || actions != null || endActions != null;
@@ -68,7 +71,9 @@ export function CabinetPageHeader({
           {showAccount ? (
             <div className={accountClass}>
               {endActions}
-              <CabinetNotificationsBell summary={summary} />
+              {hideNotifications ? null : (
+                <CabinetNotificationsBell summary={summary} />
+              )}
               <CabinetProfileMenu initials={initials} />
             </div>
           ) : null}

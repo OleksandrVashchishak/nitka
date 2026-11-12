@@ -374,7 +374,7 @@ function GuestsInner() {
         const next = { ...row, ...patch };
         if (patch.isChild === false) next.childNeed = null;
         if (patch.isChild === true && !next.childNeed) {
-          next.childNeed = "with_parents";
+          next.childNeed = "kids_table";
         }
         return next;
       }),
@@ -1279,7 +1279,7 @@ function GuestsInner() {
                         <Select
                           className="cabinet-guests-child-need-select"
                           label="Посадка дитини"
-                          value={row.childNeed ?? "with_parents"}
+                          value={row.childNeed ?? "kids_table"}
                           aria-label={`Посадка дитини +1 ${index + 1}`}
                           onChange={(e) =>
                             updateCompanion(row.key, {

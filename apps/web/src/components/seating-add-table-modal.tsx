@@ -66,7 +66,7 @@ export function SeatingAddTableModal({
       title={KIND_TITLE[kind]}
       variant="modal"
       width={790}
-      mobileVariant="center"
+      mobileVariant="fullscreen"
       panelClassName="seat-add-table-modal"
       bodyClassName="seat-add-table-modal-body"
       footerClassName="cabinet-modal-actions seat-add-table-modal-actions"
@@ -75,7 +75,12 @@ export function SeatingAddTableModal({
       footer={
         <CabinetFormActions
           onCancel={onClose}
-          saveLabel="Додати"
+          saveLabel={
+            <>
+              <span className="seat-add-table-modal-label--desktop">Додати</span>
+              <span className="seat-add-table-modal-label--mobile">Зберегти</span>
+            </>
+          }
           saveDisabled={!canSubmit}
         />
       }

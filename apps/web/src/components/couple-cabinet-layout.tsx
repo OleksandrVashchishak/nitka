@@ -8,6 +8,7 @@ import { CabinetBottomNav } from "@/components/cabinet-bottom-nav";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 import { IconSms } from "@/components/icon-sms";
 import { Button } from "@/components/ui/button";
+import { isCabinetMoreRoute } from "@/lib/cabinet-more-menu";
 import { createPartnerInvite, getMyWedding } from "@/lib/dashboard-api";
 import { toast } from "@/lib/toast";
 import { uaNameAccusative } from "@/lib/ua-name-case";
@@ -38,9 +39,14 @@ function activePath(pathname: string, href: string) {
 }
 
 export function CoupleCabinetLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const noBottomNav = isCabinetMoreRoute(pathname);
+
   return (
     <CabinetCtx.Provider value={true}>
-      <div className="cabinet-ui min-h-screen text-ink">
+      <div
+        className={`cabinet-ui min-h-screen text-ink${noBottomNav ? " cabinet-ui--no-bottom-nav" : ""}`}
+      >
         <CoupleSidebar />
         <div className="cabinet-main min-h-screen">{children}</div>
         <CabinetBottomNav />

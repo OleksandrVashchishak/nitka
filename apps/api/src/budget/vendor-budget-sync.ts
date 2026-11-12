@@ -70,9 +70,13 @@ function budgetCategoryForVendor(slug: string) {
   }
 }
 
-function buildBudgetNotes(vendorName: string, currency: VendorCurrency) {
+function buildBudgetNotes(
+  vendorName: string,
+  currency: VendorCurrency,
+  payer = 'couple',
+) {
   return [
-    'payer:couple',
+    `payer:${payer}`,
     `currency:${currency}`,
     `vendor:${encodeURIComponent(vendorName)}`,
   ].join(' ');
@@ -105,7 +109,7 @@ export async function syncBudgetItemForExternalVendor(
 
   const existing = await prisma.budgetItem.findFirst({
     where: { externalVendorId: vendor.id },
-    select: { id: true },
+    select: { id: true, notes: true },
   });
 
   if (!shouldSync) {
@@ -124,7 +128,11 @@ export async function syncBudgetItemForExternalVendor(
     estimated: total,
     actual: fullyPaid ? total : depositUah,
     paid: fullyPaid,
-    notes: buildBudgetNotes(vendor.name.trim() || 'Підрядник', notesCurrency),
+    notes: buildBudgetNotes(
+      vendor.name.trim() || 'Підрядник',
+      notesCurrency,
+      existing?.notes?.match(/payer:([a-z_]+)/)?.[1],
+    ),
     externalVendorId: vendor.id,
   };
 

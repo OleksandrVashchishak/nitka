@@ -9,6 +9,7 @@ import { WsiteSchedule } from "@/components/wedding-site/sections/wsite-schedule
 import { WsiteStory } from "@/components/wedding-site/sections/wsite-story";
 import {
   coupleInitials,
+  formatHeroDate,
   parseWeddingDate,
   splitCoupleNames,
   themeClass,
@@ -61,11 +62,11 @@ export function WeddingSite({
   const gallery = content.galleryImages ?? [];
   const scheduleImage = content.coupleImageUrl || DEMO.schedule;
   const storyImage = content.storyImageUrl || DEMO.story;
-  const brideImage = content.coupleImageUrl || DEMO.bride;
+  const brideImage = content.brideImageUrl || DEMO.bride;
   const groomImage = gallery[0] || DEMO.groom;
   const proposalLeft = gallery[1] || DEMO.proposalLeft;
   const proposalRight = gallery[2] || DEMO.proposalRight;
-  const closingImage = content.coupleImageUrl || DEMO.schedule;
+  const closingImage = heroImage;
 
   const detailItems = [
     sections.dressCode && content.dressCodeBody.trim()
@@ -120,7 +121,7 @@ export function WeddingSite({
       <WsiteHero
         names={content.headline || `${bride} & ${groom}`}
         initials={initials}
-        date={content.dateLabel}
+        date={formatHeroDate(targetDate, content.dateLabel)}
         imageUrl={heroImage}
       />
 
@@ -165,6 +166,7 @@ export function WeddingSite({
 
       {showProposal ? (
         <WsiteProposal
+          eyebrow="Наша мить"
           title="Як відбулася пропозиція"
           body={content.proposalBody}
           imageLeft={proposalLeft}

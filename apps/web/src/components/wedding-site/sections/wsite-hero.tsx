@@ -47,7 +47,7 @@ export function WsiteHero({
         <div className="wsite-hero__shade" />
       </div>
 
-      {!compact && (initials || date) ? (
+      {!compact ? (
         <div className="wsite-hero__top">
           {initials ? (
             <span className="wsite-hero__initials">{initials}</span>

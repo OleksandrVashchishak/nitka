@@ -42,7 +42,6 @@
   }
 
   &__mark {
-    display: none;
     margin: 0;
     font-family: var(--wsite-font-display);
     font-weight: 400;
@@ -93,10 +92,6 @@
       &:last-child {
         border-bottom: 0;
       }
-    }
-
-    &__mark {
-      display: block;
     }
 
     &__name {

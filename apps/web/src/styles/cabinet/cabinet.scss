@@ -1567,6 +1567,28 @@ color: #1A1A1A;
   .cabinet-bottom-nav {
     display: flex;
   }
+
+  /* Сторінки з «Ще»: нижнього меню немає — не резервуємо під нього місце */
+  .cabinet-ui--no-bottom-nav .cabinet-main {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (max-width: 767px) {
+  .cabinet-ui--no-bottom-nav {
+    .cabinet-vendors-page {
+      min-height: 100dvh;
+    }
+
+    .cabinet-day-plan-page .cabinet-empty {
+      min-height: calc(100dvh - 104px - env(safe-area-inset-bottom, 0px));
+    }
+
+    .cabinet-day-plan-mobile-bar,
+    .cabinet-inspiration-mobile-bar {
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+  }
 }
 
 @media (max-width: 767px) {
@@ -1710,8 +1732,9 @@ margin-bottom: 25px;
     text-align: center;
   }
 
-  .cabinet-task-list {
-    margin-top: 12px;
+  .cabinet-task-list,
+  .cabinet-tasks-panel > .partner-invite-banner + .cabinet-task-list {
+    margin-top: 22px;
   }
 
   .cabinet-stats .cabinet-stat:not(.is-cta) {
@@ -2197,7 +2220,7 @@ margin-bottom: 25px;
 .cabinet-tasks-filters-sheet {
   position: fixed;
   inset: 0;
-  z-index: 46;
+  z-index: 90;
   pointer-events: none;
 }
 
@@ -6001,7 +6024,7 @@ font-size: 12px;
     right: 16px;
     bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     left: 16px;
-    z-index: 44;
+    z-index: 43;
   }
 
   .cabinet-day-plan-mobile-add.fata-button {

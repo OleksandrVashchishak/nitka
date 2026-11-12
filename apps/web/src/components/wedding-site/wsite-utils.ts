@@ -44,6 +44,14 @@ export function parseWeddingDate(
   return null;
 }
 
+/** Дата в hero завжди у форматі DD.MM.YYYY. */
+export function formatHeroDate(d: Date | null, fallback = ""): string {
+  if (!d) return fallback;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dd}.${mm}.${d.getFullYear()}`;
+}
+
 export function themeClass(templateId: string) {
   if (templateId === "navy-gold") return "wsite--navy-gold";
   if (templateId === "dark-botanical") return "wsite--dark-botanical";

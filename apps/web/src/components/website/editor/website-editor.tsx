@@ -73,12 +73,21 @@ function WebsiteEditorInner() {
   const [tab, setTab] = useState<EditorTab>("design");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [narrowScreen, setNarrowScreen] = useState(false);
   const [autosave, setAutosave] = useState<AutosaveState>("saved");
   const [publishing, setPublishing] = useState(false);
   const [unpublishing, setUnpublishing] = useState(false);
   const [origin, setOrigin] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSave = useRef<PendingSave>({});
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 960px)");
+    const update = () => setNarrowScreen(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -328,6 +337,7 @@ function WebsiteEditorInner() {
               groomName={groomName}
               onChange={onContentChange}
               onNamesChange={onNamesChange}
+              mobilePreview={previewMode === "mobile" || narrowScreen}
             />
           ) : null}
           {tab === "settings" ? (

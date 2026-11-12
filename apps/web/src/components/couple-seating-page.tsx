@@ -27,7 +27,10 @@ import {
   type SeatingDraftPayload,
   type SeatingPlanPayload,
 } from "@/lib/seating-api";
-import { dropStaleKidsAssignments } from "@/lib/guest-party";
+import {
+  flattenSeatingGuests,
+  syncKidsAssignments,
+} from "@/lib/seating-guests";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "@/lib/toast";
 import "@/styles/cabinet/cabinet.scss";
@@ -75,9 +78,10 @@ function SeatingInner() {
               tables: seating.draft.tables,
               guests: {
                 ...seating.draft.guests,
-                assignments: dropStaleKidsAssignments(
+                assignments: syncKidsAssignments(
                   seating.draft.guests.assignments,
-                  list.guests,
+                  flattenSeatingGuests(list.guests),
+                  seating.draft.tables.hasKidsTable,
                 ),
                 detachedKeys: seating.draft.guests.detachedKeys ?? [],
               },
@@ -186,6 +190,8 @@ function SeatingInner() {
             initial={draft.guests}
             hasPresidium={draft.tables.hasPresidium}
             hasKidsTable={draft.tables.hasKidsTable}
+            partnerOneName={partnerOneName}
+            partnerTwoName={partnerTwoName}
             onClose={() => setGroupsModalOpen(false)}
             onSave={(guests) => {
               void persistDraft({ ...draft, guests }).then(() => {
@@ -198,6 +204,8 @@ function SeatingInner() {
         {wizardOpen ? (
           <SeatingWizard
             guests={data.guests}
+            partnerOneName={partnerOneName}
+            partnerTwoName={partnerTwoName}
             onClose={() => setWizardOpen(false)}
             onComplete={(payload) => {
               void finishWizard(payload, true).then(() => {
@@ -285,6 +293,8 @@ function SeatingInner() {
       {wizardOpen ? (
         <SeatingWizard
           guests={data.guests}
+          partnerOneName={partnerOneName}
+          partnerTwoName={partnerTwoName}
           onClose={() => setWizardOpen(false)}
           onComplete={(payload) => {
             void finishWizard(payload, false).then(() => {

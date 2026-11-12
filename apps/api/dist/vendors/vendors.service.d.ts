@@ -5,18 +5,18 @@ export declare class VendorsService {
     constructor(prisma: PrismaService);
     getPipeline(userId: string): Promise<{
         manual: {
-            name: string;
             id: string;
-            createdAt: Date;
             userId: string;
-            city: string;
-            website: string | null;
-            updatedAt: Date;
-            phone: string | null;
-            notes: string | null;
+            name: string;
             category: string;
+            city: string;
+            phone: string | null;
+            website: string | null;
             quotedPrice: number | null;
+            notes: string | null;
             stage: import(".prisma/client").$Enums.VendorPipelineStage;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         plan: string[];
     }>;
@@ -25,32 +25,32 @@ export declare class VendorsService {
     }>;
     private normalizeVendorPlan;
     createExternal(userId: string, dto: CreateExternalVendorDto): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
         userId: string;
-        city: string;
-        website: string | null;
-        updatedAt: Date;
-        phone: string | null;
-        notes: string | null;
+        name: string;
         category: string;
+        city: string;
+        phone: string | null;
+        website: string | null;
         quotedPrice: number | null;
+        notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     updateExternal(userId: string, id: string, dto: UpdateExternalVendorDto): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
         userId: string;
-        city: string;
-        website: string | null;
-        updatedAt: Date;
-        phone: string | null;
-        notes: string | null;
+        name: string;
         category: string;
+        city: string;
+        phone: string | null;
+        website: string | null;
         quotedPrice: number | null;
+        notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     removeExternal(userId: string, id: string): Promise<{
         ok: boolean;

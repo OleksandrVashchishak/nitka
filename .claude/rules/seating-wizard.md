@@ -61,17 +61,18 @@ paths:
 
 - Заголовок: «Погрупуйте гостей для розсадки»
 - Done step dot: `#252525` + біла галочка; active: `#F0FCBA`
-- Guest row: height 48, padding 14 16, gap 12, `border-radius: 5px`, bg `#F7F7F7`, border-bottom 1px, text Montserrat Medium 14px `#1A1A1A`
-- Linked cluster: shared bg, vertical connector `#C8D2E0` 2px left; companions indented 28px
-- Companion icon: link glyph; child icon для `isChild`
-- Assign control: завжди pill-select з шевроном — empty / group (color) / президіум (wine) / дитячий стіл (pink, UPPERCASE)
+- Guest row: height 48, padding 14 16, gap 12, `border-radius: 5px`, bg `#F5F5F5`, рядки через gap 4px, text Montserrat Medium 14px `#1A1A1A`
+- Linked cluster: суцільна смуга 4px `#C9CBE3` зліва через увесь кластер (разом із проміжками), без відступу й без link-іконки
+- Child icon (`isChild`) — після імені
+- Справа: assign pill (20px, 10px UPPERCASE) → аватар сторони (`ResponsibleAvatar` / `ResponsibleAvatarDuo` з імен партнерів) → ⋮
+- Assign control: pill-select з шевроном — empty «Обрати групу» (білий, min 144px) / group (колір за порядком групи, 1-ша зелена) / президіум (wine); дитячий стіл — рожевий без шеврону. У приєднаних (не першого в кластері) pill показується лише якщо є значення
 - ⋮ меню: якщо гість приєднаний — **Від’єднати від {ім’я}** (локальний `detachedKeys`); завжди блок «Статус» відповіді (`GuestRowMenu`)
-- Parent→companions sync: не оверайтить `isChild` і assignment `kids`
+- Parent→companions sync (`applyLinkedAssign`): не оверайтить дітей за дитячим столом і assignment `kids`
 - Content card width ~612px (`seat-wiz-body.is-narrow`)
 - Add group btn: lime `#F0FEBB` / `#F0FCBA`, pill 44px (див. AddButton.svg)
 - Footer primary: «Розсадити автоматично» (ширша кнопка)
 - Footer left на степі 2+: «Назад»
-- Lead «Гості»: згадує link-іконку + роз’єднання через ⋮
+- Lead «Гості»: «Додайте гостей в групи… “Від’єднати”» (як у макеті)
 - Draft: `detachedKeys: string[]` у `SeatingGuestsDraft`
 
 ## Поведінка
@@ -79,7 +80,11 @@ paths:
 - «Розпочати розсадку» на empty state відкриває wizard
 - Степ 1 → Далі → степ 2; Назад / стрілка — попередній степ / закриття
 - Plus-one з гостя показується окремим linked-рядком
-- Дитина автоматом на «дитячий стіл» лише якщо в гостях позначено `need:kids_table` (і стіл увімкнено); `high_chair` / `with_parents` — не автоматом. Старі збережені `kids` для таких дітей чистяться при завантаженні (`dropStaleKidsAssignments`)
+- Список гостей розсадки — **лише** `flattenSeatingGuests` з `lib/seating-guests.ts` (wizard, модалка груп, план). Не копіювати flatten у компоненти
+- Ланцюжок = родина (`party:` / прізвище) + «+1»; **голова — перший дорослий**, дитина головою не буває; лише діти → без ланцюжка
+- Дитина автоматом на «дитячий стіл» (якщо стіл увімкнено), **крім `high_chair`** (сидить з батьками). `kids_table` / `with_parents` / без потреби → дитячий стіл (`childGoesToKidsTable`). У формі гостя дефолт — «За дитячий стіл»
+- При завантаженні `syncKidsAssignments`: дитина без групи → `kids`; немає дитячого столу → `kids` знімається; ручну групу не чіпати
+- Призначення з підтягуванням ланцюжка — `applyLinkedAssign` (діти за дитячим столом за родиною не йдуть)
 - Дитячий стіл (степ 1, якщо «Так»): кількість столів + форма «Круглий» / «Довгий»; місць на стіл — фікс 8
 - Selected format border лишається wine `#61040F` (не lime)
 - Формати (президіум окремим радіо): **Круглі столи** / **Довгі столи** / **Довгі + Круглі** / **П-форма** / **Т-форма**
@@ -105,5 +110,5 @@ paths:
 - localStorage: ~~legacy~~ → **Postgres** `weddings.seating_draft` + `weddings.seating_plan` via `GET/PUT /api/seating`
 - One-time migrate from old `fata-seating-*:v1` localStorage if DB empty
 - Interaction guests: **лише drag guest from list (or seat) → drop on seat / table** (table = first empty), без «вибрав гостя → клік по місцю»; drag image — кружечок з ініціалами + ім’я (`.seat-plan-drag-ghost`), не вся плитка; click seated seat opens popover; click empty seat → seat-pick модалка «Посадити» (desktop + mobile; кнопка «Фільтри» в ній лише на mobile); DnD desktop-only
-- Pencil «Редагувати групи» → `SeatingGroupsModal` (2 колонки), не fullscreen wizard; сейв оновлює лише `draft.guests`, план столів не валить
+- Pencil «Редагувати групи» → `SeatingGroupsModal` (1162px, 2 рівні колонки, заголовок Akzidenz Italic, кнопки «Скасувати» / «Додати»), не fullscreen wizard; сейв оновлює лише `draft.guests`, план столів не валить
 - `detachedKeys` from wizard/modal breaks link only (гості лишаються у списку)

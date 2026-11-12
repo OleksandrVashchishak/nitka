@@ -6,34 +6,21 @@ import { IconTrash } from "@/components/icon-trash";
 import { CabinetFormActions } from "@/components/cabinet-form-actions";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { TextInput } from "@/components/ui/text-input";
-import type { Guest, RsvpStatus } from "@/lib/guests-api";
+import type { Guest } from "@/lib/guests-api";
 import { GuestRowMenu } from "@/components/seating-plan-popovers";
 import { IconBaby } from "@/components/icon-baby";
 import {
-  isChildGuest,
-  orderByParty,
-  parseChildNeed,
-  parseCompanions,
-} from "@/lib/guest-party";
-import type {
-  SeatingGuestAssign,
-  SeatingGuestGroup,
-  SeatingGuestsDraft,
+  applyLinkedAssign,
+  flattenSeatingGuests,
+} from "@/lib/seating-guests";
+import {
+  SideAvatar,
+  type SeatingGuestAssign,
+  type SeatingGuestGroup,
+  type SeatingGuestsDraft,
 } from "@/components/seating-wizard";
 import "@/styles/seating/wizard.scss";
 import "@/styles/seating/plan.scss";
-
-type FlatGuest = {
-  key: string;
-  guestId: string;
-  name: string;
-  isPlusOne: boolean;
-  linkedTo: string | null;
-  isChild: boolean;
-  toKidsTable: boolean;
-  side: Guest["side"];
-  rsvpStatus: RsvpStatus;
-};
 
 type Props = {
   open: boolean;
@@ -41,75 +28,16 @@ type Props = {
   initial: SeatingGuestsDraft;
   hasPresidium: boolean;
   hasKidsTable: boolean;
+  partnerOneName?: string;
+  partnerTwoName?: string;
   onClose: () => void;
   onSave: (guests: SeatingGuestsDraft) => void;
 };
 
-const GROUP_BADGE_COLORS = ["#4CAF7A", "#5B8DEF", "#C47A3A", "#7A6BB5"];
+const GROUP_BADGE_COLORS = ["#6AAE7B", "#5B8DEF", "#C47A3A", "#7A6BB5"];
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function hashStr(s: string) {
-  let h = 0;
-  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return h;
-}
-
-function flattenGuests(guests: Guest[]): FlatGuest[] {
-  const rows: FlatGuest[] = [];
-  const { ordered, leaderOf } = orderByParty(
-    guests.filter((g) => g.rsvpStatus !== "NO"),
-  );
-  for (const g of ordered) {
-    const key = g.id;
-    const leader = leaderOf.get(g.id) ?? null;
-    rows.push({
-      key,
-      guestId: g.id,
-      name: g.name,
-      isPlusOne: Boolean(leader),
-      linkedTo: leader,
-      isChild: isChildGuest(g.notes),
-      toKidsTable:
-        isChildGuest(g.notes) && parseChildNeed(g.notes) === "kids_table",
-      side: g.side,
-      rsvpStatus: g.rsvpStatus,
-    });
-    const companions = parseCompanions(g.notes, g).filter((c) =>
-      c.name.trim(),
-    );
-    companions.forEach((companion, index) => {
-      if (companion.rsvpStatus === "NO") return;
-      rows.push({
-        key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
-        guestId: g.id,
-        name: companion.name.trim(),
-        isPlusOne: true,
-        linkedTo: key,
-        isChild: companion.isChild,
-        toKidsTable: companion.isChild && companion.childNeed === "kids_table",
-        side: g.side,
-        rsvpStatus: companion.rsvpStatus,
-      });
-    });
-  }
-  return rows;
-}
-
-function sideShort(side: Guest["side"]) {
-  if (side === "BRIDE") return "♀";
-  if (side === "GROOM") return "♂";
-  if (side === "BOTH") return "Сп";
-  return "·";
-}
-
-function sideLabel(side: Guest["side"]) {
-  if (side === "BRIDE") return "Сторона нареченої";
-  if (side === "GROOM") return "Сторона нареченого";
-  if (side === "BOTH") return "Спільні";
-  return "Інше";
 }
 
 export function SeatingGroupsModal({
@@ -118,6 +46,8 @@ export function SeatingGroupsModal({
   initial,
   hasPresidium,
   hasKidsTable,
+  partnerOneName = "",
+  partnerTwoName = "",
   onClose,
   onSave,
 }: Props) {
@@ -128,7 +58,7 @@ export function SeatingGroupsModal({
   );
   const [menuKey, setMenuKey] = useState<string | null>(null);
 
-  const flatGuests = useMemo(() => flattenGuests(guests), [guests]);
+  const flatGuests = useMemo(() => flattenSeatingGuests(guests), [guests]);
   const namedGroups = groups.filter((g) => g.name.trim());
 
   useEffect(() => {
@@ -159,22 +89,9 @@ export function SeatingGroupsModal({
   }, [flatGuests, hasKidsTable, open]);
 
   function setAssign(key: string, value: SeatingGuestAssign) {
-    setAssignments((prev) => {
-      const next = { ...prev, [key]: value };
-      const row = flatGuests.find((g) => g.key === key);
-      if (row && !detachedKeys.has(row.key)) {
-        const root = row.linkedTo ?? row.key;
-        for (const mate of flatGuests) {
-          if (mate.key === key) continue;
-          if (mate.key !== root && mate.linkedTo !== root) continue;
-          if (detachedKeys.has(mate.key)) continue;
-          if (mate.toKidsTable) continue;
-          if (prev[mate.key] === "kids") continue;
-          next[mate.key] = value;
-        }
-      }
-      return next;
-    });
+    setAssignments((prev) =>
+      applyLinkedAssign(prev, flatGuests, detachedKeys, key, value),
+    );
   }
 
   function detachGuest(keys: string | string[]) {
@@ -220,7 +137,7 @@ export function SeatingGroupsModal({
       onClose={onClose}
       title="Редагувати групи"
       variant="modal"
-      width={960}
+      width={1162}
       mobileVariant="fullscreen"
       panelClassName="seat-groups-modal"
       footerClassName="cabinet-modal-actions seat-groups-modal-footer"
@@ -229,7 +146,7 @@ export function SeatingGroupsModal({
           onCancel={onClose}
           saveType="button"
           onSave={handleSave}
-          saveLabel="Зберегти"
+          saveLabel="Додати"
           cancelClassName="seat-groups-modal-cancel"
           saveClassName="seat-groups-modal-save"
         />
@@ -239,8 +156,9 @@ export function SeatingGroupsModal({
           <section className="seat-groups-modal-col">
             <h3 className="seat-groups-modal-title">Створіть групи гостей</h3>
             <p className="seat-groups-modal-lead">
-              Групи допомагають швидше розсадити гостей автоматично — друзі
-              разом, родичі поруч, колеги за одним столом.
+              Створіть групи гостей, щоб було зручніше розсаджувати гостей та
+              орієнтуватися в розсадці. Автоматична розсадка посадить усіх по
+              групах.
             </p>
 
             <div className="seat-wiz-group-list">
@@ -258,12 +176,11 @@ export function SeatingGroupsModal({
                   />
                   <button
                     type="button"
-                    className="seat-wiz-icon-btn"
-                    style={{ color: "#ff4200" }}
+                    className="seat-wiz-icon-btn seat-wiz-icon-btn--danger"
                     aria-label="Видалити групу"
                     onClick={() => removeGroup(group.id)}
                   >
-                    <IconTrash size={18} />
+                    <IconTrash size={22} />
                   </button>
                 </div>
               ))}
@@ -282,9 +199,10 @@ export function SeatingGroupsModal({
           <section className="seat-groups-modal-col">
             <h3 className="seat-groups-modal-title">Гості</h3>
             <p className="seat-groups-modal-lead">
-              Об’єднайте гостей у групи або залиште без групи. Іконка{" "}
-              <LinkGlyph /> означає, що гості сидітимуть разом — роз’єднати
-              можна через меню ⋮.
+              Додайте гостей в групи. Перегляньте гостей, якщо деякі з них
+              пов’язані, вони будуть посаджені завжди разом. Ви можете їх
+              роз’єднати, натиснувши на 3 крапки і вибравши опцію
+              “Від’єднати”.
             </p>
 
             <div className="seat-wiz-guest-list seat-groups-modal-guests">
@@ -327,6 +245,7 @@ export function SeatingGroupsModal({
                       }${clusterEnd ? " is-cluster-end" : ""}`}
                     >
                       <div className="seat-wiz-guest-name">
+                        <span>{row.name}</span>
                         {row.isChild ? (
                           <span
                             className="seat-wiz-child-ico"
@@ -335,30 +254,27 @@ export function SeatingGroupsModal({
                           >
                             <IconBaby />
                           </span>
-                        ) : linked ? (
-                          <span className="seat-wiz-link-ico" aria-hidden>
-                            <LinkGlyph />
-                          </span>
                         ) : null}
-                        <span>{row.name}</span>
                       </div>
 
                       <div className="seat-wiz-guest-meta">
-                        <AssignControl
-                          value={assign}
-                          groups={namedGroups}
-                          hasPresidium={hasPresidium}
-                          hasKidsTable={hasKidsTable}
-                          onChange={(v) => setAssign(row.key, v)}
-                        />
+                        {!linked ||
+                        assign !== null ||
+                        assignments[row.linkedTo!] === "kids" ? (
+                          <AssignControl
+                            value={assign}
+                            groups={namedGroups}
+                            hasPresidium={hasPresidium}
+                            hasKidsTable={hasKidsTable}
+                            onChange={(v) => setAssign(row.key, v)}
+                          />
+                        ) : null}
 
-                        <span
-                          className="seat-wiz-side-dot"
-                          title={sideLabel(row.side)}
-                          aria-label={sideLabel(row.side)}
-                        >
-                          {sideShort(row.side)}
-                        </span>
+                        <SideAvatar
+                          side={row.side}
+                          partnerOneName={partnerOneName}
+                          partnerTwoName={partnerTwoName}
+                        />
 
                         <div className="seat-wiz-more-wrap">
                           <button
@@ -419,15 +335,12 @@ function AssignControl({
     label = "Дитячий стіл";
     className += " is-kids";
   } else if (typeof value === "string") {
-    const group = groups.find((g) => g.id === value);
-    if (group) {
-      label = group.name;
+    const index = groups.findIndex((g) => g.id === value);
+    if (index >= 0) {
+      label = groups[index].name;
       className += " is-group";
       style = {
-        background:
-          GROUP_BADGE_COLORS[
-            Math.abs(hashStr(group.id)) % GROUP_BADGE_COLORS.length
-          ],
+        background: GROUP_BADGE_COLORS[index % GROUP_BADGE_COLORS.length],
       };
     }
   }
@@ -459,19 +372,6 @@ function AssignControl({
       </select>
       <ChevronIcon />
     </label>
-  );
-}
-
-function LinkGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path
-        d="M5.5 8.5 8.5 5.5M6.2 4.2l.9-.9a2.2 2.2 0 1 1 3.1 3.1l-.9.9M7.8 9.8l-.9.9a2.2 2.2 0 1 1-3.1-3.1l.9-.9"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }
 

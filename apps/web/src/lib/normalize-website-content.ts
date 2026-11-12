@@ -71,6 +71,7 @@ export function normalizeWebsiteContent(
     storyTitle: String(base.storyTitle ?? "Наша історія"),
     storyBody: String(base.storyBody ?? ""),
     storyImageUrl: String(base.storyImageUrl ?? ""),
+    brideImageUrl: String(base.brideImageUrl ?? ""),
     scheduleTitle: canonicalTitle(base.scheduleTitle, "Деталі нашого свята"),
     scheduleItems: Array.isArray(base.scheduleItems) ? base.scheduleItems : [],
     dressCodeTitle: canonicalTitle(base.dressCodeTitle, "Дрес-код"),

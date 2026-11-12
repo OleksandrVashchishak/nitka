@@ -182,6 +182,10 @@
     display: grid;
     grid-template-columns: 64px 1fr;
     gap: 8px 10px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 96px 1fr;
+    }
   }
 
   &__event-grid > :nth-child(3) {

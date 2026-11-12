@@ -78,6 +78,7 @@ function defaultContent(wedding) {
         storyTitle: 'Наша історія',
         storyBody: 'Коротко розкажіть, як усе почалось — кілька теплих речень буде достатньо.',
         storyImageUrl: '',
+        brideImageUrl: '',
         scheduleTitle: 'Деталі нашого свята',
         scheduleItems: [
             { time: '15:00', title: 'Церемонія', detail: 'Місце церемонії' },
@@ -208,6 +209,7 @@ function asContent(value, fallback) {
         storyTitle: String(raw.storyTitle ?? fallback.storyTitle),
         storyBody: String(raw.storyBody ?? fallback.storyBody),
         storyImageUrl: String(raw.storyImageUrl ?? fallback.storyImageUrl ?? ''),
+        brideImageUrl: String(raw.brideImageUrl ?? fallback.brideImageUrl ?? ''),
         scheduleTitle: canonicalTitle(raw.scheduleTitle ?? fallback.scheduleTitle, 'Деталі нашого свята'),
         scheduleItems,
         dressCodeTitle: canonicalTitle(raw.dressCodeTitle ?? fallback.dressCodeTitle, 'Дрес-код'),

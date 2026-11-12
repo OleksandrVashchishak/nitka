@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CabinetNavIcon } from "@/components/cabinet-nav-icons";
 import { CabinetMoreMenu } from "@/components/cabinet-more-menu";
-import { OPEN_MORE_MENU_EVENT } from "@/lib/cabinet-more-menu";
+import {
+  OPEN_MORE_MENU_EVENT,
+  isCabinetMoreRoute,
+} from "@/lib/cabinet-more-menu";
 
 const BOTTOM_TABS = [
   { href: "/dashboard", label: "Огляд", icon: "overview" },
@@ -14,26 +17,9 @@ const BOTTOM_TABS = [
   { href: "/budget", label: "Бюджет", icon: "budget" },
 ] as const;
 
-const MORE_PREFIXES = [
-  "/my-vendors",
-  "/seating",
-  "/day-plan",
-  "/inspiration",
-  "/settings",
-  "/support",
-  "/feedback",
-  "/website",
-];
-
 function isTabActive(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard";
   return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function isMoreRoute(pathname: string) {
-  return MORE_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
 }
 
 export function CabinetBottomNav() {
@@ -59,11 +45,15 @@ export function CabinetBottomNav() {
     return () => window.removeEventListener("keydown", onKey);
   }, [moreOpen]);
 
-  const moreActive = moreOpen || isMoreRoute(pathname);
+  const onMoreRoute = isCabinetMoreRoute(pathname);
+  const moreActive = moreOpen || onMoreRoute;
+  // На сторінках з «Ще» меню немає; з'являється лише разом із відкритою шторкою «Ще»
+  const navHidden = onMoreRoute && !moreOpen;
 
   return (
     <>
       <CabinetMoreMenu open={moreOpen} onClose={() => setMoreOpen(false)} />
+      {navHidden ? null : (
       <nav className="cabinet-bottom-nav" aria-label="Основна навігація">
         {BOTTOM_TABS.map((tab) => {
           const active = !moreOpen && isTabActive(pathname, tab.href);
@@ -91,6 +81,7 @@ export function CabinetBottomNav() {
           <span>Ще</span>
         </button>
       </nav>
+      )}
     </>
   );
 }

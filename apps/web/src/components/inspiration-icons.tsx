@@ -43,6 +43,28 @@ export function IconBackArrow({ className }: { className?: string }) {
   );
 }
 
+/** Chevron — photo viewer prev/next (points right; rotate for prev). */
+export function IconSlideChevron({ size = 20, className }: Props) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <path
+        d="M7.5 4.167 13.333 10 7.5 15.833"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** Network share — inspiration «Поширити». */
 export function IconShareNodes({ size = 18, className }: Props) {
   return (

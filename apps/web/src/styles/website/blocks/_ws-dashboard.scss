@@ -28,9 +28,10 @@
 
   &__title {
     margin: 0;
-    font-family: var(--ws-font);
+    font-family: var(--ws-font-btn);
     font-size: 32px;
-    font-weight: 600;
+    font-weight: 500;
+    font-style: italic;
     line-height: 100%;
     letter-spacing: 0;
     color: var(--ws-ink);

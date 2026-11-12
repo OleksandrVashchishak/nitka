@@ -192,6 +192,20 @@ export function SeatingTableModal({
     }));
   }
 
+  function removeSeat() {
+    setDraft((prev) => {
+      let idx = -1;
+      for (let i = prev.seats.length - 1; i >= 0; i--) {
+        if (!prev.seats[i].guestKey) {
+          idx = i;
+          break;
+        }
+      }
+      if (idx < 0) return prev;
+      return { ...prev, seats: prev.seats.filter((_, i) => i !== idx) };
+    });
+  }
+
   function clearTable() {
     setDraft((prev) => ({
       ...prev,
@@ -313,6 +327,11 @@ export function SeatingTableModal({
           <button type="button" onClick={addSeat}>
             Додати крісло
           </button>
+          {filled < draft.seats.length ? (
+            <button type="button" onClick={removeSeat}>
+              Забрати крісло
+            </button>
+          ) : null}
           <button type="button" onClick={clearTable}>
             Очистити стіл
           </button>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   IconChevron,
   WebsiteToggle,
 } from "@/components/website/editor/website-editor-toggle";
-import { IconCalendar } from "@/components/icon-calendar";
+import { DateInput } from "@/components/ui/date-input";
 import { IconTrash } from "@/components/icon-trash";
 import { WebsiteImageField } from "@/components/website/editor/website-image-field";
 import { Select } from "@/components/ui/select";
@@ -25,6 +25,7 @@ type Props = {
   groomName: string;
   onChange: (next: WebsiteContent) => void;
   onNamesChange: (bride: string, groom: string) => void;
+  mobilePreview?: boolean;
 };
 
 const TIME_OPTIONS = Array.from({ length: 96 }, (_, i) =>
@@ -44,8 +45,8 @@ export function WebsiteEditorContentTab({
   groomName,
   onChange,
   onNamesChange,
+  mobilePreview = false,
 }: Props) {
-  const dateRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState<Record<BlockId, boolean>>({
     hero: true,
     timer: false,
@@ -161,54 +162,14 @@ export function WebsiteEditorContentTab({
               value={groom}
               onChange={(e) => onNamesChange(bride, e.target.value)}
             />
-            <TextInput
-              size="s"
+            <DateInput
               label="Дата"
-              value={content.dateLabel}
-              onChange={(e) => patch({ dateLabel: e.target.value })}
-              placeholder="25.08.27"
-              onClick={() => {
-                const el = dateRef.current;
-                if (!el) return;
-                if (typeof el.showPicker === "function") el.showPicker();
-                else el.click();
+              inputClassName="fata-date-input__control--m"
+              value={dateLabelToIso(content.dateLabel)}
+              onChange={(e) => {
+                const m = e.target.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (m) patch({ dateLabel: `${m[3]}.${m[2]}.${m[1]}` });
               }}
-              endAdornment={
-                <>
-                  <button
-                    type="button"
-                    aria-label="Обрати дату"
-                    onClick={() => {
-                      const el = dateRef.current;
-                      if (!el) return;
-                      if (typeof el.showPicker === "function") el.showPicker();
-                      else el.click();
-                    }}
-                  >
-                    <IconCalendar size={14} />
-                  </button>
-                  <input
-                    ref={dateRef}
-                    type="date"
-                    tabIndex={-1}
-                    aria-hidden
-                    value={dateLabelToIso(content.dateLabel)}
-                    onChange={(e) => {
-                      const m = e.target.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-                      if (m) patch({ dateLabel: `${m[3]}.${m[2]}.${m[1]}` });
-                    }}
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      bottom: 0,
-                      width: 1,
-                      height: 1,
-                      opacity: 0,
-                      pointerEvents: "none",
-                    }}
-                  />
-                </>
-              }
             />
             <WebsiteImageField
               label="Головне фото"
@@ -295,7 +256,6 @@ export function WebsiteEditorContentTab({
             label="Фото біля розкладу"
             value={content.coupleImageUrl}
             onChange={(url) => patch({ coupleImageUrl: url })}
-            hint="Також як фото нареченої на блоці «Про нас»"
           />
         </Block>
 
@@ -348,6 +308,11 @@ export function WebsiteEditorContentTab({
                 onChange={(e) => patch({ subheadline: e.target.value })}
                 placeholder="Наприклад: Наречена любить…"
               />
+              <WebsiteImageField
+                label="Фото нареченої"
+                value={content.brideImageUrl}
+                onChange={(url) => patch({ brideImageUrl: url })}
+              />
             </NestedItem>
             <NestedItem
               label="Про нареченого"
@@ -398,12 +363,12 @@ export function WebsiteEditorContentTab({
                 placeholder="Наприклад: Ми поїхали в гори…"
               />
               <WebsiteImageField
-                label="Фото зліва"
+                label={mobilePreview ? "Фото зверху" : "Фото зліва"}
                 value={content.galleryImages[1] ?? ""}
                 onChange={(url) => setGalleryImage(1, url)}
               />
               <WebsiteImageField
-                label="Фото справа"
+                label={mobilePreview ? "Фото знизу" : "Фото справа"}
                 value={content.galleryImages[2] ?? ""}
                 onChange={(url) => setGalleryImage(2, url)}
               />

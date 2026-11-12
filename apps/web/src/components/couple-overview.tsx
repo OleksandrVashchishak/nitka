@@ -387,11 +387,9 @@ export function CoupleOverview({
   const guestCount = guestsInList || wedding.guests;
   const rsvpYes = insights?.rsvp.yes ?? 0;
   const rsvpNo = insights?.rsvp.no ?? 0;
-  const rsvpWaiting = insights?.rsvp.pending ?? 0;
-  const rsvpAnswered =
-    (insights?.rsvp.yes ?? 0) +
-    (insights?.rsvp.no ?? 0) +
-    (insights?.rsvp.maybe ?? 0);
+  const rsvpWaiting =
+    (insights?.rsvp.pending ?? 0) + (insights?.rsvp.maybe ?? 0);
+  const rsvpAnswered = rsvpYes + rsvpNo;
   const spendValue = spend ?? 0;
   const hasVendorPlan = vendorPlanTotal > 0;
   const hasSpend = spendValue > 0;

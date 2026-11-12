@@ -374,8 +374,7 @@
 }
 
 .seat-plan-guest-row-wrap.is-selected {
-  background: #f0f0f0;
-  box-shadow: inset 3px 0 0 #0088ff;
+  background: #ecffb8;
 }
 
 .seat-plan-guest-row-wrap.is-dragging {
@@ -1603,39 +1602,78 @@
   color: #f0febb;
 }
 
+.seat-add-table-modal-label--mobile {
+  display: none;
+}
+
 @media (max-width: 767px) {
   .seat-add-table-modal {
-    padding: 24px 20px 28px;
+    padding: 0;
   }
 
   .seat-add-table-modal .cabinet-modal-head {
-    margin-bottom: 24px;
+    align-items: center;
+    margin-bottom: 0;
+    padding: 56px 24px 16px;
+    border-bottom: 1px solid #f0ece2;
   }
 
   .seat-add-table-modal .cabinet-modal-head h2 {
-    font-size: 24px;
+    font-size: 28px;
   }
 
   .seat-add-table-modal-body {
-    gap: 20px;
+    flex: 1;
+    gap: 16px;
+    padding: 16px 32px;
+  }
+
+  .seat-add-table-modal-hint,
+  .seat-add-table-modal-actions .cabinet-drawer-cancel,
+  .seat-add-table-modal-label--desktop {
+    display: none;
+  }
+
+  .seat-add-table-modal-label--mobile {
+    display: inline;
   }
 
   .seat-add-table-modal-actions {
-    margin-top: 24px;
+    margin-top: 0;
+    padding: 16px 24px 24px;
+  }
+
+  .seat-add-table-modal-actions .cabinet-drawer-save {
+    width: 100%;
+    height: 56px;
+    background: #61040f;
+    color: #fff;
   }
 }
 
 /* Edit groups modal */
 .seat-groups-modal {
-  width: min(960px, 100%);
-  max-height: min(860px, calc(100vh - 48px));
-  padding: 28px 28px 24px;
+  width: min(1162px, 100%);
+  max-height: min(1000px, calc(100vh - 48px));
+  padding: 32px;
+}
+
+.seat-groups-modal .cabinet-modal-head {
+  margin-bottom: 24px;
+}
+
+.seat-groups-modal .cabinet-modal-head h2 {
+  font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 100%;
 }
 
 .seat-groups-modal-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 25px;
   min-height: 0;
   flex: 1;
 }
@@ -1647,40 +1685,53 @@
   flex-direction: column;
 }
 
+.seat-groups-modal-col .seat-wiz-add-btn {
+  align-self: flex-start;
+}
+
 .seat-groups-modal-title {
-  margin: 0 0 8px;
+  margin: 0 0 16px;
   font-family: var(--font-sans), "Montserrat", sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 100%;
   color: #1a1a1a;
 }
 
 .seat-groups-modal-lead {
-  margin: 0 0 16px;
+  margin: 0 0 24px;
   font-family: var(--font-sans), "Montserrat", sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 150%;
   color: #8c8582;
 }
 
-.seat-groups-modal-lead svg {
-  display: inline-block;
-  vertical-align: -2px;
-  margin: 0 2px;
-  color: #1a1a1a;
+.seat-groups-modal-col:last-child .seat-groups-modal-lead {
+  margin-bottom: 20px;
 }
 
 .seat-groups-modal-guests {
   min-height: 0;
-  max-height: min(480px, calc(100vh - 320px));
+  max-height: min(680px, calc(100vh - 300px));
   overflow: auto;
-  padding-right: 4px;
 }
 
 .seat-groups-modal-footer {
   margin-top: 24px;
+  gap: 16px;
+}
+
+.seat-groups-modal-cancel,
+.seat-groups-modal-save {
+  min-width: 148px;
+  height: 52px;
+  border-radius: 40px;
+  font-style: italic;
+}
+
+.seat-groups-modal-save {
+  min-width: 172px;
 }
 
 .seat-pop-head-row {
@@ -1862,14 +1913,15 @@
     gap: 0;
     margin: 8px 0 0;
     border-bottom: 1px solid rgb(26 26 26 / 0.05);
-    overflow-x: auto;
-    scrollbar-width: none;
   }
 
   .seat-plan-mobile-tab {
-    flex: 1 0 auto;
+    flex: 1 1 0;
+    min-width: 0;
     padding: 12px 4px 14px;
     white-space: nowrap;
+    -webkit-appearance: none;
+    appearance: none;
     border: 0;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
@@ -2042,6 +2094,12 @@
     padding-bottom: 0;
   }
 
+  /* без нижнього меню: карта до низу екрана, гасимо лише 40px падинг сторінки */
+  .cabinet-ui--no-bottom-nav .seat-plan.is-tab-map {
+    height: calc(100dvh - 36px);
+    margin-bottom: -40px;
+  }
+
   .seat-plan.is-tab-map .seat-plan-layout {
     display: flex;
     flex: 1 1 auto;
@@ -2085,6 +2143,10 @@
     background: #bababa;
   }
 
+  .seat-plan.is-tab-map .seat-plan-toggle.is-on .seat-plan-switch {
+    background: #3ecf6a;
+  }
+
   .seat-plan.is-tab-map .seat-plan-switch::after {
     top: 2px;
     left: 2px;
@@ -2101,6 +2163,7 @@
     border-radius: 0;
     overflow: hidden;
     background: #f3f3f3;
+    touch-action: none;
   }
 
   .seat-plan.is-tab-map .seat-plan-canvas {

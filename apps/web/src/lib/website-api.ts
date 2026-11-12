@@ -45,6 +45,7 @@ export type WebsiteContent = {
   storyTitle: string;
   storyBody: string;
   storyImageUrl: string;
+  brideImageUrl: string;
   scheduleTitle: string;
   scheduleItems: WebsiteScheduleItem[];
   dressCodeTitle: string;

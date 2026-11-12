@@ -465,6 +465,7 @@ function CoupleSettingsInner() {
         summary={summary}
         initials={initials}
         accountDesktopOnly={false}
+        hideNotifications
         className="cabinet-settings-desktop-top"
       />
 

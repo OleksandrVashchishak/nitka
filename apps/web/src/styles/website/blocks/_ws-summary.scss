@@ -233,7 +233,8 @@
     &__cancel {
       display: block;
       align-self: center;
-      padding: 0;
+      margin-top: 12px;
+      padding: 12px 8px;
       border: 0;
       background: transparent;
       font-family: var(--ws-font-btn);
@@ -265,7 +266,7 @@
       right: 0;
       bottom: 0;
       left: 0;
-      z-index: 50;
+      z-index: 43;
       display: flex;
       gap: 12px;
       padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));

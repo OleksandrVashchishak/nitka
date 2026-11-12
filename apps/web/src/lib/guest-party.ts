@@ -136,36 +136,6 @@ export function partyHasChild(guest: {
   return parseCompanions(guest.notes, guest).some((c) => c.isChild);
 }
 
-/**
- * Прибирає застарілі призначення «kids» у дітей, яких не позначено «За дитячий стіл»
- * (раніше всі діти автоматом йшли на дитячий стіл).
- */
-export function dropStaleKidsAssignments<T extends string | null>(
-  assignments: Record<string, T>,
-  guests: Array<{
-    id: string;
-    notes: string | null;
-    plusOne?: boolean;
-    plusOneName?: string | null;
-    plusOneAttending?: boolean | null;
-    rsvpStatus?: RsvpStatus;
-  }>,
-): Record<string, T | null> {
-  const next: Record<string, T | null> = { ...assignments };
-  const check = (key: string, isChild: boolean, need: ChildNeed | null) => {
-    if (isChild && need !== "kids_table" && next[key] === "kids") {
-      next[key] = null;
-    }
-  };
-  for (const g of guests) {
-    check(g.id, isChildGuest(g.notes), parseChildNeed(g.notes));
-    parseCompanions(g.notes, g).forEach((c, i) => {
-      check(i === 0 ? `${g.id}:plus` : `${g.id}:plus:${i}`, c.isChild, c.childNeed);
-    });
-  }
-  return next;
-}
-
 export function isInvitedGuest(guest: {
   notes: string | null;
   phone: string | null;

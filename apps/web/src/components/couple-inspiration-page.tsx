@@ -23,6 +23,7 @@ import {
   IconInspirationFab,
   IconPlus,
   IconShareNodes,
+  IconSlideChevron,
 } from "@/components/inspiration-icons";
 import { CabinetBackTitle } from "@/components/cabinet-back-title";
 import { IconCabinetBack } from "@/components/icon-cabinet-back";
@@ -674,6 +675,31 @@ function InspirationBoardInner() {
     }
   }, [loading, board, photoRaw, photoOpen, router]);
 
+  const photoCount = board?.images.length ?? 0;
+  const boardIdForNav = board?.id;
+
+  function stepPhoto(delta: number) {
+    if (!boardIdForNav || photoIndex == null || photoCount < 2) return;
+    const next = (photoIndex + delta + photoCount) % photoCount;
+    router.replace(`/inspiration/${boardIdForNav}?photo=${next}`);
+  }
+
+  const stepPhotoRef = useRef(stepPhoto);
+  stepPhotoRef.current = stepPhoto;
+  const swipeStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!photoOpen || deletePhotoOpen) return;
+    function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (e.key === "ArrowLeft") stepPhotoRef.current(-1);
+      else if (e.key === "ArrowRight") stepPhotoRef.current(1);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [photoOpen, deletePhotoOpen]);
+
   function updateBoard(next: InspirationBoard) {
     persist(boards.map((b) => (b.id === next.id ? next : b)));
   }
@@ -807,12 +833,50 @@ function InspirationBoardInner() {
 
         <div className="cabinet-inspiration-viewer">
           <div className="cabinet-inspiration-viewer-main">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="cabinet-inspiration-viewer-hero"
-              src={currentSrc}
-              alt=""
-            />
+            <div
+              className="cabinet-inspiration-viewer-stage"
+              onTouchStart={(e) => {
+                swipeStartX.current = e.touches[0]?.clientX ?? null;
+              }}
+              onTouchEnd={(e) => {
+                const start = swipeStartX.current;
+                swipeStartX.current = null;
+                const end = e.changedTouches[0]?.clientX;
+                if (start == null || end == null) return;
+                const dx = end - start;
+                if (Math.abs(dx) > 40) stepPhoto(dx < 0 ? 1 : -1);
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="cabinet-inspiration-viewer-hero"
+                src={currentSrc}
+                alt=""
+              />
+              {board.images.length > 1 ? (
+                <>
+                  <button
+                    type="button"
+                    className="cabinet-inspiration-viewer-nav cabinet-inspiration-viewer-nav--prev"
+                    aria-label="Попереднє зображення"
+                    onClick={() => stepPhoto(-1)}
+                  >
+                    <IconSlideChevron />
+                  </button>
+                  <button
+                    type="button"
+                    className="cabinet-inspiration-viewer-nav cabinet-inspiration-viewer-nav--next"
+                    aria-label="Наступне зображення"
+                    onClick={() => stepPhoto(1)}
+                  >
+                    <IconSlideChevron />
+                  </button>
+                  <span className="cabinet-inspiration-viewer-counter">
+                    {photoIndex + 1} / {board.images.length}
+                  </span>
+                </>
+              ) : null}
+            </div>
             <div className="cabinet-inspiration-viewer-actions">
               <button
                 type="button"

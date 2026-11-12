@@ -12,7 +12,7 @@ import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { CabinetBackButton } from "@/components/cabinet-back-title";
 import type { Guest, RsvpStatus } from "@/lib/guests-api";
 import { updateGuest } from "@/lib/guests-api";
-import { isChildGuest, parseCompanions } from "@/lib/guest-party";
+import { flattenSeatingGuests } from "@/lib/seating-guests";
 import type {
   SeatingGuestAssign,
   SeatingGuestsDraft,
@@ -185,10 +185,6 @@ function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function isChild(guest: Guest) {
-  return isChildGuest(guest.notes);
-}
-
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
@@ -196,44 +192,23 @@ function initials(name: string) {
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
+/** Рядки плану зі спільного списку: голова ланцюжка посилається на першого члена, решта — на голову. */
 function flattenGuests(guests: Guest[]): FlatGuest[] {
-  const rows: FlatGuest[] = [];
-  for (const g of guests) {
-    const mainKey = g.id;
-    const companions = parseCompanions(g.notes, g).filter((c) =>
-      c.name.trim(),
-    );
-    const mainComing = g.rsvpStatus !== "NO";
-    if (mainComing) {
-      rows.push({
-        key: mainKey,
-        guestId: g.id,
-        name: g.name,
-        isPlusOne: false,
-        isChild: isChild(g),
-        side: g.side,
-        rsvpStatus: g.rsvpStatus,
-        linkedKey:
-          companions[0] && companions[0].rsvpStatus !== "NO"
-            ? `${g.id}:plus`
-            : null,
-      });
-    }
-    companions.forEach((companion, index) => {
-      if (companion.rsvpStatus === "NO") return;
-      rows.push({
-        key: index === 0 ? `${g.id}:plus` : `${g.id}:plus:${index}`,
-        guestId: g.id,
-        name: companion.name.trim(),
-        isPlusOne: true,
-        isChild: companion.isChild,
-        side: g.side,
-        rsvpStatus: companion.rsvpStatus,
-        linkedKey: mainComing ? mainKey : null,
-      });
-    });
+  const rows = flattenSeatingGuests(guests);
+  const firstMate = new Map<string, string>();
+  for (const r of rows) {
+    if (r.linkedTo && !firstMate.has(r.linkedTo)) firstMate.set(r.linkedTo, r.key);
   }
-  return rows;
+  return rows.map((r) => ({
+    key: r.key,
+    guestId: r.guestId,
+    name: r.name,
+    isPlusOne: r.isPlusOne,
+    isChild: r.isChild,
+    side: r.side,
+    rsvpStatus: r.rsvpStatus,
+    linkedKey: r.linkedTo ?? firstMate.get(r.key) ?? null,
+  }));
 }
 
 /** Наречені не є гостями в БД — віртуальні рядки, щоб саджати їх за президіум. */
@@ -286,11 +261,6 @@ function seatCoupleAtPresidium(tables: PlanTable[]): PlanTable[] {
     else pres.seats.push({ id: uid(`seat-${pres.seats.length}`), guestKey: key });
   }
   return tables.map((t, i) => (i === presIndex ? pres : t));
-}
-
-function lastName(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return (parts[parts.length - 1] ?? "").toLowerCase();
 }
 
 function hashStr(s: string) {
@@ -712,13 +682,19 @@ export function SeatingPlan({
       y: (mapArea.h - contentSize.height * scale) / 2,
     };
   }, [isMobile, mapArea, contentSize]);
-  const canvasScale = mobileFit?.scale ?? 1;
+  // Mobile: pinch-zoom + two-finger pan поверх «вписаного» вигляду.
+  const [mapView, setMapView] = useState({ k: 1, x: 0, y: 0 });
+  const mapViewRef = useRef(mapView);
+  mapViewRef.current = mapView;
+  const mobileFitRef = useRef(mobileFit);
+  mobileFitRef.current = mobileFit;
+  const canvasScale = mobileFit ? mobileFit.scale * mapView.k : 1;
   const canvasStyle = useMemo(() => {
     if (mobileFit) {
       return {
         width: contentSize.width,
         height: contentSize.height,
-        transform: `translate(${mobileFit.x}px, ${mobileFit.y}px) scale(${mobileFit.scale})`,
+        transform: `translate(${mobileFit.x + mapView.x}px, ${mobileFit.y + mapView.y}px) scale(${mobileFit.scale * mapView.k})`,
         transformOrigin: "0 0",
       };
     }
@@ -730,7 +706,63 @@ export function SeatingPlan({
       width: Math.max(contentSize.width, minW),
       height: Math.max(contentSize.height, minH),
     };
-  }, [contentSize, viewport, mobileFit]);
+  }, [contentSize, viewport, mobileFit, mapView]);
+
+  useEffect(() => {
+    const el = canvasScrollRef.current;
+    if (!el || !isMobile) return;
+    let last: { cx: number; cy: number; dist: number } | null = null;
+    const read = (e: TouchEvent) => {
+      const a = e.touches[0];
+      const b = e.touches[1];
+      const r = el.getBoundingClientRect();
+      return {
+        cx: (a.clientX + b.clientX) / 2 - r.left,
+        cy: (a.clientY + b.clientY) / 2 - r.top,
+        dist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+      };
+    };
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        last = read(e);
+        // другий палець — це жест, а не перетягування столу
+        dragRef.current = null;
+        setDraggingId(null);
+      }
+    };
+    const onMove = (e: TouchEvent) => {
+      const fit = mobileFitRef.current;
+      if (e.touches.length !== 2 || !last || !fit) return;
+      e.preventDefault();
+      const cur = read(e);
+      const v = mapViewRef.current;
+      const k = Math.min(4, Math.max(1, v.k * (cur.dist / (last.dist || 1))));
+      const s = fit.scale * v.k;
+      const s2 = fit.scale * k;
+      const tx = fit.x + v.x;
+      const ty = fit.y + v.y;
+      const nx = cur.cx - ((last.cx - tx) / s) * s2;
+      const ny = cur.cy - ((last.cy - ty) / s) * s2;
+      last = cur;
+      setMapView({ k, x: nx - fit.x, y: ny - fit.y });
+    };
+    const onEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) last = null;
+      if (e.touches.length === 0 && mapViewRef.current.k <= 1.01) {
+        setMapView({ k: 1, x: 0, y: 0 });
+      }
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onEnd);
+    el.addEventListener("touchcancel", onEnd);
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onEnd);
+    };
+  }, [isMobile, mobileTab]);
 
   // «Зберегти PDF»: друкуємо лише робочу зону (столи + імена), обрізану по столах.
   function printCanvas() {
@@ -979,9 +1011,7 @@ export function SeatingPlan({
           return false;
         }
       }
-      if (sideFilter !== "all" && g.side !== sideFilter && g.side !== "BOTH") {
-        return false;
-      }
+      if (sideFilter !== "all" && g.side !== sideFilter) return false;
       if (tableFilter !== "all") {
         const info = seatOfGuest.get(g.key);
         if (!info || info.tableId !== tableFilter) return false;
@@ -1093,6 +1123,12 @@ export function SeatingPlan({
         label: guestsGroomLabel,
         onClear: () => setSideFilter("all"),
       });
+    } else if (sideFilter === "BOTH") {
+      chips.push({
+        id: "side-both",
+        label: "Спільні",
+        onClear: () => setSideFilter("all"),
+      });
     }
     if (tableFilter !== "all") {
       const t = tables.find((x) => x.id === tableFilter);
@@ -1149,15 +1185,22 @@ export function SeatingPlan({
     const table = seatInfo
       ? tables.find((t) => t.id === seatInfo.tableId)
       : null;
-    const ln = lastName(guest.name);
-    const swapCandidates = visibleFlat
-      .filter((g) => {
-        if (g.key === key) return false;
-        if (!seatOfGuest.has(g.key)) return false;
-        if (guest.linkedKey === g.key || g.linkedKey === key) return true;
-        return ln && lastName(g.name) === ln;
-      })
-      .map((g) => ({ key: g.key, name: g.name }));
+    const swapCandidates: Array<{ key: string; name: string }> = [];
+    if (table && seatInfo) {
+      const n = table.seats.length;
+      const idx = table.seats.findIndex((s) => s.id === seatInfo.seatId);
+      const wraps =
+        table.kind === "round" ||
+        (table.kind === "kids" && table.shape !== "long");
+      const neighborIdx = [idx - 1, idx + 1]
+        .map((i) => (wraps ? (i + n) % n : i))
+        .filter((i) => i >= 0 && i < n && i !== idx);
+      for (const i of new Set(neighborIdx)) {
+        const nKey = table.seats[i].guestKey;
+        const g = nKey ? guestMap.get(nKey) : null;
+        if (g && g.key !== key) swapCandidates.push({ key: g.key, name: g.name });
+      }
+    }
 
     const linked =
       guest.linkedKey &&
@@ -1249,7 +1292,8 @@ export function SeatingPlan({
     const partnerKey = partnerOf(guestKey);
     const table = tables.find((t) => t.id === tableId);
     const partnerHere = table?.seats.some((s) => s.guestKey === partnerKey);
-    if (!partnerKey || !table || partnerHere) {
+    // За дитячий стіл сідає лише сама дитина, без батьків.
+    if (!partnerKey || !table || partnerHere || table.kind === "kids") {
       assignToSeat(tableId, seatId, guestKey);
       setSelectedKey(guestKey);
       setSeatPick(null);
@@ -1432,13 +1476,22 @@ export function SeatingPlan({
     setTables((prev) => {
       let numbered = prev.filter((t) => labeledKinds.has(t.kind)).length;
       const next = [...prev];
+      const usedLabels = new Set(prev.map((t) => t.label));
       for (let i = 0; i < tableCount; i += 1) {
         numbered += 1;
+        while (
+          labeledKinds.has(kind) &&
+          usedLabels.has(defaultTableLabel(kind, numbered))
+        ) {
+          numbered += 1;
+        }
+        const label = defaultTableLabel(kind, numbered);
+        usedLabels.add(label);
         next.push({
           id: uid(kind),
           kind,
           shape: kind === "kids" ? "round" : undefined,
-          label: defaultTableLabel(kind, numbered),
+          label,
           x: snap(100 + (numbered % 3) * 200),
           y: snap(480 + Math.floor(numbered / 3) * 40),
           rotation: 0,
@@ -1566,8 +1619,8 @@ export function SeatingPlan({
             colorForAssign("presidium", draft.guests.groups),
           )
         : null}
-      {namedGroups.map((g, i) =>
-        renderGroupChip(g.id, g.name, GROUP_COLORS[i % GROUP_COLORS.length]),
+      {namedGroups.map((g) =>
+        renderGroupChip(g.id, g.name, colorForAssign(g.id, draft.guests.groups)),
       )}
       {draft.tables.hasKidsTable
         ? renderGroupChip("kids", "Діти", "#E07A9A")
@@ -1724,40 +1777,36 @@ export function SeatingPlan({
             </button>
           </div>
 
-          {namedGroups.length > 0 || activeFilterChips.length > 0 ? (
+          {activeFilterChips.length > 0 ? (
             <div className="seat-plan-active-chips">
-              {namedGroups.map((g, i) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  className={`seat-plan-active-chip${
-                    groupFilter === g.id ? " is-active" : ""
-                  }`}
-                  onClick={() =>
-                    setGroupFilter(groupFilter === g.id ? "all" : g.id)
-                  }
-                >
-                  <span
-                    className="seat-plan-chip-dot"
-                    style={{
-                      background: GROUP_COLORS[i % GROUP_COLORS.length],
-                    }}
-                  />
-                  {g.name}
-                </button>
-              ))}
-              {activeFilterChips
-                .filter((chip) => !chip.id.startsWith("group-"))
-                .map((chip) => (
+              {activeFilterChips.map((chip) => {
+                const group =
+                  chip.id.startsWith("group-") &&
+                  namedGroups.find((g) => `group-${g.id}` === chip.id);
+                return (
                   <button
                     key={chip.id}
                     type="button"
-                    className="seat-plan-active-chip"
+                    className={`seat-plan-active-chip${
+                      group ? " is-active" : ""
+                    }`}
                     onClick={chip.onClear}
                   >
+                    {group ? (
+                      <span
+                        className="seat-plan-chip-dot"
+                        style={{
+                          background: colorForAssign(
+                            group.id,
+                            draft.guests.groups,
+                          ),
+                        }}
+                      />
+                    ) : null}
                     {chip.label}
                   </button>
-                ))}
+                );
+              })}
             </div>
           ) : null}
 
@@ -2821,7 +2870,11 @@ export function SeatingPlan({
               label: guestsGroomLabel,
               count: filterCounts.side.GROOM,
             },
-
+            {
+              id: "BOTH",
+              label: "Спільні",
+              count: filterCounts.side.BOTH,
+            },
           ]}
           active={draftSideFilter}
           onChange={(id) => setDraftSideFilter(id as SideFilter)}
@@ -2877,12 +2930,12 @@ function SearchIcon() {
 
 function PencilIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <path
-        d="M8.5 2.5 11.5 5.5M2 12l.7-3.2L9.8 1.7a1.2 1.2 0 0 1 1.7 0l.8.8a1.2 1.2 0 0 1 0 1.7L5.2 11.3 2 12Z"
+        d="M8.66602 13.9985H13.9998M14.1158 4.54023C14.4683 4.18785 14.6664 3.70989 14.6664 3.21149C14.6665 2.71309 14.4685 2.23508 14.1161 1.88261C13.7637 1.53014 13.2857 1.33209 12.7872 1.33203C12.2888 1.33197 11.8107 1.5299 11.4582 1.88228L2.5601 10.7815C2.4053 10.9358 2.29082 11.1258 2.22673 11.3348L1.34599 14.2361C1.32876 14.2937 1.32746 14.355 1.34222 14.4133C1.35699 14.4716 1.38727 14.5249 1.42986 14.5674C1.47245 14.6099 1.52575 14.6401 1.58412 14.6548C1.64248 14.6694 1.70373 14.668 1.76136 14.6507L4.66362 13.7707C4.87242 13.7072 5.06244 13.5935 5.217 13.4394L14.1158 4.54023Z"
         stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
     </svg>
   );

@@ -90,7 +90,7 @@ export function SettingsNotificationsPanel({ prefs, onChange }: Props) {
         <ul className="cabinet-settings-notif-list">
           <li className="cabinet-settings-notif-row">
             <span className="cabinet-settings-notif-icon" aria-hidden>
-              <IconSettingsMail size={20} />
+              <IconSettingsPush size={20} />
             </span>
             <span className="cabinet-settings-notif-label">
               Push-повідомлення
@@ -103,7 +103,7 @@ export function SettingsNotificationsPanel({ prefs, onChange }: Props) {
           </li>
           <li className="cabinet-settings-notif-row">
             <span className="cabinet-settings-notif-icon" aria-hidden>
-              <IconSettingsPush size={20} />
+              <IconSettingsMail size={20} />
             </span>
             <span className="cabinet-settings-notif-label">
               Email-повідомлення

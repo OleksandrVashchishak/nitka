@@ -55,6 +55,7 @@ export type WebsiteContent = {
   storyTitle: string;
   storyBody: string;
   storyImageUrl: string;
+  brideImageUrl: string;
   scheduleTitle: string;
   scheduleItems: WebsiteScheduleItem[];
   dressCodeTitle: string;
@@ -157,6 +158,7 @@ function defaultContent(wedding: {
     storyBody:
       'Коротко розкажіть, як усе почалось — кілька теплих речень буде достатньо.',
     storyImageUrl: '',
+    brideImageUrl: '',
     scheduleTitle: 'Деталі нашого свята',
     scheduleItems: [
       { time: '15:00', title: 'Церемонія', detail: 'Місце церемонії' },
@@ -304,6 +306,7 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
     storyTitle: String(raw.storyTitle ?? fallback.storyTitle),
     storyBody: String(raw.storyBody ?? fallback.storyBody),
     storyImageUrl: String(raw.storyImageUrl ?? fallback.storyImageUrl ?? ''),
+    brideImageUrl: String(raw.brideImageUrl ?? fallback.brideImageUrl ?? ''),
     scheduleTitle: canonicalTitle(
       raw.scheduleTitle ?? fallback.scheduleTitle,
       'Деталі нашого свята',

@@ -36,11 +36,11 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            category: string;
+            notes: string | null;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
-            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
@@ -79,11 +79,11 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            category: string;
+            notes: string | null;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
-            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
@@ -122,11 +122,11 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            category: string;
+            notes: string | null;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
-            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
@@ -165,11 +165,11 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            category: string;
+            notes: string | null;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
-            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
@@ -208,11 +208,11 @@ export declare class BudgetController {
         }[];
         items: {
             id: string;
+            category: string;
+            notes: string | null;
             createdAt: Date;
             weddingId: string;
-            notes: string | null;
             title: string;
-            category: string;
             estimated: number;
             actual: number;
             paid: boolean;
