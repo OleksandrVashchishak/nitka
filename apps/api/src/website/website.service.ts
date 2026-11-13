@@ -73,6 +73,7 @@ export type WebsiteContent = {
   rsvpTitle: string;
   rsvpBody: string;
   rsvpUrl: string;
+  rsvpDeadline: string;
   footerNote: string;
   sections: WebsiteSections;
   introEnabled: boolean;
@@ -187,6 +188,7 @@ function defaultContent(wedding: {
     rsvpTitle: 'Підтвердіть свою присутність',
     rsvpBody: 'Будь ласка, підтвердіть участь до 1 червня.',
     rsvpUrl: '',
+    rsvpDeadline: '',
     footerNote: 'З любовʼю, ми',
     sections: { ...DEFAULT_SECTIONS },
     introEnabled: false,
@@ -341,6 +343,7 @@ function asContent(value: unknown, fallback: WebsiteContent): WebsiteContent {
     ),
     rsvpBody: String(raw.rsvpBody ?? fallback.rsvpBody),
     rsvpUrl: String(raw.rsvpUrl ?? fallback.rsvpUrl ?? ''),
+    rsvpDeadline: String(raw.rsvpDeadline ?? fallback.rsvpDeadline ?? ''),
     footerNote: String(raw.footerNote ?? fallback.footerNote),
     sections: asSections(raw.sections, fallback.sections),
     introEnabled: Boolean(raw.introEnabled ?? fallback.introEnabled),

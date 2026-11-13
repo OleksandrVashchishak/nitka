@@ -58,6 +58,7 @@ export type WebsiteContent = {
     rsvpTitle: string;
     rsvpBody: string;
     rsvpUrl: string;
+    rsvpDeadline: string;
     footerNote: string;
     sections: WebsiteSections;
     introEnabled: boolean;

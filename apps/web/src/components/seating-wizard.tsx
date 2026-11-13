@@ -20,6 +20,7 @@ import {
 } from "@/components/responsible-avatar";
 import {
   applyLinkedAssign,
+  clusterFlags,
   flattenSeatingGuests,
   type SeatingFlatGuest,
 } from "@/lib/seating-guests";
@@ -735,25 +736,11 @@ function StepGuests({
             <p className="seat-wiz-card-lead">Список гостей порожній.</p>
           ) : (
             flatGuests.map((row, index) => {
-              const next = flatGuests[index + 1];
               const linked =
                 Boolean(row.linkedTo) && !detachedKeys.has(row.key);
-              const clusterPrimaryKey = linked ? row.linkedTo! : row.key;
-              const nextInCluster = Boolean(
-                next &&
-                  next.linkedTo === clusterPrimaryKey &&
-                  !detachedKeys.has(next.key),
+              const cluster = clusterFlags(flatGuests, index, (r) =>
+                detachedKeys.has(r.key) ? null : (r.linkedTo ?? r.key),
               );
-              const clusterStart =
-                !row.linkedTo &&
-                Boolean(
-                  next &&
-                    next.linkedTo === row.key &&
-                    !detachedKeys.has(next.key),
-                );
-              const clusterMid = linked;
-              const clusterEnd =
-                (clusterStart || clusterMid) && !nextInCluster;
               const linkedName = linked
                 ? (flatGuests.find((g) => g.key === row.linkedTo)?.name ??
                   null)
@@ -764,10 +751,10 @@ function StepGuests({
                 <div
                   key={row.key}
                   className={`seat-wiz-guest-row${
-                    clusterStart || clusterMid ? " is-linked" : ""
-                  }${clusterStart ? " is-cluster-start" : ""}${
-                    clusterMid ? " is-cluster-mid" : ""
-                  }${clusterEnd ? " is-cluster-end" : ""}`}
+                    cluster.linked ? " is-linked" : ""
+                  }${cluster.start ? " is-cluster-start" : ""}${
+                    cluster.mid ? " is-cluster-mid" : ""
+                  }${cluster.end ? " is-cluster-end" : ""}`}
                 >
                   <div className="seat-wiz-guest-name">
                     <span>{row.name}</span>

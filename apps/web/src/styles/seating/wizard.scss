@@ -543,7 +543,13 @@
   width: 100%;
   height: 100%;
   opacity: 0;
+  color: var(--seat-wiz-ink);
   cursor: pointer;
+}
+
+.seat-wiz-assign option {
+  color: var(--seat-wiz-ink);
+  background: #fff;
 }
 
 .seat-wiz-assign svg {
@@ -579,6 +585,11 @@
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.seat-wiz-more-menu--up {
+  top: auto;
+  bottom: calc(100% + 4px);
 }
 
 .seat-wiz-more-menu button {

@@ -89,6 +89,7 @@ export function normalizeWebsiteContent(
     rsvpTitle: canonicalTitle(base.rsvpTitle, "Підтвердіть свою присутність"),
     rsvpBody: String(base.rsvpBody ?? ""),
     rsvpUrl: String(base.rsvpUrl ?? ""),
+    rsvpDeadline: String(base.rsvpDeadline ?? ""),
     footerNote: String(base.footerNote ?? ""),
     sections,
     introEnabled: Boolean(base.introEnabled),

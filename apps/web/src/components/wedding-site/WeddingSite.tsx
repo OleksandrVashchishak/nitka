@@ -5,6 +5,7 @@ import { WsiteCouple } from "@/components/wedding-site/sections/wsite-couple";
 import { WsiteDetails } from "@/components/wedding-site/sections/wsite-details";
 import { WsiteHero } from "@/components/wedding-site/sections/wsite-hero";
 import { WsiteProposal } from "@/components/wedding-site/sections/wsite-proposal";
+import { WsiteRsvp } from "@/components/wedding-site/sections/wsite-rsvp";
 import { WsiteSchedule } from "@/components/wedding-site/sections/wsite-schedule";
 import { WsiteStory } from "@/components/wedding-site/sections/wsite-story";
 import {
@@ -87,9 +88,7 @@ export function WeddingSite({
           text: content.travelBody,
         }
       : null,
-    sections.rsvp && content.rsvpBody.trim()
-      ? { title: "Коли треба дати відповідь", text: content.rsvpBody }
-      : null,
+
     sections.qa && (content.qaItems[0]?.answer || "").trim()
       ? {
           title: content.qaItems[0]?.question || "Інше",
@@ -176,6 +175,14 @@ export function WeddingSite({
 
       {detailItems.length ? (
         <WsiteDetails title="Деталі весілля" items={detailItems} />
+      ) : null}
+
+      {sections.rsvp ? (
+        <WsiteRsvp
+          title="Підтвердіть вашу присутність"
+          body={content.rsvpBody}
+          deadline={content.rsvpDeadline?.trim() ? `До ${content.rsvpDeadline.trim()}` : undefined}
+        />
       ) : null}
 
       <WsiteClosing

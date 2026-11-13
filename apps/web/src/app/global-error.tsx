@@ -11,7 +11,6 @@ import {
   cormorant,
   mak,
   manrope,
-  montserrat,
   scriptCyr,
 } from "@/lib/fonts";
 
@@ -24,7 +23,7 @@ export default function GlobalError({
   return (
     <html lang="uk">
       <body
-        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${manrope.variable} ${montserrat.variable} antialiased`}
+        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${manrope.variable} antialiased`}
       >
         <ErrorState
           code="500"

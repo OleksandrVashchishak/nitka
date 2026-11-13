@@ -437,10 +437,17 @@ export function WebsiteEditorContentTab({
               />
             </NestedItem>
             <NestedItem
-              label="Коли треба дати відповідь"
+              label="Підтвердіть присутність"
               checked={sections.rsvp}
               onCheckedChange={(v) => patchSections({ rsvp: v })}
             >
+              <TextInput
+                size="s"
+                label="Дата «До…»"
+                value={content.rsvpDeadline ?? ""}
+                onChange={(e) => patch({ rsvpDeadline: e.target.value })}
+                placeholder="15.06.2027"
+              />
               <Textarea
                 plain
                 inputClassName="we-blocks__textarea"

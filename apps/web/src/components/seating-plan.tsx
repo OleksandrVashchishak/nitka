@@ -12,7 +12,7 @@ import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { CabinetBackButton } from "@/components/cabinet-back-title";
 import type { Guest, RsvpStatus } from "@/lib/guests-api";
 import { updateGuest } from "@/lib/guests-api";
-import { flattenSeatingGuests } from "@/lib/seating-guests";
+import { clusterFlags, flattenSeatingGuests } from "@/lib/seating-guests";
 import type {
   SeatingGuestAssign,
   SeatingGuestsDraft,
@@ -96,6 +96,8 @@ type FlatGuest = {
   side: Guest["side"];
   rsvpStatus: RsvpStatus;
   linkedKey: string | null;
+  /** Ключ кластера (корінь групи) — для смуги зліва у списку. */
+  clusterKey: string;
 };
 
 type SeatSpot = {
@@ -208,6 +210,7 @@ function flattenGuests(guests: Guest[]): FlatGuest[] {
     side: r.side,
     rsvpStatus: r.rsvpStatus,
     linkedKey: r.linkedTo ?? firstMate.get(r.key) ?? null,
+    clusterKey: r.linkedTo ?? r.key,
   }));
 }
 
@@ -224,6 +227,7 @@ function coupleGuests(partnerOneName: string, partnerTwoName: string): FlatGuest
   ];
   return rows.map((g) => ({
     ...g,
+    clusterKey: COUPLE_KEYS[0],
     guestId: COUPLE_GUEST_ID,
     isPlusOne: false,
     isChild: false,
@@ -991,6 +995,9 @@ export function SeatingPlan({
 
   const seatedCount = seatOfGuest.size;
   const totalGuests = visibleFlat.length;
+
+  const clusterRootOf = (g: FlatGuest) =>
+    detachedKeys.has(g.key) ? null : g.clusterKey;
 
   const filteredGuests = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -1902,32 +1909,17 @@ export function SeatingPlan({
               const color = visibleColor(assign);
               const open =
                 popover?.kind === "list" && popover.key === g.key;
-              const nextGuest = filteredGuests[index + 1];
-              const linked =
-                Boolean(g.linkedKey) && !detachedKeys.has(g.key);
-              const clusterPrimaryKey = linked ? g.linkedKey! : g.key;
-              const nextInCluster = Boolean(
-                nextGuest &&
-                  nextGuest.linkedKey === clusterPrimaryKey &&
-                  !detachedKeys.has(nextGuest.key),
-              );
-              const clusterStart =
-                !g.linkedKey &&
-                Boolean(
-                  nextGuest &&
-                    nextGuest.linkedKey === g.key &&
-                    !detachedKeys.has(nextGuest.key),
-                );
-              const clusterMid = linked;
-              const clusterEnd =
-                (clusterStart || clusterMid) && !nextInCluster;
+              const cluster = clusterFlags(filteredGuests, index, clusterRootOf);
+              const clusterStart = cluster.start;
+              const clusterMid = cluster.mid;
+              const clusterEnd = cluster.end;
               return (
                 <div
                   key={g.key}
                   className={`seat-plan-guest-row-wrap${
                     selectedKey === g.key ? " is-selected" : ""
                   }${dragGuestKey === g.key ? " is-dragging" : ""}${
-                    clusterStart || clusterMid ? " is-linked" : ""
+                    cluster.linked ? " is-linked" : ""
                   }${clusterStart ? " is-cluster-start" : ""}${
                     clusterMid ? " is-cluster-mid" : ""
                   }${clusterEnd ? " is-cluster-end" : ""}`}
@@ -2573,25 +2565,10 @@ export function SeatingPlan({
           <div className="seat-pick-list">
             {filteredGuests.map((g, index) => {
               const seated = seatOfGuest.has(g.key);
-              const next = filteredGuests[index + 1];
-              const linked =
-                Boolean(g.linkedKey) && !detachedKeys.has(g.key);
-              const clusterPrimaryKey = linked ? g.linkedKey! : g.key;
-              const nextInCluster = Boolean(
-                next &&
-                  next.linkedKey === clusterPrimaryKey &&
-                  !detachedKeys.has(next.key),
-              );
-              const clusterStart =
-                !g.linkedKey &&
-                Boolean(
-                  next &&
-                    next.linkedKey === g.key &&
-                    !detachedKeys.has(next.key),
-                );
-              const clusterMid = linked;
-              const clusterEnd =
-                (clusterStart || clusterMid) && !nextInCluster;
+              const cluster = clusterFlags(filteredGuests, index, clusterRootOf);
+              const clusterStart = cluster.start;
+              const clusterMid = cluster.mid;
+              const clusterEnd = cluster.end;
               const sideLetter =
                 g.name.trim().charAt(0).toUpperCase() || "·";
 
@@ -2599,7 +2576,7 @@ export function SeatingPlan({
                 <div
                   key={g.key}
                   className={`seat-pick-row-wrap${
-                    clusterStart || clusterMid ? " is-linked" : ""
+                    cluster.linked ? " is-linked" : ""
                   }${clusterStart ? " is-cluster-start" : ""}${
                     clusterMid ? " is-cluster-mid" : ""
                   }${clusterEnd ? " is-cluster-end" : ""}`}

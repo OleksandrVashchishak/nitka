@@ -11,6 +11,7 @@ import { GuestRowMenu } from "@/components/seating-plan-popovers";
 import { IconBaby } from "@/components/icon-baby";
 import {
   applyLinkedAssign,
+  clusterFlags,
   flattenSeatingGuests,
 } from "@/lib/seating-guests";
 import {
@@ -57,6 +58,7 @@ export function SeatingGroupsModal({
     () => new Set(initial.detachedKeys ?? []),
   );
   const [menuKey, setMenuKey] = useState<string | null>(null);
+  const [menuUp, setMenuUp] = useState(false);
 
   const flatGuests = useMemo(() => flattenSeatingGuests(guests), [guests]);
   const namedGroups = groups.filter((g) => g.name.trim());
@@ -210,25 +212,11 @@ export function SeatingGroupsModal({
                 <p className="seat-groups-modal-lead">Список гостей порожній.</p>
               ) : (
                 flatGuests.map((row, index) => {
-                  const next = flatGuests[index + 1];
                   const linked =
                     Boolean(row.linkedTo) && !detachedKeys.has(row.key);
-                  const clusterPrimaryKey = linked ? row.linkedTo! : row.key;
-                  const nextInCluster = Boolean(
-                    next &&
-                      next.linkedTo === clusterPrimaryKey &&
-                      !detachedKeys.has(next.key),
+                  const cluster = clusterFlags(flatGuests, index, (r) =>
+                    detachedKeys.has(r.key) ? null : (r.linkedTo ?? r.key),
                   );
-                  const clusterStart =
-                    !row.linkedTo &&
-                    Boolean(
-                      next &&
-                        next.linkedTo === row.key &&
-                        !detachedKeys.has(next.key),
-                    );
-                  const clusterMid = linked;
-                  const clusterEnd =
-                    (clusterStart || clusterMid) && !nextInCluster;
                   const linkedName = linked
                     ? (flatGuests.find((g) => g.key === row.linkedTo)?.name ??
                       null)
@@ -239,10 +227,10 @@ export function SeatingGroupsModal({
                     <div
                       key={row.key}
                       className={`seat-wiz-guest-row${
-                        clusterStart || clusterMid ? " is-linked" : ""
-                      }${clusterStart ? " is-cluster-start" : ""}${
-                        clusterMid ? " is-cluster-mid" : ""
-                      }${clusterEnd ? " is-cluster-end" : ""}`}
+                        cluster.linked ? " is-linked" : ""
+                      }${cluster.start ? " is-cluster-start" : ""}${
+                        cluster.mid ? " is-cluster-mid" : ""
+                      }${cluster.end ? " is-cluster-end" : ""}`}
                     >
                       <div className="seat-wiz-guest-name">
                         <span>{row.name}</span>
@@ -282,14 +270,29 @@ export function SeatingGroupsModal({
                             className="seat-wiz-icon-btn"
                             aria-label="Дії"
                             aria-expanded={menuKey === row.key}
-                            onClick={() =>
-                              setMenuKey(menuKey === row.key ? null : row.key)
-                            }
+                            onClick={(e) => {
+                              if (menuKey === row.key) {
+                                setMenuKey(null);
+                                return;
+                              }
+                              const btn = e.currentTarget.getBoundingClientRect();
+                              const list = e.currentTarget
+                                .closest(".seat-groups-modal-guests")
+                                ?.getBoundingClientRect();
+                              const bottom = list ? list.bottom : window.innerHeight;
+                              setMenuUp(bottom - btn.bottom < 150);
+                              setMenuKey(row.key);
+                            }}
                           >
                             <IconMore size={16} />
                           </button>
                           {menuKey === row.key ? (
-                            <div className="seat-wiz-more-menu" role="menu">
+                            <div
+                              className={`seat-wiz-more-menu${
+                                menuUp ? " seat-wiz-more-menu--up" : ""
+                              }`}
+                              role="menu"
+                            >
                               <GuestRowMenu
                                 status={row.rsvpStatus}
                                 linkedName={linkedName}

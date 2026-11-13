@@ -28,6 +28,36 @@ export type SeatingFlatGuest = {
 };
 
 /** Дитина йде за дитячий стіл завжди, крім тих, кому потрібне дитяче крісло (сидять з батьками). */
+export type ClusterFlags = {
+  linked: boolean;
+  start: boolean;
+  mid: boolean;
+  end: boolean;
+};
+
+/**
+ * Смуга зліва для пов'язаних гостей у списку: з'єднує лише сусідні рядки
+ * одного кластера. `rootOf` повертає ключ кластера (або null — рядок поза кластером).
+ */
+export function clusterFlags<T>(
+  rows: T[],
+  index: number,
+  rootOf: (row: T) => string | null,
+): ClusterFlags {
+  const root = rootOf(rows[index]);
+  const prev = index > 0 ? rows[index - 1] : undefined;
+  const next = rows[index + 1];
+  const withPrev = Boolean(root && prev && rootOf(prev) === root);
+  const withNext = Boolean(root && next && rootOf(next) === root);
+  const linked = withPrev || withNext;
+  return {
+    linked,
+    start: linked && !withPrev,
+    mid: withPrev,
+    end: linked && !withNext,
+  };
+}
+
 export function childGoesToKidsTable(isChild: boolean, need: ChildNeed | null) {
   return isChild && need !== "high_chair";
 }

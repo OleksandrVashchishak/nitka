@@ -3,7 +3,6 @@ import {
   Cormorant_Garamond,
   Manrope,
   Marck_Script,
-  Montserrat,
 } from "next/font/google";
 
 /** Standard width — nav, buttons, kickers */
@@ -59,9 +58,3 @@ export const manrope = Manrope({
   preload: false,
 });
 
-export const montserrat = Montserrat({
-  variable: "--font-sans",
-  subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
-  style: ["normal", "italic"],
-});
