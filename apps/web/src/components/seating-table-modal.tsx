@@ -157,6 +157,24 @@ export function SeatingTableModal({
     if (open) setDraft(table);
   }, [open, table]);
 
+  const [previewEl, setPreviewEl] = useState<HTMLDivElement | null>(null);
+  const [availW, setAvailW] = useState(0);
+
+  useEffect(() => {
+    if (!previewEl) return;
+    const measure = () => {
+      const cs = getComputedStyle(previewEl);
+      const pad =
+        parseFloat(cs.paddingLeft || "0") + parseFloat(cs.paddingRight || "0");
+      // запас під чіпи/імена, що виступають за межі сцени
+      setAvailW(Math.max(previewEl.clientWidth - pad - 48, 120));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(previewEl);
+    return () => ro.disconnect();
+  }, [previewEl]);
+
   const filled = draft.seats.filter((s) => s.guestKey).length;
   const isRoundVisual =
     draft.kind === "round" ||
@@ -220,11 +238,28 @@ export function SeatingTableModal({
     }));
   }
 
+  const seatCount = draft.seats.length;
   const seatScale = (() => {
-    const free = isRoundVisual ? 16 : isShaped ? 12 : 10;
-    const n = draft.seats.length;
-    return n <= free ? 1 : Math.max(0.5, Math.pow(free / n, 0.65));
+    if (!isShaped) return 1;
+    const free = 12;
+    return seatCount <= free ? 1 : Math.max(0.5, Math.pow(free / seatCount, 0.65));
   })();
+
+  // Стіл росте під кількість місць (щоб крісла не злипались),
+  // а потім уся сцена зменшується під ширину модалки.
+  const SEAT_PITCH = 36;
+  const baseW = isRoundVisual ? 220 : isShaped ? 240 : 280;
+  const baseH = isRoundVisual ? 220 : isShaped ? 180 : 160;
+  const needW = isShaped
+    ? baseW
+    : isRoundVisual
+      ? Math.ceil((seatCount * SEAT_PITCH) / (Math.PI * 0.96))
+      : Math.ceil((Math.ceil(seatCount / 2) * SEAT_PITCH) / 0.8);
+  const stageW = Math.max(baseW, needW);
+  const stageH = isRoundVisual ? stageW : baseH;
+  const grown = stageW > baseW;
+  const fit =
+    availW > 0 ? Math.min(1, availW / Math.max(stageW, stageH)) : 1;
 
   const shapeLabel = isRoundVisual ? "Зробити довгим" : "Зробити круглим";
   const previewMod = isRoundVisual
@@ -253,21 +288,35 @@ export function SeatingTableModal({
         />
       }
     >
-      <div className={`seat-table-modal-preview${previewMod}`}>
+      <div
+        ref={setPreviewEl}
+        className={`seat-table-modal-preview${previewMod}`}
+        style={fit < 1 ? { minHeight: 0 } : undefined}
+      >
         <div
           className="seat-table-modal-stage"
-          style={{ transform: `rotate(${draft.rotation}deg)` }}
+          style={{
+            transform: `rotate(${draft.rotation}deg) scale(${fit})`,
+            ...(grown ? { width: stageW, height: stageH } : null),
+            ...(fit < 1
+              ? {
+                  flexShrink: 0,
+                  margin: `${(-stageH * (1 - fit)) / 2}px ${(-stageW * (1 - fit)) / 2}px`,
+                }
+              : null),
+          }}
         >
           {isShaped ? (
             <TableShapeSilhouette kind={draft.kind} />
           ) : (
             <div
               className="seat-table-modal-body"
-              style={
-                isRoundVisual && draft.rotation
+              style={{
+                ...(isRoundVisual && draft.rotation
                   ? { transform: `rotate(${-draft.rotation}deg)` }
-                  : undefined
-              }
+                  : null),
+                ...(grown && !isRoundVisual ? { width: "72%" } : null),
+              }}
             >
               <span className="seat-table-modal-body-label">{draft.label}</span>
               <span className="seat-table-modal-body-count">

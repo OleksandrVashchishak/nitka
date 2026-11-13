@@ -2714,20 +2714,19 @@
     overflow: hidden !important;
   }
 
-  body.is-seat-plan-print * {
-    visibility: hidden !important;
+  body.is-seat-plan-print > *:not(#seat-plan-print-root) {
+    display: none !important;
   }
 
-  body.is-seat-plan-print .seat-plan-canvas,
-  body.is-seat-plan-print .seat-plan-canvas * {
-    visibility: visible !important;
+  body.is-seat-plan-print #seat-plan-print-root {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 
   body.is-seat-plan-print .seat-plan-canvas {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    z-index: 9999;
+    position: relative !important;
     padding: 0 !important;
     transform: none !important;
     background:

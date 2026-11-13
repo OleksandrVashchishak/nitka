@@ -855,15 +855,30 @@ export function SeatingPlan({
     document.head.appendChild(style);
     const prevShowNames = showNames;
     setShowNames(true);
-    document.body.classList.add("is-seat-plan-print");
     const cleanup = () => {
       document.body.classList.remove("is-seat-plan-print");
+      document.getElementById("seat-plan-print-root")?.remove();
       style.remove();
       setShowNames(prevShowNames);
       window.removeEventListener("afterprint", cleanup);
     };
     window.addEventListener("afterprint", cleanup);
-    window.setTimeout(() => window.print(), 50);
+    // Імена показуються після рендера — чекаємо, потім клонуємо полотно в окремий корінь на body
+    window.setTimeout(() => {
+      const canvas = document.querySelector<HTMLElement>(".seat-plan-canvas");
+      if (!canvas) {
+        cleanup();
+        return;
+      }
+      const root = document.createElement("div");
+      root.id = "seat-plan-print-root";
+      const clone = canvas.cloneNode(true) as HTMLElement;
+      clone.removeAttribute("style");
+      root.appendChild(clone);
+      document.body.appendChild(root);
+      document.body.classList.add("is-seat-plan-print");
+      window.setTimeout(() => window.print(), 50);
+    }, 100);
   }
 
   useEffect(() => {
@@ -2454,6 +2469,17 @@ export function SeatingPlan({
                                 seat.guestKey,
                                 e.currentTarget,
                               );
+                              return;
+                            }
+                            // Є обраний гість без місця (напр. «Посадити за стіл») — садимо одразу.
+                            if (
+                              selectedKey &&
+                              guestMap.has(selectedKey) &&
+                              !tables.some((t) =>
+                                t.seats.some((s) => s.guestKey === selectedKey),
+                              )
+                            ) {
+                              seatFromPicker(table.id, seat.id, selectedKey);
                               return;
                             }
                             setSeatPick({
