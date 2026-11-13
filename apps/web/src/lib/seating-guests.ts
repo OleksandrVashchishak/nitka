@@ -27,7 +27,6 @@ export type SeatingFlatGuest = {
   rsvpStatus: RsvpStatus;
 };
 
-/** Дитина йде за дитячий стіл завжди, крім тих, кому потрібне дитяче крісло (сидять з батьками). */
 export type ClusterFlags = {
   linked: boolean;
   start: boolean;
@@ -58,8 +57,9 @@ export function clusterFlags<T>(
   };
 }
 
+/** Дитина йде за дитячий стіл, крім тих, хто сидить з батьками (дитяче крісло або «з батьками»). */
 export function childGoesToKidsTable(isChild: boolean, need: ChildNeed | null) {
-  return isChild && need !== "high_chair";
+  return isChild && need !== "high_chair" && need !== "with_parents";
 }
 
 export function companionKey(guestId: string, index: number) {
@@ -156,6 +156,31 @@ export function syncKidsAssignments<T extends string | null>(
 }
 
 /**
+ * Для відображення: відʼєднаний гість іде в кінець свого блоку, щоб смуга
+ * решти ланцюжка (напр. діти з мамою) не розривалась посередині.
+ */
+export function orderDetachedLast(
+  rows: SeatingFlatGuest[],
+  detachedKeys: Set<string>,
+): SeatingFlatGuest[] {
+  if (detachedKeys.size === 0) return rows;
+  const out: SeatingFlatGuest[] = [];
+  let i = 0;
+  while (i < rows.length) {
+    const root = rows[i].linkedTo ?? rows[i].key;
+    let j = i + 1;
+    while (j < rows.length && rows[j].linkedTo === root) j++;
+    const block = rows.slice(i, j);
+    out.push(
+      ...block.filter((r) => !detachedKeys.has(r.key)),
+      ...block.filter((r) => detachedKeys.has(r.key)),
+    );
+    i = j;
+  }
+  return out;
+}
+
+/**
  * Призначення гостя + підтягування його ланцюжка.
  * «kids» — лише для самої дитини; діти за дитячим столом за родиною не йдуть.
  */
@@ -179,3 +204,6 @@ export function applyLinkedAssign<T extends string | null>(
   }
   return next;
 }
+
+/** Єдина палітра груп гостей: бейджі у візарді/модалці та легенда плану. */
+export const SEATING_GROUP_COLORS = ["#8B7CC8", "#5B8DEF", "#4CAF7A", "#C47A3A", "#E07A9A"];

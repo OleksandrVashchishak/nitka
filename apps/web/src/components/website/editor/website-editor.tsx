@@ -147,15 +147,22 @@ function WebsiteEditorInner() {
     setAutosave("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
+      saveTimer.current = null;
       void (async () => {
         const payload = pendingSave.current;
         pendingSave.current = {};
         try {
           const updated = await upsertMyWebsite(payload);
           setSite(updated);
-          setSlug(updated.slug);
-          setContent(normalizeWebsiteContent(updated.content));
-          setAutosave("saved");
+          // Користувач міг продовжити друкувати, поки йшов запит — не затираємо його правки старою відповіддю.
+          const hasNewerEdits =
+            saveTimer.current !== null ||
+            Object.keys(pendingSave.current).length > 0;
+          if (!hasNewerEdits) {
+            setSlug(updated.slug);
+            setContent(normalizeWebsiteContent(updated.content));
+          }
+          setAutosave(hasNewerEdits ? "saving" : "saved");
         } catch {
           setAutosave("error");
           toast.error("Не вдалось зберегти зміни");

@@ -71,7 +71,7 @@ describe("flattenSeatingGuests", () => {
     expect(rows.every((r) => r.linkedTo === null && !r.isPlusOne)).toBe(true);
   });
 
-  it("за дитячий стіл — усі діти, крім дитячого крісла", () => {
+  it("за дитячий стіл — усі діти, крім дитячого крісла і «з батьками»", () => {
     const rows = flattenSeatingGuests([
       guest("v", "Василь Микитюк", {
         companions: [
@@ -87,7 +87,7 @@ describe("flattenSeatingGuests", () => {
     expect(kids).toEqual({
       "Василь Микитюк": false,
       "Ліза Микитюк": false,
-      "Роман Микитюк": true,
+      "Роман Микитюк": false,
       "Оля Микитюк": true,
       "Малий Микитюк": false,
       "Без потреби Микитюк": true,
@@ -99,7 +99,7 @@ describe("syncKidsAssignments", () => {
   const rows = flattenSeatingGuests([
     guest("v", "Василь Микитюк", {
       companions: [
-        { name: "Роман Микитюк", isChild: true, childNeed: "with_parents" },
+        { name: "Роман Микитюк", isChild: true, childNeed: "kids_table" },
         { name: "Оля Микитюк", isChild: true },
       ],
     }),

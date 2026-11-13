@@ -12,7 +12,9 @@ import { IconBaby } from "@/components/icon-baby";
 import {
   applyLinkedAssign,
   clusterFlags,
+  orderDetachedLast,
   flattenSeatingGuests,
+  SEATING_GROUP_COLORS,
 } from "@/lib/seating-guests";
 import {
   SideAvatar,
@@ -35,7 +37,7 @@ type Props = {
   onSave: (guests: SeatingGuestsDraft) => void;
 };
 
-const GROUP_BADGE_COLORS = ["#6AAE7B", "#5B8DEF", "#C47A3A", "#7A6BB5"];
+const GROUP_BADGE_COLORS = SEATING_GROUP_COLORS;
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
@@ -211,10 +213,10 @@ export function SeatingGroupsModal({
               {flatGuests.length === 0 ? (
                 <p className="seat-groups-modal-lead">Список гостей порожній.</p>
               ) : (
-                flatGuests.map((row, index) => {
+                orderDetachedLast(flatGuests, detachedKeys).map((row, index, shown) => {
                   const linked =
                     Boolean(row.linkedTo) && !detachedKeys.has(row.key);
-                  const cluster = clusterFlags(flatGuests, index, (r) =>
+                  const cluster = clusterFlags(shown, index, (r) =>
                     detachedKeys.has(r.key) ? null : (r.linkedTo ?? r.key),
                   );
                   const linkedName = linked

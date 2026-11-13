@@ -469,7 +469,7 @@ function CoupleSettingsInner() {
         className="cabinet-settings-desktop-top"
       />
 
-      <div className="cabinet-settings-mobile-top">
+      <div className="cabinet-settings-mobile-top cabinet-mobile-sticky">
         <CabinetBackTitle
           title={mobileDetail ? SETTINGS_TAB_TITLES[tab] : "Налаштування"}
           onBack={onMobileBack}

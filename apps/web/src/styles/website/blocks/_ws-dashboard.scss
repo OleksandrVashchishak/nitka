@@ -1,7 +1,6 @@
 .ws-dashboard {
   box-sizing: border-box;
   min-height: 100%;
-  padding: 40px 40px 48px 48px;
   color: var(--ws-ink);
   font-family: var(--ws-font);
   background: var(--ws-paper);
@@ -12,36 +11,9 @@
     box-sizing: border-box;
   }
 
-  &__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    min-height: 50px;
-    margin-bottom: 33px;
-  }
-
-  &__mobile-top {
-    display: none;
-    margin-bottom: 28px;
-  }
-
-  &__title {
-    margin: 0;
-    font-family: var(--ws-font-btn);
-    font-size: 32px;
-    font-weight: 500;
-    font-style: italic;
-    line-height: 100%;
-    letter-spacing: 0;
-    color: var(--ws-ink);
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
+  /* шапка — спільний CabinetPageHeader; відступ до блоку як у .cabinet-empty */
+  > .cabinet-tasks-top {
+    margin-bottom: 24px;
   }
 
   &__error {
@@ -66,16 +38,6 @@
   }
 
   @media (max-width: 768px) {
-    padding: 36px 16px 120px;
-
-    &__mobile-top {
-      display: flex;
-    }
-
-    &__top {
-      display: none;
-    }
-
     &__solo {
       padding: 8px 0 32px;
     }

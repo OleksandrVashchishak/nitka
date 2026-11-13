@@ -115,7 +115,7 @@ export function GuestListPopover({
         ) : null}
         {onSeatElsewhere ? (
           <button type="button" onClick={onSeatElsewhere}>
-            Посадити за інший стіл
+            {info.tableLabel ? "Посадити за інший стіл" : "Посадити за стіл"}
           </button>
         ) : null}
       </div>

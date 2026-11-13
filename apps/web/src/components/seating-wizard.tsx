@@ -21,8 +21,10 @@ import {
 import {
   applyLinkedAssign,
   clusterFlags,
+  orderDetachedLast,
   flattenSeatingGuests,
   type SeatingFlatGuest,
+  SEATING_GROUP_COLORS,
 } from "@/lib/seating-guests";
 import "@/styles/seating/wizard.scss";
 
@@ -102,7 +104,7 @@ const STEPS = [
   { id: 3 as const, label: "Розсадка" },
 ];
 
-const GROUP_BADGE_COLORS = ["#6AAE7B", "#5B8DEF", "#C47A3A", "#7A6BB5"];
+const GROUP_BADGE_COLORS = SEATING_GROUP_COLORS;
 
 function formatNeedsRound(format: SeatingFormatId) {
   return format === "round" || format === "mixed";
@@ -141,7 +143,7 @@ export function SeatingWizard({
 }: Props) {
   const [step, setStep] = useState<WizardStep>(1);
 
-  const [hasPresidium, setHasPresidium] = useState(true);
+  const [hasPresidium, setHasPresidium] = useState(false);
   const [presidiumSeats, setPresidiumSeats] = useState("6");
   const [format, setFormat] = useState<SeatingFormatId>("round");
   const [roundTableCount, setRoundTableCount] = useState("");
@@ -735,10 +737,10 @@ function StepGuests({
           {flatGuests.length === 0 ? (
             <p className="seat-wiz-card-lead">Список гостей порожній.</p>
           ) : (
-            flatGuests.map((row, index) => {
+            orderDetachedLast(flatGuests, detachedKeys).map((row, index, shown) => {
               const linked =
                 Boolean(row.linkedTo) && !detachedKeys.has(row.key);
-              const cluster = clusterFlags(flatGuests, index, (r) =>
+              const cluster = clusterFlags(shown, index, (r) =>
                 detachedKeys.has(r.key) ? null : (r.linkedTo ?? r.key),
               );
               const linkedName = linked

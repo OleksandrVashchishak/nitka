@@ -20,6 +20,7 @@ export declare class SeatingController {
         weddingId: string;
         plan: {
             tables: unknown[];
+            knownKeys: string[] | undefined;
             savedAt: number;
         };
     }>;

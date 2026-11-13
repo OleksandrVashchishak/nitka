@@ -13,6 +13,10 @@ export class UpsertSeatingPlanDto {
   tables!: unknown[];
 
   @IsOptional()
+  @IsArray()
+  knownKeys?: string[];
+
+  @IsOptional()
   @IsNumber()
   savedAt?: number;
 }

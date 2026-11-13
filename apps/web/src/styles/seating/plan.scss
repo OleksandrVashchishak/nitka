@@ -945,6 +945,12 @@
   width: 80px;
   pointer-events: none;
 
+  &--float {
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
   &__dot {
     display: inline-flex;
     align-items: center;
@@ -1055,7 +1061,7 @@
   display: flex;
   flex-direction: column;
   min-width: calc(100% + 12px);
-  width: max(calc(100% + 12px), 220px);
+  width: max(calc(100% + 12px), 290px);
   padding: 6px;
   padding-top: calc(6px + 36px + 4px);
   border-radius: 22px;
@@ -1091,6 +1097,27 @@
 
 .seat-plan-print-dropdown button:hover {
   background: rgb(255 255 255 / 0.1);
+}
+
+.seat-plan-print-dropdown .seat-plan-print-dropdown__item--soon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.seat-plan-print-dropdown .seat-plan-print-dropdown__item--soon:hover {
+  background: transparent;
+}
+
+.seat-plan-print-dropdown__badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
 }
 
 .seat-plan-float-pop {
@@ -1330,7 +1357,8 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  transform: translate(-50%, -50%) rotate(var(--seat-rot, 0deg));
+  transform: translate(-50%, -50%) rotate(var(--seat-rot, 0deg))
+    scale(var(--seat-scale, 1));
 
   &[role="button"] {
     cursor: pointer;
@@ -1525,8 +1553,12 @@
   }
 
   .seat-table-modal-footer {
-    margin-top: 0;
-    padding: 24px 0 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 0 -16px -16px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    background: #fff;
   }
 
   .seat-table-modal-cancel {
@@ -2052,8 +2084,12 @@
   .seat-plan-guest-avatar {
     width: 32px;
     height: 32px;
-    background: #9c8fc4 !important;
-    color: #fff !important;
+    background: #9ca3af;
+    color: #fff;
+
+    &.is-empty {
+      border: 0;
+    }
   }
 
   .seat-plan-guest-avatar-initials {

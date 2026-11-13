@@ -48,6 +48,7 @@ let SeatingService = class SeatingService {
         const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId, 'Спочатку створи весілля в кабінеті');
         const plan = {
             tables: dto.tables,
+            knownKeys: dto.knownKeys,
             savedAt: dto.savedAt ?? Date.now(),
         };
         await this.prisma.wedding.update({

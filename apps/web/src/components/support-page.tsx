@@ -100,7 +100,7 @@ function SupportInner() {
         className="cabinet-support-page__desktop-top"
       />
 
-      <div className="cabinet-support-page__mobile-top">
+      <div className="cabinet-support-page__mobile-top cabinet-mobile-sticky">
         <CabinetBackTitle title="Підтримка" onBack={onBack} />
       </div>
 

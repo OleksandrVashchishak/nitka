@@ -12,7 +12,7 @@ import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { CabinetBackButton } from "@/components/cabinet-back-title";
 import type { Guest, RsvpStatus } from "@/lib/guests-api";
 import { updateGuest } from "@/lib/guests-api";
-import { clusterFlags, flattenSeatingGuests } from "@/lib/seating-guests";
+import { SEATING_GROUP_COLORS, clusterFlags, flattenSeatingGuests } from "@/lib/seating-guests";
 import type {
   SeatingGuestAssign,
   SeatingGuestsDraft,
@@ -70,7 +70,7 @@ function firstName(value: string) {
   return value.trim().split(/\s+/)[0] || "";
 }
 
-const GROUP_COLORS = ["#8B7CC8", "#5B8DEF", "#4CAF7A", "#C47A3A", "#E07A9A"];
+const GROUP_COLORS = SEATING_GROUP_COLORS;
 const GUEST_DRAG_MIME = "application/x-fata-guest-key";
 const GRID = 24;
 /** Padding past the farthest table edge before canvas ends. */
@@ -417,17 +417,27 @@ function autoSeat(
   tables: PlanTable[],
   flat: FlatGuest[],
   draft: SeatingGuestsDraft,
+  /** Якщо задано — існуючі місця не чіпаємо, саджаємо лише ці ключі. */
+  only?: Set<string>,
 ): PlanTable[] {
   const next = tables.map((t) => ({
     ...t,
-    seats: t.seats.map((s) => ({ ...s, guestKey: null as string | null })),
+    seats: t.seats.map((s) => ({
+      ...s,
+      guestKey: only ? s.guestKey : (null as string | null),
+    })),
   }));
 
   const seated = new Set<string>(COUPLE_KEYS);
+  if (only) {
+    for (const t of next)
+      for (const s of t.seats) if (s.guestKey) seated.add(s.guestKey);
+  }
 
   function fill(kind: PlanTable["kind"] | "any", keys: string[]) {
     for (const key of keys) {
       if (seated.has(key)) continue;
+      if (only && !only.has(key)) continue;
       const table = next.find(
         (t) =>
           (kind === "any" ? t.kind !== "presidium" && t.kind !== "kids" : t.kind === kind) &&
@@ -448,7 +458,7 @@ function autoSeat(
 
   // Наречені — в центр президіуму, решта президіуму довкола.
   const pres = next.find((t) => t.kind === "presidium");
-  if (pres) {
+  if (pres && !only) {
     const centre = presidiumCentreSeats(pres);
     for (const key of COUPLE_KEYS) {
       const seat = centre.shift();
@@ -465,7 +475,9 @@ function autoSeat(
 
   fill(
     "any",
-    flat.filter((g) => !seated.has(g.key)).map((g) => g.key),
+    flat
+      .filter((g) => !seated.has(g.key) && (!only || only.has(g.key)))
+      .map((g) => g.key),
   );
 
   return next;
@@ -596,6 +608,7 @@ export function SeatingPlan({
     ],
     [guests, partnerOneName, partnerTwoName],
   );
+  const knownKeysRef = useRef<Set<string> | null>(null);
   const guestMap = useMemo(() => {
     const m = new Map<string, FlatGuest>();
     for (const g of flat) m.set(g.key, g);
@@ -693,6 +706,18 @@ export function SeatingPlan({
   const mobileFitRef = useRef(mobileFit);
   mobileFitRef.current = mobileFit;
   const pinchingRef = useRef(false);
+  const touchDragRef = useRef<{
+    key: string;
+    startX: number;
+    startY: number;
+    active: boolean;
+  } | null>(null);
+  const suppressSeatClickRef = useRef(false);
+  const [touchGhost, setTouchGhost] = useState<{
+    key: string;
+    x: number;
+    y: number;
+  } | null>(null);
   const canvasScale = mobileFit ? mobileFit.scale * mapView.k : 1;
   const canvasStyle = useMemo(() => {
     if (mobileFit) {
@@ -889,16 +914,51 @@ export function SeatingPlan({
   useEffect(() => {
     let fromStored = false;
     if (initialPlan?.tables?.length) {
-      setTables(seatCoupleAtPresidium(initialPlan.tables as PlanTable[]));
+      const stored = seatCoupleAtPresidium(initialPlan.tables as PlanTable[]);
+      // Старі плани без knownKeys: відомі = ті, хто вже сидить.
+      const known = new Set<string>(
+        initialPlan.knownKeys ??
+          stored.flatMap((t) =>
+            t.seats.flatMap((s) => (s.guestKey ? [s.guestKey] : [])),
+          ),
+      );
+      knownKeysRef.current = known;
+      const fresh = new Set(
+        flat.filter((g) => !known.has(g.key)).map((g) => g.key),
+      );
+      for (const k of fresh) known.add(k);
+      setTables(
+        fresh.size ? autoSeat(stored, flat, draft.guests, fresh) : stored,
+      );
       fromStored = true;
     }
     if (!fromStored) {
+      knownKeysRef.current = new Set(flat.map((g) => g.key));
       setTables(autoSeat(buildTables(draft.tables), flat, draft.guests));
     }
     setHydrated(true);
     // Only hydrate once per mount (key resets when plan cleared).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [weddingId]);
+
+  // Нові гості (яких ще не було в плані) сідають автоматично.
+  useEffect(() => {
+    if (!hydrated) return;
+    setTables((prev) => {
+      const known = knownKeysRef.current;
+      if (!known) {
+        knownKeysRef.current = new Set(flat.map((g) => g.key));
+        return prev;
+      }
+      const fresh = new Set(
+        flat.filter((g) => !known.has(g.key)).map((g) => g.key),
+      );
+      if (!fresh.size) return prev;
+      for (const k of fresh) known.add(k);
+      return autoSeat(prev, flat, draft.guests, fresh);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- лише при зміні гостей
+  }, [flat, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -924,6 +984,7 @@ export function SeatingPlan({
     const t = window.setTimeout(() => {
       void saveSeatingPlan({
         tables: tables as SeatingPlanPayload["tables"],
+        knownKeys: [...(knownKeysRef.current ?? [])],
         savedAt: Date.now(),
       }).catch(() => {
         /* silent autosave */
@@ -1053,6 +1114,11 @@ export function SeatingPlan({
     seatOfGuest,
     draft.guests.assignments,
   ]);
+
+  const pickGuests = useMemo(
+    () => filteredGuests.filter((g) => !seatOfGuest.has(g.key)),
+    [filteredGuests, seatOfGuest],
+  );
 
   const namedGroups = draft.guests.groups.filter((g) => g.name.trim());
   const guestsBrideLabel = uaGuestsOfLabel(
@@ -1453,12 +1519,95 @@ export function SeatingPlan({
     assignToFirstEmptySeat(tableId, guestKey);
   }
 
+  /** Mobile: перетягування кружечка пальцем (HTML5 DnD на touch не працює). */
+  function onSeatTouchPointerDown(
+    event: PointerEvent<HTMLButtonElement>,
+    guestKey: string | null,
+  ) {
+    event.stopPropagation();
+    if (!isMobile || !guestKey || !event.isPrimary) return;
+    touchDragRef.current = {
+      key: guestKey,
+      startX: event.clientX,
+      startY: event.clientY,
+      active: false,
+    };
+  }
+
+  function onSeatTouchPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const drag = touchDragRef.current;
+    if (!drag) return;
+    if (pinchingRef.current) {
+      touchDragRef.current = null;
+      endGuestDrag();
+      setTouchGhost(null);
+      return;
+    }
+    if (!drag.active) {
+      if (
+        Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 8
+      ) {
+        return;
+      }
+      drag.active = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setDragGuestKey(drag.key);
+      setSelectedKey(drag.key);
+      closePopover();
+    }
+    setTouchGhost({ key: drag.key, x: event.clientX, y: event.clientY });
+    const el = document.elementFromPoint(event.clientX, event.clientY);
+    const seatEl = el?.closest<HTMLElement>("[data-drop-seat]");
+    const tableEl = el?.closest<HTMLElement>("[data-drop-table]");
+    const id = seatEl
+      ? seatEl.dataset.dropSeat!
+      : tableEl
+        ? `table:${tableEl.dataset.dropTable}`
+        : null;
+    setDropTargetId((cur) => (cur === id ? cur : id));
+  }
+
+  function onSeatTouchPointerUp(
+    event: PointerEvent<HTMLButtonElement>,
+    cancelled = false,
+  ) {
+    const drag = touchDragRef.current;
+    touchDragRef.current = null;
+    if (!drag?.active) return;
+    // Після drag не відкриваємо popover кліком.
+    suppressSeatClickRef.current = true;
+    setTimeout(() => {
+      suppressSeatClickRef.current = false;
+    }, 0);
+    setTouchGhost(null);
+    const el = document.elementFromPoint(event.clientX, event.clientY);
+    const seatEl = el?.closest<HTMLElement>("[data-drop-seat]");
+    const tableEl = el?.closest<HTMLElement>("[data-drop-table]");
+    endGuestDrag();
+    if (cancelled) return;
+    if (seatEl) {
+      const [tableId, seatId] = seatEl.dataset.dropSeat!.split(":");
+      assignToSeat(tableId, seatId, drag.key);
+    } else if (tableEl) {
+      assignToFirstEmptySeat(tableEl.dataset.dropTable!, drag.key);
+    }
+  }
+
   function freeGuest(key: string) {
+    const self = guestMap.get(key);
+    const keys = new Set([key]);
+    if (self && !detachedKeys.has(key)) {
+      for (const g of flat) {
+        if (!detachedKeys.has(g.key) && g.clusterKey === self.clusterKey) {
+          keys.add(g.key);
+        }
+      }
+    }
     setTables((prev) =>
       prev.map((table) => ({
         ...table,
         seats: table.seats.map((s) =>
-          s.guestKey === key ? { ...s, guestKey: null } : s,
+          s.guestKey && keys.has(s.guestKey) ? { ...s, guestKey: null } : s,
         ),
       })),
     );
@@ -1660,6 +1809,29 @@ export function SeatingPlan({
         dragGuestKey ? " is-guest-dragging" : ""
       }`}
     >
+      {touchGhost && guestMap.get(touchGhost.key) ? (
+        <div
+          className="seat-plan-drag-ghost seat-plan-drag-ghost--float"
+          style={{
+            transform: `translate(${touchGhost.x - 40}px, ${touchGhost.y - 64}px)`,
+          }}
+        >
+          <span
+            className="seat-plan-drag-ghost__dot"
+            style={{
+              background: colorForAssign(
+                draft.guests.assignments[touchGhost.key] ?? null,
+                draft.guests.groups,
+              ),
+            }}
+          >
+            {initials(guestMap.get(touchGhost.key)!.name)}
+          </span>
+          <span className="seat-plan-drag-ghost__name">
+            {guestMap.get(touchGhost.key)!.name}
+          </span>
+        </div>
+      ) : null}
       <div className="seat-plan-top">
         <div className="seat-plan-title-wrap">
           <div className="cabinet-tasks-top__lead">
@@ -1721,12 +1893,14 @@ export function SeatingPlan({
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => {
-                    setPrintOpen(false);
-                    setChartOpen(true);
-                  }}
+                  disabled
+                  aria-disabled="true"
+                  className="seat-plan-print-dropdown__item--soon"
                 >
                   Дизайн посадкової карти
+                  <span className="seat-plan-print-dropdown__badge">
+                    Скоро буде!
+                  </span>
                 </button>
                 <button
                   type="button"
@@ -1971,7 +2145,11 @@ export function SeatingPlan({
                       className={`seat-plan-guest-avatar${
                         seated ? "" : " is-empty"
                       } seat-plan-guest-avatar--index`}
-                      style={seated ? { background: color } : undefined}
+                      style={
+                        seated || assign !== null
+                          ? { background: color }
+                          : undefined
+                      }
                       data-index={index + 1}
                     >
                       <span className="seat-plan-guest-avatar-initials">
@@ -2160,6 +2338,7 @@ export function SeatingPlan({
                     ? `rotate(${table.rotation}deg)`
                     : undefined,
                 }}
+                data-drop-table={table.id}
                 onPointerDown={(e) => onTablePointerDown(e, table)}
                 onPointerMove={onTablePointerMove}
                 onPointerUp={() => onTablePointerUp(table.id)}
@@ -2240,7 +2419,15 @@ export function SeatingPlan({
                           }}
                           title={guest?.name ?? "Порожнє місце"}
                           draggable={Boolean(guest) && !isMobile}
-                          onPointerDown={(e) => e.stopPropagation()}
+                          data-drop-seat={seatDropId}
+                          onPointerDown={(e) =>
+                            onSeatTouchPointerDown(e, seat.guestKey)
+                          }
+                          onPointerMove={onSeatTouchPointerMove}
+                          onPointerUp={(e) => onSeatTouchPointerUp(e)}
+                          onPointerCancel={(e) =>
+                            onSeatTouchPointerUp(e, true)
+                          }
                           onDragStart={(e) => {
                             if (!seat.guestKey) {
                               e.preventDefault();
@@ -2260,6 +2447,7 @@ export function SeatingPlan({
                           }}
                           onDrop={(e) => onSeatDrop(e, table.id, seat.id)}
                           onClick={(e) => {
+                            if (suppressSeatClickRef.current) return;
                             if (guest && seat.guestKey) {
                               openFloatPopover(
                                 "seat",
@@ -2582,9 +2770,9 @@ export function SeatingPlan({
           </div>
 
           <div className="seat-pick-list">
-            {filteredGuests.map((g, index) => {
+            {pickGuests.map((g, index) => {
               const seated = seatOfGuest.has(g.key);
-              const cluster = clusterFlags(filteredGuests, index, clusterRootOf);
+              const cluster = clusterFlags(pickGuests, index, clusterRootOf);
               const clusterStart = cluster.start;
               const clusterMid = cluster.mid;
               const clusterEnd = cluster.end;
@@ -2654,7 +2842,7 @@ export function SeatingPlan({
                 </div>
               );
             })}
-            {filteredGuests.length === 0 ? (
+            {pickGuests.length === 0 ? (
               <p className="seat-pick-empty">Гостей не знайдено.</p>
             ) : null}
           </div>

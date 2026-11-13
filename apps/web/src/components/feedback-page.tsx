@@ -153,7 +153,7 @@ function FeedbackInner() {
         className="cabinet-feedback-page__desktop-top"
       />
 
-      <div className="cabinet-feedback-page__mobile-top">
+      <div className="cabinet-feedback-page__mobile-top cabinet-mobile-sticky">
         <CabinetBackTitle title="Відгуки і пропозиції" onBack={onBack} />
       </div>
 

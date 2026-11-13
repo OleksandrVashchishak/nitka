@@ -19,6 +19,7 @@ export declare class SeatingService {
         weddingId: string;
         plan: {
             tables: unknown[];
+            knownKeys: string[] | undefined;
             savedAt: number;
         };
     }>;

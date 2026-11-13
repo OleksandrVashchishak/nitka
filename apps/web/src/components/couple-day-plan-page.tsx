@@ -188,7 +188,7 @@ function DayPlanInner() {
         className="cabinet-day-plan-desktop-top"
       />
 
-      <div className="cabinet-day-plan-mobile-top">
+      <div className="cabinet-day-plan-mobile-top cabinet-mobile-sticky">
         <CabinetBackTitle
           title="План дня"
           onBack={onBack}

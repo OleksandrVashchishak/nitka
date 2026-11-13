@@ -27,9 +27,22 @@ export function WebsiteEditorFooter({
     <footer className="we-footer">
       <button type="button" className="we-footer__preview" onClick={onPreview}>
         Перегляд сайту
-        <span className="we-footer__preview-chevron" aria-hidden>
-          ›
-        </span>
+        <svg
+          className="we-footer__preview-chevron"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden
+        >
+          <path
+            d="M6 3.5 10.5 8 6 12.5"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </button>
 
       {mode === "publish" ? (

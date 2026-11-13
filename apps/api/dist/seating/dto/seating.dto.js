@@ -10,8 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpsertSeatingPlanDto = exports.UpsertSeatingDraftDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpsertSeatingDraftDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { tables: { required: true, type: () => Object }, guests: { required: true, type: () => Object } };
+    }
 }
 exports.UpsertSeatingDraftDto = UpsertSeatingDraftDto;
 __decorate([
@@ -23,12 +27,20 @@ __decorate([
     __metadata("design:type", Object)
 ], UpsertSeatingDraftDto.prototype, "guests", void 0);
 class UpsertSeatingPlanDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { tables: { required: true, type: () => [Object] }, knownKeys: { required: false, type: () => [String] }, savedAt: { required: false, type: () => Number } };
+    }
 }
 exports.UpsertSeatingPlanDto = UpsertSeatingPlanDto;
 __decorate([
     (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], UpsertSeatingPlanDto.prototype, "tables", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    __metadata("design:type", Array)
+], UpsertSeatingPlanDto.prototype, "knownKeys", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),

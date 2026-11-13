@@ -61,6 +61,7 @@ export class SeatingService {
 
     const plan = {
       tables: dto.tables,
+      knownKeys: dto.knownKeys,
       savedAt: dto.savedAt ?? Date.now(),
     };
 

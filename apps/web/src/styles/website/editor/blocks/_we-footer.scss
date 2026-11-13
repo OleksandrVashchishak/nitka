@@ -41,9 +41,10 @@
   }
 
   .we-footer__preview-chevron {
-    font-style: normal;
-    font-size: 16px;
-    line-height: 1;
+    flex-shrink: 0;
+    display: block;
+    width: 16px;
+    height: 16px;
   }
 
   .we-footer__actions {

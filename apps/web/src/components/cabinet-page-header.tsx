@@ -44,7 +44,7 @@ export function CabinetPageHeader({
   const showActionsRow =
     showAccount || actions != null || endActions != null;
 
-  const rootClass = ["cabinet-tasks-top", className].filter(Boolean).join(" ");
+  const rootClass = ["cabinet-tasks-top", showBack ? "cabinet-mobile-sticky" : "", className].filter(Boolean).join(" ");
   const accountClass = [
     "cabinet-overview-actions",
     accountDesktopOnly ? "cabinet-tasks-desktop-actions" : "",

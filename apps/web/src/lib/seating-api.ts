@@ -36,6 +36,8 @@ export type SeatingPlanTable = {
 
 export type SeatingPlanPayload = {
   tables: SeatingPlanTable[];
+  /** Гості, яких план уже «бачив»; нові сідають автоматично. */
+  knownKeys?: string[];
   savedAt?: number;
 };
 

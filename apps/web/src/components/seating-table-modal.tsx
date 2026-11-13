@@ -220,6 +220,12 @@ export function SeatingTableModal({
     }));
   }
 
+  const seatScale = (() => {
+    const free = isRoundVisual ? 16 : isShaped ? 12 : 10;
+    const n = draft.seats.length;
+    return n <= free ? 1 : Math.max(0.5, Math.pow(free / n, 0.65));
+  })();
+
   const shapeLabel = isRoundVisual ? "Зробити довгим" : "Зробити круглим";
   const previewMod = isRoundVisual
     ? " is-round"
@@ -300,6 +306,7 @@ export function SeatingTableModal({
                   left: pos.left,
                   top: pos.top,
                   ["--seat-rot" as string]: `${-draft.rotation}deg`,
+                  ["--seat-scale" as string]: seatScale,
                 }}
               >
                 <span

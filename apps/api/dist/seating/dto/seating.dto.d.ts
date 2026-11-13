@@ -4,5 +4,6 @@ export declare class UpsertSeatingDraftDto {
 }
 export declare class UpsertSeatingPlanDto {
     tables: unknown[];
+    knownKeys?: string[];
     savedAt?: number;
 }

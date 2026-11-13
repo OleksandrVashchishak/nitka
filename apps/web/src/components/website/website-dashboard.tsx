@@ -3,14 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { CabinetBackTitle } from "@/components/cabinet-back-title";
-import { CabinetNotificationsBell } from "@/components/cabinet-notifications";
-import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
+import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { RequireAuth } from "@/components/require-auth";
 import { PageLoader } from "@/components/ui-loader";
 import { WebsiteEmptyState } from "@/components/website/website-empty-state";
 import { WebsiteSummary } from "@/components/website/website-summary";
-import { openCabinetMoreMenu } from "@/lib/cabinet-more-menu";
 import { getMyWedding } from "@/lib/dashboard-api";
 import {
   getNotificationsSummary,
@@ -181,19 +178,13 @@ function WebsiteDashboardInner() {
 
   if (needWedding) {
     return (
-      <div className="ws-dashboard">
-        <CabinetBackTitle
-        className="ws-dashboard__mobile-top"
-        title="Сайт-запрошення"
-        onBack={openCabinetMoreMenu}
-      />
-      <div className="ws-dashboard__top">
-          <h1 className="ws-dashboard__title">Сайт-запрошення</h1>
-          <div className="ws-dashboard__actions">
-            <CabinetNotificationsBell summary={summary} />
-            <CabinetProfileMenu initials={profileInitials} />
-          </div>
-        </div>
+      <div className="ws-dashboard cabinet-tasks-page">
+        <CabinetPageHeader
+          title="Сайт-запрошення"
+          showBack
+          summary={summary}
+          initials={profileInitials}
+        />
         <section className="ws-empty">
           <h2 className="ws-empty__title">Спочатку створи весілля</h2>
           <p className="ws-empty__text">
@@ -234,19 +225,13 @@ function WebsiteDashboardInner() {
         : "draft";
 
   return (
-    <div className="ws-dashboard">
-      <CabinetBackTitle
-        className="ws-dashboard__mobile-top"
+    <div className="ws-dashboard cabinet-tasks-page">
+      <CabinetPageHeader
         title="Сайт-запрошення"
-        onBack={openCabinetMoreMenu}
+        showBack
+        summary={summary}
+        initials={profileInitials}
       />
-      <div className="ws-dashboard__top">
-        <h1 className="ws-dashboard__title">Сайт-запрошення</h1>
-        <div className="ws-dashboard__actions">
-          <CabinetNotificationsBell summary={summary} />
-          <CabinetProfileMenu initials={profileInitials} />
-        </div>
-      </div>
 
       {error ? <p className="ws-dashboard__error">{error}</p> : null}
 

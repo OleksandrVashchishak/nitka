@@ -510,7 +510,7 @@ function InspirationListInner() {
         <div className="cabinet-inspiration-toolbar">{addBtn()}</div>
       </div>
 
-      <div className="cabinet-inspiration-mobile-top">
+      <div className="cabinet-inspiration-mobile-top cabinet-mobile-sticky">
         <CabinetBackTitle title="Дошка натхнення" onBack={onBack} />
       </div>
 
@@ -993,7 +993,7 @@ function InspirationBoardInner() {
         </div>
       </div>
 
-      <div className="cabinet-inspiration-board-mobile-top">
+      <div className="cabinet-inspiration-board-mobile-top cabinet-mobile-sticky">
         <button
           type="button"
           className="cabinet-inspiration-mobile-back"
