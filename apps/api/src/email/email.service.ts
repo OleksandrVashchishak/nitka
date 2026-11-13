@@ -96,21 +96,46 @@ export class EmailService {
     lines.push('', '— fata.studio');
 
     const text = lines.join('\n');
+    // Стилі як у кабінеті: фон #F3F3F3, темна шапка + лайм, біла картка r16,
+    // Montserrat, винна кнопка-«пігулка» (.fata-button--dark).
+    const sans = "Montserrat,'Helvetica Neue',Helvetica,Arial,sans-serif";
+    const site = escapeAttr(this.webUrl);
+    const cta = opts.ctaUrl
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px;">
+          <tr><td style="border-radius:40px;background:#61040f;">
+            <a href="${escapeAttr(opts.ctaUrl)}" style="display:inline-block;padding:15px 32px;border-radius:40px;font-family:${sans};font-size:15px;font-weight:600;font-style:italic;line-height:1;color:#ffffff;text-decoration:none;">${escapeHtml(opts.ctaLabel || 'Відкрити')}</a>
+          </td></tr>
+        </table>
+        <p style="margin:16px 0 0;font-family:${sans};font-size:12px;line-height:1.5;color:#7f7e7c;">Якщо кнопка не працює, скопіюйте посилання:<br><a href="${escapeAttr(opts.ctaUrl)}" style="color:#61040f;word-break:break-all;">${escapeHtml(opts.ctaUrl)}</a></p>`
+      : '';
+
     const html = `
 <!DOCTYPE html>
 <html lang="uk">
-<body style="margin:0;padding:24px;background:#f6f4ef;font-family:Georgia,serif;color:#1f1f1f;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6e1d8;padding:28px 24px;">
-    <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#6f8f7c;">fata.studio</p>
-    <h1 style="margin:0 0 16px;font-size:28px;font-weight:400;line-height:1.2;">${escapeHtml(opts.title)}</h1>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4a4a4a;white-space:pre-wrap;">${escapeHtml(opts.body)}</p>
-    ${
-      opts.ctaUrl
-        ? `<p style="margin:0 0 8px;"><a href="${escapeAttr(opts.ctaUrl)}" style="display:inline-block;background:#6f8f7c;color:#fff;text-decoration:none;padding:12px 18px;font-size:14px;">${escapeHtml(opts.ctaLabel || 'Відкрити')}</a></p>`
-        : ''
-    }
-    <p style="margin:28px 0 0;font-size:12px;color:#9a9a9a;">Лист надіслано автоматично з fata.studio.</p>
-  </div>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>${escapeHtml(opts.title)}</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f3f3;-webkit-text-size-adjust:100%;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f3f3;">
+  <tr><td align="center" style="padding:32px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+      <tr><td style="background:#1a1a1a;border-radius:16px 16px 0 0;padding:20px 32px;">
+        <a href="${site}" style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-style:italic;line-height:1;color:#f0febb;text-decoration:none;">fata</a>
+      </td></tr>
+      <tr><td style="background:#ffffff;border-radius:0 0 16px 16px;padding:36px 32px 32px;box-shadow:0 2px 28px rgba(0,0,0,0.06);">
+        <h1 style="margin:0 0 16px;font-family:${sans};font-size:24px;font-weight:700;line-height:1.25;color:#1a1a1a;">${escapeHtml(opts.title)}</h1>
+        <p style="margin:0 0 28px;font-family:${sans};font-size:15px;font-weight:400;line-height:1.6;color:#333333;white-space:pre-wrap;">${escapeHtml(opts.body)}</p>
+        ${cta}
+      </td></tr>
+      <tr><td style="padding:20px 32px 0;text-align:center;font-family:${sans};font-size:12px;line-height:1.5;color:#7f7e7c;">
+        Лист надіслано автоматично з <a href="${site}" style="color:#7f7e7c;text-decoration:underline;">fata.studio</a>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
 </body>
 </html>`.trim();
 
