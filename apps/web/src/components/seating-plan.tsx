@@ -692,6 +692,7 @@ export function SeatingPlan({
   mapViewRef.current = mapView;
   const mobileFitRef = useRef(mobileFit);
   mobileFitRef.current = mobileFit;
+  const pinchingRef = useRef(false);
   const canvasScale = mobileFit ? mobileFit.scale * mapView.k : 1;
   const canvasStyle = useMemo(() => {
     if (mobileFit) {
@@ -726,18 +727,25 @@ export function SeatingPlan({
         dist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
       };
     };
+    const beginPinch = (e: TouchEvent) => {
+      last = read(e);
+      pinchingRef.current = true;
+      // другий палець — це жест, а не перетягування столу
+      dragRef.current = null;
+      setDraggingId(null);
+    };
     const onStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        last = read(e);
-        // другий палець — це жест, а не перетягування столу
-        dragRef.current = null;
-        setDraggingId(null);
-      }
+      if (e.touches.length >= 2) beginPinch(e);
     };
     const onMove = (e: TouchEvent) => {
       const fit = mobileFitRef.current;
-      if (e.touches.length !== 2 || !last || !fit) return;
+      if (e.touches.length < 2 || !fit) return;
       e.preventDefault();
+      // iOS інколи не віддає touchstart другого пальця — підхоплюємо жест тут
+      if (!last) {
+        beginPinch(e);
+        return;
+      }
       const cur = read(e);
       const v = mapViewRef.current;
       const k = Math.min(4, Math.max(1, v.k * (cur.dist / (last.dist || 1))));
@@ -752,19 +760,29 @@ export function SeatingPlan({
     };
     const onEnd = (e: TouchEvent) => {
       if (e.touches.length < 2) last = null;
-      if (e.touches.length === 0 && mapViewRef.current.k <= 1.01) {
-        setMapView({ k: 1, x: 0, y: 0 });
+      if (e.touches.length === 0) {
+        pinchingRef.current = false;
+        if (mapViewRef.current.k <= 1.01) setMapView({ k: 1, x: 0, y: 0 });
       }
     };
+    // Safari (iOS) має власний pinch-жест: якщо його не заблокувати, система
+    // перехоплює дотики (touchcancel) і наш touchmove не приходить.
+    const stopGesture = (e: Event) => e.preventDefault();
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchmove", onMove, { passive: false });
     el.addEventListener("touchend", onEnd);
     el.addEventListener("touchcancel", onEnd);
+    el.addEventListener("gesturestart", stopGesture, { passive: false });
+    el.addEventListener("gesturechange", stopGesture, { passive: false });
+    el.addEventListener("gestureend", stopGesture, { passive: false });
     return () => {
       el.removeEventListener("touchstart", onStart);
       el.removeEventListener("touchmove", onMove);
       el.removeEventListener("touchend", onEnd);
       el.removeEventListener("touchcancel", onEnd);
+      el.removeEventListener("gesturestart", stopGesture);
+      el.removeEventListener("gesturechange", stopGesture);
+      el.removeEventListener("gestureend", stopGesture);
     };
   }, [isMobile, mobileTab]);
 
@@ -1542,6 +1560,7 @@ export function SeatingPlan({
     if (target.closest(".seat-plan-seat, button, input")) {
       return;
     }
+    if (pinchingRef.current || !event.isPrimary) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = {
       id: table.id,
@@ -1556,7 +1575,7 @@ export function SeatingPlan({
 
   function onTablePointerMove(event: PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
-    if (!drag) return;
+    if (!drag || pinchingRef.current) return;
     const dx = (event.clientX - drag.startX) / canvasScale;
     const dy = (event.clientY - drag.startY) / canvasScale;
     if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
