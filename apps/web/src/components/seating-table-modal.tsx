@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CabinetActionItem } from "@/components/cabinet-context-menu";
 import { IconTrash } from "@/components/icon-trash";
 import { CabinetFormActions } from "@/components/cabinet-form-actions";
@@ -152,10 +152,45 @@ export function SeatingTableModal({
   onSeatClick,
 }: Props) {
   const [draft, setDraft] = useState<SeatTableDraft>(table);
+  const lastTableRef = useRef(table);
 
+  // Чернетку скидаємо лише при відкритті / іншому столі. `table` приходить
+  // новим об’єктом на кожен ре-рендер плану — інакше губились крісла й поворот.
   useEffect(() => {
-    if (open) setDraft(table);
-  }, [open, table]);
+    if (!open) return;
+    setDraft(table);
+    lastTableRef.current = table;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, table.id]);
+
+  // Гостя посадили / пересадили ззовні (модалка «Посадити» поверх цієї) —
+  // переносимо в чернетку лише змінені місця, решту правок не чіпаємо.
+  useEffect(() => {
+    const prev = lastTableRef.current;
+    lastTableRef.current = table;
+    if (prev === table || prev.id !== table.id) return;
+    const before = new Map(prev.seats.map((s) => [s.id, s.guestKey]));
+    const changed = new Map<string, string | null>();
+    for (const s of table.seats) {
+      if (!before.has(s.id) || before.get(s.id) !== s.guestKey) {
+        changed.set(s.id, s.guestKey);
+      }
+    }
+    if (changed.size === 0) return;
+    const incoming = new Set(
+      [...changed.values()].filter((k): k is string => Boolean(k)),
+    );
+    setDraft((d) => ({
+      ...d,
+      seats: d.seats.map((s) => {
+        if (changed.has(s.id)) return { ...s, guestKey: changed.get(s.id)! };
+        if (s.guestKey && incoming.has(s.guestKey)) {
+          return { ...s, guestKey: null };
+        }
+        return s;
+      }),
+    }));
+  }, [table]);
 
   const [previewEl, setPreviewEl] = useState<HTMLDivElement | null>(null);
   const [availW, setAvailW] = useState(0);

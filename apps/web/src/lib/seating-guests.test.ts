@@ -3,6 +3,8 @@ import type { Guest } from "@/lib/guests-api";
 import { buildGuestNotes, type GuestCompanion } from "@/lib/guest-party";
 import {
   applyLinkedAssign,
+  clusterFlags,
+  orderDetachedLast,
   flattenSeatingGuests,
   syncKidsAssignments,
 } from "@/lib/seating-guests";
@@ -145,5 +147,39 @@ describe("applyLinkedAssign", () => {
       "v:plus:1": "kids",
       "v:plus:2": "g1",
     });
+  });
+});
+
+describe("orderDetachedLast", () => {
+  it("keeps kids linked to mom when dad (middle member) is detached", () => {
+    const rows = flattenSeatingGuests([
+      guest("anna", "Анна Козак", { partyId: "k" }),
+      guest("anton", "Антон Козак", { partyId: "k" }),
+      guest("kid1", "Кішка Козак", { partyId: "k", child: true }),
+      guest("kid2", "Максим Козак", { partyId: "k", child: true }),
+    ]);
+    const detached = new Set(["anton"]);
+    const shown = orderDetachedLast(rows, detached);
+    expect(shown.map((r) => r.key)).toEqual(["anna", "kid1", "kid2", "anton"]);
+    const rootOf = (r: (typeof rows)[number]) =>
+      detached.has(r.key) ? null : (r.linkedTo ?? r.key);
+    expect(shown.map((_, i) => clusterFlags(shown, i, rootOf).linked)).toEqual([
+      true,
+      true,
+      true,
+      false,
+    ]);
+  });
+
+  it("works with a custom root (plan rows)", () => {
+    const rows = [
+      { key: "a", cluster: "a" },
+      { key: "b", cluster: "a" },
+      { key: "c", cluster: "a" },
+      { key: "x", cluster: "x" },
+    ];
+    expect(
+      orderDetachedLast(rows, new Set(["b"]), (r) => r.cluster).map((r) => r.key),
+    ).toEqual(["a", "c", "b", "x"]);
   });
 });

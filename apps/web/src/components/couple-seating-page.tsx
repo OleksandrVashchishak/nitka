@@ -182,6 +182,12 @@ function SeatingInner() {
           weddingDate={data.wedding.date}
           onEditGuests={() => setGroupsModalOpen(true)}
           onGuestsRefresh={refreshGuests}
+          onDetachedKeysChange={(detachedKeys) => {
+            void persistDraft({
+              ...draft,
+              guests: { ...draft.guests, detachedKeys },
+            });
+          }}
         />
         {groupsModalOpen ? (
           <SeatingGroupsModal

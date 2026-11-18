@@ -61,6 +61,14 @@
   background: #3ecf6a;
 }
 
+.seat-plan-autosave.is-error {
+  color: #c62828;
+
+  .seat-plan-autosave-dot {
+    background: #e53935;
+  }
+}
+
 .seat-plan-actions {
   display: flex;
   flex-wrap: wrap;
@@ -917,6 +925,18 @@
 }
 
 /* Round tables: name on the outer side of the chip */
+/* Бічні імена круглих столів: до двох рядків, щоб «Ім’я Прізвище» не різалось. */
+.seat-plan-seat-name.is-wrap {
+  display: -webkit-box;
+  width: max-content;
+  white-space: normal;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .seat-plan-seat-name.is-left,
 .seat-plan-seat-name.is-right {
   top: 50%;
@@ -931,6 +951,7 @@
 
 .seat-plan-seat-name.is-right {
   left: calc(100% + 4px);
+  text-align: left;
 }
 
 /* Drag image: rendered off-screen, captured by setDragImage */
@@ -1055,13 +1076,14 @@
 .seat-plan-print-dropdown {
   position: absolute;
   top: -6px;
-  left: -6px;
+  right: -6px;
   z-index: 1;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   min-width: calc(100% + 12px);
-  width: max(calc(100% + 12px), 290px);
+  width: max(calc(100% + 12px), 320px);
+  max-width: calc(100vw - 24px);
   padding: 6px;
   padding-top: calc(6px + 36px + 4px);
   border-radius: 22px;
@@ -1102,8 +1124,7 @@
 .seat-plan-print-dropdown .seat-plan-print-dropdown__item--soon {
   display: flex;
   align-items: center;
-  gap: 12px;
-  white-space: nowrap;
+  gap: 10px;
   cursor: default;
 }
 
@@ -1111,13 +1132,21 @@
   background: transparent;
 }
 
+.seat-plan-print-dropdown__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .seat-plan-print-dropdown__badge {
-  padding: 4px 12px;
+  flex-shrink: 0;
+  padding: 4px 10px;
   border-radius: 20px;
   background: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--seat-plan-wine);
 }
 
 .seat-plan-float-pop {
@@ -1833,12 +1862,28 @@
 
 .seat-conflict {
   z-index: 100;
+
+  // Desktop: модалка по центру, а не шторка знизу на всю ширину.
+  @media (min-width: 768px) {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .seat-conflict__panel {
   max-height: 100dvh;
   overflow-y: auto;
   border-radius: 16px 16px 0 0;
+
+  @media (min-width: 768px) {
+    width: 440px;
+    max-width: 100%;
+    max-height: calc(100dvh - 48px);
+    padding-bottom: 8px;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
+  }
 }
 
 .seat-conflict__title {
@@ -1896,6 +1941,8 @@
 @media (max-width: 767px) {
   .seat-plan {
     --seat-plan-panel-w: 100%;
+    /* сірий фон росте разом зі списком гостей (карта задає свою висоту нижче) */
+    height: auto;
     min-height: calc(100vh - 64px);
     padding-bottom: 16px;
     background: #f3f3f3;
@@ -1915,6 +1962,10 @@
     display: none;
   }
 
+  .seat-plan-autosave.is-error {
+    display: inline-flex;
+  }
+
   .seat-plan-actions {
     gap: 8px;
   }
@@ -1932,12 +1983,6 @@
 
   .seat-plan-btn-label--short {
     display: inline;
-  }
-
-  /* Print design menu sits on the right — open panel leftward so it stays in viewport */
-  .seat-plan-print-dropdown {
-    left: auto;
-    right: -6px;
   }
 
   .seat-plan-mobile-tabs {
@@ -2088,7 +2133,10 @@
     color: #fff;
 
     &.is-empty {
-      border: 0;
+      box-sizing: border-box;
+      border: 1.5px dashed #1a1a1a;
+      background: #fff;
+      color: transparent;
     }
   }
 
@@ -2229,6 +2277,16 @@
     width: 24px;
     height: 24px;
     font-size: 9px;
+    touch-action: none;
+    -webkit-touch-callout: none;
+
+    // На «вписаній» карті кружечок ~12px на екрані — розширюємо зону дотику.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      border-radius: 999px;
+    }
   }
 
   .seat-plan.is-tab-map .seat-plan-seat.is-empty {
@@ -2643,20 +2701,6 @@
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
-}
-
-.seat-pick-side {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #8075d7;
-  font-family: var(--font-sans), "Montserrat", sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  color: #fff;
 }
 
 .seat-pick-more {

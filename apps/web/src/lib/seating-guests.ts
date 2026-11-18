@@ -21,6 +21,8 @@ export type SeatingFlatGuest = {
   /** Ключ голови ланцюжка; null — сам голова або без ланцюжка. */
   linkedTo: string | null;
   isChild: boolean;
+  /** Де сидить дитина (лише для дітей). */
+  childNeed: ChildNeed | null;
   /** Автоматично за дитячий стіл (якщо він увімкнений). */
   toKidsTable: boolean;
   side: Guest["side"];
@@ -88,6 +90,7 @@ export function flattenSeatingGuests(guests: Guest[]): SeatingFlatGuest[] {
     const clusterId = leaderOf.get(g.id) ?? g.id;
     if (g.rsvpStatus !== "NO") {
       const isChild = isChildGuest(g.notes);
+      const childNeed = isChild ? parseChildNeed(g.notes) : null;
       push(clusterId, {
         key: g.id,
         guestId: g.id,
@@ -95,7 +98,8 @@ export function flattenSeatingGuests(guests: Guest[]): SeatingFlatGuest[] {
         isPlusOne: false,
         linkedTo: null,
         isChild,
-        toKidsTable: childGoesToKidsTable(isChild, parseChildNeed(g.notes)),
+        childNeed,
+        toKidsTable: childGoesToKidsTable(isChild, childNeed),
         side: g.side,
         rsvpStatus: g.rsvpStatus,
       });
@@ -109,6 +113,7 @@ export function flattenSeatingGuests(guests: Guest[]): SeatingFlatGuest[] {
         isPlusOne: false,
         linkedTo: null,
         isChild: c.isChild,
+        childNeed: c.isChild ? c.childNeed : null,
         toKidsTable: childGoesToKidsTable(c.isChild, c.childNeed),
         side: g.side,
         rsvpStatus: c.rsvpStatus,
@@ -159,17 +164,20 @@ export function syncKidsAssignments<T extends string | null>(
  * Для відображення: відʼєднаний гість іде в кінець свого блоку, щоб смуга
  * решти ланцюжка (напр. діти з мамою) не розривалась посередині.
  */
-export function orderDetachedLast(
-  rows: SeatingFlatGuest[],
+export function orderDetachedLast<T extends { key: string }>(
+  rows: T[],
   detachedKeys: Set<string>,
-): SeatingFlatGuest[] {
+  /** Ключ ланцюжка рядка (без урахування відʼєднання). */
+  rootOf: (row: T) => string = (row) =>
+    (row as unknown as SeatingFlatGuest).linkedTo ?? row.key,
+): T[] {
   if (detachedKeys.size === 0) return rows;
-  const out: SeatingFlatGuest[] = [];
+  const out: T[] = [];
   let i = 0;
   while (i < rows.length) {
-    const root = rows[i].linkedTo ?? rows[i].key;
+    const root = rootOf(rows[i]);
     let j = i + 1;
-    while (j < rows.length && rows[j].linkedTo === root) j++;
+    while (j < rows.length && rootOf(rows[j]) === root) j++;
     const block = rows.slice(i, j);
     out.push(
       ...block.filter((r) => !detachedKeys.has(r.key)),

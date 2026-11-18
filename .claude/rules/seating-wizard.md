@@ -82,7 +82,7 @@ paths:
 - Plus-one з гостя показується окремим linked-рядком
 - Список гостей розсадки — **лише** `flattenSeatingGuests` з `lib/seating-guests.ts` (wizard, модалка груп, план). Не копіювати flatten у компоненти
 - Ланцюжок = родина (`party:` / прізвище) + «+1»; **голова — перший дорослий**, дитина головою не буває; лише діти → без ланцюжка
-- Дитина автоматом на «дитячий стіл» (якщо стіл увімкнено), **крім `high_chair`** (сидить з батьками). `kids_table` / `with_parents` / без потреби → дитячий стіл (`childGoesToKidsTable`). У формі гостя дефолт — «За дитячий стіл»
+- Дитина автоматом на «дитячий стіл» (якщо стіл увімкнено), **крім `high_chair` і `with_parents`** (сидять з батьками за дорослим столом). `kids_table` / без потреби → дитячий стіл (`childGoesToKidsTable`). У формі гостя дефолт — «За дитячий стіл»
 - При завантаженні `syncKidsAssignments`: дитина без групи → `kids`; немає дитячого столу → `kids` знімається; ручну групу не чіпати
 - Призначення з підтягуванням ланцюжка — `applyLinkedAssign` (діти за дитячим столом за родиною не йдуть)
 - Дитячий стіл (степ 1, якщо «Так»): кількість столів + форма «Круглий» / «Довгий»; місць на стіл — фікс 8
@@ -109,6 +109,6 @@ paths:
 - `PlanTable.rotation` (deg) — CSS transform на canvas; seats counter-rotate
 - localStorage: ~~legacy~~ → **Postgres** `weddings.seating_draft` + `weddings.seating_plan` via `GET/PUT /api/seating`
 - One-time migrate from old `fata-seating-*:v1` localStorage if DB empty
-- Interaction guests: **лише drag guest from list (or seat) → drop on seat / table** (table = first empty), без «вибрав гостя → клік по місцю»; drag image — кружечок з ініціалами + ім’я (`.seat-plan-drag-ghost`), не вся плитка; click seated seat opens popover; click empty seat → seat-pick модалка «Посадити» (desktop + mobile; кнопка «Фільтри» в ній лише на mobile); DnD desktop-only
+- Interaction guests: **лише drag guest from list (or seat) → drop on seat / table** (table = first empty), без «вибрав гостя → клік по місцю» (виняток — явний режим «Посадити за інший стіл» з sheet гостя на mobile); drop на зайняте місце: сидячий гість міняється місцями, гість без місця витісняє (тост); ланцюжок сідає на найближчі місця (`lib/seating-place.ts`); drag image — кружечок з ініціалами + ім’я (`.seat-plan-drag-ghost`), не вся плитка; click seated seat opens popover; click empty seat → seat-pick модалка «Посадити» (desktop + mobile; кнопка «Фільтри» в ній лише на mobile); DnD desktop-only
 - Pencil «Редагувати групи» → `SeatingGroupsModal` (1162px, 2 рівні колонки, заголовок Akzidenz Italic, кнопки «Скасувати» / «Додати»), не fullscreen wizard; сейв оновлює лише `draft.guests`, план столів не валить
 - `detachedKeys` from wizard/modal breaks link only (гості лишаються у списку)

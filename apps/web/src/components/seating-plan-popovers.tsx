@@ -1,15 +1,25 @@
 "use client";
 
 import { IconClose } from "@/components/icon-close";
+import type { ChildNeed } from "@/lib/guest-party";
 import type { RsvpStatus } from "@/lib/guests-api";
 import { uaNameGenitive, uaNameInstrumental } from "@/lib/ua-name-case";
 
+
+/** Де сидить дитина; без вибору — за дитячий стіл (як у розсадці). */
+export function childSeatLabel(need: ChildNeed | null) {
+  if (need === "high_chair") return "дитяче крісло";
+  if (need === "with_parents") return "дорослий стіл";
+  return "дитячий стіл";
+}
 
 export type GuestPopoverInfo = {
   key: string;
   guestId: string;
   name: string;
   groupLabel: string | null;
+  /** Лише для дітей: «дитячий стіл» / «дорослий стіл» / «дитяче крісло». */
+  childSeatLabel?: string | null;
   tableLabel: string | null;
   rsvpStatus: RsvpStatus;
   isPlusOne: boolean;
@@ -155,7 +165,10 @@ function GuestPopHeader({
         ) : null}
       </div>
       <div className="seat-pop-meta">
-        <span>{info.groupLabel || "Без групи"}</span>
+        <span>
+          {info.groupLabel || "Без групи"}
+          {info.childSeatLabel ? ` — ${info.childSeatLabel}` : ""}
+        </span>
         <span>{info.tableLabel || "Без столу"}</span>
       </div>
     </div>
