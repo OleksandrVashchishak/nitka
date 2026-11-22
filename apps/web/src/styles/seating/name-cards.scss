@@ -11,6 +11,9 @@
   --nc-cut: #c9c9c9;
   --nc-name: #18181b;
   --nc-font: var(--font-sans), "Montserrat", sans-serif;
+  --nc-serif: var(--font-script), "Cormorant Garamond", serif;
+  --nc-minimal-bg: #dbd3c5;
+  --nc-minimal-ink: #2a2723;
   --nc-aside-w: 380px;
 }
 
@@ -344,6 +347,76 @@
     overflow-wrap: anywhere;
   }
 
+  /* «Мінімалістичний»: бежевий фон, лінія згину, вітаємо / ім'я / дата */
+  &--minimal {
+    --nc-cut: rgb(255 255 255 / 0.85);
+    background: var(--nc-minimal-bg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    .name-cards-sheet__cell {
+      padding: 0 3%;
+
+      /* vertical cuts are barely visible on the beige */
+      &::before {
+        opacity: 0.35;
+      }
+    }
+  }
+
+  &__fold {
+    position: absolute;
+    top: 50%;
+    left: 6%;
+    right: 6%;
+    height: 1px;
+    background: repeating-linear-gradient(
+      to right,
+      rgb(255 255 255 / 0.55) 0 0.5cqw,
+      transparent 0.5cqw 0.9cqw
+    );
+    pointer-events: none;
+  }
+
+  &__face {
+    display: flex;
+    grid-row: 2;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    color: var(--nc-minimal-ink);
+    text-align: center;
+  }
+
+  &__greet {
+    font-family: var(--nc-font);
+    font-size: 0.72cqw;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.3em;
+    margin-bottom: 2.4cqw;
+  }
+
+  &--minimal &__name {
+    font-family: var(--nc-serif);
+    font-size: 2.05cqw;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0.22em;
+    color: var(--nc-minimal-ink);
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  &__date {
+    margin-top: 2.6cqw;
+    font-family: var(--nc-font);
+    font-size: 0.8cqw;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.18em;
+  }
+
   &--placeholder {
     display: flex;
     align-items: center;
@@ -493,6 +566,60 @@
     color: #18181b;
   }
 
+  .name-cards-editor__thumb-card--minimal {
+    padding: 0;
+    justify-content: flex-start;
+    background: var(--nc-minimal-bg);
+
+    .name-cards-editor__thumb-rule {
+      margin: 0;
+      flex: 0 0 50%;
+      height: 50%;
+      box-sizing: border-box;
+      width: calc(100% - 48px);
+      border-top: 0;
+      border-bottom: 1px dashed rgb(255 255 255 / 0.7);
+    }
+
+    .name-cards-editor__thumb-face {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      color: var(--nc-minimal-ink);
+      text-align: center;
+    }
+
+    .name-cards-editor__thumb-greet {
+      margin-bottom: 26px;
+      font-family: var(--nc-font);
+      font-size: 9px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0.3em;
+    }
+
+    .name-cards-editor__thumb-name {
+      font-family: var(--nc-serif);
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: 0.2em;
+      color: var(--nc-minimal-ink);
+    }
+
+    .name-cards-editor__thumb-date {
+      margin-top: 28px;
+      font-family: var(--nc-font);
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0.18em;
+    }
+  }
+
   .name-cards-editor__thumb-placeholder {
     padding: 24px;
     font-family: var(--nc-font);
@@ -618,7 +745,7 @@
     }
   }
 
-  body.is-name-cards-print .name-cards-sheet__name {
+  body.is-name-cards-print .name-cards-sheet--simple .name-cards-sheet__name {
     font-size: 12pt !important;
   }
 

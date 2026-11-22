@@ -1,39 +1,11 @@
 export const NAME_CARD_DESIGNS = [
-  {
-    id: "simple",
-    name: "Простий",
-    description: "Чистий текст без декору — зручно різати",
-  },
-  {
-    id: "minimal",
-    name: "Мінімалістичний",
-    description: "Легка типографіка й більше повітря",
-    soon: true,
-  },
-  {
-    id: "romantic",
-    name: "Романтичний",
-    description: "М’який шрифт із романтичним вайбом",
-    soon: true,
-  },
-  {
-    id: "botanical",
-    name: "Ботанічний",
-    description: "Флоральні акценти навколо імені",
-    soon: true,
-  },
-  {
-    id: "modern",
-    name: "Сучасний",
-    description: "Контраст і сучасна композиція",
-    soon: true,
-  },
-  {
-    id: "elegant",
-    name: "Елегантний",
-    description: "Стримана елегантна типографіка",
-    soon: true,
-  },
+  { id: "botanical", name: "Ботанічний", soon: true },
+  { id: "minimal", name: "Мінімалістичний" },
+  { id: "romantic", name: "Романтичний", soon: true },
+  { id: "modern", name: "Сучасний", soon: true },
+  { id: "simple", name: "Простий" },
+  { id: "elegant", name: "Елегантний", soon: true },
+  { id: "magazine", name: "Журнальний", soon: true },
 ] as const;
 
 export type NameCardDesignId = (typeof NAME_CARD_DESIGNS)[number]["id"];
@@ -51,6 +23,25 @@ export const NAME_CARD_DEMO_NAMES = [
   "Катерина Мельник",
   "Дмитро Кравченко",
 ];
+
+/** Date shown on demo cards when the wedding date is not set yet. */
+export const NAME_CARD_DEMO_DATE = "28.07.27";
+
+/** ISO date → `ДД.ММ.РР` (як на картках). */
+export function formatNameCardDate(iso: string | null | undefined) {
+  if (!iso) return "";
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return "";
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = String(d.getFullYear()).slice(-2);
+  return `${day}.${month}.${year}`;
+}
+
+export function isNameCardDesignReady(id: NameCardDesignId) {
+  const design = NAME_CARD_DESIGNS.find((d) => d.id === id);
+  return Boolean(design && !("soon" in design && design.soon));
+}
 
 export function chunkNames(names: string[], size = NAME_CARDS_PER_PAGE) {
   const pages: string[][] = [];

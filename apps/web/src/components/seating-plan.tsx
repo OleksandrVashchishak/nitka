@@ -3366,6 +3366,7 @@ export function SeatingPlan({
       {nameCardsOpen ? (
         <NameCardsDesign
           names={flat.map((g) => g.name)}
+          weddingDate={weddingDate}
           onClose={() => setNameCardsOpen(false)}
         />
       ) : null}

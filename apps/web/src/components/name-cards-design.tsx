@@ -4,11 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { BrandLogo } from "@/components/brand-logo";
 import {
+  NAME_CARD_DEMO_DATE,
   NAME_CARD_DEMO_NAMES,
   NAME_CARD_DESIGNS,
   NAME_CARDS_PER_PAGE,
   chunkNames,
   extraPagesLabel,
+  formatNameCardDate,
+  isNameCardDesignReady,
   type NameCardDesignId,
 } from "@/lib/name-cards";
 import { toast } from "@/lib/toast";
@@ -16,6 +19,7 @@ import "@/styles/seating/name-cards.scss";
 
 type Props = {
   names: string[];
+  weddingDate?: string | null;
   onClose: () => void;
 };
 
@@ -47,13 +51,40 @@ function ViewChevronIcon() {
   );
 }
 
+/** Front face of one tent card (bottom half). */
+function NameCardFace({
+  name,
+  designId,
+  date,
+  prefix,
+}: {
+  name: string;
+  designId: NameCardDesignId;
+  date: string;
+  /** Class prefix, e.g. `name-cards-sheet__` → `name-cards-sheet__name`. */
+  prefix: string;
+}) {
+  if (designId === "minimal") {
+    return (
+      <span className={`${prefix}face`}>
+        <span className={`${prefix}greet`}>вітаємо</span>
+        <span className={`${prefix}name`}>{name.toUpperCase()}</span>
+        {date ? <span className={`${prefix}date`}>{date}</span> : null}
+      </span>
+    );
+  }
+  return <span className={`${prefix}name`}>{name.toUpperCase()}</span>;
+}
+
 function NameCardSheet({
   names,
   designId,
+  date,
   forPrint = false,
 }: {
   names: string[];
   designId: NameCardDesignId;
+  date: string;
   forPrint?: boolean;
 }) {
   const cells = Array.from(
@@ -69,8 +100,16 @@ function NameCardSheet({
     >
       {cells.map((name, i) => (
         <div key={i} className="name-cards-sheet__cell">
+          {designId === "minimal" ? (
+            <span className="name-cards-sheet__fold" aria-hidden />
+          ) : null}
           {name ? (
-            <span className="name-cards-sheet__name">{name.toUpperCase()}</span>
+            <NameCardFace
+              name={name}
+              designId={designId}
+              date={date}
+              prefix="name-cards-sheet__"
+            />
           ) : null}
         </div>
       ))}
@@ -81,11 +120,13 @@ function NameCardSheet({
 function NameCardThumb({
   name,
   designId,
+  date,
 }: {
   name: string;
   designId: NameCardDesignId;
+  date: string;
 }) {
-  if (designId !== "simple") {
+  if (!isNameCardDesignReady(designId)) {
     return (
       <div className="name-cards-editor__thumb-placeholder">
         Дизайн «
@@ -95,16 +136,21 @@ function NameCardThumb({
   }
 
   return (
-    <div className="name-cards-editor__thumb-card name-cards-editor__thumb-card--simple">
+    <div
+      className={`name-cards-editor__thumb-card name-cards-editor__thumb-card--${designId}`}
+    >
       <span className="name-cards-editor__thumb-rule" aria-hidden />
-      <span className="name-cards-editor__thumb-name">
-        {(name || "Марія Левченко").toUpperCase()}
-      </span>
+      <NameCardFace
+        name={name || "Марія Левченко"}
+        designId={designId}
+        date={date}
+        prefix="name-cards-editor__thumb-"
+      />
     </div>
   );
 }
 
-export function NameCardsDesign({ names, onClose }: Props) {
+export function NameCardsDesign({ names, weddingDate, onClose }: Props) {
   const [designId, setDesignId] = useState<NameCardDesignId>("simple");
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -119,7 +165,9 @@ export function NameCardsDesign({ names, onClose }: Props) {
   const firstPage = pages[0] ?? [];
   const extraLabel = extraPagesLabel(Math.max(0, pages.length - 1));
   const activeDesign = NAME_CARD_DESIGNS.find((d) => d.id === designId);
-  const isSimple = designId === "simple";
+  const isReady = isNameCardDesignReady(designId);
+  const cardDate =
+    formatNameCardDate(weddingDate) || (hasRealGuests ? "" : NAME_CARD_DEMO_DATE);
   const thumbName = previewNames[0] ?? "Марія Левченко";
 
   useEffect(() => setMounted(true), []);
@@ -147,8 +195,8 @@ export function NameCardsDesign({ names, onClose }: Props) {
   }, [onClose, mobilePreviewOpen]);
 
   function savePdf() {
-    if (!isSimple) {
-      toast.info("Цей дизайн ще в роботі — обери «Простий»");
+    if (!isReady) {
+      toast.info("Цей дизайн ще в роботі — оберіть інший");
       return;
     }
     if (!hasRealGuests) {
@@ -214,7 +262,7 @@ export function NameCardsDesign({ names, onClose }: Props) {
             Оберіть дизайн
           </h1>
           <p className="name-cards-editor__lead">
-            Оберіть вигляд вашої іменної картки.
+            Оберіть вигляд вашої посадкової карти.
           </p>
           <div className="name-cards-editor__list" role="list">
             {NAME_CARD_DESIGNS.map((option) => {
@@ -240,7 +288,11 @@ export function NameCardsDesign({ names, onClose }: Props) {
                     }}
                   >
                     <div className="name-cards-editor__thumb" aria-hidden>
-                      <NameCardThumb name={thumbName} designId={option.id} />
+                      <NameCardThumb
+                        name={thumbName}
+                        designId={option.id}
+                        date={cardDate}
+                      />
                     </div>
                     <div className="name-cards-editor__card-meta">
                       <div className="name-cards-editor__card-head">
@@ -275,15 +327,19 @@ export function NameCardsDesign({ names, onClose }: Props) {
         <div className="name-cards-editor__preview">
           <p className="name-cards-editor__format">Формат для друку - A4</p>
           <div className="name-cards-editor__stage">
-            {isSimple ? (
-              <NameCardSheet names={firstPage} designId={designId} />
+            {isReady ? (
+              <NameCardSheet
+                names={firstPage}
+                designId={designId}
+                date={cardDate}
+              />
             ) : (
               <div className="name-cards-sheet name-cards-sheet--placeholder">
                 <p>Дизайн «{activeDesign?.name}» скоро з’явиться</p>
               </div>
             )}
           </div>
-          {isSimple && extraLabel ? (
+          {isReady && extraLabel ? (
             <p className="name-cards-editor__more">{extraLabel}</p>
           ) : null}
         </div>
@@ -302,12 +358,13 @@ export function NameCardsDesign({ names, onClose }: Props) {
       {mounted
         ? createPortal(
             <div className="name-cards-print" aria-hidden>
-              {hasRealGuests && isSimple
+              {hasRealGuests && isReady
                 ? pages.map((pageNames, pageIndex) => (
                     <NameCardSheet
                       key={pageIndex}
                       names={pageNames}
                       designId={designId}
+                      date={cardDate}
                       forPrint
                     />
                   ))
