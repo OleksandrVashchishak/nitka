@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
@@ -9,7 +10,10 @@ import {
 
 @Injectable()
 export class SeatingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async getMine(userId: string) {
     const { wedding } = await requireWeddingForUser(
@@ -71,6 +75,7 @@ export class SeatingService {
         seatingPlan: plan as unknown as Prisma.InputJsonValue,
       },
     });
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_seating_updated');
 
     return { weddingId: wedding.id, plan };
   }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CabinetActionItem } from "@/components/cabinet-context-menu";
 import { IconTrash } from "@/components/icon-trash";
 import { CabinetFormActions } from "@/components/cabinet-form-actions";
+import { DeleteConfirmModal } from "@/components/delete-confirm-modal";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
 import { shapedSeatPosition } from "@/lib/seat-layout";
 
@@ -152,6 +153,7 @@ export function SeatingTableModal({
   onSeatClick,
 }: Props) {
   const [draft, setDraft] = useState<SeatTableDraft>(table);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const lastTableRef = useRef(table);
 
   // Чернетку скидаємо лише при відкритті / іншому столі. `table` приходить
@@ -159,6 +161,7 @@ export function SeatingTableModal({
   useEffect(() => {
     if (!open) return;
     setDraft(table);
+    setConfirmDelete(false);
     lastTableRef.current = table;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, table.id]);
@@ -309,6 +312,7 @@ export function SeatingTableModal({
       onClose={onClose}
       title={draft.label}
       variant="modal"
+      closeOnEscape={!confirmDelete}
       width={420}
       mobileVariant="sheet"
       panelClassName="seat-table-modal"
@@ -429,7 +433,7 @@ export function SeatingTableModal({
           <CabinetActionItem
             danger
             icon={<IconTrash size={16} />}
-            onClick={() => onDelete(draft.id)}
+            onClick={() => setConfirmDelete(true)}
           >
             Видалити стіл
           </CabinetActionItem>
@@ -443,6 +447,16 @@ export function SeatingTableModal({
           ))}
         </div>
       </div>
+      <DeleteConfirmModal
+        open={confirmDelete}
+        title="Видалити стіл"
+        description={`Ви впевнені, що хочете видалити «${draft.label}»? Гості з цього столу стануть нерозсадженими.`}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          setConfirmDelete(false);
+          onDelete(draft.id);
+        }}
+      />
     </CabinetOverlay>
   );
 }

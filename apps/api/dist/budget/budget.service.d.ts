@@ -1,8 +1,10 @@
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBudgetItemDto, UpdateBudgetItemDto } from './dto/budget.dto';
 export declare class BudgetService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notifications;
+    constructor(prisma: PrismaService, notifications: NotificationsService);
     private getWeddingForUser;
     private buildSummary;
     private groupByCategory;
@@ -39,10 +41,10 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            weddingId: string;
+            createdAt: Date;
             category: string;
             notes: string | null;
-            createdAt: Date;
-            weddingId: string;
             title: string;
             estimated: number;
             actual: number;
@@ -82,10 +84,10 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            weddingId: string;
+            createdAt: Date;
             category: string;
             notes: string | null;
-            createdAt: Date;
-            weddingId: string;
             title: string;
             estimated: number;
             actual: number;
@@ -125,10 +127,10 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            weddingId: string;
+            createdAt: Date;
             category: string;
             notes: string | null;
-            createdAt: Date;
-            weddingId: string;
             title: string;
             estimated: number;
             actual: number;
@@ -168,10 +170,10 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            weddingId: string;
+            createdAt: Date;
             category: string;
             notes: string | null;
-            createdAt: Date;
-            weddingId: string;
             title: string;
             estimated: number;
             actual: number;
@@ -211,10 +213,10 @@ export declare class BudgetService {
         }[];
         items: {
             id: string;
+            weddingId: string;
+            createdAt: Date;
             category: string;
             notes: string | null;
-            createdAt: Date;
-            weddingId: string;
             title: string;
             estimated: number;
             actual: number;

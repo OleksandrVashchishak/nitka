@@ -27,6 +27,13 @@ export type WeddingTask = {
   /** Custom name when assignee === "other". */
   assigneeName?: string | null;
 
+  /** Розумне планування: id шаблону, з якого створено задачу. */
+  templateId?: string | null;
+
+  source?: string | null;
+
+  isUrgent?: boolean;
+
 };
 
 
@@ -346,6 +353,25 @@ export function createTask(
 
   });
 
+}
+
+
+
+/** Пакетне створення задач розумного планування (сервер пропускає дублі за templateId). */
+export function createSmartPlanTasks(
+  tasks: Array<{
+    templateId: string;
+    title: string;
+    categorySlug: string;
+    dueDate?: string;
+    isUrgent: boolean;
+  }>,
+) {
+  return apiFetch<WeddingTask[]>("/api/weddings/tasks/smart-plan", {
+    method: "POST",
+    body: JSON.stringify({ tasks }),
+    silent: true,
+  });
 }
 
 

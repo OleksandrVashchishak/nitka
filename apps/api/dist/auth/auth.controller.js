@@ -26,6 +26,7 @@ const login_dto_1 = require("./dto/login.dto");
 const refresh_dto_1 = require("./dto/refresh.dto");
 const register_dto_1 = require("./dto/register.dto");
 const reset_password_dto_1 = require("./dto/reset-password.dto");
+const update_me_dto_1 = require("./dto/update-me.dto");
 const verify_email_dto_1 = require("./dto/verify-email.dto");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 let AuthController = class AuthController {
@@ -61,6 +62,9 @@ let AuthController = class AuthController {
     }
     me(user) {
         return this.authService.me(user.id);
+    }
+    updateMe(user, dto) {
+        return this.authService.updateMe(user.id, dto);
     }
     changePassword(user, dto) {
         return this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
@@ -158,6 +162,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "me", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('me'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_me_dto_1.UpdateMeDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "updateMe", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('change-password'),

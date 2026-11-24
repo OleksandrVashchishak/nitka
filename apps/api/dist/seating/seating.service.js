@@ -12,11 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SeatingService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
 let SeatingService = class SeatingService {
-    constructor(prisma) {
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
     }
     async getMine(userId) {
         const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId, 'Спочатку створи весілля в кабінеті');
@@ -57,6 +59,7 @@ let SeatingService = class SeatingService {
                 seatingPlan: plan,
             },
         });
+        void this.notifications.partnerEvent(wedding.id, userId, 'partner_seating_updated');
         return { weddingId: wedding.id, plan };
     }
     async clearPlan(userId) {
@@ -77,6 +80,7 @@ let SeatingService = class SeatingService {
 exports.SeatingService = SeatingService;
 exports.SeatingService = SeatingService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], SeatingService);
 //# sourceMappingURL=seating.service.js.map

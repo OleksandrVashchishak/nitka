@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { DayPlanShareAccess, Prisma } from '@prisma/client';
 import { EmailService } from '../email/email.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
@@ -20,6 +21,7 @@ export class DayPlanService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async getMine(userId: string) {
@@ -52,7 +54,21 @@ export class DayPlanService {
       'Спочатку створи весілля в кабінеті',
     );
 
-    return this.writeEvents(wedding.id, dto);
+    const before = await this.prisma.wedding.findUnique({
+      where: { id: wedding.id },
+      select: { dayPlan: true },
+    });
+    const prevIds = new Set((this.parseEvents(before?.dayPlan) ?? []).map((e) => e.id));
+    const result = await this.writeEvents(wedding.id, dto);
+    const added = result.events.filter((e) => !prevIds.has(e.id));
+    // Перше збереження дефолтного плану — не «додав події».
+    if (added.length && prevIds.size > 0) {
+      void this.notifications.partnerEvent(wedding.id, userId, 'partner_dayplan_updated', {
+        n: added.length,
+        entityIds: added.map((e) => e.id),
+      });
+    }
+    return result;
   }
 
   async upsertByShareToken(

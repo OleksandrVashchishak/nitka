@@ -9,6 +9,7 @@ import { EmailService } from '../email/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateSmartPlanTasksDto } from './dto/create-smart-plan-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import {
@@ -64,6 +65,7 @@ export class WeddingsService {
     const tasks = await this.attachTaskAssignees(weddingId, wedding.tasks);
     return {
       ...wedding,
+      dateUndecided: await this.readDateUndecided(weddingId),
       tasks,
       myRole: me?.role ?? WeddingMemberRole.OWNER,
     };
@@ -86,12 +88,17 @@ export class WeddingsService {
         SELECT id, assignee FROM tasks WHERE wedding_id = ${weddingId}
       `;
       const map = new Map(rows.map((row) => [row.id, row.assignee]));
+      const meta = await this.readTaskPlanMeta(weddingId);
       return tasks.map((task) => {
         const parsed = parseTaskAssignee(map.get(task.id) ?? null);
+        const m = meta.get(task.id);
         return {
           ...task,
           assignee: parsed.assignee,
           assigneeName: parsed.assigneeName,
+          templateId: m?.template_id ?? null,
+          source: m?.source ?? null,
+          isUrgent: m?.is_urgent ?? false,
         };
       });
     } catch {
@@ -99,7 +106,36 @@ export class WeddingsService {
         ...task,
         assignee: null,
         assigneeName: null,
+        templateId: null,
+        source: null,
+        isUrgent: false,
       }));
+    }
+  }
+
+  /** templateId / source / isUrgent — raw SQL, як і assignee (вендорений Prisma client може відставати). */
+  private async readTaskPlanMeta(weddingId: string) {
+    try {
+      const rows = await this.prisma.$queryRaw<
+        Array<{
+          id: string;
+          template_id: string | null;
+          source: string | null;
+          is_urgent: boolean | null;
+        }>
+      >`
+        SELECT id, template_id, source, is_urgent FROM tasks WHERE wedding_id = ${weddingId}
+      `;
+      return new Map(rows.map((row) => [row.id, row]));
+    } catch {
+      return new Map<
+        string,
+        {
+          template_id: string | null;
+          source: string | null;
+          is_urgent: boolean | null;
+        }
+      >();
     }
   }
 
@@ -107,6 +143,52 @@ export class WeddingsService {
     await this.prisma.$executeRaw`
       UPDATE tasks SET assignee = ${assignee} WHERE id = ${taskId}
     `;
+  }
+
+  private async readDateUndecided(weddingId: string): Promise<boolean> {
+    try {
+      const rows = await this.prisma.$queryRaw<
+        Array<{ date_undecided: boolean | null }>
+      >`SELECT date_undecided FROM weddings WHERE id = ${weddingId}`;
+      return Boolean(rows[0]?.date_undecided);
+    } catch {
+      return false;
+    }
+  }
+
+  private async writeDateUndecided(weddingId: string, value: boolean) {
+    try {
+      await this.prisma.$executeRaw`
+        UPDATE weddings SET date_undecided = ${value} WHERE id = ${weddingId}
+      `;
+    } catch {
+      /* column may be missing until ensure-schema */
+    }
+  }
+
+  /** «Роман призначив вам завдання» — лише іншому учаснику. */
+  private async notifyTaskAssigned(
+    weddingId: string,
+    actorId: string,
+    task: { id: string; title: string },
+    assignee: string | null,
+  ) {
+    const members = await this.notifications.getMembers(weddingId);
+    if (!members) return;
+    const target =
+      assignee === 'owner'
+        ? members.ownerId
+        : assignee === 'partner'
+          ? members.partnerId
+          : null;
+    if (!target || target === actorId) return;
+    await this.notifications.direct(
+      weddingId,
+      target,
+      'task_assigned',
+      `task_assigned:${task.id}:${Date.now()}`,
+      { actorId, taskId: task.id, taskTitle: task.title },
+    );
   }
 
   private async readTaskAssigneeRaw(taskId: string): Promise<string | null> {
@@ -224,7 +306,6 @@ export class WeddingsService {
     const access = await resolveWeddingForUser(this.prisma, userId);
 
     if (access) {
-      const prev = access.wedding;
       await this.prisma.wedding.update({
         where: { id: access.wedding.id },
         data: {
@@ -254,31 +335,12 @@ export class WeddingsService {
       });
       await this.syncDefaultTasks(access.wedding.id);
 
-      const changed =
-        prev.date.toISOString().slice(0, 10) !== dto.date.slice(0, 10) ||
-        prev.city !== dto.city.trim() ||
-        prev.guests !== dto.guests ||
-        prev.budget !== dto.budget ||
-        (dto.partnerOneName !== undefined &&
-          prev.partnerOneName !== dto.partnerOneName.trim()) ||
-        (dto.partnerTwoName !== undefined &&
-          prev.partnerTwoName !== dto.partnerTwoName.trim()) ||
-        (dto.cityUndecided !== undefined &&
-          prev.cityUndecided !== dto.cityUndecided) ||
-        (dto.guestsUndecided !== undefined &&
-          prev.guestsUndecided !== dto.guestsUndecided);
-
-      if (changed) {
-        void this.notifications.notifyWeddingMembers(
-          access.wedding.id,
-          {
-            title: 'Партнер оновив весілля',
-            body: 'Змінилися деталі — глянь у кабінеті',
-            data: { type: 'wedding_update' },
-            type: 'partner_changes',
-          },
-          userId,
-        );
+      if (dto.dateUndecided !== undefined) {
+        const wasUndecided = await this.readDateUndecided(access.wedding.id);
+        await this.writeDateUndecided(access.wedding.id, dto.dateUndecided);
+        if (wasUndecided && !dto.dateUndecided) {
+          void this.onWeddingDateSet(access.wedding.id);
+        }
       }
 
       return this.getMine(userId);
@@ -315,6 +377,7 @@ export class WeddingsService {
       },
       include: { tasks: TASK_ORDER },
     });
+    if (dto.dateUndecided) await this.writeDateUndecided(wedding.id, true);
 
     return this.loadWeddingWithMeta(wedding.id, userId);
   }
@@ -496,6 +559,21 @@ export class WeddingsService {
       }),
     ]);
 
+    const owner = await this.prisma.wedding.findUnique({
+      where: { id: invite.weddingId },
+      select: { userId: true },
+    });
+    if (owner) {
+      void this.notifications.direct(
+        invite.weddingId,
+        owner.userId,
+        'partner_joined',
+        `partner_joined:${userId}`,
+        { actorId: userId },
+      );
+    }
+    void this.notifications.resolveTypes(invite.weddingId, ['setup_partner']);
+
     return this.getMine(userId);
   }
 
@@ -534,7 +612,84 @@ export class WeddingsService {
       }
     }
 
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_tasks_added', {
+      entityIds: [created.id],
+    });
+    if (dto.assignee) {
+      void this.notifyTaskAssigned(wedding.id, userId, created, dto.assignee);
+    }
+
     return this.taskWithAssignee(created);
+  }
+
+  /**
+   * Розумне планування: створює завдання пакетом. Шаблони, що вже є у весіллі
+   * (той самий template_id), пропускаються — дублів не буває.
+   */
+  async createSmartPlanTasks(userId: string, dto: CreateSmartPlanTasksDto) {
+    const { wedding } = await requireWeddingForUser(
+      this.prisma,
+      userId,
+      'Спочатку збережіть весілля',
+    );
+
+    const existing = await this.prisma.$queryRaw<
+      Array<{ template_id: string }>
+    >`
+      SELECT template_id FROM tasks
+      WHERE wedding_id = ${wedding.id} AND template_id IS NOT NULL
+    `;
+    const seen = new Set(existing.map((row) => row.template_id));
+
+    const maxOrder = await this.prisma.task.aggregate({
+      where: { weddingId: wedding.id },
+      _max: { sortOrder: true },
+    });
+    let order = (maxOrder._max.sortOrder ?? 0) + 1;
+
+    const createdIds: string[] = [];
+    for (const item of dto.tasks) {
+      const templateId = item.templateId.trim();
+      if (seen.has(templateId)) continue;
+      seen.add(templateId);
+
+      const created = await this.prisma.task.create({
+        data: {
+          weddingId: wedding.id,
+          title: item.title.trim(),
+          categorySlug: item.categorySlug?.trim() || null,
+          sortOrder: order++,
+          isCustom: true,
+          status: TaskStatus.TODO,
+          dueDate: item.dueDate ? new Date(item.dueDate) : null,
+        },
+      });
+      await this.prisma.$executeRaw`
+        UPDATE tasks
+        SET template_id = ${templateId},
+            source = 'smart_planning',
+            is_urgent = ${Boolean(item.isUrgent)},
+            assignee = 'none'
+        WHERE id = ${created.id}
+      `;
+      createdIds.push(created.id);
+    }
+
+    if (createdIds.length === 0) return [];
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_tasks_added', {
+      n: createdIds.length,
+      entityIds: createdIds,
+    });
+    // Хтось один пройшов степер — підказки зникають в обох.
+    void this.notifications.resolveTypes(wedding.id, [
+      'setup_smart_planning',
+      'setup_smart_planning_date',
+    ]);
+    const rows = await this.prisma.task.findMany({
+      where: { id: { in: createdIds } },
+      orderBy: { sortOrder: 'asc' },
+    });
+    return this.attachTaskAssignees(wedding.id, rows);
   }
 
   async updateTask(userId: string, taskId: string, dto: UpdateTaskDto) {
@@ -568,6 +723,13 @@ export class WeddingsService {
       },
     });
 
+    if (dto.status === TaskStatus.DONE && task.status !== TaskStatus.DONE) {
+      void this.notifications.partnerEvent(task.weddingId, userId, 'partner_tasks_done', {
+        entityIds: [taskId],
+      });
+      void this.notifications.resolveTask(task.weddingId, taskId);
+    }
+
     if (dto.assignee !== undefined || dto.assigneeName !== undefined) {
       try {
         const current = parseTaskAssignee(
@@ -585,6 +747,9 @@ export class WeddingsService {
           taskId,
           serializeTaskAssignee(nextWho, nextName),
         );
+        if (nextWho && nextWho !== current.assignee) {
+          void this.notifyTaskAssigned(task.weddingId, userId, updated, nextWho);
+        }
       } catch {
         /* column may be missing until ensure-schema */
       }
@@ -599,7 +764,14 @@ export class WeddingsService {
       throw new BadRequestException('Шаблонну задачу видалити не можна');
     }
     await this.prisma.task.delete({ where: { id: taskId } });
+    void this.notifications.resolveTask(task.weddingId, taskId);
     return { ok: true };
+  }
+
+  /** Дату весілля вказали: setup_date неактуальне, підказка про розумне планування (розділ 7.1 п. 2). */
+  private async onWeddingDateSet(weddingId: string) {
+    await this.notifications.resolveTypes(weddingId, ['setup_date']);
+    await this.notifications.smartPlanningDateTip(weddingId);
   }
 
   private async requireMemberTask(userId: string, taskId: string) {

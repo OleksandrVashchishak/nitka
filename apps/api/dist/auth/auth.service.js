@@ -305,7 +305,27 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException();
         }
-        return user;
+        return { ...user, gender: await this.readGender(userId) };
+    }
+    async updateMe(userId, patch) {
+        if (patch.gender !== undefined) {
+            await this.prisma.$executeRaw `
+        UPDATE users SET gender = ${patch.gender} WHERE id = ${userId}
+      `;
+        }
+        return this.me(userId);
+    }
+    async readGender(userId) {
+        try {
+            const rows = await this.prisma.$queryRaw `
+        SELECT gender FROM users WHERE id = ${userId}
+      `;
+            const g = rows[0]?.gender;
+            return g === 'female' || g === 'male' ? g : null;
+        }
+        catch {
+            return null;
+        }
     }
     async changePassword(userId, currentPassword, newPassword) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });

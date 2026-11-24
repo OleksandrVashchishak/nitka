@@ -7,15 +7,17 @@ export type ToastItem = {
   tone: ToastTone;
   title: string;
   description?: string;
+  /** Кнопка дії в тості (напр. «Повернути»). */
+  action?: ToastAction;
+  /** Скільки мс показувати (за замовчуванням 4200). */
+  duration?: number;
 };
+
+export type ToastAction = { label: string; onClick: () => void };
 
 type ToastState = {
   items: ToastItem[];
-  push: (input: {
-    tone: ToastTone;
-    title: string;
-    description?: string;
-  }) => string;
+  push: (input: Omit<ToastItem, "id">) => string;
   dismiss: (id: string) => void;
   clear: () => void;
 };
@@ -43,6 +45,19 @@ export const toast = {
   },
   info(title: string, description?: string) {
     return useToastStore.getState().push({ tone: "info", title, description });
+  },
+  /** Тост з кнопкою дії (напр. «Завдання видалено · Повернути»). */
+  action(
+    title: string,
+    action: ToastAction,
+    options?: { tone?: ToastTone; duration?: number },
+  ) {
+    return useToastStore.getState().push({
+      tone: options?.tone ?? "info",
+      title,
+      action,
+      duration: options?.duration,
+    });
   },
 };
 

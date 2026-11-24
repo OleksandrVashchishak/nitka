@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import { PartnerInviteDto } from './dto/partner-invite.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateSmartPlanTasksDto } from './dto/create-smart-plan-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertWeddingDto } from './dto/upsert-wedding.dto';
 import { WeddingsService } from './weddings.service';
@@ -91,6 +92,16 @@ export class WeddingsController {
   @Roles(Role.COUPLE)
   createTask(@CurrentUser() user: AuthUser, @Body() dto: CreateTaskDto) {
     return this.weddingsService.createTask(user.id, dto);
+  }
+
+  @Post('tasks/smart-plan')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COUPLE)
+  createSmartPlanTasks(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: CreateSmartPlanTasksDto,
+  ) {
+    return this.weddingsService.createSmartPlanTasks(user.id, dto);
   }
 
   @Patch('tasks/:taskId')

@@ -8,6 +8,7 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 export declare class AuthController {
     private readonly authService;
@@ -63,6 +64,15 @@ export declare class AuthController {
         ok: boolean;
     }>;
     me(user: AuthUser): Promise<{
+        gender: "female" | "male" | null;
+        id: string;
+        email: string;
+        name: string;
+        role: import(".prisma/client").$Enums.Role;
+        createdAt: Date;
+    }>;
+    updateMe(user: AuthUser, dto: UpdateMeDto): Promise<{
+        gender: "female" | "male" | null;
         id: string;
         email: string;
         name: string;

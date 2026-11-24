@@ -25,6 +25,8 @@ export type GuestPopoverInfo = {
   isPlusOne: boolean;
   linkedName: string | null;
   swapCandidates: Array<{ key: string; name: string }>;
+  /** Дитина в дитячому кріслі — місця не займає, пересідає з дорослим. */
+  inHighChair?: boolean;
 };
 
 export function rsvpFooterLabel(status: RsvpStatus) {
@@ -75,7 +77,6 @@ export function GuestListPopover({
   onSetRsvp,
   onLeaveUnseated,
   onDetach,
-  onSeatElsewhere,
   onClose,
   variant = "float",
 }: {
@@ -83,7 +84,6 @@ export function GuestListPopover({
   onSetRsvp: (status: RsvpStatus) => void;
   onLeaveUnseated: () => void;
   onDetach: (() => void) | null;
-  onSeatElsewhere?: () => void;
   onClose: () => void;
   variant?: "float" | "sheet";
 }) {
@@ -112,20 +112,15 @@ export function GuestListPopover({
             Змінити статус на «Прийде»
           </button>
         ) : null}
-        {info.tableLabel ? (
+        {info.tableLabel && !info.inHighChair ? (
           <button type="button" onClick={onLeaveUnseated}>
             Залишити поки що без місця
           </button>
         ) : null}
-        {info.linkedName && onDetach ? (
+        {info.linkedName && onDetach && !info.inHighChair ? (
           <button type="button" onClick={onDetach}>
             Від’єднати від {uaNameGenitive(info.linkedName)}
 
-          </button>
-        ) : null}
-        {onSeatElsewhere ? (
-          <button type="button" onClick={onSeatElsewhere}>
-            {info.tableLabel ? "Посадити за інший стіл" : "Посадити за стіл"}
           </button>
         ) : null}
       </div>

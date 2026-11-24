@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { requireWeddingForUser } from '../weddings/wedding-access';
 import {
@@ -35,7 +36,10 @@ const DEFAULT_ITEMS: Array<{
 
 @Injectable()
 export class BudgetService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   private async getWeddingForUser(userId: string) {
     const { wedding } = await requireWeddingForUser(
@@ -165,7 +169,7 @@ export class BudgetService {
 
   async createItem(userId: string, dto: CreateBudgetItemDto) {
     const wedding = await this.getWeddingForUser(userId);
-    await this.prisma.budgetItem.create({
+    const item = await this.prisma.budgetItem.create({
       data: {
         weddingId: wedding.id,
         category: dto.category.trim().toLowerCase(),
@@ -175,6 +179,10 @@ export class BudgetService {
         paid: dto.paid ?? false,
         notes: dto.notes?.trim() || null,
       },
+    });
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_expenses_added', {
+      entityIds: [item.id],
+      amount: item.actual || item.estimated,
     });
     return this.getMine(userId);
   }

@@ -64,6 +64,42 @@ export function childGoesToKidsTable(isChild: boolean, need: ChildNeed | null) {
   return isChild && need !== "high_chair" && need !== "with_parents";
 }
 
+/**
+ * Дитина в дитячому кріслі не займає місця за столом — крісельце ставлять
+ * біля дорослого. Повертає `ключ дитини → ключ дорослого`: спершу той, у чиїй
+ * картці дитина (супутник), інакше голова ланцюжка. Без дорослого — дитина
+ * сідає як звичайний гість.
+ */
+export function highChairHosts<
+  T extends {
+    key: string;
+    guestId: string;
+    isChild: boolean;
+    childNeed: ChildNeed | null;
+  },
+>(
+  rows: T[],
+  rootOf: (row: T) => string | null,
+  detachedKeys: Set<string> = new Set(),
+): Map<string, string> {
+  const byKey = new Map(rows.map((r) => [r.key, r]));
+  const out = new Map<string, string>();
+  for (const kid of rows) {
+    if (!kid.isChild || kid.childNeed !== "high_chair") continue;
+    if (detachedKeys.has(kid.key)) continue;
+    const isAdult = (k: string | null) => {
+      const r = k ? byKey.get(k) : undefined;
+      return r && r.key !== kid.key && !r.isChild ? r : undefined;
+    };
+    const root = rootOf(kid);
+    const host =
+      isAdult(kid.guestId) ??
+      (root && !detachedKeys.has(root) ? isAdult(root) : undefined);
+    if (host) out.set(kid.key, host.key);
+  }
+  return out;
+}
+
 export function companionKey(guestId: string, index: number) {
   return index === 0 ? `${guestId}:plus` : `${guestId}:plus:${index}`;
 }

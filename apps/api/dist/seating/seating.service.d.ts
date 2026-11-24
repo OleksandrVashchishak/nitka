@@ -1,8 +1,10 @@
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpsertSeatingDraftDto, UpsertSeatingPlanDto } from './dto/seating.dto';
 export declare class SeatingService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notifications;
+    constructor(prisma: PrismaService, notifications: NotificationsService);
     getMine(userId: string): Promise<{
         weddingId: string;
         draft: Record<string, unknown> | null;

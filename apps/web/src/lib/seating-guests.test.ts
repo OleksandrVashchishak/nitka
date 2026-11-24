@@ -6,6 +6,7 @@ import {
   clusterFlags,
   orderDetachedLast,
   flattenSeatingGuests,
+  highChairHosts,
   syncKidsAssignments,
 } from "@/lib/seating-guests";
 
@@ -181,5 +182,33 @@ describe("orderDetachedLast", () => {
     expect(
       orderDetachedLast(rows, new Set(["b"]), (r) => r.cluster).map((r) => r.key),
     ).toEqual(["a", "c", "b", "x"]);
+  });
+});
+
+describe("highChairHosts", () => {
+  it("дитина в кріслі прикріплена до дорослого, в чиїй картці вона", () => {
+    const rows = flattenSeatingGuests([
+      guest("a", "Олег Гнатюк", {
+        companions: [
+          { name: "Світлана Гнатюк" },
+          { name: "Марко", isChild: true, childNeed: "high_chair" },
+          { name: "Ліза", isChild: true, childNeed: "with_parents" },
+        ],
+      }),
+    ]);
+    const hosts = highChairHosts(rows, (r) => r.linkedTo ?? r.key);
+    expect([...hosts]).toEqual([["a:plus:1", "a"]]);
+  });
+
+  it("окрема дитина-гість у кріслі — до голови родини; без дорослих — сідає сама", () => {
+    const rows = flattenSeatingGuests([
+      guest("a", "Олег Гнатюк", { partyId: "p1" }),
+      guest("k", "Марко Гнатюк", { child: true, need: "high_chair", partyId: "p1" }),
+      guest("z", "Зоя", { child: true, need: "high_chair" }),
+    ]);
+    const hosts = highChairHosts(rows, (r) => r.linkedTo ?? r.key);
+    expect(hosts.get("k")).toBe("a");
+    expect(hosts.has("z")).toBe(false);
+    expect(highChairHosts(rows, (r) => r.linkedTo ?? r.key, new Set(["k"])).has("k")).toBe(false);
   });
 });

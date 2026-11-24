@@ -1,8 +1,11 @@
 export declare class UpdateNotificationPrefsDto {
-    guestRsvp?: boolean;
-    upcomingPayments?: boolean;
-    taskDeadlines?: boolean;
-    partnerChanges?: boolean;
+    tasks?: boolean;
+    taskFrequency?: 'normal' | 'less';
+    guests?: boolean;
+    partnerActivity?: boolean;
+    invitationAndDayPlan?: boolean;
+    milestones?: boolean;
+    tips?: boolean;
     push?: boolean;
     email?: boolean;
 }

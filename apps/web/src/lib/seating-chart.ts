@@ -3,6 +3,8 @@
 export type SeatingChartGuest = {
   key: string;
   name: string;
+  /** Діти в дитячому кріслі біля гостя (місця не займають). */
+  chairKids?: string[];
 };
 
 export type SeatingChartTable = {
@@ -65,6 +67,9 @@ function seatedNames(
     const guest = guestsByKey.get(seat.guestKey);
     if (!guest?.name.trim()) continue;
     names.push(chartName(guest.name));
+    for (const kid of guest.chairKids ?? []) {
+      if (kid.trim()) names.push(chartName(kid));
+    }
   }
   return names;
 }

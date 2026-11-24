@@ -13,13 +13,15 @@ exports.DayPlanService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const email_service_1 = require("../email/email.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
 const day_plan_access_1 = require("./day-plan-access");
 let DayPlanService = class DayPlanService {
-    constructor(prisma, email) {
+    constructor(prisma, email, notifications) {
         this.prisma = prisma;
         this.email = email;
+        this.notifications = notifications;
     }
     async getMine(userId) {
         const { wedding, level } = await (0, day_plan_access_1.requireDayPlanAccess)(this.prisma, userId, 'view', 'Спочатку створи весілля в кабінеті');
@@ -36,7 +38,20 @@ let DayPlanService = class DayPlanService {
     }
     async upsert(userId, dto) {
         const { wedding } = await (0, day_plan_access_1.requireDayPlanAccess)(this.prisma, userId, 'edit', 'Спочатку створи весілля в кабінеті');
-        return this.writeEvents(wedding.id, dto);
+        const before = await this.prisma.wedding.findUnique({
+            where: { id: wedding.id },
+            select: { dayPlan: true },
+        });
+        const prevIds = new Set((this.parseEvents(before?.dayPlan) ?? []).map((e) => e.id));
+        const result = await this.writeEvents(wedding.id, dto);
+        const added = result.events.filter((e) => !prevIds.has(e.id));
+        if (added.length && prevIds.size > 0) {
+            void this.notifications.partnerEvent(wedding.id, userId, 'partner_dayplan_updated', {
+                n: added.length,
+                entityIds: added.map((e) => e.id),
+            });
+        }
+        return result;
     }
     async upsertByShareToken(userId, token, dto) {
         const { wedding } = await (0, day_plan_access_1.requireDayPlanEditByShareToken)(this.prisma, userId, token);
@@ -377,6 +392,7 @@ exports.DayPlanService = DayPlanService;
 exports.DayPlanService = DayPlanService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        email_service_1.EmailService])
+        email_service_1.EmailService,
+        notifications_service_1.NotificationsService])
 ], DayPlanService);
 //# sourceMappingURL=day-plan.service.js.map

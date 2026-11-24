@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebsiteService = void 0;
 const common_1 = require("@nestjs/common");
 const slug_1 = require("../common/slug");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
 const TEMPLATE_IDS = new Set([
@@ -262,8 +263,9 @@ function serialize(site, wedding) {
     };
 }
 let WebsiteService = class WebsiteService {
-    constructor(prisma) {
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
     }
     async getPublishedAt(siteId) {
         try {
@@ -378,6 +380,12 @@ let WebsiteService = class WebsiteService {
         }
         const publishedAt = (await this.getPublishedAt(site.id)) ??
             (published || becomingUnpublished ? new Date() : existingPublishedAt);
+        if (published && !wasPublished) {
+            void this.notifications.partnerEvent(wedding.id, userId, 'partner_site_published', {
+                siteUrl: `/w/${site.slug}`,
+            });
+            void this.notifications.resolveTypes(wedding.id, ['invitation_unpublished']);
+        }
         return serialize({ ...site, publishedAt }, wedding);
     }
     async getPublicBySlug(slugRaw) {
@@ -400,6 +408,7 @@ let WebsiteService = class WebsiteService {
 exports.WebsiteService = WebsiteService;
 exports.WebsiteService = WebsiteService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], WebsiteService);
 //# sourceMappingURL=website.service.js.map

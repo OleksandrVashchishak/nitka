@@ -17,6 +17,7 @@ import {
   childGoesToKidsTable,
   clusterFlags,
   flattenSeatingGuests,
+  highChairHosts,
   orderDetachedLast,
 } from "@/lib/seating-guests";
 import type {
@@ -50,6 +51,10 @@ import {
 } from "@/components/responsible-avatar";
 import { Select } from "@/components/ui/select";
 import { CabinetOverlay } from "@/components/ui/cabinet-overlay";
+import { SeatingFullTableModal } from "@/components/seating-full-table-modal";
+import { CabinetFormActions } from "@/components/cabinet-form-actions";
+import { RadioGroup, RadioOption } from "@/components/ui/radio";
+import { IconChevronDown } from "@/components/website/website-icons";
 import { SeatingChartEditor } from "@/components/seating-chart-editor";
 import { NameCardsDesign } from "@/components/name-cards-design";
 import {
@@ -61,7 +66,7 @@ import {
   defaultShapedSeatCount,
   tableBodyDims,
 } from "@/lib/seat-layout";
-import { placeGuest, type PlaceOutcome } from "@/lib/seating-place";
+import { placeGuest, seatDistance, type PlaceOutcome } from "@/lib/seating-place";
 import { toast } from "@/lib/toast";
 import {
   detectUaNameGender,
@@ -506,6 +511,39 @@ function autoSeat(
         })
         .map((g) => g.key),
     );
+    // Дитина за дорослим столом (з батьками / дитяче крісло, або дитячого столу
+    // немає) сідає на вільне місце поруч із дорослим зі свого ланцюжка.
+    // Поруч зайнято — не сідає.
+    const hasKidsTable = next.some((t) => t.kind === "kids");
+    const detached = new Set(draft.detachedKeys ?? []);
+    for (const child of flat) {
+      if (!child.isChild || !only.has(child.key) || seated.has(child.key)) continue;
+      if (detached.has(child.key)) continue;
+      const assign = draft.assignments[child.key] ?? null;
+      if (assign === "kids" && hasKidsTable) continue;
+      const adults = flat.filter(
+        (g) =>
+          !g.isChild &&
+          g.key !== child.key &&
+          g.clusterKey === child.clusterKey &&
+          !detached.has(g.key),
+      );
+      for (const adult of adults) {
+        const table = next.find((t) =>
+          t.kind !== "kids" && t.seats.some((s) => s.guestKey === adult.key),
+        );
+        if (!table) continue;
+        const from = table.seats.findIndex((s) => s.guestKey === adult.key);
+        const seat = table.seats
+          .map((s, i) => ({ s, d: seatDistance(table, from, i) }))
+          .filter(({ s, d }) => !s.guestKey && d <= 1)
+          .sort((a, b) => a.d - b.d)[0]?.s;
+        if (!seat) continue;
+        seat.guestKey = child.key;
+        seated.add(child.key);
+        break;
+      }
+    }
     return next;
   }
 
@@ -762,6 +800,21 @@ export function SeatingPlan({
   const [detachedKeys, setDetachedKeys] = useState<Set<string>>(
     () => new Set(draft.guests.detachedKeys ?? []),
   );
+  /** Діти в дитячому кріслі: місця не займають, крісельце біля дорослого. */
+  const chairHost = useMemo(
+    () => highChairHosts(flat, (g) => g.clusterKey, detachedKeys),
+    [flat, detachedKeys],
+  );
+  const chairKidsOf = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const [kid, host] of chairHost) m.set(host, [...(m.get(host) ?? []), kid]);
+    return m;
+  }, [chairHost]);
+  /** Гості, яким потрібне місце (без дітей у кріслі). */
+  const seatableFlat = useMemo(
+    () => flat.filter((g) => !chairHost.has(g.key)),
+    [flat, chairHost],
+  );
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragGuestKey, setDragGuestKey] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
@@ -779,13 +832,18 @@ export function SeatingPlan({
     /** Місць для гостя й ланцюжка за столом (разом із цим місцем). */
     available: number;
   } | null>(null);
-  /** «Посадити за інший стіл» (mobile): наступний тап по місцю садить цього гостя. */
-  const [reseatKey, setReseatKey] = useState<string | null>(null);
   /** Пошук у модалці «Посадити» — окремий від пошуку списку. */
   const [pickQuery, setPickQuery] = useState("");
   const [saveFailed, setSaveFailed] = useState(false);
   const [saveRetry, setSaveRetry] = useState(0);
-  const [conflictSwapOpen, setConflictSwapOpen] = useState(false);
+  /** Вибір у модалці конфлікту: "without" / "skip" / "swap" + індекс групи на пересадку. */
+  const [conflictChoice, setConflictChoice] = useState("without");
+  const [conflictSwapIdx, setConflictSwapIdx] = useState(0);
+  /** Гостя кинули на повний стіл — питаємо, кого замінити. */
+  const [fullTable, setFullTable] = useState<{
+    tableId: string;
+    guestKey: string;
+  } | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>("guests");
   const [isMobile, setIsMobile] = useState(false);
   const [draftSeatFilter, setDraftSeatFilter] = useState<SeatFilter>("all");
@@ -1045,11 +1103,6 @@ export function SeatingPlan({
     setDetachedKeys(new Set(draft.guests.detachedKeys ?? []));
   }, [draft.guests.detachedKeys]);
 
-  // Режим «Посадити за інший стіл» живе лише на вкладці карти.
-  useEffect(() => {
-    if (mobileTab !== "map" || !isMobile) setReseatKey(null);
-  }, [mobileTab, isMobile]);
-
   // Кожне відкриття «Посадити» — з чистим пошуком.
   useEffect(() => {
     if (seatPick) setPickQuery("");
@@ -1091,13 +1144,13 @@ export function SeatingPlan({
       );
       for (const k of fresh) known.add(k);
       setTables(
-        fresh.size ? autoSeat(stored, flat, draft.guests, fresh) : stored,
+        fresh.size ? autoSeat(stored, seatableFlat, draft.guests, fresh) : stored,
       );
       fromStored = true;
     }
     if (!fromStored) {
       knownKeysRef.current = new Set(flat.map((g) => g.key));
-      setTables(autoSeat(buildTables(draft.tables), flat, draft.guests));
+      setTables(autoSeat(buildTables(draft.tables), seatableFlat, draft.guests));
     }
     setHydrated(true);
     // Only hydrate once per mount (key resets when plan cleared).
@@ -1118,14 +1171,15 @@ export function SeatingPlan({
       );
       if (!fresh.size) return prev;
       for (const k of fresh) known.add(k);
-      return autoSeat(prev, flat, draft.guests, fresh);
+      return autoSeat(prev, seatableFlat, draft.guests, fresh);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- лише при зміні гостей
   }, [flat, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    const present = new Set(flat.map((g) => g.key));
+    // Прибираємо з місць видалених гостей і дітей у дитячому кріслі.
+    const present = new Set(seatableFlat.map((g) => g.key));
     setTables((prev) => {
       const stale = prev.some((t) =>
         t.seats.some((s) => s.guestKey && !present.has(s.guestKey)),
@@ -1140,7 +1194,7 @@ export function SeatingPlan({
         ),
       }));
     });
-  }, [flat, hydrated]);
+  }, [seatableFlat, hydrated]);
 
   const saveFailedRef = useRef(false);
   useEffect(() => {
@@ -1211,7 +1265,6 @@ export function SeatingPlan({
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
         if (editingTableId) return;
-        setReseatKey(null);
         setPopover(null);
         setFloatPop(null);
         setAddOpen(false);
@@ -1256,8 +1309,13 @@ export function SeatingPlan({
         if (seat.guestKey) m.set(seat.guestKey, { tableId: table.id, seatId: seat.id });
       }
     }
+    // Дитина в кріслі «сидить» там, де її дорослий.
+    for (const [kid, host] of chairHost) {
+      const at = m.get(host);
+      if (at) m.set(kid, at);
+    }
     return m;
-  }, [tables]);
+  }, [tables, chairHost]);
 
   const nameRoom = useMemo(() => sideNameRoom(tables), [tables]);
 
@@ -1327,7 +1385,7 @@ export function SeatingPlan({
   const pickGuests = useMemo(() => {
     const q = pickQuery.trim().toLowerCase();
     const shown = visibleFlat.filter((g) => {
-      if (seatOfGuest.has(g.key)) return false;
+      if (seatOfGuest.has(g.key) || chairHost.has(g.key)) return false;
       if (q && !g.name.toLowerCase().includes(q)) return false;
       const assign = draft.guests.assignments[g.key] ?? null;
       if (groupFilter !== "all" && assign !== groupFilter) return false;
@@ -1338,6 +1396,7 @@ export function SeatingPlan({
   }, [
     visibleFlat,
     seatOfGuest,
+    chairHost,
     pickQuery,
     groupFilter,
     sideFilter,
@@ -1504,7 +1563,8 @@ export function SeatingPlan({
       ? tables.find((t) => t.id === seatInfo.tableId)
       : null;
     const swapCandidates: Array<{ key: string; name: string }> = [];
-    if (table && seatInfo) {
+    const hostKey = chairHost.get(key);
+    if (table && seatInfo && !hostKey) {
       const n = table.seats.length;
       const idx = table.seats.findIndex((s) => s.id === seatInfo.seatId);
       const wraps =
@@ -1532,8 +1592,13 @@ export function SeatingPlan({
       guestId: guest.guestId,
       name: guest.name,
       groupLabel: groupLabelFor(key),
-      childSeatLabel: guest.isChild ? childSeatLabel(guest.childNeed) : null,
+      childSeatLabel: hostKey
+        ? `дитяче крісло біля ${guestName(hostKey)}`
+        : guest.isChild
+          ? childSeatLabel(guest.childNeed)
+          : null,
       tableLabel: table?.label ?? null,
+      inHighChair: Boolean(hostKey),
       rsvpStatus: guest.rsvpStatus,
       isPlusOne: guest.isPlusOne,
       linkedName: linked?.name ?? null,
@@ -1553,7 +1618,7 @@ export function SeatingPlan({
     return flat
       .filter((m) => {
         if (m.key === key || m.clusterKey !== guest.clusterKey) return false;
-        if (detachedKeys.has(m.key)) return false;
+        if (detachedKeys.has(m.key) || chairHost.has(m.key)) return false;
         if (!m.isChild) return true;
         const at = seatOfGuest.get(m.key);
         if (at) return !kidsTableIds.has(at.tableId);
@@ -1579,13 +1644,14 @@ export function SeatingPlan({
       toast.info(`Без місця: ${outcome.leftOut.map(guestName).join(", ")}`);
     }
     setSelectedKey(guestKey);
-    setReseatKey(null);
     setSeatPick(null);
     closePopover();
   }
 
   /** Посадити гостя на місце; ланцюжок — на найближчі місця того ж столу, якщо вистачає. */
-  function seatFromPicker(tableId: string, seatId: string, guestKey: string) {
+  function seatFromPicker(tableId: string, seatId: string, key: string) {
+    // Дитина в кріслі сідає разом із дорослим — саджаємо дорослого.
+    const guestKey = chairHost.get(key) ?? key;
     const outcome = placeGuest(
       tables,
       tableId,
@@ -1597,7 +1663,8 @@ export function SeatingPlan({
       commitPlacement(outcome, guestKey);
       return;
     }
-    setConflictSwapOpen(false);
+    setConflictChoice(isMobile ? "" : "without");
+    setConflictSwapIdx(0);
     setSeatConflict({
       tableId,
       seatId,
@@ -1609,21 +1676,55 @@ export function SeatingPlan({
 
   function closeSeatConflict(done: boolean) {
     setSeatConflict(null);
-    setConflictSwapOpen(false);
+    setConflictChoice("without");
+    setConflictSwapIdx(0);
     if (done) {
       setSeatPick(null);
       closePopover();
     }
   }
 
-  function assignToFirstEmptySeat(tableId: string, guestKey: string) {
+  function assignToFirstEmptySeat(tableId: string, key: string) {
+    const guestKey = chairHost.get(key) ?? key;
     const table = tables.find((t) => t.id === tableId);
     const empty = table?.seats.find((s) => !s.guestKey);
     if (!empty) {
-      toast.info("Немає вільних місць за цим столом");
+      if (table && !table.seats.some((s) => s.guestKey === guestKey)) {
+        setFullTable({ tableId, guestKey });
+      }
       return;
     }
     seatFromPicker(tableId, empty.id, guestKey);
+  }
+
+  /** Звільняємо місце `occupantKey` (він стає без місця) і садимо туди гостя. */
+  function replaceAtFullTable(occupantKey: string) {
+    const target = fullTable;
+    setFullTable(null);
+    if (!target) return;
+    const table = tables.find((t) => t.id === target.tableId);
+    const seat = table?.seats.find((s) => s.guestKey === occupantKey);
+    if (!seat) return;
+    const cleared = tables.map((t) =>
+      t.id === target.tableId
+        ? {
+            ...t,
+            seats: t.seats.map((s) =>
+              s.id === seat.id ? { ...s, guestKey: null } : s,
+            ),
+          }
+        : t,
+    );
+    const outcome = placeGuest(
+      cleared,
+      target.tableId,
+      seat.id,
+      target.guestKey,
+      [],
+    );
+    if (outcome.status !== "placed") return;
+    commitPlacement(outcome, target.guestKey);
+    toast.info(`${guestName(occupantKey)} тепер без місця`);
   }
 
   function readDragGuestKey(event: DragEvent) {
@@ -1662,7 +1763,9 @@ export function SeatingPlan({
     requestAnimationFrame(() => ghost.remove());
   }
 
-  function beginGuestDrag(event: DragEvent, guestKey: string) {
+  function beginGuestDrag(event: DragEvent, key: string) {
+    // Дитину в кріслі не саджають окремо — тягнемо її дорослого.
+    const guestKey = chairHost.get(key) ?? key;
     event.dataTransfer.setData(GUEST_DRAG_MIME, guestKey);
     event.dataTransfer.setData("text/plain", guestKey);
     event.dataTransfer.effectAllowed = "move";
@@ -1823,16 +1926,37 @@ export function SeatingPlan({
     }
   }
 
-  /** «Звільнити місце» / «Залишити без місця» — лише цей гість, без родини. */
+  /**
+   * «Звільнити місце» / «Залишити без місця» — гість разом із родиною
+   * (ланцюжком), що сидить за тим самим столом. Діти за дитячим столом
+   * і від’єднані лишаються на місцях.
+   */
   function freeGuest(key: string) {
-    setTables((prev) =>
-      prev.map((table) => ({
-        ...table,
-        seats: table.seats.map((s) =>
-          s.guestKey === key ? { ...s, guestKey: null } : s,
-        ),
-      })),
-    );
+    const self = guestMap.get(key);
+    const keys = new Set([key]);
+    if (self && !detachedKeys.has(key)) {
+      for (const g of flat) {
+        if (!detachedKeys.has(g.key) && g.clusterKey === self.clusterKey) {
+          keys.add(g.key);
+        }
+      }
+    }
+    setTables((prev) => {
+      const home = prev.find((t) => t.seats.some((s) => s.guestKey === key));
+      if (!home) return prev;
+      return prev.map((table) =>
+        table.id !== home.id
+          ? table
+          : {
+              ...table,
+              seats: table.seats.map((s) =>
+                s.guestKey && keys.has(s.guestKey)
+                  ? { ...s, guestKey: null }
+                  : s,
+              ),
+            },
+      );
+    });
     closePopover();
   }
 
@@ -2408,11 +2532,7 @@ export function SeatingPlan({
                       className={`seat-plan-guest-avatar${
                         seated ? "" : " is-empty"
                       } seat-plan-guest-avatar--index`}
-                      style={
-                        seated || assign !== null
-                          ? { background: color }
-                          : undefined
-                      }
+                      style={seated ? { background: color } : undefined}
                       data-index={index + 1}
                     >
                       <span className="seat-plan-guest-avatar-initials">
@@ -2711,15 +2831,6 @@ export function SeatingPlan({
                           onDrop={(e) => onSeatDrop(e, table.id, seat.id)}
                           onClick={(e) => {
                             if (suppressSeatClickRef.current) return;
-                            // Явний режим «Посадити за (інший) стіл» з меню гостя.
-                            if (
-                              reseatKey &&
-                              guestMap.has(reseatKey) &&
-                              seat.guestKey !== reseatKey
-                            ) {
-                              seatFromPicker(table.id, seat.id, reseatKey);
-                              return;
-                            }
                             if (guest && seat.guestKey) {
                               openFloatPopover(
                                 "seat",
@@ -2753,6 +2864,19 @@ export function SeatingPlan({
                               {guest.name}
                             </span>
                           ) : null}
+                          {(seat.guestKey
+                            ? chairKidsOf.get(seat.guestKey) ?? []
+                            : []
+                          ).map((kidKey, i) => (
+                            <span
+                              key={kidKey}
+                              className="seat-plan-seat-chair"
+                              style={i ? { right: -6 - i * 12 } : undefined}
+                              title={`${guestName(kidKey)} — дитяче крісло`}
+                            >
+                              {initials(guestName(kidKey)).slice(0, 1)}
+                            </span>
+                          ))}
                         </button>
                       );
                     })}
@@ -2976,13 +3100,6 @@ export function SeatingPlan({
                     }
                   : null
               }
-              onSeatElsewhere={() => {
-                setSelectedKey(activePopover.key);
-                setReseatKey(activePopover.key);
-                setMobileTab("map");
-                closePopover();
-                toast.info(`Торкніться місця для ${activePopover.name}`);
-              }}
               onClose={closePopover}
             />
           </div>
@@ -3186,78 +3303,126 @@ export function SeatingPlan({
               );
               if (outcome.status === "placed") {
                 commitPlacement(outcome, seatConflict.guestKey);
+                toast.info(`${unit.map(guestName).join(", ")} тепер без місця`);
               }
               closeSeatConflict(true);
             };
+            const save = () => {
+              if (conflictChoice === "without") placeWithout();
+              else if (conflictChoice === "swap" && swapUnits.length > 0) {
+                placeFreeing(swapUnits[Math.min(conflictSwapIdx, swapUnits.length - 1)]);
+              } else closeSeatConflict(false);
+            };
             return (
-              <div className="seat-plan-sheet seat-conflict">
-                <button
-                  type="button"
-                  className="seat-plan-sheet__backdrop"
-                  aria-label="Закрити"
-                  onClick={() => closeSeatConflict(false)}
-                />
-                <div className="seat-plan-sheet__panel seat-conflict__panel">
-                  <p className="seat-conflict__title">
+              <CabinetOverlay
+                open
+                onClose={() => closeSeatConflict(false)}
+                title={
+                  <>
                     {guest.name} {linkedWord} з{" "}
                     {mates.map((m) => uaNameInstrumental(m.name)).join(" і ")}.
                     А за столом {tableNo} лише {available}{" "}
                     {seatsWord(available)}. Що робимо?
-                  </p>
-                  <button
-                    type="button"
-                    className="seat-conflict__option"
-                    onClick={placeWithout}
+                  </>
+                }
+                ariaLabel="Конфлікт розсадки"
+                variant="modal"
+                width={710}
+                mobileVariant="sheet"
+                panelClassName="seat-conflict-modal seat-conflict-sheet"
+                footerClassName="cabinet-modal-actions"
+                footer={
+                  <CabinetFormActions
+                    onCancel={() => closeSeatConflict(false)}
+                    saveType="button"
+                    onSave={save}
+                    saveDisabled={!conflictChoice}
+                  />
+                }
+              >
+                <RadioGroup className="seat-conflict-sheet__options">
+                  <RadioOption
+                    selected={conflictChoice === "without"}
+                    onSelect={() => setConflictChoice("without")}
                   >
                     Садимо {uaNameAccusative(firstName)} без{" "}
                     {mates.map((m) => uaNameGenitive(m.name)).join(" і ")} за{" "}
                     {table.label}
-                  </button>
-                  <button
-                    type="button"
-                    className="seat-conflict__option"
-                    onClick={() => closeSeatConflict(false)}
+                  </RadioOption>
+                  <RadioOption
+                    selected={conflictChoice === "skip"}
+                    onSelect={() => setConflictChoice("skip")}
                   >
                     Не садимо їх за цей стіл
-                  </button>
+                  </RadioOption>
                   {swapUnits.length > 0 ? (
                     <div
-                      className={`seat-conflict__swap${
-                        conflictSwapOpen ? " is-open" : ""
+                      className={`seat-conflict-sheet__expand${
+                        conflictChoice === "swap" ? " is-selected" : ""
                       }`}
                     >
-                      <button
-                        type="button"
-                        className="seat-conflict__option"
-                        aria-expanded={conflictSwapOpen}
-                        onClick={() => setConflictSwapOpen((v) => !v)}
+                      <RadioOption
+                        selected={conflictChoice === "swap"}
+                        onSelect={() => setConflictChoice("swap")}
                       >
                         <span>
                           {mates.length === 1 ? "Садимо обох" : "Садимо всіх"},
                           але пересаджуємо когось іншого з цього стола в
                           непосаджені
                         </span>
-                        <ChevronDownIcon />
-                      </button>
-                      {conflictSwapOpen
-                        ? swapUnits.map((unit) => (
-                            <button
+                        <span className="seat-conflict-sheet__chevron">
+                          <IconChevronDown />
+                        </span>
+                      </RadioOption>
+                      {conflictChoice === "swap" ? (
+                        <RadioGroup
+                          className="seat-conflict-modal__units"
+                          aria-label="Кого пересадити в непосаджені"
+                        >
+                          {swapUnits.map((unit, i) => (
+                            <RadioOption
                               key={unit.join("|")}
-                              type="button"
-                              className="seat-conflict__option seat-conflict__option--sub"
-                              onClick={() => placeFreeing(unit)}
+                              selected={
+                                Math.min(conflictSwapIdx, swapUnits.length - 1) ===
+                                i
+                              }
+                              onSelect={() => setConflictSwapIdx(i)}
                             >
                               {unit.map(guestName).join(" і ")}
-                            </button>
-                          ))
-                        : null}
+                            </RadioOption>
+                          ))}
+                        </RadioGroup>
+                      ) : null}
                     </div>
                   ) : null}
-                </div>
-              </div>
+                </RadioGroup>
+              </CabinetOverlay>
             );
           })()
         : null}
+
+      {(() => {
+        const table = fullTable
+          ? tables.find((t) => t.id === fullTable.tableId)
+          : null;
+        const guest = fullTable ? guestMap.get(fullTable.guestKey) : null;
+        return (
+          <SeatingFullTableModal
+            open={Boolean(table && guest)}
+            tableNo={
+              table ? table.label.replace(/^стіл\s*/i, "") || table.label : ""
+            }
+            guestName={guest?.name ?? ""}
+            occupants={(table?.seats ?? []).flatMap((s) =>
+              s.guestKey
+                ? [{ key: s.guestKey, name: guestName(s.guestKey) }]
+                : [],
+            )}
+            onClose={() => setFullTable(null)}
+            onReplace={replaceAtFullTable}
+          />
+        );
+      })()}
 
       <CabinetFiltersSheet
         open={mobileFiltersOpen}
@@ -3355,7 +3520,11 @@ export function SeatingPlan({
       {chartOpen ? (
         <SeatingChartEditor
           tables={tables}
-          guests={flat.map((g) => ({ key: g.key, name: g.name }))}
+          guests={flat.map((g) => ({
+            key: g.key,
+            name: g.name,
+            chairKids: (chairKidsOf.get(g.key) ?? []).map(guestName),
+          }))}
           partnerOneName={partnerOneName}
           partnerTwoName={partnerTwoName}
           weddingDate={weddingDate}

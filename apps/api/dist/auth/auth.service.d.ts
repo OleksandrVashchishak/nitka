@@ -68,12 +68,24 @@ export declare class AuthService {
         ok: boolean;
     }>;
     me(userId: string): Promise<{
+        gender: "female" | "male" | null;
         id: string;
         email: string;
         name: string;
         role: import(".prisma/client").$Enums.Role;
         createdAt: Date;
     }>;
+    updateMe(userId: string, patch: {
+        gender?: 'female' | 'male' | null;
+    }): Promise<{
+        gender: "female" | "male" | null;
+        id: string;
+        email: string;
+        name: string;
+        role: import(".prisma/client").$Enums.Role;
+        createdAt: Date;
+    }>;
+    private readGender;
     changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{
         accessToken: string;
         refreshToken: string;

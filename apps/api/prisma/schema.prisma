@@ -51,6 +51,10 @@ model User {
   notifPartnerChanges    Boolean  @default(false) @map("notif_partner_changes")
   notifPush              Boolean  @default(true)  @map("notif_push")
   notifEmail             Boolean  @default(true)  @map("notif_email")
+  /// Налаштування сповіщень (категорії + частота), див. notification-catalog.ts.
+  notifSettings          Json?    @map("notif_settings")
+  /// 'female' | 'male' — для узгодження дієслів у сповіщеннях.
+  gender                 String?
   createdAt        DateTime @default(now()) @map("created_at")
   lastLoginAt      DateTime? @map("last_login_at")
 
@@ -59,6 +63,7 @@ model User {
   externalVendors    ExternalVendor[]
   contentPosts       ContentPost[]
   pushDevices        PushDevice[]
+  notifications      Notification[]
   adminNotes         AdminUserNote[]
   dayPlanShareGrants DayPlanShareGrant[]
   activityDays       UserActivityDay[]
@@ -88,6 +93,38 @@ model AdminUserNote {
 
   @@index([userId])
   @@map("admin_user_notes")
+}
+
+/// Сповіщення в дзвіночку (notifications-spec.md). Запис на кожного отримувача.
+model Notification {
+  id          String    @id
+  weddingId   String    @map("wedding_id")
+  recipientId String    @map("recipient_id")
+  type        String
+  dedupKey    String    @map("dedup_key")
+  count       Int       @default(1)
+  payload     Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  readAt      DateTime? @map("read_at")
+  resolvedAt  DateTime? @map("resolved_at")
+  reminderNo  Int?      @map("reminder_no")
+
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  recipient User    @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, updatedAt])
+  @@index([recipientId, dedupKey])
+  @@index([weddingId, type])
+  @@map("notifications")
+}
+
+/// Замок щоденної задачі нагадувань: один прогін на день (Europe/Kyiv).
+model NotificationJobRun {
+  day       DateTime @id @db.Date
+  startedAt DateTime @default(now()) @map("started_at")
+
+  @@map("notification_job_runs")
 }
 
 model PushDevice {
@@ -138,6 +175,8 @@ model Wedding {
   planningStage   String   @default("EXPLORING") @map("planning_stage")
   cityUndecided   Boolean  @default(false) @map("city_undecided")
   guestsUndecided Boolean  @default(false) @map("guests_undecided")
+  /// Дату ще не обрали (у `date` — тимчасова дата на рік уперед).
+  dateUndecided   Boolean  @default(false) @map("date_undecided")
   dayPlan         Json?    @map("day_plan")
   vendorPlan      Json?    @map("vendor_plan")
   seatingDraft    Json?    @map("seating_draft")
@@ -152,6 +191,7 @@ model Wedding {
   website     WeddingWebsite?
   invitation  WeddingInvitation?
   dayPlanShare DayPlanShare?
+  notifications Notification[]
 
   @@map("weddings")
 }
@@ -275,6 +315,11 @@ model Task {
   sortOrder    Int        @default(0) @map("sort_order")
   isCustom     Boolean    @default(false) @map("is_custom")
   assignee     String?
+  /// Розумне планування: id шаблону, джерело ('smart_planning'), мітка «Терміново».
+  templateId   String?    @map("template_id")
+  source       String?
+  isUrgent     Boolean    @default(false) @map("is_urgent")
+  createdAt    DateTime   @default(now()) @map("created_at")
 
   wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 

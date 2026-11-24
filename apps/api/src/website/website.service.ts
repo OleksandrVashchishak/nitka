@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { slugify } from '../common/slug';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { requireWeddingForUser } from '../weddings/wedding-access';
 import { UpsertWeddingWebsiteDto } from './dto/website.dto';
@@ -396,7 +397,10 @@ function serialize(
 
 @Injectable()
 export class WebsiteService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   private async getPublishedAt(siteId: string): Promise<Date | null> {
     try {
@@ -533,6 +537,13 @@ export class WebsiteService {
     const publishedAt =
       (await this.getPublishedAt(site.id)) ??
       (published || becomingUnpublished ? new Date() : existingPublishedAt);
+
+    if (published && !wasPublished) {
+      void this.notifications.partnerEvent(wedding.id, userId, 'partner_site_published', {
+        siteUrl: `/w/${site.slug}`,
+      });
+      void this.notifications.resolveTypes(wedding.id, ['invitation_unpublished']);
+    }
 
     return serialize({ ...site, publishedAt }, wedding);
   }

@@ -66,7 +66,7 @@ paths:
 - Child icon (`isChild`) — після імені
 - Справа: assign pill (20px, 10px UPPERCASE) → аватар сторони (`ResponsibleAvatar` / `ResponsibleAvatarDuo` з імен партнерів) → ⋮
 - Assign control: pill-select з шевроном — empty «Обрати групу» (білий, min 144px) / group (колір за порядком групи, 1-ша зелена) / президіум (wine); дитячий стіл — рожевий без шеврону. У приєднаних (не першого в кластері) pill показується лише якщо є значення
-- ⋮ меню: якщо гість приєднаний — **Від’єднати від {ім’я}** (локальний `detachedKeys`); завжди блок «Статус» відповіді (`GuestRowMenu`)
+- ⋮ меню: якщо гість приєднаний — **Від’єднати від {ім’я}** (у плані — не для дитини в дитячому кріслі) (локальний `detachedKeys`); завжди блок «Статус» відповіді (`GuestRowMenu`)
 - Parent→companions sync (`applyLinkedAssign`): не оверайтить дітей за дитячим столом і assignment `kids`
 - Content card width ~612px (`seat-wiz-body.is-narrow`)
 - Add group btn: lime `#F0FEBB` / `#F0FCBA`, pill 44px (див. AddButton.svg)
@@ -83,6 +83,7 @@ paths:
 - Список гостей розсадки — **лише** `flattenSeatingGuests` з `lib/seating-guests.ts` (wizard, модалка груп, план). Не копіювати flatten у компоненти
 - Ланцюжок = родина (`party:` / прізвище) + «+1»; **голова — перший дорослий**, дитина головою не буває; лише діти → без ланцюжка
 - Дитина автоматом на «дитячий стіл» (якщо стіл увімкнено), **крім `high_chair` і `with_parents`** (сидять з батьками за дорослим столом). `kids_table` / без потреби → дитячий стіл (`childGoesToKidsTable`). У формі гостя дефолт — «За дитячий стіл»
+- **Дитяче крісло** (`high_chair`): місця за столом не займає — `highChairHosts` (`lib/seating-guests.ts`) прив'язує дитину до дорослого (той, у чиїй картці дитина, інакше голова ланцюжка). На плані — маленький кружечок `.seat-plan-seat-chair` на місці дорослого, пересідає разом із ним; у лічильник столу не йде; у списку «посаджена», якщо сидить дорослий; drag дитини тягне дорослого; у PDF-розсадці ім'я йде після дорослого. Без дорослого / від'єднана — сідає як звичайний гість
 - При завантаженні `syncKidsAssignments`: дитина без групи → `kids`; немає дитячого столу → `kids` знімається; ручну групу не чіпати
 - Призначення з підтягуванням ланцюжка — `applyLinkedAssign` (діти за дитячим столом за родиною не йдуть)
 - Дитячий стіл (степ 1, якщо «Так»): кількість столів + форма «Круглий» / «Довгий»; місць на стіл — фікс 8
@@ -109,6 +110,6 @@ paths:
 - `PlanTable.rotation` (deg) — CSS transform на canvas; seats counter-rotate
 - localStorage: ~~legacy~~ → **Postgres** `weddings.seating_draft` + `weddings.seating_plan` via `GET/PUT /api/seating`
 - One-time migrate from old `fata-seating-*:v1` localStorage if DB empty
-- Interaction guests: **лише drag guest from list (or seat) → drop on seat / table** (table = first empty), без «вибрав гостя → клік по місцю» (виняток — явний режим «Посадити за інший стіл» з sheet гостя на mobile); drop на зайняте місце: сидячий гість міняється місцями, гість без місця витісняє (тост); ланцюжок сідає на найближчі місця (`lib/seating-place.ts`); drag image — кружечок з ініціалами + ім’я (`.seat-plan-drag-ghost`), не вся плитка; click seated seat opens popover; click empty seat → seat-pick модалка «Посадити» (desktop + mobile; кнопка «Фільтри» в ній лише на mobile); DnD desktop-only
+- Interaction guests: **лише drag guest from list (or seat) → drop on seat / table** (table = first empty), без «вибрав гостя → клік по місцю»; drop на зайняте місце: сидячий гість міняється місцями, гість без місця витісняє (тост); ланцюжок сідає на найближчі місця (`lib/seating-place.ts`); drag image — кружечок з ініціалами + ім’я (`.seat-plan-drag-ghost`), не вся плитка; click seated seat opens popover; click empty seat → seat-pick модалка «Посадити» (desktop + mobile; кнопка «Фільтри» в ній лише на mobile); DnD desktop-only
 - Pencil «Редагувати групи» → `SeatingGroupsModal` (1162px, 2 рівні колонки, заголовок Akzidenz Italic, кнопки «Скасувати» / «Додати»), не fullscreen wizard; сейв оновлює лише `draft.guests`, план столів не валить
 - `detachedKeys` from wizard/modal breaks link only (гості лишаються у списку)

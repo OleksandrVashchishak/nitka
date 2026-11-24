@@ -16,7 +16,8 @@
     "prisma:vendor": "node scripts/vendor-prisma-client.cjs",
     "prisma:push": "prisma db push --accept-data-loss",
     "prisma:seed": "ts-node --transpile-only prisma/seed.ts",
-    "start:render": "node scripts/start-render.js"
+    "start:render": "node scripts/start-render.js",
+    "test": "node --require ts-node/register/transpile-only --test src/notifications/notification-logic.spec.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",

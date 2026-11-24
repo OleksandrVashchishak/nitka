@@ -86,6 +86,39 @@ describe("placeGuest", () => {
     expect(keysOf(r.tables, "a")).toEqual(["anton", "anna", "x"]);
   });
 
+  it("сидячий гість на зайняте місце іншого столу — ланцюжок їде з ним", () => {
+    const tables = [round("a", ["anna", "anton", null]), round("b", ["x", null, null, "y"])];
+    const r = placeGuest(tables, "b", "b-s0", "anna", ["anton"]);
+    if (r.status !== "placed") throw new Error("expected placed");
+    expect(r.swappedWith).toBe("x");
+    expect(keysOf(r.tables, "a")).toEqual(["x", null, null]);
+    const b = keysOf(r.tables, "b");
+    expect(b[0]).toBe("anna");
+    expect(b.filter(Boolean).sort()).toEqual(["anna", "anton", "y"]);
+  });
+
+  it("сидячий гість на зайняте місце іншого столу без місця для ланцюжка — конфлікт", () => {
+    const tables = [round("a", ["anna", "anton", null]), round("b", ["x", "y", "z"])];
+    const r = placeGuest(tables, "b", "b-s0", "anna", ["anton"]);
+    expect(r).toEqual({ status: "conflict", available: 1, mates: ["anton"] });
+  });
+
+  it("на місці сидить свій із ланцюжка — він пересідає поруч, а не міняється", () => {
+    const tables = [round("a", ["anna", null]), round("b", ["anton", null, null])];
+    const r = placeGuest(tables, "b", "b-s0", "anna", ["anton"]);
+    if (r.status !== "placed") throw new Error("expected placed");
+    expect(keysOf(r.tables, "a")).toEqual([null, null]);
+    expect(keysOf(r.tables, "b")[0]).toBe("anna");
+    expect(keysOf(r.tables, "b")).toContain("anton");
+  });
+
+  it("за тим самим столом на зайняте місце — простий обмін", () => {
+    const tables = [round("a", ["anna", "anton", "x", null])];
+    const r = placeGuest(tables, "a", "a-s2", "anna", ["anton"]);
+    if (r.status !== "placed") throw new Error("expected placed");
+    expect(keysOf(r.tables, "a")).toEqual(["x", "anton", "anna", null]);
+  });
+
   it("довгий стіл: сусід у ряду ближче, ніж кінець іншого ряду", () => {
     const t: PlaceTable = {
       id: "l",

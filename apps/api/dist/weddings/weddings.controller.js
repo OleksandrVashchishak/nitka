@@ -21,6 +21,7 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const partner_invite_dto_1 = require("./dto/partner-invite.dto");
 const create_task_dto_1 = require("./dto/create-task.dto");
+const create_smart_plan_tasks_dto_1 = require("./dto/create-smart-plan-tasks.dto");
 const update_task_dto_1 = require("./dto/update-task.dto");
 const upsert_wedding_dto_1 = require("./dto/upsert-wedding.dto");
 const weddings_service_1 = require("./weddings.service");
@@ -56,6 +57,9 @@ let WeddingsController = class WeddingsController {
     }
     createTask(user, dto) {
         return this.weddingsService.createTask(user.id, dto);
+    }
+    createSmartPlanTasks(user, dto) {
+        return this.weddingsService.createSmartPlanTasks(user.id, dto);
     }
     updateTask(user, taskId, dto) {
         return this.weddingsService.updateTask(user.id, taskId, dto);
@@ -148,6 +152,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, create_task_dto_1.CreateTaskDto]),
     __metadata("design:returntype", void 0)
 ], WeddingsController.prototype, "createTask", null);
+__decorate([
+    (0, common_1.Post)('tasks/smart-plan'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(client_1.Role.COUPLE),
+    openapi.ApiResponse({ status: 201, type: Object }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_smart_plan_tasks_dto_1.CreateSmartPlanTasksDto]),
+    __metadata("design:returntype", void 0)
+], WeddingsController.prototype, "createSmartPlanTasks", null);
 __decorate([
     (0, common_1.Patch)('tasks/:taskId'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

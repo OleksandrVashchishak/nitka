@@ -14,6 +14,10 @@
   --nc-serif: var(--font-script), "Cormorant Garamond", serif;
   --nc-minimal-bg: #dbd3c5;
   --nc-minimal-ink: #2a2723;
+  --nc-modern-bg: #f1eeea;
+  --nc-didone: var(--font-oranienbaum), "Oranienbaum", serif;
+  --nc-magazine-bg: #f7f6f3;
+  --nc-script: var(--font-great-vibes), "Great Vibes", cursive;
   --nc-aside-w: 380px;
 }
 
@@ -364,6 +368,179 @@
     }
   }
 
+  /* «Сучасний»: світлий фон, ім'я / ✦ / прізвище */
+  &--modern {
+    --nc-fold: #cfcac3;
+    background: var(--nc-modern-bg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    .name-cards-sheet__cell::before {
+      opacity: 0.35;
+    }
+
+    .name-cards-sheet__face {
+      color: var(--nc-ink);
+    }
+  }
+
+  &--modern &__name {
+    font-family: var(--nc-font);
+    font-size: 1.65cqw;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    color: var(--nc-ink);
+  }
+
+  /* «Елегантний»: ім'я Great Vibes, прізвище Cormorant, дата словами */
+  &--elegant {
+    --nc-fold: #d6d6d6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    .name-cards-sheet__cell::before {
+      opacity: 0.35;
+    }
+  }
+
+  &--elegant &__face {
+    display: grid;
+    grid-template-rows: 3fr 2fr;
+    align-items: center;
+    justify-items: center;
+    align-self: stretch;
+    width: 100%;
+    color: var(--nc-ink);
+  }
+
+  &__names {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  &__first {
+    max-width: 100%;
+    font-family: var(--nc-script);
+    font-size: 3.8cqw;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--nc-ink);
+  }
+
+  &__last {
+    margin-top: -0.2cqw;
+    font-family: var(--nc-serif);
+    font-size: 1.1cqw;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.2em;
+    text-align: center;
+  }
+
+  &--elegant &__date {
+    margin-top: 0;
+    font-family: var(--nc-serif);
+    font-size: 1.4cqw;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+  }
+
+  /* «Ботанічний»: гілка оливи над іменем Great Vibes, дата словами */
+  &--botanical {
+    --nc-fold: #d6d6d6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    .name-cards-sheet__cell {
+      padding: 0;
+
+      &::before {
+        opacity: 0.35;
+      }
+    }
+  }
+
+  &--botanical &__face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    align-self: stretch;
+    justify-self: stretch;
+    padding: 0 1.4cqw;
+    color: var(--nc-ink);
+  }
+
+  &__branch {
+    display: block;
+    align-self: flex-end;
+    width: 12.8cqw;
+    height: auto;
+    user-select: none;
+  }
+
+  &--botanical &__first {
+    margin-top: 0.8cqw;
+    font-size: 3.1cqw;
+    line-height: 1.1;
+    text-align: center;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  &--botanical &__date {
+    margin-top: 0.8cqw;
+    font-family: var(--nc-serif);
+    font-size: 1.4cqw;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+  }
+
+  /* «Журнальний»: ім'я й прізвище двома рядками, праворуч внизу */
+  &--magazine {
+    --nc-fold: #d6d6d6;
+    background: var(--nc-magazine-bg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    .name-cards-sheet__cell {
+      padding: 0;
+
+      &::before {
+        opacity: 0.35;
+      }
+    }
+  }
+
+  &--magazine &__face {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    align-self: stretch;
+    justify-self: stretch;
+    padding: 0 2.1cqw 2.1cqw 0;
+  }
+
+  &--magazine &__line {
+    font-family: var(--nc-didone);
+    font-size: 2.9cqw;
+    font-weight: 400;
+    line-height: 0.9;
+    text-align: right;
+    color: var(--nc-ink);
+  }
+
+  &__spark {
+    display: block;
+    width: 0.75cqw;
+    height: 0.75cqw;
+    margin: 2.2cqw 0;
+  }
+
   &__fold {
     position: absolute;
     top: 50%;
@@ -372,9 +549,10 @@
     height: 1px;
     background: repeating-linear-gradient(
       to right,
-      rgb(255 255 255 / 0.55) 0 0.5cqw,
+      var(--nc-fold, rgb(255 255 255 / 0.55)) 0 0.5cqw,
       transparent 0.5cqw 0.9cqw
     );
+    opacity: 0.4;
     pointer-events: none;
   }
 
@@ -390,7 +568,7 @@
 
   &__greet {
     font-family: var(--nc-font);
-    font-size: 0.72cqw;
+    font-size: 1.08cqw;
     font-weight: 500;
     line-height: 1;
     letter-spacing: 0.3em;
@@ -411,7 +589,7 @@
   &__date {
     margin-top: 2.6cqw;
     font-family: var(--nc-font);
-    font-size: 0.8cqw;
+    font-size: 1.25cqw;
     font-weight: 500;
     line-height: 1;
     letter-spacing: 0.18em;
@@ -553,6 +731,7 @@
     height: 0;
     margin-bottom: 122px;
     border-top: 1px dashed #d7d7d7;
+    opacity: 0.4;
   }
 
   .name-cards-editor__thumb-name {
@@ -595,7 +774,7 @@
     .name-cards-editor__thumb-greet {
       margin-bottom: 26px;
       font-family: var(--nc-font);
-      font-size: 9px;
+      font-size: 11.5px;
       font-weight: 500;
       line-height: 1;
       letter-spacing: 0.3em;
@@ -603,7 +782,7 @@
 
     .name-cards-editor__thumb-name {
       font-family: var(--nc-serif);
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 400;
       line-height: 1.25;
       letter-spacing: 0.2em;
@@ -613,10 +792,190 @@
     .name-cards-editor__thumb-date {
       margin-top: 28px;
       font-family: var(--nc-font);
-      font-size: 10px;
+      font-size: 13.5px;
       font-weight: 500;
       line-height: 1;
       letter-spacing: 0.18em;
+    }
+  }
+
+  .name-cards-editor__thumb-card--modern {
+    padding: 0;
+    justify-content: flex-start;
+    background: var(--nc-modern-bg);
+
+    .name-cards-editor__thumb-rule {
+      flex: 0 0 50%;
+      box-sizing: border-box;
+      width: calc(100% - 48px);
+      height: 50%;
+      margin: 0;
+      border-top: 0;
+      border-bottom: 1px dashed #cfcac3;
+    }
+
+    .name-cards-editor__thumb-face {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      color: var(--nc-ink);
+      text-align: center;
+    }
+
+    .name-cards-editor__thumb-name {
+      font-family: var(--nc-font);
+      font-size: 24px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: 0.08em;
+    }
+
+    .name-cards-editor__thumb-spark {
+      display: block;
+      width: 12px;
+      height: 12px;
+      margin: 26px 0;
+    }
+  }
+
+  .name-cards-editor__thumb-card--elegant {
+    padding: 0;
+    justify-content: flex-start;
+
+    .name-cards-editor__thumb-rule {
+      flex: 0 0 50%;
+      box-sizing: border-box;
+      width: calc(100% - 48px);
+      height: 50%;
+      margin: 0;
+      border-top: 0;
+      border-bottom: 1px dashed #d6d6d6;
+    }
+
+    .name-cards-editor__thumb-face {
+      display: grid;
+      flex: 1 1 auto;
+      grid-template-rows: 3fr 2fr;
+      align-items: center;
+      justify-items: center;
+      width: 100%;
+      color: var(--nc-ink);
+    }
+
+    .name-cards-editor__thumb-names {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .name-cards-editor__thumb-first {
+      font-family: var(--nc-script);
+      font-size: 56px;
+      line-height: 1.1;
+    }
+
+    .name-cards-editor__thumb-last {
+      margin-top: -4px;
+      font-family: var(--nc-serif);
+      font-size: 19px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: 0.2em;
+    }
+
+    .name-cards-editor__thumb-date {
+      font-family: var(--nc-serif);
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+    }
+  }
+
+  .name-cards-editor__thumb-card--botanical {
+    padding: 0;
+    justify-content: flex-start;
+
+    .name-cards-editor__thumb-rule {
+      flex: 0 0 50%;
+      box-sizing: border-box;
+      width: calc(100% - 48px);
+      height: 50%;
+      margin: 0;
+      border-top: 0;
+      border-bottom: 1px dashed #d6d6d6;
+    }
+
+    .name-cards-editor__thumb-face {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+      width: 100%;
+      padding: 0 18px;
+      color: var(--nc-ink);
+    }
+
+    .name-cards-editor__thumb-branch {
+      display: block;
+      align-self: flex-end;
+      width: 164px;
+      height: auto;
+    }
+
+    .name-cards-editor__thumb-first {
+      margin-top: 10px;
+      font-family: var(--nc-script);
+      font-size: 35px;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .name-cards-editor__thumb-date {
+      margin-top: 12px;
+      font-family: var(--nc-serif);
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+    }
+  }
+
+  .name-cards-editor__thumb-card--magazine {
+    padding: 0;
+    justify-content: flex-start;
+    background: var(--nc-magazine-bg);
+
+    .name-cards-editor__thumb-rule {
+      flex: 0 0 50%;
+      box-sizing: border-box;
+      width: calc(100% - 48px);
+      height: 50%;
+      margin: 0;
+      border-top: 0;
+      border-bottom: 1px dashed #d6d6d6;
+    }
+
+    .name-cards-editor__thumb-face {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-end;
+      box-sizing: border-box;
+      width: 100%;
+      padding: 0 27px 34px 0;
+    }
+
+    .name-cards-editor__thumb-line {
+      font-family: var(--nc-didone);
+      font-size: 38px;
+      font-weight: 400;
+      line-height: 0.9;
+      text-align: right;
+      color: var(--nc-ink);
     }
   }
 

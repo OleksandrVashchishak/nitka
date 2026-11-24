@@ -1,3 +1,4 @@
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpsertWeddingWebsiteDto } from './dto/website.dto';
 export type WebsiteScheduleItem = {
@@ -71,7 +72,8 @@ export type WebsiteContent = {
 };
 export declare class WebsiteService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notifications;
+    constructor(prisma: PrismaService, notifications: NotificationsService);
     private getPublishedAt;
     private touchPublishedAt;
     getMine(userId: string): Promise<{

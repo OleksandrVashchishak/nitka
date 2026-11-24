@@ -75,7 +75,7 @@ export class GuestsService {
 
   async create(userId: string, dto: CreateGuestDto) {
     const wedding = await this.getWeddingForUser(userId);
-    return this.prisma.guest.create({
+    const guest = await this.prisma.guest.create({
       data: {
         weddingId: wedding.id,
         name: dto.name.trim(),
@@ -92,6 +92,10 @@ export class GuestsService {
           dto.rsvpStatus && dto.rsvpStatus !== 'PENDING' ? new Date() : null,
       },
     });
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_guests_added', {
+      entityIds: [guest.id],
+    });
+    return guest;
   }
 
   async importMany(userId: string, dto: ImportGuestsDto) {
@@ -119,6 +123,11 @@ export class GuestsService {
         }),
       ),
     );
+
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_guests_added', {
+      n: created.length,
+      entityIds: created.map((g) => g.id),
+    });
 
     return {
       imported: created.length,
@@ -172,28 +181,7 @@ export class GuestsService {
     });
 
     if (statusChanged && nextStatus !== 'PENDING') {
-      const verb =
-        nextStatus === 'YES'
-          ? 'підтвердив(ла) участь'
-          : nextStatus === 'NO'
-            ? 'відхилив(ла) запрошення'
-            : nextStatus === 'MAYBE'
-              ? 'відповів(ла): можливо'
-              : 'відповів(ла) на запрошення';
-      void this.notifications.notifyWeddingMembers(
-        wedding.id,
-        {
-          title: 'Нова відповідь гостя',
-          body: `${updated.name} ${verb}`,
-          data: { type: 'guest_rsvp', guestId: updated.id },
-          type: 'guest_rsvp',
-          email: {
-            ctaLabel: 'Список гостей',
-            ctaPath: '/guests',
-          },
-        },
-        userId,
-      );
+      await this.resolveIfNoPending(wedding.id);
     }
 
     return updated;
@@ -208,6 +196,21 @@ export class GuestsService {
       throw new NotFoundException('Гостя не знайдено');
     }
     await this.prisma.guest.delete({ where: { id: guestId } });
+    void this.notifications.partnerEvent(wedding.id, userId, 'partner_guests_removed');
+    await this.resolveIfNoPending(wedding.id);
     return { ok: true };
+  }
+
+  /** Усі відповіли — нагадування про гостей без відповіді більше не актуальні. */
+  private async resolveIfNoPending(weddingId: string) {
+    const pending = await this.prisma.guest.count({
+      where: { weddingId, rsvpStatus: 'PENDING' },
+    });
+    if (pending === 0) {
+      await this.notifications.resolveTypes(weddingId, [
+        'guests_no_response',
+        'guests_no_response_deadline',
+      ]);
+    }
   }
 }

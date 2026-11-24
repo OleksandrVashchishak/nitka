@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IconClose } from "@/components/icon-close";
-import { useToastStore, type ToastTone } from "@/lib/toast";
+import { useToastStore, type ToastAction, type ToastTone } from "@/lib/toast";
 
 const TONE_STYLES: Record<
   ToastTone,
@@ -43,6 +43,8 @@ export function ToastViewport() {
           tone={item.tone}
           title={item.title}
           description={item.description}
+          action={item.action}
+          duration={item.duration}
           onDismiss={() => dismiss(item.id)}
         />
       ))}
@@ -55,20 +57,24 @@ function ToastCard({
   tone,
   title,
   description,
+  action,
+  duration = 4200,
   onDismiss,
 }: {
   id: string;
   tone: ToastTone;
   title: string;
   description?: string;
+  action?: ToastAction;
+  duration?: number;
   onDismiss: () => void;
 }) {
   const style = TONE_STYLES[tone];
 
   useEffect(() => {
-    const timer = window.setTimeout(onDismiss, 4200);
+    const timer = window.setTimeout(onDismiss, duration);
     return () => window.clearTimeout(timer);
-  }, [id, onDismiss]);
+  }, [id, onDismiss, duration]);
 
   const startY = useRef<number | null>(null);
   const [dragY, setDragY] = useState(0);
@@ -114,6 +120,19 @@ function ToastCard({
             <p className="mt-1 text-sm leading-5 text-ink-soft">{description}</p>
           ) : null}
         </div>
+        {action ? (
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => {
+              action.onClick();
+              onDismiss();
+            }}
+            className="self-center rounded-full px-3 py-1 text-sm font-semibold text-ink transition hover:bg-mist"
+          >
+            {action.label}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={onDismiss}

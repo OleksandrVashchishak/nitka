@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BudgetModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_module_1 = require("../auth/auth.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 const budget_controller_1 = require("./budget.controller");
 const budget_service_1 = require("./budget.service");
 let BudgetModule = class BudgetModule {
@@ -16,7 +17,7 @@ let BudgetModule = class BudgetModule {
 exports.BudgetModule = BudgetModule;
 exports.BudgetModule = BudgetModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
+        imports: [auth_module_1.AuthModule, notifications_module_1.NotificationsModule],
         controllers: [budget_controller_1.BudgetController],
         providers: [budget_service_1.BudgetService],
     })

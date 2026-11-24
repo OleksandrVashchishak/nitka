@@ -1,87 +1,88 @@
-import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { EmailService } from '../email/email.service';
 import { PrismaService } from '../prisma/prisma.service';
-export type NotifyEventType = 'guest_rsvp' | 'upcoming_payments' | 'task_due' | 'partner_changes';
-export type NotifyPayload = {
-    title: string;
-    body: string;
-    data?: Record<string, string>;
-    type?: NotifyEventType;
-    email?: {
-        subject?: string;
-        body?: string;
-        ctaLabel?: string;
-        ctaPath?: string;
-    };
+import { type Gender, type NotificationPayload, type NotificationSettings, type NotificationType, type RenderedNotification } from './notification-catalog';
+export type NotificationFeedItem = RenderedNotification & {
+    id: string;
+    type: NotificationType;
+    createdAt: string;
+    updatedAt: string;
+    isRead: boolean;
+    taskId?: string;
 };
-export type NotificationPrefs = {
-    guestRsvp: boolean;
-    upcomingPayments: boolean;
-    taskDeadlines: boolean;
-    partnerChanges: boolean;
+export type NotificationsPage = {
+    items: NotificationFeedItem[];
+    unreadCount: number;
+    hasMore: boolean;
+};
+export type NotificationPrefsView = NotificationSettings & {
+    partnerName: string | null;
+    hasPartner: boolean;
+};
+export type NotificationPrefsPatch = Partial<Omit<NotificationSettings, 'channels'> & {
     push: boolean;
     email: boolean;
+}>;
+export type CreateNotificationInput = {
+    weddingId: string;
+    recipientId: string;
+    type: NotificationType;
+    dedupKey: string;
+    count?: number;
+    payload?: NotificationPayload;
+    reminderNo?: number | null;
+    suppressed?: boolean;
 };
-export type NotificationSummaryItem = {
-    key: string;
-    label: string;
-    count: number;
-    href: string;
+export type PartnerEventInput = {
+    n?: number;
+    entityIds?: string[];
+    amount?: number;
+    vendorId?: string;
+    vendorLabel?: string;
+    siteUrl?: string;
 };
-export type NotificationFeedItem = {
-    id: string;
-    body: string;
-    href: string;
-    createdAt: string;
-    isNew: boolean;
-    actionLabel?: string;
-    actionHref?: string;
-};
-export declare class NotificationsService implements OnModuleInit, OnModuleDestroy {
+export declare function utcTs(d?: Date): string;
+export declare class NotificationsService {
     private readonly prisma;
     private readonly email;
     private readonly logger;
-    private dueTimer;
     constructor(prisma: PrismaService, email: EmailService);
-    onModuleInit(): void;
-    onModuleDestroy(): void;
     registerDevice(userId: string, token: string, platform?: string): Promise<{
         ok: boolean;
     }>;
-    getPrefs(userId: string): Promise<NotificationPrefs>;
-    updatePrefs(userId: string, patch: Partial<NotificationPrefs>): Promise<NotificationPrefs>;
-    private mapPrefs;
-    private allowsEventType;
     unregisterDevice(userId: string, token: string): Promise<{
         ok: boolean;
     }>;
-    getSummary(user: {
-        id: string;
-        role: string;
-    }): Promise<{
-        role: string;
-        pendingRsvp: number;
-        newRsvp: number;
-        total: number;
-        newCount: number;
-        items: NotificationSummaryItem[];
-        feed: NotificationFeedItem[];
-        moreHref: string;
+    getMembers(weddingId: string): Promise<{
+        ownerId: string;
+        partnerId: string | null;
+        partnerOneName: string;
+        partnerTwoName: string;
+    } | null>;
+    getActors(weddingId: string, userIds: string[]): Promise<Map<string, {
+        name: string;
+        gender: Gender;
+    }>>;
+    getSettings(userId: string): Promise<NotificationSettings>;
+    getPrefs(userId: string): Promise<NotificationPrefsView>;
+    updatePrefs(userId: string, patch: NotificationPrefsPatch): Promise<NotificationPrefsView>;
+    create(input: CreateNotificationInput): Promise<`${string}-${string}-${string}-${string}-${string}`>;
+    partnerEvent(weddingId: string, actorId: string, type: Extract<NotificationType, `partner_${string}`>, event?: PartnerEventInput): Promise<void>;
+    direct(weddingId: string, recipientId: string, type: NotificationType, dedupKey: string, payload: NotificationPayload): Promise<void>;
+    smartPlanningDateTip(weddingId: string): Promise<void>;
+    resolveTypes(weddingId: string, types: NotificationType[], recipientId?: string): Promise<void>;
+    resolveTask(weddingId: string, taskId: string): Promise<void>;
+    list(userId: string, offset?: number, limit?: number): Promise<NotificationsPage>;
+    unreadCount(userId: string): Promise<number>;
+    markRead(userId: string, id: string): Promise<{
+        ok: boolean;
+        unreadCount: number;
     }>;
-    private getCoupleSummary;
-    private buildCoupleFeed;
-    notifyUser(userId: string, payload: NotifyPayload): Promise<{
-        sent: number;
-        emailed: number;
+    markAllRead(userId: string): Promise<{
+        ok: boolean;
+        unreadCount: number;
     }>;
-    notifyWeddingMembers(weddingId: string, payload: NotifyPayload, excludeUserId?: string): Promise<{
-        sent: number;
-        emailed: number;
-    }>;
-    sendDueTaskReminders(): Promise<{
-        tasks: number;
-        sent: number;
-    }>;
+    private renderRows;
+    private deliver;
     private sendPush;
     private sendEmail;
     private sendExpo;

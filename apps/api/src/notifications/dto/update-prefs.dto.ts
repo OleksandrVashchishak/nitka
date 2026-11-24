@@ -1,21 +1,34 @@
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional } from 'class-validator';
 
+/** Налаштування › Сповіщення (notifications-spec.md, розділ 8). */
 export class UpdateNotificationPrefsDto {
   @IsOptional()
   @IsBoolean()
-  guestRsvp?: boolean;
+  tasks?: boolean;
+
+  @IsOptional()
+  @IsIn(['normal', 'less'])
+  taskFrequency?: 'normal' | 'less';
 
   @IsOptional()
   @IsBoolean()
-  upcomingPayments?: boolean;
+  guests?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  taskDeadlines?: boolean;
+  partnerActivity?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  partnerChanges?: boolean;
+  invitationAndDayPlan?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  milestones?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  tips?: boolean;
 
   @IsOptional()
   @IsBoolean()

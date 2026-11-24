@@ -55,6 +55,7 @@ let WeddingsService = class WeddingsService {
         const tasks = await this.attachTaskAssignees(weddingId, wedding.tasks);
         return {
             ...wedding,
+            dateUndecided: await this.readDateUndecided(weddingId),
             tasks,
             myRole: me?.role ?? client_1.WeddingMemberRole.OWNER,
         };
@@ -72,12 +73,17 @@ let WeddingsService = class WeddingsService {
         SELECT id, assignee FROM tasks WHERE wedding_id = ${weddingId}
       `;
             const map = new Map(rows.map((row) => [row.id, row.assignee]));
+            const meta = await this.readTaskPlanMeta(weddingId);
             return tasks.map((task) => {
                 const parsed = (0, task_assignee_1.parseTaskAssignee)(map.get(task.id) ?? null);
+                const m = meta.get(task.id);
                 return {
                     ...task,
                     assignee: parsed.assignee,
                     assigneeName: parsed.assigneeName,
+                    templateId: m?.template_id ?? null,
+                    source: m?.source ?? null,
+                    isUrgent: m?.is_urgent ?? false,
                 };
             });
         }
@@ -86,13 +92,58 @@ let WeddingsService = class WeddingsService {
                 ...task,
                 assignee: null,
                 assigneeName: null,
+                templateId: null,
+                source: null,
+                isUrgent: false,
             }));
+        }
+    }
+    async readTaskPlanMeta(weddingId) {
+        try {
+            const rows = await this.prisma.$queryRaw `
+        SELECT id, template_id, source, is_urgent FROM tasks WHERE wedding_id = ${weddingId}
+      `;
+            return new Map(rows.map((row) => [row.id, row]));
+        }
+        catch {
+            return new Map();
         }
     }
     async setTaskAssignee(taskId, assignee) {
         await this.prisma.$executeRaw `
       UPDATE tasks SET assignee = ${assignee} WHERE id = ${taskId}
     `;
+    }
+    async readDateUndecided(weddingId) {
+        try {
+            const rows = await this.prisma.$queryRaw `SELECT date_undecided FROM weddings WHERE id = ${weddingId}`;
+            return Boolean(rows[0]?.date_undecided);
+        }
+        catch {
+            return false;
+        }
+    }
+    async writeDateUndecided(weddingId, value) {
+        try {
+            await this.prisma.$executeRaw `
+        UPDATE weddings SET date_undecided = ${value} WHERE id = ${weddingId}
+      `;
+        }
+        catch {
+        }
+    }
+    async notifyTaskAssigned(weddingId, actorId, task, assignee) {
+        const members = await this.notifications.getMembers(weddingId);
+        if (!members)
+            return;
+        const target = assignee === 'owner'
+            ? members.ownerId
+            : assignee === 'partner'
+                ? members.partnerId
+                : null;
+        if (!target || target === actorId)
+            return;
+        await this.notifications.direct(weddingId, target, 'task_assigned', `task_assigned:${task.id}:${Date.now()}`, { actorId, taskId: task.id, taskTitle: task.title });
     }
     async readTaskAssigneeRaw(taskId) {
         try {
@@ -185,7 +236,6 @@ let WeddingsService = class WeddingsService {
     async upsert(userId, dto) {
         const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, userId);
         if (access) {
-            const prev = access.wedding;
             await this.prisma.wedding.update({
                 where: { id: access.wedding.id },
                 data: {
@@ -214,25 +264,12 @@ let WeddingsService = class WeddingsService {
                 },
             });
             await this.syncDefaultTasks(access.wedding.id);
-            const changed = prev.date.toISOString().slice(0, 10) !== dto.date.slice(0, 10) ||
-                prev.city !== dto.city.trim() ||
-                prev.guests !== dto.guests ||
-                prev.budget !== dto.budget ||
-                (dto.partnerOneName !== undefined &&
-                    prev.partnerOneName !== dto.partnerOneName.trim()) ||
-                (dto.partnerTwoName !== undefined &&
-                    prev.partnerTwoName !== dto.partnerTwoName.trim()) ||
-                (dto.cityUndecided !== undefined &&
-                    prev.cityUndecided !== dto.cityUndecided) ||
-                (dto.guestsUndecided !== undefined &&
-                    prev.guestsUndecided !== dto.guestsUndecided);
-            if (changed) {
-                void this.notifications.notifyWeddingMembers(access.wedding.id, {
-                    title: 'Партнер оновив весілля',
-                    body: 'Змінилися деталі — глянь у кабінеті',
-                    data: { type: 'wedding_update' },
-                    type: 'partner_changes',
-                }, userId);
+            if (dto.dateUndecided !== undefined) {
+                const wasUndecided = await this.readDateUndecided(access.wedding.id);
+                await this.writeDateUndecided(access.wedding.id, dto.dateUndecided);
+                if (wasUndecided && !dto.dateUndecided) {
+                    void this.onWeddingDateSet(access.wedding.id);
+                }
             }
             return this.getMine(userId);
         }
@@ -267,6 +304,8 @@ let WeddingsService = class WeddingsService {
             },
             include: { tasks: TASK_ORDER },
         });
+        if (dto.dateUndecided)
+            await this.writeDateUndecided(wedding.id, true);
         return this.loadWeddingWithMeta(wedding.id, userId);
     }
     async createPartnerInvite(userId, partnerEmail) {
@@ -424,6 +463,14 @@ let WeddingsService = class WeddingsService {
                 },
             }),
         ]);
+        const owner = await this.prisma.wedding.findUnique({
+            where: { id: invite.weddingId },
+            select: { userId: true },
+        });
+        if (owner) {
+            void this.notifications.direct(invite.weddingId, owner.userId, 'partner_joined', `partner_joined:${userId}`, { actorId: userId });
+        }
+        void this.notifications.resolveTypes(invite.weddingId, ['setup_partner']);
         return this.getMine(userId);
     }
     async createTask(userId, dto) {
@@ -450,7 +497,68 @@ let WeddingsService = class WeddingsService {
             catch {
             }
         }
+        void this.notifications.partnerEvent(wedding.id, userId, 'partner_tasks_added', {
+            entityIds: [created.id],
+        });
+        if (dto.assignee) {
+            void this.notifyTaskAssigned(wedding.id, userId, created, dto.assignee);
+        }
         return this.taskWithAssignee(created);
+    }
+    async createSmartPlanTasks(userId, dto) {
+        const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId, 'Спочатку збережіть весілля');
+        const existing = await this.prisma.$queryRaw `
+      SELECT template_id FROM tasks
+      WHERE wedding_id = ${wedding.id} AND template_id IS NOT NULL
+    `;
+        const seen = new Set(existing.map((row) => row.template_id));
+        const maxOrder = await this.prisma.task.aggregate({
+            where: { weddingId: wedding.id },
+            _max: { sortOrder: true },
+        });
+        let order = (maxOrder._max.sortOrder ?? 0) + 1;
+        const createdIds = [];
+        for (const item of dto.tasks) {
+            const templateId = item.templateId.trim();
+            if (seen.has(templateId))
+                continue;
+            seen.add(templateId);
+            const created = await this.prisma.task.create({
+                data: {
+                    weddingId: wedding.id,
+                    title: item.title.trim(),
+                    categorySlug: item.categorySlug?.trim() || null,
+                    sortOrder: order++,
+                    isCustom: true,
+                    status: client_1.TaskStatus.TODO,
+                    dueDate: item.dueDate ? new Date(item.dueDate) : null,
+                },
+            });
+            await this.prisma.$executeRaw `
+        UPDATE tasks
+        SET template_id = ${templateId},
+            source = 'smart_planning',
+            is_urgent = ${Boolean(item.isUrgent)},
+            assignee = 'none'
+        WHERE id = ${created.id}
+      `;
+            createdIds.push(created.id);
+        }
+        if (createdIds.length === 0)
+            return [];
+        void this.notifications.partnerEvent(wedding.id, userId, 'partner_tasks_added', {
+            n: createdIds.length,
+            entityIds: createdIds,
+        });
+        void this.notifications.resolveTypes(wedding.id, [
+            'setup_smart_planning',
+            'setup_smart_planning_date',
+        ]);
+        const rows = await this.prisma.task.findMany({
+            where: { id: { in: createdIds } },
+            orderBy: { sortOrder: 'asc' },
+        });
+        return this.attachTaskAssignees(wedding.id, rows);
     }
     async updateTask(userId, taskId, dto) {
         const task = await this.requireMemberTask(userId, taskId);
@@ -475,6 +583,12 @@ let WeddingsService = class WeddingsService {
                 ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
             },
         });
+        if (dto.status === client_1.TaskStatus.DONE && task.status !== client_1.TaskStatus.DONE) {
+            void this.notifications.partnerEvent(task.weddingId, userId, 'partner_tasks_done', {
+                entityIds: [taskId],
+            });
+            void this.notifications.resolveTask(task.weddingId, taskId);
+        }
         if (dto.assignee !== undefined || dto.assigneeName !== undefined) {
             try {
                 const current = (0, task_assignee_1.parseTaskAssignee)(await this.readTaskAssigneeRaw(taskId));
@@ -485,6 +599,9 @@ let WeddingsService = class WeddingsService {
                         : current.assigneeName
                     : null;
                 await this.setTaskAssignee(taskId, (0, task_assignee_1.serializeTaskAssignee)(nextWho, nextName));
+                if (nextWho && nextWho !== current.assignee) {
+                    void this.notifyTaskAssigned(task.weddingId, userId, updated, nextWho);
+                }
             }
             catch {
             }
@@ -497,7 +614,12 @@ let WeddingsService = class WeddingsService {
             throw new common_1.BadRequestException('Шаблонну задачу видалити не можна');
         }
         await this.prisma.task.delete({ where: { id: taskId } });
+        void this.notifications.resolveTask(task.weddingId, taskId);
         return { ok: true };
+    }
+    async onWeddingDateSet(weddingId) {
+        await this.notifications.resolveTypes(weddingId, ['setup_date']);
+        await this.notifications.smartPlanningDateTip(weddingId);
     }
     async requireMemberTask(userId, taskId) {
         const task = await this.prisma.task.findUnique({

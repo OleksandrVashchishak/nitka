@@ -1,24 +1,50 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { CabinetProfileMenu } from "@/components/cabinet-profile-menu";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FLAGS, type FlagId } from "@/lib/smart-planning-config";
 import {
-  SMART_DONE_GROUPS,
-  SMART_FEATURES,
-  buildSmartPlan,
-  type SmartDoneId,
-  type SmartFeatureId,
-  type SmartPlanTask,
+  buildPlan,
+  groupByCategory,
+  labels,
+  pluralTasks,
+  pruneDoneIds,
+  sortByDue,
+  step2Templates,
+  todayIso,
+  type PlanTask,
 } from "@/lib/smart-planning";
+import { toast } from "@/lib/toast";
 
 type Props = {
   partnerInitials: string;
+  /** YYYY-MM-DD або null, якщо дати весілля немає. */
+  weddingDate: string | null;
+  /** templateId задач, що вже є у вкладці «Завдання» (5.7). */
+  existingTemplateIds: ReadonlySet<string>;
   onClose: () => void;
-  onComplete: (tasks: SmartPlanTask[]) => Promise<void>;
+  onComplete: (tasks: PlanTask[]) => Promise<void>;
 };
+
+const FLAG_GROUPS = [1, 2, 3, 4, 5].map((group) =>
+  FLAGS.filter((flag) => flag.group === group),
+);
+
+function formatDue(iso: string) {
+  const [y, m, d] = iso.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+function toggleIn<T>(set: ReadonlySet<T>, id: T) {
+  const next = new Set(set);
+  if (next.has(id)) next.delete(id);
+  else next.add(id);
+  return next;
+}
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
   return (
@@ -56,16 +82,46 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
   );
 }
 
+function IconTrashSmall() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      aria-hidden
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12.25 3.48844C10.3075 3.29594 8.35333 3.19678 6.405 3.19678C5.25 3.19678 4.095 3.25511 2.94 3.37178L1.75 3.48844" />
+      <path d="M4.95801 2.899L5.08634 2.13484C5.17967 1.58067 5.24967 1.1665 6.23551 1.1665H7.76384C8.74968 1.1665 8.82551 1.604 8.91301 2.14067L9.04134 2.899" />
+      <path d="M10.9956 5.33154L10.6164 11.2057C10.5522 12.1215 10.4997 12.8332 8.87224 12.8332H5.12724C3.49974 12.8332 3.44724 12.1215 3.38307 11.2057L3.00391 5.33154" />
+      <path d="M6.02539 9.625H7.96789" />
+      <path d="M5.54199 7.2915H8.45866" />
+    </svg>
+  );
+}
+
 export function SmartPlanningWizard({
   partnerInitials,
+  weddingDate,
+  existingTemplateIds,
   onClose,
   onComplete,
 }: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [features, setFeatures] = useState<Set<SmartFeatureId>>(new Set());
-  const [done, setDone] = useState<Set<SmartDoneId>>(new Set());
-  const [planTasks, setPlanTasks] = useState<SmartPlanTask[]>([]);
+  const [flags, setFlags] = useState<Set<FlagId>>(() => new Set());
+  // 4.4: якщо дата весілля є — «Обрали дату весілля» відмічено одразу.
+  const [doneIds, setDoneIds] = useState<Set<string>>(
+    () => new Set(weddingDate ? ["pick_date"] : []),
+  );
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
+  /** Явно розгорнуті/згорнуті блоки кроку 2; решта — за правилом «перші 3». */
+  const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
+  const today = useMemo(() => todayIso(), []);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -75,68 +131,82 @@ export function SmartPlanningWizard({
     };
   }, []);
 
-  const planGroups = useMemo(() => {
-    if (step !== 3) return [];
-    const ids = new Set(planTasks.map((t) => t.id));
-    return buildSmartPlan(features, done)
-      .map((g) => ({
-        ...g,
-        tasks: g.tasks.filter((t) => ids.has(t.id)),
-      }))
-      .filter((g) => g.tasks.length > 0);
-  }, [step, planTasks, features, done]);
+  const step2Groups = useMemo(
+    () => groupByCategory(step2Templates(flags, existingTemplateIds)),
+    [flags, existingTemplateIds],
+  );
 
-  function toggleFeature(id: SmartFeatureId) {
-    setFeatures((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const plan = useMemo(
+    () =>
+      buildPlan({
+        flags,
+        doneIds,
+        deletedIds,
+        existingTemplateIds,
+        weddingDate,
+        today,
+      }),
+    [flags, doneIds, deletedIds, existingTemplateIds, weddingDate, today],
+  );
+
+  const planGroups = useMemo(
+    () =>
+      groupByCategory(plan).map((group) => ({
+        ...group,
+        items: weddingDate ? sortByDue(group.items) : group.items,
+      })),
+    [plan, weddingDate],
+  );
+
+  // 4.5: відмітки шаблонів, що стали невидимими, прибираємо.
+  useEffect(() => {
+    setDoneIds((prev) => pruneDoneIds(prev, flags));
+  }, [flags]);
+
+  function toggleFlag(id: FlagId) {
+    setFlags((prev) => toggleIn(prev, id));
   }
 
-  function toggleDone(id: SmartDoneId) {
-    setDone((prev) => {
+  function toggleBlock(ids: string[]) {
+    setDoneIds((prev) => {
+      const allOn = ids.every((id) => prev.has(id));
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
-  function toggleGroup(groupId: string) {
-    const group = SMART_DONE_GROUPS.find((g) => g.id === groupId);
-    if (!group) return;
-    const allOn = group.items.every((item) => done.has(item.id));
-    setDone((prev) => {
-      const next = new Set(prev);
-      for (const item of group.items) {
-        if (allOn) next.delete(item.id);
-        else next.add(item.id);
+      for (const id of ids) {
+        if (allOn) next.delete(id);
+        else next.add(id);
       }
       return next;
     });
   }
 
-  function goToStep3() {
-    const groups = buildSmartPlan(features, done);
-    setPlanTasks(groups.flatMap((g) => g.tasks));
-    setStep(3);
-  }
-
-  function removePlanTask(id: string) {
-    setPlanTasks((prev) => prev.filter((t) => t.id !== id));
+  function removeTask(task: PlanTask) {
+    setDeletedIds((prev) => new Set(prev).add(task.id));
+    toast.action(
+      "Завдання видалено",
+      {
+        label: "Повернути",
+        onClick: () =>
+          setDeletedIds((prev) => {
+            const next = new Set(prev);
+            next.delete(task.id);
+            return next;
+          }),
+      },
+      { duration: 5000 },
+    );
   }
 
   async function submit() {
-    if (submitting || planTasks.length === 0) return;
+    if (submitting || plan.length === 0) return;
     setSubmitting(true);
     try {
-      await onComplete(planTasks);
+      await onComplete(plan);
     } finally {
       setSubmitting(false);
     }
   }
+
+  const n = plan.length;
 
   return (
     <div className="smart-plan-root" role="dialog" aria-modal="true">
@@ -170,70 +240,105 @@ export function SmartPlanningWizard({
               точний план.
             </p>
             <div className="smart-plan-card">
-              <ul className="smart-plan-option-list">
-                {SMART_FEATURES.map((item) => {
-                  const checked = features.has(item.id);
-                  return (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        className={`smart-plan-option${checked ? " is-on" : ""}`}
-                        onClick={() => toggleFeature(item.id)}
-                      >
-                        <Checkbox checked={checked} />
-                        <span>{item.label}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              {FLAG_GROUPS.map((group, gi) => (
+                <ul
+                  key={gi}
+                  className={`smart-plan-option-list${
+                    gi > 0 ? " smart-plan-option-list--gap" : ""
+                  }`}
+                >
+                  {group.map((flag) => {
+                    const checked = flags.has(flag.id);
+                    return (
+                      <li key={flag.id}>
+                        <button
+                          type="button"
+                          className={`smart-plan-option${checked ? " is-on" : ""}`}
+                          onClick={() => toggleFlag(flag.id)}
+                        >
+                          <Checkbox checked={checked} />
+                          <span>{flag.label}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ))}
             </div>
           </>
         ) : null}
 
         {step === 2 ? (
           <>
-            <h1 className="smart-plan-title">Що ви уже зробили?</h1>
+            <h1 className="smart-plan-title">Що ви вже зробили?</h1>
             <p className="smart-plan-subtitle">
               Оберіть пункти, які ви вже встигли реалізувати. Це допоможе нам
               відсіяти зайве.
             </p>
             <div className="smart-plan-groups">
-              {SMART_DONE_GROUPS.map((group) => {
-                const allOn = group.items.every((item) => done.has(item.id));
-                const someOn =
-                  !allOn && group.items.some((item) => done.has(item.id));
+              {step2Groups.map((group, index) => {
+                const ids = group.items.map((t) => t.id);
+                const onCount = ids.filter((id) => doneIds.has(id)).length;
+                const allOn = onCount === ids.length;
+                const someOn = onCount > 0 && !allOn;
+                const open = openBlocks[group.id] ?? index < 3;
                 return (
-                  <section key={group.id} className="smart-plan-card smart-plan-group">
-                    <button
-                      type="button"
-                      className={`smart-plan-group-head${allOn ? " is-on" : ""}${
-                        someOn ? " is-partial" : ""
-                      }`}
-                      onClick={() => toggleGroup(group.id)}
-                    >
-                      <Checkbox checked={allOn} indeterminate={someOn} />
-                      <span>{group.title}</span>
-                    </button>
-                    <ul className="smart-plan-option-list">
-                      {group.items.map((item) => {
-                        const checked = done.has(item.id);
-                        return (
-                          <li key={item.id}>
-                            <button
-                              type="button"
-                              className={`smart-plan-option${
-                                checked ? " is-on" : ""
-                              }`}
-                              onClick={() => toggleDone(item.id)}
-                            >
-                              <Checkbox checked={checked} />
-                              <span>{item.label}</span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                  <section
+                    key={group.id}
+                    className="smart-plan-card smart-plan-group"
+                  >
+                    <div className="smart-plan-group-row">
+                      <button
+                        type="button"
+                        className={`smart-plan-group-head${allOn ? " is-on" : ""}${
+                          someOn ? " is-partial" : ""
+                        }`}
+                        onClick={() => toggleBlock(ids)}
+                      >
+                        <Checkbox checked={allOn} indeterminate={someOn} />
+                        <span>{group.title}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`smart-plan-chevron${open ? " is-open" : ""}`}
+                        aria-expanded={open}
+                        aria-label={open ? "Згорнути" : "Розгорнути"}
+                        onClick={() =>
+                          setOpenBlocks((prev) => ({ ...prev, [group.id]: !open }))
+                        }
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                          <path
+                            d="M4 6L8 10L12 6"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    {open ? (
+                      <ul className="smart-plan-option-list">
+                        {group.items.map((t) => {
+                          const checked = doneIds.has(t.id);
+                          return (
+                            <li key={t.id}>
+                              <button
+                                type="button"
+                                className={`smart-plan-option${
+                                  checked ? " is-on" : ""
+                                }`}
+                                onClick={() => setDoneIds((prev) => toggleIn(prev, t.id))}
+                              >
+                                <Checkbox checked={checked} />
+                                <span>{labels(t, flags).step2}</span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : null}
                   </section>
                 );
               })}
@@ -244,72 +349,72 @@ export function SmartPlanningWizard({
         {step === 3 ? (
           <>
             <h1 className="smart-plan-title">Ваш персональний план</h1>
-            <p className="smart-plan-subtitle">
-              Ми сформували {planTasks.length}{" "}
-              {planTasks.length === 1
-                ? "завдання"
-                : planTasks.length < 5
-                  ? "завдання"
-                  : "завдань"}{" "}
-              на основі ваших відповідей. Перегляньте список і видаліть зайве.
-            </p>
-            {planGroups.length === 0 ? (
-              <p className="smart-plan-empty">
-                Немає задач для додавання — змініть відповіді на попередніх
-                кроках або додайте завдання вручну.
-              </p>
-            ) : (
-              <div className="smart-plan-result-grid">
-                {[0, 1].map((col) => (
-                  <div key={col} className="smart-plan-result-col">
-                    {planGroups
-                      .map((group, i) => ({ group, i }))
-                      .filter(({ i }) => i % 2 === col)
-                      .map(({ group, i }) => (
-                        <section
-                          key={group.categoryId}
-                          className="smart-plan-card"
-                          style={{ order: i }}
-                        >
-                          <h2 className="smart-plan-cat-title">
-                            {group.title}
-                          </h2>
-                          <ul className="smart-plan-result-list">
-                            {group.tasks.map((task) => (
-                              <li key={task.id}>
-                                <span>{task.title}</span>
-                                <button
-                                  type="button"
-                                  className="smart-plan-trash"
-                                  aria-label={`Видалити «${task.title}»`}
-                                  onClick={() => removePlanTask(task.id)}
-                                >
-                                  <svg
-                                    width="14"
-                                    height="14"
-                                    viewBox="0 0 14 14"
-                                    fill="none"
-                                    aria-hidden
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  >
-                                    <path d="M12.25 3.48844C10.3075 3.29594 8.35333 3.19678 6.405 3.19678C5.25 3.19678 4.095 3.25511 2.94 3.37178L1.75 3.48844" />
-                                    <path d="M4.95801 2.899L5.08634 2.13484C5.17967 1.58067 5.24967 1.1665 6.23551 1.1665H7.76384C8.74968 1.1665 8.82551 1.604 8.91301 2.14067L9.04134 2.899" />
-                                    <path d="M10.9956 5.33154L10.6164 11.2057C10.5522 12.1215 10.4997 12.8332 8.87224 12.8332H5.12724C3.49974 12.8332 3.44724 12.1215 3.38307 11.2057L3.00391 5.33154" />
-                                    <path d="M6.02539 9.625H7.96789" />
-                                    <path d="M5.54199 7.2915H8.45866" />
-                                  </svg>
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
-                      ))}
-                  </div>
-                ))}
+            {n === 0 ? (
+              <div className="smart-plan-empty">
+                <p>Схоже, ви вже все зробили!</p>
+                <Button type="button" tone="black" size="m" onClick={onClose}>
+                  Повернутися до завдань
+                </Button>
               </div>
+            ) : (
+              <>
+                <p className="smart-plan-subtitle">
+                  Ми сформували{" "}
+                  <strong>
+                    {n} {pluralTasks(n)}
+                  </strong>{" "}
+                  на основі ваших відповідей. Перегляньте список і видаліть
+                  зайве.
+                </p>
+                {!weddingDate ? (
+                  <aside className="smart-plan-date-banner">
+                    Вкажіть дату весілля, щоб ми розставили дедлайни.{" "}
+                    <Link href="/settings">Вказати дату</Link>
+                  </aside>
+                ) : null}
+                <div className="smart-plan-result-grid">
+                  {[0, 1].map((col) => (
+                    <div key={col} className="smart-plan-result-col">
+                      {planGroups
+                        .filter((_, i) => i % 2 === col)
+                        .map((group) => (
+                          <section key={group.id} className="smart-plan-card">
+                            <h2 className="smart-plan-cat-title">{group.title}</h2>
+                            <ul className="smart-plan-result-list">
+                              {group.items.map((task) => (
+                                <li key={task.id}>
+                                  <span className="smart-plan-task">
+                                    <span>{task.labels.step3}</span>
+                                    {task.dueDate || task.isUrgent ? (
+                                      <span className="smart-plan-task-meta">
+                                        {task.dueDate ? (
+                                          <span>до {formatDue(task.dueDate)}</span>
+                                        ) : null}
+                                        {task.isUrgent ? (
+                                          <span className="smart-plan-urgent">
+                                            Терміново
+                                          </span>
+                                        ) : null}
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="smart-plan-trash"
+                                    aria-label={`Видалити «${task.labels.step3}»`}
+                                    onClick={() => removeTask(task)}
+                                  >
+                                    <IconTrashSmall />
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </>
         ) : null}
@@ -337,40 +442,28 @@ export function SmartPlanningWizard({
             Назад
           </Button>
         )}
-        {step === 1 ? (
+        {step !== 3 ? (
           <Button
             type="button"
             tone="black"
             size="m"
             className="smart-plan-btn is-primary"
-            onClick={() => setStep(2)}
+            onClick={() => setStep((s) => (s === 1 ? 2 : 3))}
           >
             Далі
           </Button>
-        ) : null}
-        {step === 2 ? (
-          <Button
-            type="button"
-            tone="black"
-            size="m"
-            className="smart-plan-btn is-primary"
-            onClick={goToStep3}
-          >
-            Далі
-          </Button>
-        ) : null}
-        {step === 3 ? (
+        ) : n > 0 ? (
           <Button
             type="button"
             tone="ink"
             size="m"
             className="smart-plan-btn is-primary is-lime"
-            disabled={submitting || planTasks.length === 0}
+            disabled={submitting}
             loading={submitting}
             loadingText="Додаємо…"
             onClick={() => void submit()}
           >
-            Додати завдання
+            Додати завдання до списку
           </Button>
         ) : null}
       </footer>

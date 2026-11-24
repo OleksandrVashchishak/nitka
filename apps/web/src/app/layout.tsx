@@ -11,6 +11,8 @@ import {
   akzidenz,
   akzidenzExt,
   cormorant,
+  greatVibes,
+  oranienbaum,
   mak,
   manrope,
   scriptCyr,
@@ -60,7 +62,7 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body
-        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${scriptCyr.variable} ${manrope.variable} antialiased`}
+        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${greatVibes.variable} ${oranienbaum.variable} ${scriptCyr.variable} ${manrope.variable} antialiased`}
       >
         <AuthProvider>
           <SiteHeader />

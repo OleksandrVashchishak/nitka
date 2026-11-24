@@ -321,7 +321,29 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException();
     }
-    return user;
+    return { ...user, gender: await this.readGender(userId) };
+  }
+
+  async updateMe(userId: string, patch: { gender?: 'female' | 'male' | null }) {
+    if (patch.gender !== undefined) {
+      await this.prisma.$executeRaw`
+        UPDATE users SET gender = ${patch.gender} WHERE id = ${userId}
+      `;
+    }
+    return this.me(userId);
+  }
+
+  /** gender — raw SQL (вендорений Prisma client може відставати від схеми). */
+  private async readGender(userId: string): Promise<'female' | 'male' | null> {
+    try {
+      const rows = await this.prisma.$queryRaw<Array<{ gender: string | null }>>`
+        SELECT gender FROM users WHERE id = ${userId}
+      `;
+      const g = rows[0]?.gender;
+      return g === 'female' || g === 'male' ? g : null;
+    } catch {
+      return null;
+    }
   }
 
   async changePassword(

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BudgetService = void 0;
 const common_1 = require("@nestjs/common");
+const notifications_service_1 = require("../notifications/notifications.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
 const vendor_budget_sync_1 = require("./vendor-budget-sync");
@@ -33,8 +34,9 @@ const DEFAULT_ITEMS = [
     { category: 'reserve', title: 'Резерв', share: 0.02 },
 ];
 let BudgetService = class BudgetService {
-    constructor(prisma) {
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
     }
     async getWeddingForUser(userId) {
         const { wedding } = await (0, wedding_access_1.requireWeddingForUser)(this.prisma, userId, 'Спочатку створи весілля в кабінеті (дата / бюджет)');
@@ -123,7 +125,7 @@ let BudgetService = class BudgetService {
     }
     async createItem(userId, dto) {
         const wedding = await this.getWeddingForUser(userId);
-        await this.prisma.budgetItem.create({
+        const item = await this.prisma.budgetItem.create({
             data: {
                 weddingId: wedding.id,
                 category: dto.category.trim().toLowerCase(),
@@ -133,6 +135,10 @@ let BudgetService = class BudgetService {
                 paid: dto.paid ?? false,
                 notes: dto.notes?.trim() || null,
             },
+        });
+        void this.notifications.partnerEvent(wedding.id, userId, 'partner_expenses_added', {
+            entityIds: [item.id],
+            amount: item.actual || item.estimated,
         });
         return this.getMine(userId);
     }
@@ -176,6 +182,7 @@ let BudgetService = class BudgetService {
 exports.BudgetService = BudgetService;
 exports.BudgetService = BudgetService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], BudgetService);
 //# sourceMappingURL=budget.service.js.map

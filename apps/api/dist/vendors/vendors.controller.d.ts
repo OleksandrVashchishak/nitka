@@ -8,16 +8,16 @@ export declare class VendorsController {
         manual: {
             id: string;
             userId: string;
-            name: string;
-            category: string;
             city: string;
-            phone: string | null;
             website: string | null;
+            createdAt: Date;
+            name: string;
+            updatedAt: Date;
+            category: string;
+            phone: string | null;
             quotedPrice: number | null;
             notes: string | null;
             stage: import(".prisma/client").$Enums.VendorPipelineStage;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
         plan: string[];
     }>;
@@ -27,30 +27,30 @@ export declare class VendorsController {
     createExternal(user: AuthUser, dto: CreateExternalVendorDto): Promise<{
         id: string;
         userId: string;
-        name: string;
-        category: string;
         city: string;
-        phone: string | null;
         website: string | null;
+        createdAt: Date;
+        name: string;
+        updatedAt: Date;
+        category: string;
+        phone: string | null;
         quotedPrice: number | null;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     updateExternal(user: AuthUser, id: string, dto: UpdateExternalVendorDto): Promise<{
         id: string;
         userId: string;
-        name: string;
-        category: string;
         city: string;
-        phone: string | null;
         website: string | null;
+        createdAt: Date;
+        name: string;
+        updatedAt: Date;
+        category: string;
+        phone: string | null;
         quotedPrice: number | null;
         notes: string | null;
         stage: import(".prisma/client").$Enums.VendorPipelineStage;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     removeExternal(user: AuthUser, id: string): Promise<{
         ok: boolean;

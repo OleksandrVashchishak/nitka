@@ -5,12 +5,14 @@ import { createPortal } from "react-dom";
 import { BrandLogo } from "@/components/brand-logo";
 import {
   NAME_CARD_DEMO_DATE,
+  NAME_CARD_DEMO_DATE_LONG,
   NAME_CARD_DEMO_NAMES,
   NAME_CARD_DESIGNS,
   NAME_CARDS_PER_PAGE,
   chunkNames,
   extraPagesLabel,
   formatNameCardDate,
+  formatNameCardDateLong,
   isNameCardDesignReady,
   type NameCardDesignId,
 } from "@/lib/name-cards";
@@ -51,16 +53,35 @@ function ViewChevronIcon() {
   );
 }
 
+type CardDates = { short: string; long: string };
+
+function SparkIcon({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 12 12" aria-hidden>
+      <path
+        d="M6 0c.35 3.2 1.8 4.65 5 5v2c-3.2.35-4.65 1.8-5 5H6c-.35-3.2-1.8-4.65-5-5V5c3.2-.35 4.65-1.8 5-5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+/** «Марія Левченко» → ["Марія", "Левченко"]; one word → [word, ""]. */
+function splitName(name: string): [string, string] {
+  const parts = name.trim().split(/\s+/);
+  return [parts[0] ?? "", parts.slice(1).join(" ")];
+}
+
 /** Front face of one tent card (bottom half). */
 function NameCardFace({
   name,
   designId,
-  date,
+  dates,
   prefix,
 }: {
   name: string;
   designId: NameCardDesignId;
-  date: string;
+  dates: CardDates;
   /** Class prefix, e.g. `name-cards-sheet__` → `name-cards-sheet__name`. */
   prefix: string;
 }) {
@@ -69,7 +90,67 @@ function NameCardFace({
       <span className={`${prefix}face`}>
         <span className={`${prefix}greet`}>вітаємо</span>
         <span className={`${prefix}name`}>{name.toUpperCase()}</span>
-        {date ? <span className={`${prefix}date`}>{date}</span> : null}
+        {dates.short ? (
+          <span className={`${prefix}date`}>{dates.short}</span>
+        ) : null}
+      </span>
+    );
+  }
+  if (designId === "modern") {
+    const [first, rest] = splitName(name);
+    return (
+      <span className={`${prefix}face`}>
+        <span className={`${prefix}name`}>{first.toUpperCase()}</span>
+        {rest ? (
+          <>
+            <SparkIcon className={`${prefix}spark`} />
+            <span className={`${prefix}name`}>{rest.toUpperCase()}</span>
+          </>
+        ) : null}
+      </span>
+    );
+  }
+  if (designId === "botanical") {
+    return (
+      <span className={`${prefix}face`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className={`${prefix}branch`}
+          src="/name-cards/olive-branch.png"
+          alt=""
+          draggable={false}
+        />
+        <span className={`${prefix}first`}>{name}</span>
+        {dates.long ? (
+          <span className={`${prefix}date`}>{dates.long.toUpperCase()}</span>
+        ) : null}
+      </span>
+    );
+  }
+  if (designId === "magazine") {
+    const [first, rest] = splitName(name);
+    return (
+      <span className={`${prefix}face`}>
+        <span className={`${prefix}line`}>{first.toUpperCase()}</span>
+        {rest ? (
+          <span className={`${prefix}line`}>{rest.toUpperCase()}</span>
+        ) : null}
+      </span>
+    );
+  }
+  if (designId === "elegant") {
+    const [first, rest] = splitName(name);
+    return (
+      <span className={`${prefix}face`}>
+        <span className={`${prefix}names`}>
+          <span className={`${prefix}first`}>{first}</span>
+          {rest ? (
+            <span className={`${prefix}last`}>{rest.toUpperCase()}</span>
+          ) : null}
+        </span>
+        {dates.long ? (
+          <span className={`${prefix}date`}>{dates.long.toUpperCase()}</span>
+        ) : null}
       </span>
     );
   }
@@ -79,12 +160,12 @@ function NameCardFace({
 function NameCardSheet({
   names,
   designId,
-  date,
+  dates,
   forPrint = false,
 }: {
   names: string[];
   designId: NameCardDesignId;
-  date: string;
+  dates: CardDates;
   forPrint?: boolean;
 }) {
   const cells = Array.from(
@@ -100,14 +181,18 @@ function NameCardSheet({
     >
       {cells.map((name, i) => (
         <div key={i} className="name-cards-sheet__cell">
-          {designId === "minimal" ? (
+          {designId === "minimal" ||
+          designId === "modern" ||
+          designId === "elegant" ||
+          designId === "botanical" ||
+          designId === "magazine" ? (
             <span className="name-cards-sheet__fold" aria-hidden />
           ) : null}
           {name ? (
             <NameCardFace
               name={name}
               designId={designId}
-              date={date}
+              dates={dates}
               prefix="name-cards-sheet__"
             />
           ) : null}
@@ -120,11 +205,11 @@ function NameCardSheet({
 function NameCardThumb({
   name,
   designId,
-  date,
+  dates,
 }: {
   name: string;
   designId: NameCardDesignId;
-  date: string;
+  dates: CardDates;
 }) {
   if (!isNameCardDesignReady(designId)) {
     return (
@@ -143,7 +228,7 @@ function NameCardThumb({
       <NameCardFace
         name={name || "Марія Левченко"}
         designId={designId}
-        date={date}
+        dates={dates}
         prefix="name-cards-editor__thumb-"
       />
     </div>
@@ -166,9 +251,20 @@ export function NameCardsDesign({ names, weddingDate, onClose }: Props) {
   const extraLabel = extraPagesLabel(Math.max(0, pages.length - 1));
   const activeDesign = NAME_CARD_DESIGNS.find((d) => d.id === designId);
   const isReady = isNameCardDesignReady(designId);
-  const cardDate =
-    formatNameCardDate(weddingDate) || (hasRealGuests ? "" : NAME_CARD_DEMO_DATE);
-  const thumbName = previewNames[0] ?? "Марія Левченко";
+  const cardDates: CardDates = {
+    short:
+      formatNameCardDate(weddingDate) ||
+      (hasRealGuests ? "" : NAME_CARD_DEMO_DATE),
+    long:
+      formatNameCardDateLong(weddingDate) ||
+      (hasRealGuests ? "" : NAME_CARD_DEMO_DATE_LONG),
+  };
+  /** Design thumbs always show a sample card (as in the mockup), not a real guest. */
+  const thumbDates: CardDates = {
+    short: formatNameCardDate(weddingDate) || NAME_CARD_DEMO_DATE,
+    long: formatNameCardDateLong(weddingDate) || NAME_CARD_DEMO_DATE_LONG,
+  };
+  const thumbName = NAME_CARD_DEMO_NAMES[0];
 
   useEffect(() => setMounted(true), []);
 
@@ -291,7 +387,7 @@ export function NameCardsDesign({ names, weddingDate, onClose }: Props) {
                       <NameCardThumb
                         name={thumbName}
                         designId={option.id}
-                        date={cardDate}
+                        dates={thumbDates}
                       />
                     </div>
                     <div className="name-cards-editor__card-meta">
@@ -331,7 +427,7 @@ export function NameCardsDesign({ names, weddingDate, onClose }: Props) {
               <NameCardSheet
                 names={firstPage}
                 designId={designId}
-                date={cardDate}
+                dates={cardDates}
               />
             ) : (
               <div className="name-cards-sheet name-cards-sheet--placeholder">
@@ -364,7 +460,7 @@ export function NameCardsDesign({ names, weddingDate, onClose }: Props) {
                       key={pageIndex}
                       names={pageNames}
                       designId={designId}
-                      date={cardDate}
+                      dates={cardDates}
                       forPrint
                     />
                   ))

@@ -9,4 +9,5 @@ export declare class UpsertWeddingDto {
     planningStage?: string;
     cityUndecided?: boolean;
     guestsUndecided?: boolean;
+    dateUndecided?: boolean;
 }

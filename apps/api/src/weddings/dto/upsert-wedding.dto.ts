@@ -59,4 +59,9 @@ export class UpsertWeddingDto {
   @IsOptional()
   @IsBoolean()
   guestsUndecided?: boolean;
+
+  /** Дату ще не обрали (у `date` — тимчасова). */
+  @IsOptional()
+  @IsBoolean()
+  dateUndecided?: boolean;
 }

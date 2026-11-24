@@ -3,6 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { NotificationsService } from '../notifications/notifications.service';
+import { VENDOR_CATEGORY_ACC } from '../notifications/notification-catalog';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   removeBudgetItemForExternalVendor,
@@ -20,7 +22,10 @@ import {
 
 @Injectable()
 export class VendorsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async getPipeline(userId: string) {
     const manual = await this.prisma.externalVendor.findMany({
@@ -93,7 +98,27 @@ export class VendorsService {
       },
     });
     await syncBudgetItemForExternalVendor(this.prisma, userId, vendor);
+    void this.notifyVendor(userId, 'partner_vendor_added', vendor);
+    if (vendor.stage === 'CHOSEN') {
+      void this.notifyVendor(userId, 'partner_vendor_booked', vendor);
+    }
     return vendor;
+  }
+
+  /** Дії партнера з підрядниками (розділ 4.1). «Заброньовано» = етап CHOSEN. */
+  private async notifyVendor(
+    userId: string,
+    type: 'partner_vendor_added' | 'partner_vendor_booked',
+    vendor: { id: string; name: string; category: string },
+  ) {
+    const access = await resolveWeddingForUser(this.prisma, userId);
+    if (!access) return;
+    const label = VENDOR_CATEGORY_ACC[vendor.category];
+    await this.notifications.partnerEvent(access.wedding.id, userId, type, {
+      entityIds: [vendor.id],
+      vendorId: vendor.id,
+      vendorLabel: label ?? `підрядника «${vendor.name.trim()}»`,
+    });
   }
 
   async updateExternal(
@@ -101,7 +126,7 @@ export class VendorsService {
     id: string,
     dto: UpdateExternalVendorDto,
   ) {
-    await this.assertExternalOwner(userId, id);
+    const before = await this.assertExternalOwner(userId, id);
     const vendor = await this.prisma.externalVendor.update({
       where: { id },
       data: {
@@ -126,6 +151,9 @@ export class VendorsService {
       },
     });
     await syncBudgetItemForExternalVendor(this.prisma, userId, vendor);
+    if (vendor.stage === 'CHOSEN' && before?.stage !== 'CHOSEN') {
+      void this.notifyVendor(userId, 'partner_vendor_booked', vendor);
+    }
     return vendor;
   }
 
@@ -139,9 +167,10 @@ export class VendorsService {
   private async assertExternalOwner(userId: string, id: string) {
     const vendor = await this.prisma.externalVendor.findUnique({
       where: { id },
-      select: { userId: true },
+      select: { userId: true, stage: true },
     });
     if (!vendor) throw new NotFoundException('Підрядника не знайдено');
     if (vendor.userId !== userId) throw new ForbiddenException();
+    return vendor;
   }
 }

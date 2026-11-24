@@ -1,11 +1,10 @@
 export const NAME_CARD_DESIGNS = [
-  { id: "botanical", name: "Ботанічний", soon: true },
+  { id: "botanical", name: "Ботанічний" },
   { id: "minimal", name: "Мінімалістичний" },
-  { id: "romantic", name: "Романтичний", soon: true },
-  { id: "modern", name: "Сучасний", soon: true },
+  { id: "modern", name: "Сучасний" },
   { id: "simple", name: "Простий" },
-  { id: "elegant", name: "Елегантний", soon: true },
-  { id: "magazine", name: "Журнальний", soon: true },
+  { id: "elegant", name: "Елегантний" },
+  { id: "magazine", name: "Журнальний" },
 ] as const;
 
 export type NameCardDesignId = (typeof NAME_CARD_DESIGNS)[number]["id"];
@@ -37,6 +36,21 @@ export function formatNameCardDate(iso: string | null | undefined) {
   const year = String(d.getFullYear()).slice(-2);
   return `${day}.${month}.${year}`;
 }
+
+const MONTHS_GENITIVE = [
+  "січня", "лютого", "березня", "квітня", "травня", "червня",
+  "липня", "серпня", "вересня", "жовтня", "листопада", "грудня",
+];
+
+/** ISO date → `28 липня 2027`. */
+export function formatNameCardDateLong(iso: string | null | undefined) {
+  if (!iso) return "";
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getDate()} ${MONTHS_GENITIVE[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+export const NAME_CARD_DEMO_DATE_LONG = "28 липня 2027";
 
 export function isNameCardDesignReady(id: NameCardDesignId) {
   const design = NAME_CARD_DESIGNS.find((d) => d.id === id);

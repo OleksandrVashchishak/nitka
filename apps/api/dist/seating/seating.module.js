@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SeatingModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_module_1 = require("../auth/auth.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 const seating_controller_1 = require("./seating.controller");
 const seating_service_1 = require("./seating.service");
 let SeatingModule = class SeatingModule {
@@ -16,7 +17,7 @@ let SeatingModule = class SeatingModule {
 exports.SeatingModule = SeatingModule;
 exports.SeatingModule = SeatingModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
+        imports: [auth_module_1.AuthModule, notifications_module_1.NotificationsModule],
         controllers: [seating_controller_1.SeatingController],
         providers: [seating_service_1.SeatingService],
     })

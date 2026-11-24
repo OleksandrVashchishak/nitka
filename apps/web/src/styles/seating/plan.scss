@@ -895,6 +895,25 @@
   border-color: #90caf9;
 }
 
+/* Дитяче крісло біля дорослого: місця не займає */
+.seat-plan-seat-chair {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1.5px solid #fff;
+  background: inherit;
+  font-size: 7px;
+  font-weight: 700;
+  color: #fff;
+  pointer-events: none;
+}
+
 .seat-plan-seat-name {
   position: absolute;
   top: calc(100% + 2px);
@@ -1860,66 +1879,20 @@
   border-radius: 20px 20px 0 0;
 }
 
-.seat-conflict {
-  z-index: 100;
-
-  // Desktop: модалка по центру, а не шторка знизу на всю ширину.
-  @media (min-width: 768px) {
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-  }
-}
-
-.seat-conflict__panel {
-  max-height: 100dvh;
-  overflow-y: auto;
-  border-radius: 16px 16px 0 0;
-
-  @media (min-width: 768px) {
-    width: 440px;
-    max-width: 100%;
-    max-height: calc(100dvh - 48px);
-    padding-bottom: 8px;
-    border-radius: 16px;
-    box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
-  }
-}
-
-.seat-conflict__title {
-  margin: 0;
-  padding: 16px 16px 20px;
-  font-family: var(--font-sans), "Montserrat", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #1a1a1a;
-}
-
-.seat-conflict__option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 16px;
-  border: 0;
-  background: transparent;
-  font-family: var(--font-sans), "Montserrat", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: left;
-  color: #1a1a1a;
-  cursor: pointer;
-}
-
-.seat-conflict__swap.is-open {
-  background: #f0febb;
-}
-
-.seat-conflict__option--sub {
+// Вкладений вибір «кого пересадити» під третім варіантом конфлікту.
+.seat-conflict-modal__units {
   padding-left: 32px;
+}
+
+.seat-conflict-modal .seat-conflict-sheet__expand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Шеврон розгортання — лише в мобільному bottom sheet.
+.seat-conflict-sheet__chevron {
+  display: none;
 }
 
 .seat-plan-mobile-tabs,
@@ -2141,11 +2114,6 @@
   }
 
   .seat-plan-guest-avatar-initials {
-    display: none;
-  }
-
-  .seat-plan-guest-avatar-num {
-    display: inline;
     font-size: 12px;
     font-weight: 600;
   }
@@ -2783,5 +2751,237 @@
   body.is-seat-plan-print .seat-plan-canvas * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+}
+
+/* «За столом N більше немає місця» — гостя кинули на повний стіл */
+.seat-full-table-modal {
+  box-sizing: border-box;
+  width: min(710px, 100%);
+  padding: 32px;
+  border-radius: 16px;
+
+  .cabinet-modal-head {
+    margin-bottom: 24px;
+  }
+
+  .cabinet-modal-head h2 {
+    font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.2;
+    color: #1a1a1a;
+  }
+}
+
+.seat-full-table-modal-replace {
+  border-radius: 26px;
+  transition: background-color 0.28s ease;
+
+  &.is-selected {
+    padding-bottom: 8px;
+    background: #f0febb;
+  }
+
+  &.is-selected > .fata-radio-option {
+    border-color: transparent;
+  }
+}
+
+.seat-full-table-modal-occupants {
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 8px 40px;
+}
+
+.seat-full-table-modal-occupant {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans), "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: left;
+  color: #1b1b19;
+  cursor: pointer;
+
+  .fata-radio:not(.is-checked) {
+    border-color: #fff;
+  }
+}
+
+.seat-full-table-modal-actions {
+  margin-top: 32px;
+  gap: 16px;
+
+  .cabinet-drawer-cancel,
+  .cabinet-drawer-save {
+    height: 52px;
+    padding: 0 32px;
+    border-radius: 40px;
+    font-style: italic;
+  }
+
+  .cabinet-drawer-cancel {
+    border-color: #d5cece;
+  }
+
+  .cabinet-drawer-save {
+    background: #000;
+    color: #f0febb;
+  }
+}
+
+/* Мобільний bottom sheet для конфліктів розсадки (зв'язані гості / повний стіл) */
+@media (max-width: 767px) {
+  .cabinet-modal-root[data-mobile-variant="sheet"] .seat-conflict-sheet {
+    padding: 0;
+    border-radius: 16px 16px 0 0;
+
+    .cabinet-modal-head {
+      align-items: flex-start;
+      margin: 0;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid #ebe5d4;
+    }
+
+    .cabinet-modal-head h2 {
+      font-family: var(--font-sans), "Montserrat", sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      font-style: normal;
+      line-height: 1.45;
+      color: #1a1a1a;
+    }
+
+    .cabinet-modal-actions {
+      position: sticky;
+      bottom: 0;
+      display: block;
+      margin: 0;
+      padding: 16px 24px 24px;
+      background: #fff;
+    }
+
+    .cabinet-drawer-cancel {
+      display: none;
+    }
+
+    .cabinet-drawer-save {
+      width: 100%;
+      height: 44px;
+      border: 1px solid transparent;
+      border-radius: 40px;
+      background: #ff4200;
+      color: #fff;
+      font-family: var(--font-akzidenz), "Akzidenz-Grotesk Pro", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      font-style: italic;
+
+      &:disabled {
+        border-color: #f3efe3;
+        background: #fffdf8;
+        color: #b5b0a8;
+        opacity: 1;
+      }
+    }
+  }
+
+  .seat-conflict-sheet__options.fata-radio-group {
+    gap: 0;
+    padding: 4px 0;
+  }
+
+  /* Варіанти верхнього рівня — текстові рядки без радіо */
+  .seat-conflict-sheet__options > .fata-radio-option,
+  .seat-conflict-sheet__expand > .fata-radio-option {
+    min-height: 0;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-weight: 600;
+    line-height: 1.45;
+
+    > .fata-radio {
+      display: none;
+    }
+
+    &.is-selected {
+      background: #f0febb;
+    }
+
+    &:active:not(:disabled) {
+      transform: none;
+    }
+
+    .fata-radio-option__label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  .seat-conflict-sheet__chevron {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin-left: auto;
+    transform: rotate(-90deg);
+    transition: transform 0.2s ease;
+  }
+
+  .seat-conflict-sheet__expand {
+    border-radius: 0;
+
+    &.is-selected {
+      padding-bottom: 8px;
+      background: #f0febb;
+    }
+
+    &.is-selected .seat-conflict-sheet__chevron {
+      transform: none;
+    }
+  }
+
+  .seat-conflict-modal .seat-conflict-sheet__expand {
+    gap: 0;
+  }
+
+  /* Вкладений вибір — білі pill-радіо, обраний — wine */
+  .seat-conflict-modal__units.fata-radio-group,
+  .seat-full-table-modal-occupants {
+    gap: 16px;
+    padding: 8px 16px 8px;
+  }
+
+  .seat-conflict-modal__units > .fata-radio-option,
+  .seat-full-table-modal-occupant {
+    min-height: 52px;
+    padding: 16px;
+    gap: 16px;
+    border: 1px solid #ebe5d4;
+    border-radius: 40px;
+    background: #fff;
+
+    &.is-selected {
+      border-color: #61040f;
+      background: #61040f;
+      color: #fff;
+    }
+
+    &.is-selected .fata-radio.is-checked {
+      border-color: #fff;
+    }
+  }
+
+  .seat-full-table-modal-occupant .fata-radio:not(.is-checked) {
+    border-color: #d5cece;
   }
 }

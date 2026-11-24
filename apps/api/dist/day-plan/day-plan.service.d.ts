@@ -1,4 +1,5 @@
 import { EmailService } from '../email/email.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { type DayPlanEventPayload } from './day-plan.defaults';
 import { ShareInviteDto, UpdateShareGrantDto } from './dto/share-invite.dto';
@@ -6,7 +7,8 @@ import { UpsertDayPlanDto } from './dto/upsert-day-plan.dto';
 export declare class DayPlanService {
     private readonly prisma;
     private readonly email;
-    constructor(prisma: PrismaService, email: EmailService);
+    private readonly notifications;
+    constructor(prisma: PrismaService, email: EmailService, notifications: NotificationsService);
     getMine(userId: string): Promise<{
         weddingId: string;
         access: import("./day-plan-access").DayPlanAccessLevel;

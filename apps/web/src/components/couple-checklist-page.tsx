@@ -41,6 +41,7 @@ import { Select } from "@/components/ui/select";
 import { TextInput } from "@/components/ui/text-input";
 import {
   createPartnerInvite,
+  createSmartPlanTasks,
   createTask,
   deleteTask,
   getMyWedding,
@@ -55,9 +56,11 @@ import {
   type NotificationsSummary,
 } from "@/lib/notifications-api";
 import {
+  planCategorySlug,
+  pluralTasks,
   smartBannerKey,
   smartPlanDoneKey,
-  type SmartPlanTask,
+  type PlanTask,
 } from "@/lib/smart-planning";
 import { toast } from "@/lib/toast";
 import { useAnimatedProgress } from "@/lib/use-animated-progress";
@@ -277,6 +280,16 @@ function ChecklistInner() {
       };
     });
   }, [wedding]);
+
+  const existingTemplateIds = useMemo(
+    () =>
+      new Set(
+        (wedding?.tasks ?? [])
+          .map((task) => task.templateId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    [wedding],
+  );
 
   const today = new Date().toISOString().slice(0, 10);
   const soonLimit = useMemo(() => {
@@ -683,27 +696,22 @@ function ChecklistInner() {
     }
   }
 
-  async function onSmartPlanComplete(planTasks: SmartPlanTask[]) {
+  async function onSmartPlanComplete(planTasks: PlanTask[]) {
     if (!wedding) return;
-    const existingTitles = new Set(
-      wedding.tasks.map((t) => t.title.trim().toLowerCase()),
-    );
-    const toCreate = planTasks.filter(
-      (t) => !existingTitles.has(t.title.trim().toLowerCase()),
-    );
-    // Дедлайни не ставимо автоматично — пара додає їх сама.
-    const created: WeddingTask[] = [];
-    for (const [index, task] of toCreate.entries()) {
-      const row = await createTask(
-        {
-          title: task.title,
-          categorySlug: task.categorySlug,
-          sortOrder: 100 + index,
-          assignee: "none",
-        },
-        { silent: true },
+    let created: WeddingTask[];
+    try {
+      created = await createSmartPlanTasks(
+        planTasks.map((task) => ({
+          templateId: task.id,
+          title: task.labels.step3,
+          categorySlug: planCategorySlug(task.category),
+          ...(task.dueDate ? { dueDate: task.dueDate } : {}),
+          isUrgent: task.isUrgent,
+        })),
       );
-      created.push(row);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не вдалося додати завдання");
+      return;
     }
 
     const starter = wedding.tasks.find(
@@ -737,7 +745,7 @@ function ChecklistInner() {
     setWizardOpen(false);
     toast.success(
       created.length > 0
-        ? `Додано ${created.length} завдань до списку`
+        ? `Додано ${created.length} ${pluralTasks(created.length)}`
         : "План оновлено",
     );
   }
@@ -1127,6 +1135,8 @@ function ChecklistInner() {
       {wizardOpen ? (
         <SmartPlanningWizard
           partnerInitials={partnerInitials}
+          weddingDate={wedding.date ? wedding.date.slice(0, 10) : null}
+          existingTemplateIds={existingTemplateIds}
           onClose={() => setWizardOpen(false)}
           onComplete={onSmartPlanComplete}
         />

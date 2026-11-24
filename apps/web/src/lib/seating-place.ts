@@ -95,7 +95,9 @@ export type PlaceOutcome<T extends PlaceTable> =
 
 /**
  * Садить `guestKey` на `seatId`.
- * - Місце зайняте, а гість уже сидить → міняються місцями (ланцюжок не чіпаємо).
+ * - Місце зайняте, гість уже сидить, ланцюжок не їде (той самий стіл / без
+ *   ланцюжка) → міняються місцями. Якщо ланцюжок їде за інший стіл — гість
+ *   переїжджає з ним, а той, хто сидів, сідає на звільнене місце гостя.
  * - Місце зайняте, гість без місця → той, хто сидів, стає без місця (`evicted`).
  * - `mates` (ланцюжок) сідають за той самий стіл на найближчі вільні місця.
  *   За дитячий стіл ланцюжок не йде. Не вистачає місць → `conflict`
@@ -124,7 +126,21 @@ export function placeGuest<T extends PlaceTable>(
   const occupant =
     target.guestKey && target.guestKey !== guestKey ? target.guestKey : null;
 
-  if (occupant && from) {
+  // Ланцюжок, який пересідає разом із гостем. Сусід по ланцюжку, що сидить
+  // саме на цільовому місці, теж пересідає (на найближче вільне).
+  const moving =
+    table.kind === "kids"
+      ? []
+      : mates.filter(
+          (m) =>
+            m !== guestKey &&
+            (m === occupant || !table.seats.some((s) => s.guestKey === m)),
+        );
+
+  // Обмін місцями — лише коли ланцюжок не їде (той самий стіл або гість без
+  // ланцюжка). Інакше гість зі своїми переїжджає, а той, хто сидів, сідає на
+  // звільнене місце гостя.
+  if (occupant && from && (from.tableId === tableId || moving.length === 0)) {
     return {
       status: "placed",
       tables: tables.map((t) => ({
@@ -143,15 +159,6 @@ export function placeGuest<T extends PlaceTable>(
     };
   }
 
-  const moving =
-    table.kind === "kids"
-      ? []
-      : mates.filter(
-          (m) =>
-            m !== guestKey &&
-            m !== occupant &&
-            !table.seats.some((s) => s.guestKey === m),
-        );
   const free = table.seats
     .filter((s) => s.id !== seatId && (!s.guestKey || s.guestKey === guestKey))
     .map((s) => s.id);
@@ -164,6 +171,7 @@ export function placeGuest<T extends PlaceTable>(
   const placed = new Map<string, string>([[seatId, guestKey]]);
   chosen.forEach((id, i) => placed.set(id, moving[i]));
   const relocated = new Set<string>([guestKey, ...moving.slice(0, chosen.length)]);
+  const displaced = occupant && !moving.includes(occupant) ? occupant : null;
 
   return {
     status: "placed",
@@ -172,12 +180,15 @@ export function placeGuest<T extends PlaceTable>(
       seats: t.seats.map((s) => {
         const next = t.id === tableId ? placed.get(s.id) : undefined;
         if (next) return { ...s, guestKey: next };
+        if (displaced && from && t.id === from.tableId && s.id === from.seatId) {
+          return { ...s, guestKey: displaced };
+        }
         if (s.guestKey && relocated.has(s.guestKey)) return { ...s, guestKey: null };
         return s;
       }),
     })),
-    evicted: occupant,
-    swappedWith: null,
+    evicted: from ? null : displaced,
+    swappedWith: from ? displaced : null,
     leftOut: moving.slice(chosen.length),
   };
 }

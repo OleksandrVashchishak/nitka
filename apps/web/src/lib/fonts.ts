@@ -1,6 +1,8 @@
 import localFont from "next/font/local";
 import {
   Cormorant_Garamond,
+  Great_Vibes,
+  Oranienbaum,
   Manrope,
   Marck_Script,
 } from "next/font/google";
@@ -42,6 +44,22 @@ export const cormorant = Cormorant_Garamond({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
+});
+
+/** Name cards «Елегантний» — first name script */
+export const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  weight: "400",
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  preload: false,
+});
+
+/** Name cards «Журнальний» — condensed high-contrast serif */
+export const oranienbaum = Oranienbaum({
+  variable: "--font-oranienbaum",
+  weight: "400",
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  preload: false,
 });
 
 export const scriptCyr = Marck_Script({

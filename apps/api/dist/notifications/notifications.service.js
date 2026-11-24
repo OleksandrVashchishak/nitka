@@ -11,60 +11,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var NotificationsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsService = void 0;
+exports.utcTs = utcTs;
 const common_1 = require("@nestjs/common");
+const node_crypto_1 = require("node:crypto");
 const email_service_1 = require("../email/email.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const wedding_access_1 = require("../weddings/wedding-access");
-function guestsWord(n) {
-    const abs = Math.abs(n) % 100;
-    const d = abs % 10;
-    if (abs > 10 && abs < 20)
-        return 'гостей';
-    if (d === 1)
-        return 'гість';
-    if (d >= 2 && d <= 4)
-        return 'гості';
-    return 'гостей';
+const notification_catalog_1 = require("./notification-catalog");
+const notification_logic_1 = require("./notification-logic");
+const SETTINGS_KEYS = [
+    'tasks',
+    'guests',
+    'partnerActivity',
+    'invitationAndDayPlan',
+    'milestones',
+    'tips',
+];
+function isNotificationType(v) {
+    return notification_catalog_1.NOTIFICATION_TYPES.includes(v);
 }
-function daysWord(n) {
-    const abs = Math.abs(n) % 100;
-    const d = abs % 10;
-    if (abs > 10 && abs < 20)
-        return 'днів';
-    if (d === 1)
-        return 'день';
-    if (d >= 2 && d <= 4)
-        return 'дні';
-    return 'днів';
+function utcTs(d = new Date()) {
+    return d.toISOString().replace('Z', '');
 }
-function rsvpLabel(status) {
-    if (status === 'YES')
-        return 'підтвердив(ла) участь';
-    if (status === 'NO')
-        return 'відхилив(ла) запрошення';
-    if (status === 'MAYBE')
-        return 'відповів(ла): можливо';
-    return 'відповів(ла) на запрошення';
+function firstName(name) {
+    return (name ?? '').trim().split(/\s+/)[0] || '';
 }
 let NotificationsService = NotificationsService_1 = class NotificationsService {
     constructor(prisma, email) {
         this.prisma = prisma;
         this.email = email;
         this.logger = new common_1.Logger(NotificationsService_1.name);
-        this.dueTimer = null;
-    }
-    onModuleInit() {
-        const hour = 60 * 60 * 1000;
-        this.dueTimer = setInterval(() => {
-            void this.sendDueTaskReminders().catch((err) => this.logger.warn(`due reminders failed: ${err instanceof Error ? err.message : String(err)}`));
-        }, hour);
-        setTimeout(() => {
-            void this.sendDueTaskReminders().catch(() => undefined);
-        }, 45_000);
-    }
-    onModuleDestroy() {
-        if (this.dueTimer)
-            clearInterval(this.dueTimer);
     }
     async registerDevice(userId, token, platform) {
         const clean = token.trim();
@@ -84,297 +60,405 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         });
         return { ok: true };
     }
-    async getPrefs(userId) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                notifGuestRsvp: true,
-                notifUpcomingPayments: true,
-                notifTaskDeadlines: true,
-                notifPartnerChanges: true,
-                notifPush: true,
-                notifEmail: true,
-            },
-        });
-        return this.mapPrefs(user);
-    }
-    async updatePrefs(userId, patch) {
-        const data = {};
-        if (patch.guestRsvp !== undefined)
-            data.notifGuestRsvp = patch.guestRsvp;
-        if (patch.upcomingPayments !== undefined) {
-            data.notifUpcomingPayments = patch.upcomingPayments;
-        }
-        if (patch.taskDeadlines !== undefined) {
-            data.notifTaskDeadlines = patch.taskDeadlines;
-        }
-        if (patch.partnerChanges !== undefined) {
-            data.notifPartnerChanges = patch.partnerChanges;
-        }
-        if (patch.push !== undefined)
-            data.notifPush = patch.push;
-        if (patch.email !== undefined)
-            data.notifEmail = patch.email;
-        const user = await this.prisma.user.update({
-            where: { id: userId },
-            data,
-            select: {
-                notifGuestRsvp: true,
-                notifUpcomingPayments: true,
-                notifTaskDeadlines: true,
-                notifPartnerChanges: true,
-                notifPush: true,
-                notifEmail: true,
-            },
-        });
-        return this.mapPrefs(user);
-    }
-    mapPrefs(user) {
-        return {
-            guestRsvp: user?.notifGuestRsvp ?? true,
-            upcomingPayments: user?.notifUpcomingPayments ?? false,
-            taskDeadlines: user?.notifTaskDeadlines ?? false,
-            partnerChanges: user?.notifPartnerChanges ?? false,
-            push: user?.notifPush ?? true,
-            email: user?.notifEmail ?? true,
-        };
-    }
-    allowsEventType(prefs, type) {
-        if (!type)
-            return true;
-        if (type === 'guest_rsvp')
-            return prefs.guestRsvp;
-        if (type === 'upcoming_payments')
-            return prefs.upcomingPayments;
-        if (type === 'task_due')
-            return prefs.taskDeadlines;
-        if (type === 'partner_changes')
-            return prefs.partnerChanges;
-        return true;
-    }
     async unregisterDevice(userId, token) {
         await this.prisma.pushDevice.deleteMany({
             where: { userId, token: token.trim() },
         });
         return { ok: true };
     }
-    async getSummary(user) {
-        return this.getCoupleSummary(user.id, user.role);
-    }
-    async getCoupleSummary(userId, role) {
-        const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, userId);
-        const wedding = access?.wedding ?? null;
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const [pendingRsvp, newRsvp] = await Promise.all([
-            wedding
-                ? this.prisma.guest.count({
-                    where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
-                })
-                : Promise.resolve(0),
-            wedding
-                ? this.prisma.guest.count({
-                    where: {
-                        weddingId: wedding.id,
-                        rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
-                        respondedAt: { gte: weekAgo },
-                    },
-                })
-                : Promise.resolve(0),
-        ]);
-        const items = [
-            {
-                key: 'newRsvp',
-                label: 'Нові відповіді на запрошення',
-                count: newRsvp,
-                href: '/guests',
-            },
-            {
-                key: 'pendingRsvp',
-                label: 'Чекають відповіді на запрошення',
-                count: pendingRsvp,
-                href: '/guests',
-            },
-        ].filter((i) => i.count > 0);
-        const feed = await this.buildCoupleFeed(userId, wedding, pendingRsvp);
-        const newCount = feed.filter((item) => item.isNew).length;
-        return {
-            role,
-            pendingRsvp,
-            newRsvp,
-            total: items.reduce((sum, i) => sum + i.count, 0),
-            newCount,
-            items,
-            feed,
-            moreHref: '/settings?tab=notifications',
-        };
-    }
-    async buildCoupleFeed(_userId, wedding, pendingRsvp) {
-        const feed = [];
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-        const now = new Date();
-        if (wedding) {
-            const recentRsvps = await this.prisma.guest.findMany({
-                where: {
-                    weddingId: wedding.id,
-                    rsvpStatus: { in: ['YES', 'NO', 'MAYBE'] },
-                    respondedAt: { gte: twoWeeksAgo },
-                },
-                orderBy: { respondedAt: 'desc' },
-                take: 4,
-                select: {
-                    id: true,
-                    name: true,
-                    rsvpStatus: true,
-                    respondedAt: true,
-                },
-            });
-            for (const guest of recentRsvps) {
-                const at = guest.respondedAt ?? now;
-                feed.push({
-                    id: `rsvp-${guest.id}`,
-                    body: `${guest.name} ${rsvpLabel(guest.rsvpStatus)}`,
-                    href: '/guests',
-                    createdAt: at.toISOString(),
-                    isNew: at >= weekAgo,
-                });
-            }
-            if (pendingRsvp > 0) {
-                const oldestPending = await this.prisma.guest.findFirst({
-                    where: { weddingId: wedding.id, rsvpStatus: 'PENDING' },
-                    orderBy: { createdAt: 'asc' },
-                    select: { createdAt: true },
-                });
-                feed.push({
-                    id: 'pending-rsvp',
-                    body: `${pendingRsvp} ${guestsWord(pendingRsvp)} ще не відповіли на запрошення`,
-                    href: '/guests',
-                    createdAt: (oldestPending?.createdAt ?? now).toISOString(),
-                    isNew: true,
-                    actionLabel: 'Нагадати',
-                    actionHref: '/guests',
-                });
-            }
-            const start = new Date();
-            start.setHours(0, 0, 0, 0);
-            const dueEnd = new Date(start);
-            dueEnd.setDate(dueEnd.getDate() + 7);
-            const dueTasks = await this.prisma.task.findMany({
-                where: {
-                    weddingId: wedding.id,
-                    status: { not: 'DONE' },
-                    dueDate: { gte: start, lt: dueEnd },
-                },
-                orderBy: { dueDate: 'asc' },
-                take: 3,
-                select: { id: true, title: true, dueDate: true },
-            });
-            for (const task of dueTasks) {
-                if (!task.dueDate)
-                    continue;
-                const daysLeft = Math.max(0, Math.ceil((task.dueDate.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)));
-                feed.push({
-                    id: `task-due-${task.id}`,
-                    body: daysLeft === 0
-                        ? `Сьогодні дедлайн: ${task.title}`
-                        : `Залишилось ${daysLeft} ${daysWord(daysLeft)} до дедлайну: ${task.title}`,
-                    href: '/checklist',
-                    createdAt: task.dueDate.toISOString(),
-                    isNew: daysLeft <= 2,
-                });
-            }
-            const weddingDaysLeft = Math.ceil((wedding.date.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
-            if (pendingRsvp > 0 && weddingDaysLeft > 0 && weddingDaysLeft <= 14) {
-                feed.push({
-                    id: 'invite-deadline',
-                    body: `Залишилось ${weddingDaysLeft} ${daysWord(weddingDaysLeft)} щоб підтвердити запрошення`,
-                    href: '/guests',
-                    createdAt: now.toISOString(),
-                    isNew: weddingDaysLeft <= 7,
-                });
-            }
-        }
-        feed.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        return feed.slice(0, 12);
-    }
-    async notifyUser(userId, payload) {
-        const prefs = await this.getPrefs(userId);
-        if (!this.allowsEventType(prefs, payload.type)) {
-            return { sent: 0, emailed: 0 };
-        }
-        const [pushResult, emailResult] = await Promise.all([
-            prefs.push ? this.sendPush(userId, payload) : Promise.resolve({ sent: 0 }),
-            prefs.email
-                ? this.sendEmail(userId, payload)
-                : Promise.resolve({ emailed: 0 }),
-        ]);
-        return { sent: pushResult.sent, emailed: emailResult.emailed };
-    }
-    async notifyWeddingMembers(weddingId, payload, excludeUserId) {
+    async getMembers(weddingId) {
         const wedding = await this.prisma.wedding.findUnique({
             where: { id: weddingId },
             select: {
                 userId: true,
-                members: { select: { userId: true } },
+                partnerOneName: true,
+                partnerTwoName: true,
+                members: { select: { userId: true, role: true } },
             },
         });
         if (!wedding)
-            return { sent: 0, emailed: 0 };
-        const ids = new Set([
-            wedding.userId,
-            ...wedding.members.map((m) => m.userId),
-        ]);
-        if (excludeUserId)
-            ids.delete(excludeUserId);
-        let sent = 0;
-        let emailed = 0;
-        for (const id of ids) {
-            const res = await this.notifyUser(id, payload);
-            sent += res.sent;
-            emailed += res.emailed;
-        }
-        return { sent, emailed };
+            return null;
+        const partner = wedding.members.find((m) => m.role === 'PARTNER' && m.userId !== wedding.userId);
+        return {
+            ownerId: wedding.userId,
+            partnerId: partner?.userId ?? null,
+            partnerOneName: wedding.partnerOneName,
+            partnerTwoName: wedding.partnerTwoName,
+        };
     }
-    async sendDueTaskReminders() {
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 2);
-        const tasks = await this.prisma.$queryRaw `
-      SELECT id, title, due_date, wedding_id
-      FROM tasks
-      WHERE status <> 'DONE'
-        AND due_date IS NOT NULL
-        AND due_date >= ${start}
-        AND due_date < ${end}
-        AND (due_reminded_at IS NULL OR due_reminded_at < ${start})
-      LIMIT 200
+    async getActors(weddingId, userIds) {
+        const out = new Map();
+        const ids = [...new Set(userIds.filter(Boolean))];
+        if (!ids.length)
+            return out;
+        const [members, users] = await Promise.all([
+            this.getMembers(weddingId),
+            this.prisma.$queryRaw `
+        SELECT id, name, gender FROM users WHERE id = ANY(${ids})
+      `.catch(() => this.prisma.user
+                .findMany({ where: { id: { in: ids } }, select: { id: true, name: true } })
+                .then((rows) => rows.map((r) => ({ ...r, gender: null })))),
+        ]);
+        for (const u of users) {
+            let name = u.name;
+            if (members?.ownerId === u.id)
+                name = members.partnerOneName || u.name;
+            else if (members?.partnerId === u.id)
+                name = members.partnerTwoName || u.name;
+            const gender = u.gender === 'female' || u.gender === 'male' ? u.gender : null;
+            out.set(u.id, { name: firstName(name) || firstName(u.name) || 'Партнер', gender });
+        }
+        return out;
+    }
+    async getSettings(userId) {
+        const rows = await this.prisma.$queryRaw `
+      SELECT notif_settings, notif_push, notif_email FROM users WHERE id = ${userId}
+    `.catch(() => []);
+        const row = rows[0];
+        const raw = row?.notif_settings && typeof row.notif_settings === 'object'
+            ? row.notif_settings
+            : {};
+        const settings = {
+            ...notification_catalog_1.DEFAULT_SETTINGS,
+            channels: {
+                push: row?.notif_push ?? notification_catalog_1.DEFAULT_SETTINGS.channels.push,
+                email: row?.notif_email ?? notification_catalog_1.DEFAULT_SETTINGS.channels.email,
+            },
+        };
+        for (const key of SETTINGS_KEYS) {
+            if (typeof raw[key] === 'boolean')
+                settings[key] = raw[key];
+        }
+        if (raw.taskFrequency === 'less' || raw.taskFrequency === 'normal') {
+            settings.taskFrequency = raw.taskFrequency;
+        }
+        return settings;
+    }
+    async getPrefs(userId) {
+        const settings = await this.getSettings(userId);
+        const access = await (0, wedding_access_1.resolveWeddingForUser)(this.prisma, userId);
+        let partnerName = null;
+        let hasPartner = false;
+        if (access) {
+            const members = await this.getMembers(access.wedding.id);
+            const otherId = members?.ownerId === userId ? members.partnerId : members?.ownerId ?? null;
+            hasPartner = Boolean(members?.partnerId);
+            if (otherId && hasPartner) {
+                const actors = await this.getActors(access.wedding.id, [otherId]);
+                partnerName = actors.get(otherId)?.name ?? null;
+            }
+        }
+        return { ...settings, partnerName, hasPartner };
+    }
+    async updatePrefs(userId, patch) {
+        const current = await this.getSettings(userId);
+        const next = {
+            tasks: current.tasks,
+            taskFrequency: current.taskFrequency,
+            guests: current.guests,
+            partnerActivity: current.partnerActivity,
+            invitationAndDayPlan: current.invitationAndDayPlan,
+            milestones: current.milestones,
+            tips: current.tips,
+        };
+        for (const key of SETTINGS_KEYS) {
+            if (typeof patch[key] === 'boolean')
+                next[key] = patch[key];
+        }
+        if (patch.taskFrequency === 'less' || patch.taskFrequency === 'normal') {
+            next.taskFrequency = patch.taskFrequency;
+        }
+        const push = patch.push ?? current.channels.push;
+        const email = patch.email ?? current.channels.email;
+        await this.prisma.$executeRaw `
+      UPDATE users
+      SET notif_settings = ${JSON.stringify(next)}::jsonb,
+          notif_push = ${push},
+          notif_email = ${email}
+      WHERE id = ${userId}
     `;
-        let sent = 0;
-        const dayMs = 24 * 60 * 60 * 1000;
-        for (const task of tasks) {
-            const due = new Date(task.due_date);
-            const dueDay = due.toLocaleDateString('uk-UA');
-            const isToday = due >= start && due < new Date(start.getTime() + dayMs);
-            const res = await this.notifyWeddingMembers(task.wedding_id, {
-                title: isToday ? 'Дедлайн сьогодні' : 'Дедлайн завтра',
-                body: `${task.title} · до ${dueDay}`,
-                data: { type: 'task_due', taskId: task.id },
-                type: 'task_due',
-                email: {
-                    ctaLabel: 'Відкрити чекліст',
-                    ctaPath: '/checklist',
-                },
-            });
-            sent += res.sent;
+        return this.getPrefs(userId);
+    }
+    async create(input) {
+        const id = (0, node_crypto_1.randomUUID)();
+        const now = new Date();
+        const payload = input.payload ?? {};
+        await this.prisma.$executeRaw `
+      INSERT INTO notifications
+        (id, wedding_id, recipient_id, type, dedup_key, count, payload,
+         created_at, updated_at, read_at, resolved_at, reminder_no)
+      VALUES
+        (${id}, ${input.weddingId}, ${input.recipientId}, ${input.type}, ${input.dedupKey},
+         ${input.count ?? 1}, ${JSON.stringify(payload)}::jsonb, ${utcTs(now)}::timestamp,
+         ${utcTs(now)}::timestamp,
+         ${input.suppressed ? utcTs(now) : null}::timestamp,
+         ${input.suppressed ? utcTs(now) : null}::timestamp,
+         ${input.reminderNo ?? null})
+    `;
+        if (!input.suppressed) {
+            void this.deliver(input.recipientId, input.weddingId, {
+                type: input.type,
+                count: input.count ?? 1,
+                payload,
+            }).catch((err) => this.logger.warn(`deliver failed: ${err instanceof Error ? err.message : String(err)}`));
+        }
+        return id;
+    }
+    async partnerEvent(weddingId, actorId, type, event = {}) {
+        try {
+            const members = await this.getMembers(weddingId);
+            if (!members)
+                return;
+            const recipients = [members.ownerId, members.partnerId].filter((id) => Boolean(id) && id !== actorId);
+            const n = Math.max(1, event.n ?? 1);
+            const dedupKey = `partner:${actorId}:${type}`;
+            for (const recipientId of recipients) {
+                const settings = await this.getSettings(recipientId);
+                if (!(0, notification_catalog_1.isTypeEnabled)(settings, type))
+                    continue;
+                const rows = await this.prisma.$queryRaw `
+          SELECT * FROM notifications
+          WHERE recipient_id = ${recipientId} AND dedup_key = ${dedupKey}
+          ORDER BY created_at DESC
+          LIMIT 1
+        `;
+                const prev = rows[0] ?? null;
+                const now = new Date();
+                if (prev &&
+                    (0, notification_logic_1.canMergeInto)({ createdAt: prev.created_at, readAt: prev.read_at, resolvedAt: prev.resolved_at }, now)) {
+                    const p = prev.payload ?? {};
+                    const payload = {
+                        ...p,
+                        actorId,
+                        entityIds: (0, notification_logic_1.mergeEntityIds)(p.entityIds, event.entityIds),
+                        ...(event.amount !== undefined
+                            ? { amount: (Number(p.amount) || 0) + event.amount }
+                            : {}),
+                        ...(event.vendorId ? { vendorId: event.vendorId } : {}),
+                        ...(event.vendorLabel ? { vendorLabel: event.vendorLabel } : {}),
+                        ...(event.siteUrl ? { siteUrl: event.siteUrl } : {}),
+                    };
+                    const add = type === 'partner_seating_updated' || type === 'partner_site_published' ? 0 : n;
+                    await this.prisma.$executeRaw `
+            UPDATE notifications
+            SET count = count + ${add},
+                payload = ${JSON.stringify(payload)}::jsonb,
+                updated_at = ${utcTs(now)}::timestamp
+            WHERE id = ${prev.id}
+          `;
+                    continue;
+                }
+                await this.create({
+                    weddingId,
+                    recipientId,
+                    type,
+                    dedupKey,
+                    count: n,
+                    payload: {
+                        actorId,
+                        entityIds: event.entityIds?.slice(-200),
+                        amount: event.amount,
+                        vendorId: event.vendorId,
+                        vendorLabel: event.vendorLabel,
+                        siteUrl: event.siteUrl,
+                    },
+                });
+            }
+        }
+        catch (err) {
+            this.logger.warn(`partnerEvent ${type} failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+    async direct(weddingId, recipientId, type, dedupKey, payload) {
+        try {
+            const settings = await this.getSettings(recipientId);
+            if (!(0, notification_catalog_1.isTypeEnabled)(settings, type))
+                return;
+            await this.create({ weddingId, recipientId, type, dedupKey, payload });
+        }
+        catch (err) {
+            this.logger.warn(`direct ${type} failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+    async smartPlanningDateTip(weddingId) {
+        try {
+            const [smart] = await this.prisma.$queryRaw `
+        SELECT COUNT(*)::int AS n FROM tasks
+        WHERE wedding_id = ${weddingId} AND source = 'smart_planning'
+      `;
+            const hasSmartPlan = Number(smart?.n ?? 0) > 0;
+            const members = await this.getMembers(weddingId);
+            if (!members || hasSmartPlan)
+                return;
+            for (const recipientId of [members.ownerId, members.partnerId]) {
+                if (!recipientId)
+                    continue;
+                const rows = await this.prisma.$queryRaw `
+          SELECT type, created_at FROM notifications
+          WHERE wedding_id = ${weddingId} AND recipient_id = ${recipientId}
+            AND type IN ('setup_smart_planning', 'setup_smart_planning_date')
+        `;
+                const history = rows.map((r) => ({
+                    type: r.type,
+                    day: r.created_at.toISOString().slice(0, 10),
+                }));
+                if (!(0, notification_logic_1.smartPlanningDateTipAllowed)({ hasSmartPlan, history }))
+                    continue;
+                await this.direct(weddingId, recipientId, 'setup_smart_planning_date', 'tip:smart:date', {});
+            }
+        }
+        catch (err) {
+            this.logger.warn(`smartPlanningDateTip failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+    async resolveTypes(weddingId, types, recipientId) {
+        if (!types.length)
+            return;
+        try {
+            if (recipientId) {
+                await this.prisma.$executeRaw `
+          UPDATE notifications SET resolved_at = ${utcTs()}::timestamp
+          WHERE wedding_id = ${weddingId} AND recipient_id = ${recipientId}
+            AND type = ANY(${types}) AND read_at IS NULL AND resolved_at IS NULL
+        `;
+            }
+            else {
+                await this.prisma.$executeRaw `
+          UPDATE notifications SET resolved_at = ${utcTs()}::timestamp
+          WHERE wedding_id = ${weddingId}
+            AND type = ANY(${types}) AND read_at IS NULL AND resolved_at IS NULL
+        `;
+            }
+        }
+        catch (err) {
+            this.logger.warn(`resolveTypes failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+    async resolveTask(weddingId, taskId) {
+        try {
             await this.prisma.$executeRaw `
-        UPDATE tasks SET due_reminded_at = ${new Date()} WHERE id = ${task.id}
+        UPDATE notifications SET resolved_at = ${utcTs()}::timestamp
+        WHERE wedding_id = ${weddingId}
+          AND payload->>'taskId' = ${taskId}
+          AND type IN ('deadline_early', 'deadline_late', 'deadline_today', 'task_overdue')
+          AND read_at IS NULL AND resolved_at IS NULL
       `;
         }
-        if (tasks.length) {
-            this.logger.log(`Due reminders: ${tasks.length} tasks, ${sent} pushes`);
+        catch (err) {
+            this.logger.warn(`resolveTask failed: ${err instanceof Error ? err.message : String(err)}`);
         }
-        return { tasks: tasks.length, sent };
+    }
+    async list(userId, offset = 0, limit = 5) {
+        const since = new Date(Date.now() - notification_logic_1.HISTORY_DAYS * 24 * 60 * 60 * 1000);
+        const take = Math.min(Math.max(limit, 1), 50);
+        const skip = Math.max(offset, 0);
+        const rows = await this.prisma.$queryRaw `
+      SELECT * FROM notifications
+      WHERE recipient_id = ${userId} AND resolved_at IS NULL AND updated_at >= ${utcTs(since)}::timestamp
+      ORDER BY updated_at DESC, id DESC
+      OFFSET ${skip} LIMIT ${take + 1}
+    `.catch(() => []);
+        const unreadCount = await this.unreadCount(userId);
+        const page = rows.slice(0, take);
+        return {
+            items: await this.renderRows(page),
+            unreadCount,
+            hasMore: rows.length > take,
+        };
+    }
+    async unreadCount(userId) {
+        const since = new Date(Date.now() - notification_logic_1.HISTORY_DAYS * 24 * 60 * 60 * 1000);
+        const rows = await this.prisma.$queryRaw `
+      SELECT COUNT(*)::int AS n FROM notifications
+      WHERE recipient_id = ${userId} AND resolved_at IS NULL AND read_at IS NULL
+        AND updated_at >= ${utcTs(since)}::timestamp
+    `.catch(() => [{ n: 0 }]);
+        return Number(rows[0]?.n ?? 0);
+    }
+    async markRead(userId, id) {
+        const changed = await this.prisma.$executeRaw `
+      UPDATE notifications SET read_at = COALESCE(read_at, ${utcTs()}::timestamp)
+      WHERE id = ${id} AND recipient_id = ${userId}
+    `;
+        if (!changed)
+            throw new common_1.NotFoundException('Сповіщення не знайдено');
+        return { ok: true, unreadCount: await this.unreadCount(userId) };
+    }
+    async markAllRead(userId) {
+        await this.prisma.$executeRaw `
+      UPDATE notifications SET read_at = ${utcTs()}::timestamp
+      WHERE recipient_id = ${userId} AND read_at IS NULL AND resolved_at IS NULL
+    `;
+        return { ok: true, unreadCount: 0 };
+    }
+    async renderRows(rows) {
+        const byWedding = new Map();
+        for (const row of rows) {
+            const actorId = row.payload?.actorId;
+            if (!actorId)
+                continue;
+            const list = byWedding.get(row.wedding_id) ?? [];
+            list.push(actorId);
+            byWedding.set(row.wedding_id, list);
+        }
+        const actors = new Map();
+        for (const [weddingId, ids] of byWedding) {
+            for (const [id, actor] of await this.getActors(weddingId, ids))
+                actors.set(id, actor);
+        }
+        const out = [];
+        for (const row of rows) {
+            if (!isNotificationType(row.type))
+                continue;
+            const payload = row.payload ?? {};
+            const rendered = (0, notification_catalog_1.renderNotification)({
+                type: row.type,
+                count: row.count,
+                payload,
+                actor: payload.actorId ? actors.get(payload.actorId) ?? null : null,
+            });
+            out.push({
+                ...rendered,
+                id: row.id,
+                type: row.type,
+                createdAt: row.created_at.toISOString(),
+                updatedAt: row.updated_at.toISOString(),
+                isRead: Boolean(row.read_at),
+                ...(payload.taskId ? { taskId: payload.taskId } : {}),
+            });
+        }
+        return out;
+    }
+    async deliver(userId, weddingId, input) {
+        const settings = await this.getSettings(userId);
+        if (!settings.channels.push && !settings.channels.email)
+            return;
+        const actors = input.payload.actorId
+            ? await this.getActors(weddingId, [input.payload.actorId])
+            : new Map();
+        const rendered = (0, notification_catalog_1.renderNotification)({
+            ...input,
+            actor: input.payload.actorId ? actors.get(input.payload.actorId) ?? null : null,
+        });
+        const body = (0, notification_catalog_1.plainText)(rendered.segments);
+        const primary = rendered.actions.find((a) => a.href) ?? null;
+        await Promise.all([
+            settings.channels.push
+                ? this.sendPush(userId, {
+                    title: 'fata.studio',
+                    body,
+                    data: { type: input.type, href: rendered.href },
+                })
+                : Promise.resolve(),
+            settings.channels.email
+                ? this.sendEmail(userId, {
+                    subject: body.length > 90 ? `${body.slice(0, 87)}…` : body,
+                    body,
+                    ctaLabel: primary?.label ?? 'Відкрити fata.studio',
+                    ctaPath: primary?.href ?? rendered.href,
+                })
+                : Promise.resolve(),
+        ]);
     }
     async sendPush(userId, payload) {
         const devices = await this.prisma.pushDevice.findMany({
@@ -401,21 +485,21 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         });
         if (!user?.email)
             return { emailed: 0 };
-        const subject = payload.email?.subject || payload.title;
-        const body = payload.email?.body || payload.body;
-        const ctaPath = payload.email?.ctaPath;
+        const ctaPath = payload.ctaPath;
         const ctaUrl = ctaPath
-            ? `${this.email.webUrl}${ctaPath.startsWith('/') ? '' : '/'}${ctaPath}`
+            ? ctaPath.startsWith('http')
+                ? ctaPath
+                : `${this.email.webUrl}${ctaPath.startsWith('/') ? '' : '/'}${ctaPath}`
             : undefined;
         const rendered = this.email.renderSimple({
-            title: subject,
-            body,
-            ctaLabel: payload.email?.ctaLabel,
+            title: payload.subject,
+            body: payload.body,
+            ctaLabel: payload.ctaLabel,
             ctaUrl,
         });
         const result = await this.email.send({
             to: user.email,
-            subject,
+            subject: payload.subject,
             text: rendered.text,
             html: rendered.html,
         });

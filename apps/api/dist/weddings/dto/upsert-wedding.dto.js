@@ -10,9 +10,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpsertWeddingDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class UpsertWeddingDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { date: { required: true, type: () => String }, city: { required: true, type: () => String }, guests: { required: true, type: () => Number, minimum: 1 }, budget: { required: true, type: () => Number, minimum: 0 }, partnerOneName: { required: false, type: () => String, maxLength: 80 }, partnerTwoName: { required: false, type: () => String, maxLength: 80 }, couplePhotoUrl: { required: false, type: () => String, nullable: true, maxLength: 2000 }, planningStage: { required: false, type: () => String, enum: [
+                    'NOT_ENGAGED',
+                    'EXPLORING',
+                    'PLANNING_NO_VENUE',
+                    'PLANNING_WITH_VENUE',
+                    'FINAL_DETAILS',
+                ] }, cityUndecided: { required: false, type: () => Boolean }, guestsUndecided: { required: false, type: () => Boolean }, dateUndecided: { required: false, type: () => Boolean, description: "\u0414\u0430\u0442\u0443 \u0449\u0435 \u043D\u0435 \u043E\u0431\u0440\u0430\u043B\u0438 (\u0443 `date` \u2014 \u0442\u0438\u043C\u0447\u0430\u0441\u043E\u0432\u0430)." } };
+    }
 }
 exports.UpsertWeddingDto = UpsertWeddingDto;
 __decorate([
@@ -74,4 +84,9 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpsertWeddingDto.prototype, "guestsUndecided", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], UpsertWeddingDto.prototype, "dateUndecided", void 0);
 //# sourceMappingURL=upsert-wedding.dto.js.map

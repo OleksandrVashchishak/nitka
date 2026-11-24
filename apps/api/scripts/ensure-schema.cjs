@@ -27,6 +27,9 @@ END $$`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS is_custom BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assignee TEXT`,
+  `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS template_id TEXT`,
+  `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS source TEXT`,
+  `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS is_urgent BOOLEAN NOT NULL DEFAULT false`,
 
   `DO $$ BEGIN
   CREATE TYPE "ContentKind" AS ENUM ('ARTICLE', 'GUIDE', 'LANDING');
@@ -324,6 +327,32 @@ END $$`,
   `ALTER TABLE wedding_websites ADD COLUMN IF NOT EXISTS admin_hidden BOOLEAN NOT NULL DEFAULT false`,
 
   // --- Daily activity (dynamics + cohorts) ---
+  // Сповіщення (notifications-spec.md)
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS notif_settings JSONB`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS gender TEXT`,
+  `ALTER TABLE weddings ADD COLUMN IF NOT EXISTS date_undecided BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+  `CREATE TABLE IF NOT EXISTS notifications (
+  id TEXT PRIMARY KEY,
+  wedding_id TEXT NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+  recipient_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  dedup_key TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 1,
+  payload JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  read_at TIMESTAMP(3),
+  resolved_at TIMESTAMP(3),
+  reminder_no INTEGER
+)`,
+  `CREATE INDEX IF NOT EXISTS notifications_recipient_id_updated_at_idx ON notifications(recipient_id, updated_at)`,
+  `CREATE INDEX IF NOT EXISTS notifications_recipient_id_dedup_key_idx ON notifications(recipient_id, dedup_key)`,
+  `CREATE INDEX IF NOT EXISTS notifications_wedding_id_type_idx ON notifications(wedding_id, type)`,
+  `CREATE TABLE IF NOT EXISTS notification_job_runs (
+  day DATE PRIMARY KEY,
+  started_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)`,
   `CREATE TABLE IF NOT EXISTS user_activity_days (
   user_id TEXT NOT NULL,
   day DATE NOT NULL,

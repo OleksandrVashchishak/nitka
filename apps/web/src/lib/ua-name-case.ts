@@ -210,3 +210,27 @@ export function uaGuestsOfLabel(
   }
   return `Гості ${uaNameGenitive(name)}`;
 }
+
+/** Прізвище в знахідному за родом імені: «Микитюк» → «Микитюка», «Ковальська» → «Ковальську». */
+function surnameAccusative(surname: string, gender: UaNameGender): string {
+  const s = surname;
+  if (!CYRILLIC.test(s)) return s;
+  if (gender === "masculine") {
+    if (/(ий|ій)$/i.test(s)) return s.slice(0, -2) + "ого";
+    if (/ь$/i.test(s)) return s.slice(0, -1) + "я";
+    if (/[бвгґджзклмнпрстфхцчшщ]$/i.test(s)) return s + "а";
+    return s;
+  }
+  if (/(ська|цька|зька|ова|ева|єва|іна|ина|їна)$/i.test(s)) {
+    return s.slice(0, -1) + "у";
+  }
+  return s;
+}
+
+/** Знахідний для повного імені: «Роман Микитюк» → «Романа Микитюка». */
+export function uaFullNameAccusative(raw: string): string {
+  const [first = "", ...rest] = raw.trim().split(/\s+/);
+  if (!first) return raw.trim();
+  const gender = detectUaNameGender(first);
+  return [declineUaGivenName(first, "accusative"), ...rest.map((w) => surnameAccusative(w, gender))].join(" ");
+}
