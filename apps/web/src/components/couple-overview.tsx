@@ -63,6 +63,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/lib/toast";
 import { useAnimatedProgress } from "@/lib/use-animated-progress";
+import { useStaggerOnce } from "@/hooks/use-stagger-once";
 
 function inviteDismissKey(weddingId: string) {
   return `fata-dashboard-invite-dismissed:${weddingId}`;
@@ -197,6 +198,7 @@ export function CoupleOverview({
   onTaskChange: (task: WeddingTask) => void;
   onTaskRemove: (taskId: string) => void;
 }) {
+  const staggerRef = useStaggerOnce();
   const [insights, setInsights] = useState<DashboardInsights | null>(null);
   const [summary, setSummary] = useState<NotificationsSummary | null>(null);
   const [pipeline, setPipeline] = useState<VendorPipeline | null>(null);
@@ -600,7 +602,7 @@ export function CoupleOverview({
         </div>
       </div>
 
-      <div className="cabinet-body">
+      <div ref={staggerRef} className="cabinet-body">
         {showInviteTask ? (
           <PartnerInviteBanner
             className="partner-invite-banner--overview-mobile"

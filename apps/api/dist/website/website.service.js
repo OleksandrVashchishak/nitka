@@ -20,6 +20,7 @@ const TEMPLATE_IDS = new Set([
     'classic-white',
     'navy-gold',
     'dark-botanical',
+    'botanical',
 ]);
 const TEMPLATES_LIST = [
     {
@@ -36,6 +37,11 @@ const TEMPLATES_LIST = [
         id: 'dark-botanical',
         name: 'Dark Botanical',
         description: 'Чорний frame з флоральним декором',
+    },
+    {
+        id: 'botanical',
+        name: 'Ботанічний',
+        description: 'Органічні лінії листя, арки та мінімалізм',
     },
 ];
 const DEFAULT_SECTIONS = {

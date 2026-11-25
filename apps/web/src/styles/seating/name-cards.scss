@@ -155,7 +155,7 @@
   border-radius: 10px;
   background: #fff;
   overflow: hidden;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color var(--motion-duration-fast) var(--motion-ease-standard), background-color var(--motion-duration-fast) var(--motion-ease-standard);
 
   &:hover {
     border-color: #d4d4d8;

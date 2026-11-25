@@ -19,6 +19,12 @@
   @media (min-width: 1024px) {
     padding-left: var(--cab-sidebar);
   }
+
+  /* Перехід сторінки й заміна лоадера контентом — новий корінь сторінки
+     з'являється fade-ом. Лише opacity: transform ламав би fixed-панелі всередині. */
+  > * {
+    animation: motion-fade-in var(--motion-duration-slow) var(--motion-ease-standard) backwards;
+  }
 }
 
 .cabinet-sidebar-logo {
@@ -57,7 +63,7 @@ background: #F3F3F3;
   line-height: 1;
   color: #fff;
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--motion-duration-fast) var(--motion-ease-standard), color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .cabinet-nav-link:hover {
@@ -368,7 +374,7 @@ background: #F3F3F3;
   display: block;
   flex-shrink: 0;
   color: #1a1a1a;
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .cabinet-profile-chevron.is-open {
@@ -1208,7 +1214,7 @@ color: #1A1A1A;
   color: var(--cab-link);
   text-align: center;
   text-decoration: none;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background var(--motion-duration-fast) var(--motion-ease-standard), transform var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .cabinet-photo-cta:hover {
@@ -2001,11 +2007,12 @@ margin-bottom: 25px;
   background: rgb(26 26 26 / 0.18);
   opacity: 0;
   cursor: pointer;
-  transition: opacity 0.28s ease;
+  transition: opacity var(--motion-duration-exit) var(--motion-ease-standard);
 }
 
 .cabinet-more-menu.is-open .cabinet-more-menu-backdrop {
   opacity: 1;
+  transition-duration: var(--motion-duration-slow);
 }
 
 .cabinet-more-menu-panel {
@@ -2018,12 +2025,13 @@ margin-bottom: 25px;
     radial-gradient(ellipse 70% 30% at 50% 15%, rgb(255 120 100 / 0.12), transparent 70%),
     #f4f4f4;
   transform: translate3d(100%, 0, 0);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 200ms var(--motion-ease-exit);
   will-change: transform;
 }
 
 .cabinet-more-menu.is-open .cabinet-more-menu-panel {
   transform: translate3d(0, 0, 0);
+  transition: transform 300ms var(--motion-ease-enter);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2236,11 +2244,12 @@ margin-bottom: 25px;
   background: rgb(26 26 26 / 0.18);
   opacity: 0;
   cursor: pointer;
-  transition: opacity 0.28s ease;
+  transition: opacity var(--motion-duration-exit) var(--motion-ease-standard);
 }
 
 .cabinet-tasks-filters-sheet.is-open .cabinet-tasks-filters-sheet__backdrop {
   opacity: 1;
+  transition-duration: var(--motion-duration-slow);
 }
 
 .cabinet-tasks-filters-sheet__panel {
@@ -2250,12 +2259,13 @@ margin-bottom: 25px;
   flex-direction: column;
   background: #fff;
   transform: translate3d(100%, 0, 0);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 200ms var(--motion-ease-exit);
   will-change: transform;
 }
 
 .cabinet-tasks-filters-sheet.is-open .cabinet-tasks-filters-sheet__panel {
   transform: translate3d(0, 0, 0);
+  transition: transform 300ms var(--motion-ease-enter);
 }
 
 .cabinet-tasks-filters-sheet__head {
@@ -2674,11 +2684,12 @@ font-size: 12px;
   background: rgb(26 26 26 / 0.28);
   opacity: 0;
   cursor: pointer;
-  transition: opacity 0.28s ease;
+  transition: opacity var(--motion-duration-exit) var(--motion-ease-standard);
 }
 
 .cabinet-drawer-root.is-open .cabinet-drawer-backdrop {
   opacity: 1;
+  transition-duration: var(--motion-duration-slow);
 }
 
 .cabinet-drawer {
@@ -2692,12 +2703,13 @@ font-size: 12px;
   background: #fff;
   box-shadow: -8px 0 40px rgb(0 0 0 / 0.12);
   transform: translate3d(100%, 0, 0);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 200ms var(--motion-ease-exit);
   will-change: transform;
 }
 
 .cabinet-drawer-root.is-open .cabinet-drawer {
   transform: translate3d(0, 0, 0);
+  transition: transform 300ms var(--motion-ease-enter);
 }
 
 .cabinet-drawer-head {
@@ -5415,7 +5427,7 @@ font-size: 12px;
   background: transparent;
   color: #7a7072;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform var(--motion-duration-base);
 
   &.is-open {
     transform: rotate(180deg);
@@ -5788,7 +5800,7 @@ font-size: 12px;
   border-radius: 6px;
   background: transparent;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background var(--motion-duration-base) var(--motion-ease-standard);
 }
 
 .cabinet-day-plan-icon-btn--edit {

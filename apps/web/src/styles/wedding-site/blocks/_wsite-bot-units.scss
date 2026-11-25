@@ -1,0 +1,24 @@
+/* «Ботанічний»: одиниці з макета Figma.
+   u(n) — px десктопного макета 1440, масштабується разом з екраном (не більше 1:1).
+   m(n) — px мобільного макета 390 (до 480px екрана).
+   fs(n, min) — розмір шрифту з десктопу, але не дрібніше за min px. */
+
+$bot-mobile: 767px;
+
+@function u($n) {
+  @return calc(#{$n} * var(--bu));
+}
+
+@function m($n) {
+  @return calc(#{$n} * var(--bm));
+}
+
+@function fs($n, $min) {
+  @return max(#{$min}px, calc(#{$n} * var(--bu)));
+}
+
+@mixin mobile {
+  @media (max-width: $bot-mobile) {
+    @content;
+  }
+}

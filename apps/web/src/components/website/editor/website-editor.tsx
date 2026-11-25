@@ -7,10 +7,12 @@ import { IconClose } from "@/components/icon-close";
 import { RequireAuth } from "@/components/require-auth";
 import { PageLoader } from "@/components/ui-loader";
 import {
+  CUSTOM_DESIGN,
   DESIGN_OPTIONS,
   designIdFromTemplate,
   type DesignOption,
 } from "@/components/website/editor/design-catalog";
+import { WebsiteEditorCustomDesign } from "@/components/website/editor/website-editor-custom-design";
 import { WebsiteEditorContentTab } from "@/components/website/editor/website-editor-content-tab";
 import { WebsiteEditorDesignTab } from "@/components/website/editor/website-editor-design-tab";
 import { WebsiteEditorFooter } from "@/components/website/editor/website-editor-footer";
@@ -298,6 +300,7 @@ function WebsiteEditorInner() {
   const displayUrl = `${host}${site.publicPath}`;
   const fancyAddress = `${slug || site.slug}.fata.studio`;
   const tabIndex = TAB_ORDER.indexOf(tab);
+  const customDesign = tab === "design" && designId === CUSTOM_DESIGN.id;
 
   function onMobileBack() {
     if (tabIndex <= 0) {
@@ -335,8 +338,10 @@ function WebsiteEditorInner() {
             <WebsiteEditorDesignTab
               selectedId={designId}
               onSelect={onSelectDesign}
+              onSelectCustom={() => setDesignId(CUSTOM_DESIGN.id)}
             />
           ) : null}
+          {customDesign ? <WebsiteEditorCustomDesign slug={slug} /> : null}
           {tab === "content" ? (
             <WebsiteEditorContentTab
               content={content}
@@ -369,7 +374,7 @@ function WebsiteEditorInner() {
           <div
             className={`we-editor__preview-wrap${
               mobilePreviewOpen ? " we-editor__preview-wrap--open" : ""
-            }`}
+            }${customDesign ? " we-editor__preview-wrap--custom" : ""}`}
           >
             <div className="we-editor__preview-head">
               <h2 className="we-editor__preview-title">Передогляд сайту</h2>

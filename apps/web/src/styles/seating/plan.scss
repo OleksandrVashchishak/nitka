@@ -127,7 +127,7 @@
   height: 20px;
   border-radius: 999px;
   background: #d2d2d2;
-  transition: background 0.15s ease;
+  transition: background var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .seat-plan-switch::after {
@@ -139,7 +139,7 @@
   height: 16px;
   border-radius: 999px;
   background: #fff;
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .seat-plan-toggle.is-on .seat-plan-switch {
@@ -311,7 +311,7 @@
   justify-content: center;
   flex: 0 0 auto;
   line-height: 0;
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .seat-plan-collapse-chevron.is-open {
@@ -538,8 +538,8 @@
   color: var(--seat-plan-ink);
   cursor: pointer;
   transition:
-    opacity 0.15s ease,
-    background-color 0.15s ease;
+    opacity var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard);
 
   &:hover {
     background: var(--seat-plan-filter-bg);
@@ -2777,7 +2777,7 @@
 
 .seat-full-table-modal-replace {
   border-radius: 26px;
-  transition: background-color 0.28s ease;
+  transition: background-color var(--motion-duration-slow) var(--motion-ease-standard);
 
   &.is-selected {
     padding-bottom: 8px;
@@ -2934,7 +2934,7 @@
     flex: 0 0 auto;
     margin-left: auto;
     transform: rotate(-90deg);
-    transition: transform 0.2s ease;
+    transition: transform var(--motion-duration-base) var(--motion-ease-standard);
   }
 
   .seat-conflict-sheet__expand {

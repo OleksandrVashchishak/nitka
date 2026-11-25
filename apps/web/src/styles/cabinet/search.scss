@@ -1,0 +1,221 @@
+/* Search — пошук у списках кабінету (Гості / Завдання / Бюджет) */
+
+.cabinet-search-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.67);
+  color: #1a1a1a;
+  cursor: pointer;
+
+  &:hover {
+    background: #fff;
+  }
+
+  /* мобільна лупа в хедері — лише ≤767px */
+  &--mobile {
+    display: none;
+
+    @media (max-width: 767px) {
+      display: inline-flex;
+    }
+  }
+}
+
+.cabinet-search {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.cabinet-search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 237px;
+  height: 40px;
+  border: 1px solid #1a1a1a;
+  border-radius: 5px;
+  background: #fff;
+
+  &__icon {
+    position: absolute;
+    left: 14px;
+    display: inline-flex;
+    color: #1a1a1a;
+    pointer-events: none;
+  }
+
+  &__input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 0 40px 0 40px;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    font-family: var(--font-sans), Montserrat, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+    outline: none;
+    appearance: none;
+
+    &::placeholder {
+      font-weight: 400;
+      color: #9aa3ad;
+    }
+
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-decoration {
+      appearance: none;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #1a1a1a;
+    cursor: pointer;
+  }
+
+  &--screen {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    height: 36px;
+    border-color: #d2d2d2;
+  }
+}
+
+/* Кнопки дій згортаються до іконок, коли пошук розгорнутий */
+.cabinet-tasks-add-btn.cabinet-tasks-add-btn--icon,
+.cabinet-budget-add-btn.cabinet-tasks-add-btn--icon {
+  width: 40px;
+  padding: 0;
+}
+
+.cabinet-guests-import-btn.cabinet-guests-import-btn--short {
+  padding-inline: 16px;
+}
+
+/* Мобільний екран пошуку */
+.cabinet-search-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: #f2f2f2;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &__bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 16px 16px 24px;
+    background: #fff;
+  }
+
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #1a1a1a;
+    cursor: pointer;
+  }
+
+  &__body {
+    padding: 24px 16px 40px;
+
+    .cabinet-guests-list,
+    .cabinet-task-list {
+      margin-top: 0;
+    }
+  }
+}
+
+/* Нічого не знайдено */
+.cabinet-search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 14px;
+  padding: 40px 24px;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  background: #fff;
+  font-family: var(--font-sans), Montserrat, sans-serif;
+  text-align: center;
+
+  &__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #1a1a1a;
+    overflow-wrap: anywhere;
+  }
+
+  &__hint {
+    margin: 8px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #7f7e7c;
+  }
+
+  &__link {
+    margin-top: 12px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--cab-link);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+/* Мобільний екран: текст по центру на сірому фоні, без картки */
+.cabinet-search-empty--screen {
+  margin-top: 52px;
+  padding: 0 24px;
+  border: 0;
+  background: transparent;
+
+  .cabinet-search-empty__title {
+    font-size: 16px;
+  }
+
+  .cabinet-search-empty__hint {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+}

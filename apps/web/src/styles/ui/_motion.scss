@@ -1,0 +1,166 @@
+/*
+ * Motion — спільні токени й патерни анімацій.
+ * Правила: docs/motion-plan.md, .claude/rules/motion.md.
+ *
+ * Анімуємо лише opacity + translate/scale (окремі властивості, а не `transform`,
+ * щоб не перетирати інлайн-`transform`, яким JS позиціонує меню).
+ */
+
+:root {
+  /* Тривалості */
+  --motion-duration-fast: 120ms; /* hover, чекбокс, перемикач */
+  --motion-duration-base: 180ms; /* дропдауни, поява елементів */
+  --motion-duration-slow: 240ms; /* модалки, контент сторінки */
+  --motion-duration-exit: 140ms; /* закриття — завжди швидше за відкриття */
+
+  /* Криві (Material 3) */
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --motion-ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  /* Амплітуда */
+  --motion-shift: 6px;
+  --motion-shift-sm: 4px;
+  --motion-scale: 0.97;
+
+  /* Stagger у списках */
+  --motion-stagger: 24ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Лишаємо тільки fade: без зсувів і масштабу */
+  :root {
+    --motion-shift: 0px;
+    --motion-shift-sm: 0px;
+    --motion-scale: 1;
+    --motion-stagger: 0ms;
+  }
+}
+
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Підйом знизу — картки, рядки, блоки */
+@keyframes motion-rise-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--motion-shift);
+  }
+}
+
+/* Дропдауни / поповери, що відкриваються вниз */
+@keyframes motion-drop-in {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--motion-shift-sm) * -1);
+    scale: var(--motion-scale);
+  }
+}
+
+/* Модалки / картки по центру */
+@keyframes motion-pop-in {
+  from {
+    opacity: 0;
+    scale: var(--motion-scale);
+  }
+}
+
+/* Кроки візардів (shared axis X) */
+@keyframes motion-step-in {
+  from {
+    opacity: 0;
+    translate: calc(var(--motion-shift) * 2) 0;
+  }
+}
+
+/* ── Утиліти ─────────────────────────────────────────── */
+
+.motion-fade {
+  animation: motion-fade-in var(--motion-duration-slow) var(--motion-ease-standard) backwards;
+}
+
+.motion-rise {
+  animation: motion-rise-in var(--motion-duration-slow) var(--motion-ease-enter) backwards;
+}
+
+.motion-drop {
+  transform-origin: top center;
+  animation: motion-drop-in var(--motion-duration-base) var(--motion-ease-enter) backwards;
+}
+
+.motion-pop {
+  animation: motion-pop-in var(--motion-duration-slow) var(--motion-ease-enter) backwards;
+}
+
+.motion-step {
+  animation: motion-step-in var(--motion-duration-slow) var(--motion-ease-enter) backwards;
+}
+
+/*
+ * Stagger для списків. Клас вішає хук useStaggerOnce() лише на першу появу,
+ * тож пошук / фільтри / додавання рядків уже не анімуються.
+ * Затримка — тільки для перших 8 елементів, решта йде разом з восьмим.
+ */
+.motion-stagger > * {
+  animation: motion-rise-in var(--motion-duration-slow) var(--motion-ease-enter) backwards;
+  animation-delay: calc(var(--motion-stagger) * 8);
+}
+
+@for $i from 1 through 8 {
+  .motion-stagger > :nth-child(#{$i}) {
+    animation-delay: calc(var(--motion-stagger) * #{$i - 1});
+  }
+}
+
+/* ── Застосування до наявних компонентів ──────────────────
+ * Дропдауни, поповери й меню монтуються умовно, тож анімація входу
+ * спрацьовує сама при появі. Закриття — миттєве (так задумано).
+ */
+
+.cabinet-profile-menu,
+.cabinet-ctx-menu,
+.cabinet-notify-popover,
+.seat-plan-table-menu,
+.seat-plan-add-dropdown,
+.seat-plan-print-dropdown,
+.seat-wiz-more-menu,
+.seat-pop {
+  transform-origin: top right;
+  animation: motion-drop-in var(--motion-duration-base) var(--motion-ease-enter) backwards;
+}
+
+.seat-plan-add-dropdown,
+.seat-plan-print-dropdown {
+  transform-origin: top left;
+}
+
+.seat-wiz-more-menu--up {
+  transform-origin: bottom right;
+}
+
+/* Лоадер сторінки з'являється із затримкою — швидкі завантаження не блимають */
+.fata-page-loader,
+.cabinet-main > .fata-page-loader {
+  animation: motion-fade-in var(--motion-duration-slow) var(--motion-ease-standard) 150ms backwards;
+}
+
+/* Пошук: кнопка → поле, мобільний екран пошуку */
+.cabinet-search .cabinet-search-field,
+.cabinet-search-screen {
+  animation: motion-fade-in var(--motion-duration-base) var(--motion-ease-standard) backwards;
+}
+
+/* Візарди: поява на весь екран + shared axis між кроками.
+   Кроки рендеряться умовно, тож новий крок монтується й «заїжджає» справа. */
+.seat-wiz-root,
+.smart-plan-root {
+  animation: motion-fade-in var(--motion-duration-slow) var(--motion-ease-standard) backwards;
+}
+
+.seat-wiz-body > .seat-wiz-stack,
+.smart-plan-body > :not(.smart-plan-stepper) {
+  animation: motion-step-in var(--motion-duration-slow) var(--motion-ease-enter) backwards;
+}

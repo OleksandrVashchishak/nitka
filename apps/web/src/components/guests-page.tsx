@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { PageLoader } from "@/components/ui-loader";
 import { CabinetPageHeader } from "@/components/cabinet-page-header";
 import { IconAddCircle, IconQuickAdd } from "@/components/cabinet-task-icons";
@@ -12,6 +12,14 @@ import { CabinetMobileFiltersBar } from "@/components/cabinet-mobile-filters-bar
 import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
 import { usePagedVisible } from "@/hooks/use-paged-visible";
 import { CabinetShowMore } from "@/components/cabinet-show-more";
+import {
+  CabinetSearch,
+  CabinetSearchButton,
+  CabinetSearchEmpty,
+  CabinetSearchScreen,
+} from "@/components/cabinet-search";
+import { useListSearch } from "@/hooks/use-list-search";
+import { matchesSearch } from "@/lib/list-search";
 import {
   CabinetContextMenu,
   CabinetContextMenuDivider,
@@ -73,6 +81,7 @@ import { uaGuestsOfLabel } from "@/lib/ua-name-case";
 
 import "@/styles/cabinet/cabinet.scss";
 import "@/styles/cabinet/guests.scss";
+import { useStaggerOnce } from "@/hooks/use-stagger-once";
 
 type SideFilter = "all" | "BRIDE" | "GROOM";
 type InviteFilter = "all" | "not_invited" | "invited";
@@ -185,6 +194,7 @@ function firstName(value: string) {
 }
 
 function GuestsInner() {
+  const staggerRef = useStaggerOnce();
   const user = useAuthStore((s) => s.user);
   const [data, setData] = useState<GuestListResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -221,6 +231,9 @@ function GuestsInner() {
   const [deleteTarget, setDeleteTarget] = useState<Guest | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const search = useListSearch();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -294,8 +307,31 @@ function GuestsInner() {
     return { side: sideCounts, invite, rsvp, age };
   }, [guests]);
 
+  const sortGuests = useCallback(
+    (list: Guest[]) =>
+      list.sort((a, b) => {
+        if (sortMode === "alpha") return a.name.localeCompare(b.name, "uk");
+        if (sortMode === "rsvp") {
+          const order: Record<RsvpStatus, number> = {
+            YES: 0,
+            MAYBE: 1,
+            PENDING: 2,
+            NO: 3,
+          };
+          const diff = order[a.rsvpStatus] - order[b.rsvpStatus];
+          if (diff !== 0) return diff;
+        }
+        return b.createdAt.localeCompare(a.createdAt);
+      }),
+    [sortMode],
+  );
+
+  // Десктоп: пошук разом з фільтрами («І») і сортуванням.
   const filtered = useMemo(() => {
     const list = guests.filter((guest) => {
+      if (!mobileSearchOpen && !matchesSearch(guest.name, search.term)) {
+        return false;
+      }
       if (sideFilter !== "all" && guest.side !== sideFilter) return false;
       if (inviteFilter === "invited" && !isInvited(guest)) return false;
       if (inviteFilter === "not_invited" && isInvited(guest)) return false;
@@ -304,25 +340,39 @@ function GuestsInner() {
       if (ageFilter === "adult" && partyHasChild(guest)) return false;
       return true;
     });
+    return sortGuests(list);
+  }, [
+    guests,
+    sideFilter,
+    inviteFilter,
+    rsvpFilter,
+    ageFilter,
+    sortGuests,
+    search.term,
+    mobileSearchOpen,
+  ]);
 
-    return list.sort((a, b) => {
-      if (sortMode === "alpha") return a.name.localeCompare(b.name, "uk");
-      if (sortMode === "rsvp") {
-        const order: Record<RsvpStatus, number> = {
-          YES: 0,
-          MAYBE: 1,
-          PENDING: 2,
-          NO: 3,
-        };
-        const diff = order[a.rsvpStatus] - order[b.rsvpStatus];
-        if (diff !== 0) return diff;
-      }
-      return b.createdAt.localeCompare(a.createdAt);
-    });
-  }, [guests, sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode]);
+  // Мобільний: пошук по всьому списку, без фільтрів.
+  const mobileResults = useMemo(
+    () =>
+      mobileSearchOpen && search.term
+        ? sortGuests(guests.filter((g) => matchesSearch(g.name, search.term)))
+        : [],
+    [guests, sortGuests, search.term, mobileSearchOpen],
+  );
 
   const { visible, hasMore, showMore } = usePagedVisible(filtered, {
-    resetDeps: [sideFilter, inviteFilter, rsvpFilter, ageFilter, sortMode],
+    resetDeps: [
+      sideFilter,
+      inviteFilter,
+      rsvpFilter,
+      ageFilter,
+      sortMode,
+      search.term,
+    ],
+  });
+  const mobilePaged = usePagedVisible(mobileResults, {
+    resetDeps: [sortMode, search.term],
   });
 
   const activeFilterCount = [
@@ -332,6 +382,11 @@ function GuestsInner() {
     ageFilter !== "all",
   ].filter(Boolean).length;
   const filtersActive = activeFilterCount > 0;
+
+  function closeMobileSearch() {
+    search.clear();
+    setMobileSearchOpen(false);
+  }
 
   function applyDraftFilters() {
     setSideFilter(draftSide);
@@ -694,6 +749,150 @@ function GuestsInner() {
     }
   }
 
+  function renderGuestRow(guest: Guest) {
+    const ui = RSVP_UI[guest.rsvpStatus];
+    return (
+      <li
+        key={guest.id}
+        className={`cabinet-guest-row${
+          guest.rsvpStatus === "YES" ? " is-yes" : ""
+        }`}
+      >
+        <div className="cabinet-guest-main">
+          <p className="cabinet-guest-name">
+            <span className="cabinet-guest-name-text">
+              {guest.name}
+            </span>
+            {partyHasChild(guest) ? (
+              <span
+                className="cabinet-guest-child"
+                title="Є дитина в партії"
+                aria-label="Є дитина в партії"
+              >
+                <IconBaby />
+              </span>
+            ) : null}
+          </p>
+        </div>
+        <div className="cabinet-guest-meta">
+          {isInvited(guest) ? (
+            <span
+              className={`cabinet-guest-status is-${ui.tone}`}
+            >
+              <StatusIcon tone={ui.tone} />
+              {ui.label}
+            </span>
+          ) : null}
+          {guest.side === "BOTH" ? (
+            <ResponsibleAvatarDuo
+              ownerName={ownerName}
+              partnerName={partnerName}
+              title="Обоє"
+              aria-hidden
+            />
+          ) : (
+            <ResponsibleAvatar
+              name={
+                guest.side === "GROOM"
+                  ? partnerName
+                  : ownerName
+              }
+              tone={
+                guest.side === "GROOM" ? "partner" : "owner"
+              }
+            />
+          )}
+          <div className="cabinet-ctx-menu-wrap">
+            <IconButton
+              variant="ghost"
+              aria-label="Меню гостя"
+              aria-expanded={menuOpenId === guest.id}
+              icon={<IconMore />}
+              onClick={() =>
+                setMenuOpenId((id) =>
+                  id === guest.id ? null : guest.id,
+                )
+              }
+            />
+            {menuOpenId === guest.id ? (
+              <CabinetContextMenu>
+                <CabinetContextMenuItem
+                  icon={<IconEdit />}
+                  disabled={busy}
+                  onClick={() => openEdit(guest)}
+                >
+                  Редагувати
+                </CabinetContextMenuItem>
+                <CabinetContextMenuItem
+                  icon={<IconTrash />}
+                  danger
+                  disabled={busy}
+                  onClick={() => requestDelete(guest)}
+                >
+                  Видалити
+                </CabinetContextMenuItem>
+
+                <CabinetContextMenuDivider />
+                <CabinetContextMenuLabel>
+                  З чиєї сторони
+                </CabinetContextMenuLabel>
+
+                <CabinetContextMenuItem
+                  icon={
+                    <ResponsibleAvatar
+                      name={ownerName}
+                      tone="owner"
+                    />
+                  }
+                  active={guest.side === "BRIDE"}
+                  disabled={busy}
+                  onClick={() => void onSetSide(guest, "BRIDE")}
+                >
+                  {ownerName}
+                </CabinetContextMenuItem>
+                <CabinetContextMenuItem
+                  icon={
+                    <ResponsibleAvatar
+                      name={partnerName}
+                      tone="partner"
+                    />
+                  }
+                  active={guest.side === "GROOM"}
+                  disabled={busy}
+                  onClick={() => void onSetSide(guest, "GROOM")}
+                >
+                  {partnerName}
+                </CabinetContextMenuItem>
+                <CabinetContextMenuItem
+                  icon={
+                    <span
+                      className="cabinet-ctx-menu-avatars"
+                      aria-hidden
+                    >
+                      <ResponsibleAvatar
+                        name={partnerName}
+                        tone="partner"
+                      />
+                      <ResponsibleAvatar
+                        name={ownerName}
+                        tone="owner"
+                      />
+                    </span>
+                  }
+                  active={guest.side === "BOTH"}
+                  disabled={busy}
+                  onClick={() => void onSetSide(guest, "BOTH")}
+                >
+                  Обоє
+                </CabinetContextMenuItem>
+              </CabinetContextMenu>
+            ) : null}
+          </div>
+        </div>
+      </li>
+    );
+  }
+
   if (loading) {
     return <PageLoader label="Завантажуємо гостей…" />;
   }
@@ -733,12 +932,22 @@ function GuestsInner() {
         initials={partnerInitials}
         actions={
           guests.length > 0 ? (
-            <IconButton
-              variant="quick-add"
-              aria-label="Додати гостя"
-              icon={<IconQuickAdd />}
-              onClick={openCreate}
-            />
+            <>
+              <CabinetSearchButton
+                className="cabinet-search-button--mobile"
+                label="Пошук гостей"
+                onClick={() => {
+                  search.clear();
+                  setMobileSearchOpen(true);
+                }}
+              />
+              <IconButton
+                variant="quick-add"
+                aria-label="Додати гостя"
+                icon={<IconQuickAdd />}
+                onClick={openCreate}
+              />
+            </>
           ) : null
         }
       />
@@ -898,7 +1107,14 @@ function GuestsInner() {
                   </span>
                 </h2>
                 <div className="cabinet-tasks-list-actions">
-                  {SHOW_TEST_TOOLS ? (
+                  <CabinetSearch
+                    value={search.query}
+                    onChange={search.setQuery}
+                    open={searchOpen}
+                    onOpenChange={setSearchOpen}
+                    placeholder="Пошук гостей"
+                  />
+                  {SHOW_TEST_TOOLS && !searchOpen ? (
                     <Button
                       type="button"
                       tone="ghost"
@@ -925,175 +1141,45 @@ function GuestsInner() {
                     type="button"
                     tone="ink"
                     size="s"
-                    className="cabinet-tasks-add-btn"
+                    className={`cabinet-tasks-add-btn${
+                      searchOpen ? " cabinet-tasks-add-btn--icon" : ""
+                    }`}
+                    aria-label={searchOpen ? "Додати гостей" : undefined}
                     onClick={openCreate}
                   >
                     <IconAddCircle />
-                    Додати гостей
+                    {searchOpen ? null : "Додати гостей"}
                   </Button>
                   <Button
                     type="button"
                     tone="ghost"
                     size="m"
-                    className="cabinet-guests-import-btn"
+                    className={`cabinet-guests-import-btn${
+                      searchOpen ? " cabinet-guests-import-btn--short" : ""
+                    }`}
+                    aria-label={searchOpen ? "Імпорт CSV" : undefined}
                     onClick={() => setImportOpen(true)}
                     disabled={busy}
                   >
-                    Імпорт CSV
+                    {searchOpen ? "CSV" : "Імпорт CSV"}
                   </Button>
                 </div>
               </div>
 
-              {visible.length === 0 ? (
+              {visible.length === 0 && search.term ? (
+                <CabinetSearchEmpty
+                  query={search.query}
+                  onClear={search.clear}
+                  filtersActive={filtersActive}
+                />
+              ) : visible.length === 0 ? (
                 <CabinetEmptyState
                   variant="soft"
                   description="Немає гостей у цьому фільтрі."
                 />
               ) : (
-                <ul className="cabinet-guests-list">
-                  {visible.map((guest) => {
-                    const ui = RSVP_UI[guest.rsvpStatus];
-                    return (
-                      <li
-                        key={guest.id}
-                        className={`cabinet-guest-row${
-                          guest.rsvpStatus === "YES" ? " is-yes" : ""
-                        }`}
-                      >
-                        <div className="cabinet-guest-main">
-                          <p className="cabinet-guest-name">
-                            <span className="cabinet-guest-name-text">
-                              {guest.name}
-                            </span>
-                            {partyHasChild(guest) ? (
-                              <span
-                                className="cabinet-guest-child"
-                                title="Є дитина в партії"
-                                aria-label="Є дитина в партії"
-                              >
-                                <IconBaby />
-                              </span>
-                            ) : null}
-                          </p>
-                        </div>
-                        <div className="cabinet-guest-meta">
-                          {isInvited(guest) ? (
-                            <span
-                              className={`cabinet-guest-status is-${ui.tone}`}
-                            >
-                              <StatusIcon tone={ui.tone} />
-                              {ui.label}
-                            </span>
-                          ) : null}
-                          {guest.side === "BOTH" ? (
-                            <ResponsibleAvatarDuo
-                              ownerName={ownerName}
-                              partnerName={partnerName}
-                              title="Обоє"
-                              aria-hidden
-                            />
-                          ) : (
-                            <ResponsibleAvatar
-                              name={
-                                guest.side === "GROOM"
-                                  ? partnerName
-                                  : ownerName
-                              }
-                              tone={
-                                guest.side === "GROOM" ? "partner" : "owner"
-                              }
-                            />
-                          )}
-                          <div className="cabinet-ctx-menu-wrap">
-                            <IconButton
-                              variant="ghost"
-                              aria-label="Меню гостя"
-                              aria-expanded={menuOpenId === guest.id}
-                              icon={<IconMore />}
-                              onClick={() =>
-                                setMenuOpenId((id) =>
-                                  id === guest.id ? null : guest.id,
-                                )
-                              }
-                            />
-                            {menuOpenId === guest.id ? (
-                              <CabinetContextMenu>
-                                <CabinetContextMenuItem
-                                  icon={<IconEdit />}
-                                  disabled={busy}
-                                  onClick={() => openEdit(guest)}
-                                >
-                                  Редагувати
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  icon={<IconTrash />}
-                                  danger
-                                  disabled={busy}
-                                  onClick={() => requestDelete(guest)}
-                                >
-                                  Видалити
-                                </CabinetContextMenuItem>
-
-                                <CabinetContextMenuDivider />
-                                <CabinetContextMenuLabel>
-                                  З чиєї сторони
-                                </CabinetContextMenuLabel>
-
-                                <CabinetContextMenuItem
-                                  icon={
-                                    <ResponsibleAvatar
-                                      name={ownerName}
-                                      tone="owner"
-                                    />
-                                  }
-                                  active={guest.side === "BRIDE"}
-                                  disabled={busy}
-                                  onClick={() => void onSetSide(guest, "BRIDE")}
-                                >
-                                  {ownerName}
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  icon={
-                                    <ResponsibleAvatar
-                                      name={partnerName}
-                                      tone="partner"
-                                    />
-                                  }
-                                  active={guest.side === "GROOM"}
-                                  disabled={busy}
-                                  onClick={() => void onSetSide(guest, "GROOM")}
-                                >
-                                  {partnerName}
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  icon={
-                                    <span
-                                      className="cabinet-ctx-menu-avatars"
-                                      aria-hidden
-                                    >
-                                      <ResponsibleAvatar
-                                        name={partnerName}
-                                        tone="partner"
-                                      />
-                                      <ResponsibleAvatar
-                                        name={ownerName}
-                                        tone="owner"
-                                      />
-                                    </span>
-                                  }
-                                  active={guest.side === "BOTH"}
-                                  disabled={busy}
-                                  onClick={() => void onSetSide(guest, "BOTH")}
-                                >
-                                  Обоє
-                                </CabinetContextMenuItem>
-                              </CabinetContextMenu>
-                            ) : null}
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
+                <ul ref={staggerRef} className="cabinet-guests-list">
+                  {visible.map(renderGuestRow)}
                 </ul>
               )}
 
@@ -1102,6 +1188,35 @@ function GuestsInner() {
           </div>
         </>
       )}
+
+      <CabinetSearchScreen
+        open={mobileSearchOpen}
+        value={search.query}
+        onChange={search.setQuery}
+        onClose={closeMobileSearch}
+        placeholder="Пошук гостей"
+      >
+        {search.term ? (
+          mobileResults.length === 0 ? (
+            <CabinetSearchEmpty
+              variant="screen"
+              itemsLabel="гостей"
+              query={search.query}
+              onClear={search.clear}
+            />
+          ) : (
+            <>
+              <ul ref={staggerRef} className="cabinet-guests-list">
+                {mobilePaged.visible.map(renderGuestRow)}
+              </ul>
+              <CabinetShowMore
+                hasMore={mobilePaged.hasMore}
+                onShowMore={mobilePaged.showMore}
+              />
+            </>
+          )
+        ) : null}
+      </CabinetSearchScreen>
 
       <CabinetFiltersSheet
         open={filtersOpen}

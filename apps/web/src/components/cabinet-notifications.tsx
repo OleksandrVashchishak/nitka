@@ -7,6 +7,7 @@ import {
   newNotificationsWord,
   type NotificationsSummary,
 } from "@/lib/notifications-api";
+import { useStaggerOnce } from "@/hooks/use-stagger-once";
 
 const PREVIEW_LIMIT = 4;
 
@@ -15,6 +16,7 @@ export function CabinetNotificationsBell({
 }: {
   summary: NotificationsSummary | null;
 }) {
+  const staggerRef = useStaggerOnce();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +91,7 @@ export function CabinetNotificationsBell({
           </div>
 
           {preview.length ? (
-            <ul className="cabinet-notify-list">
+            <ul ref={staggerRef} className="cabinet-notify-list">
               {preview.map((item) => (
                 <li key={item.id} className="cabinet-notify-row">
                   <span

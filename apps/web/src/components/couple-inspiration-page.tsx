@@ -56,6 +56,7 @@ import {
 import { getErrorMessage, toast } from "@/lib/toast";
 import "@/styles/cabinet/cabinet.scss";
 import "@/styles/cabinet/inspiration.scss";
+import { useStaggerOnce } from "@/hooks/use-stagger-once";
 
 const TILE_SLOTS = ["tl", "tr", "bl", "br"] as const;
 
@@ -401,6 +402,7 @@ function useInspirationSession() {
 }
 
 function InspirationListInner() {
+  const staggerRef = useStaggerOnce();
   const router = useRouter();
   const { loading, boards, summary, partnerInitials, persist } =
     useInspirationSession();
@@ -514,7 +516,7 @@ function InspirationListInner() {
         <CabinetBackTitle title="Дошка натхнення" onBack={onBack} />
       </div>
 
-      <div className="cabinet-inspiration-grid">
+      <div ref={staggerRef} className="cabinet-inspiration-grid">
         {boards.map((board) => {
           const empty = board.images.length === 0;
           return (

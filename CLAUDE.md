@@ -30,6 +30,7 @@
 
 - `api.md` → `apps/api/**`
 - `frontend.md` → `apps/web/**/*.{tsx,ts,scss}`
+- `motion.md` → анімації (`apps/web/**/*.{tsx,ts,scss}`, токени в `styles/ui/_motion.scss`)
 - `seating-wizard.md` → розсадка (`seating*`, `styles/seating`, `app/seating`)
 - `website-editor.md` → редактор сайту і публічний сайт (`website`, `w`, `wedding-site`)
 

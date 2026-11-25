@@ -10,12 +10,17 @@ import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import {
   akzidenz,
   akzidenzExt,
+  comforter,
   cormorant,
+  cormorantInfant,
+  forum,
   greatVibes,
+  jost,
   oranienbaum,
   mak,
   manrope,
   scriptCyr,
+  spectral,
 } from "@/lib/fonts";
 
 const siteUrl = getSiteUrl();
@@ -62,7 +67,7 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body
-        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${greatVibes.variable} ${oranienbaum.variable} ${scriptCyr.variable} ${manrope.variable} antialiased`}
+        className={`${akzidenz.variable} ${akzidenzExt.variable} ${mak.variable} ${cormorant.variable} ${greatVibes.variable} ${forum.variable} ${jost.variable} ${oranienbaum.variable} ${scriptCyr.variable} ${manrope.variable} ${comforter.variable} ${cormorantInfant.variable} ${spectral.variable} antialiased`}
       >
         <AuthProvider>
           <SiteHeader />

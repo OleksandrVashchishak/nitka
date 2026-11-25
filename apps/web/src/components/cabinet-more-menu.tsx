@@ -15,7 +15,7 @@ const MORE_LINKS = [
   { href: "/feedback", label: "Відгуки та пропозиції", icon: "feedback" },
 ] as const;
 
-const ANIM_MS = 320;
+const ANIM_MS = 220;
 
 export function CabinetMoreMenu({
   open,

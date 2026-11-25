@@ -6,7 +6,7 @@ type Props = {
   target: Date;
 };
 
-type Parts = {
+export type CountdownParts = {
   days: string;
   hours: string;
   minutes: string;
@@ -17,7 +17,7 @@ function pad(n: number) {
   return String(Math.max(0, n)).padStart(2, "0");
 }
 
-function diffParts(target: Date): Parts {
+export function diffParts(target: Date): CountdownParts {
   const ms = Math.max(0, target.getTime() - Date.now());
   const days = Math.floor(ms / 86400000);
   const hours = Math.floor((ms % 86400000) / 3600000);
@@ -50,7 +50,7 @@ function SparkIcon() {
 }
 
 export function WsiteCountdown({ target }: Props) {
-  const [parts, setParts] = useState<Parts>(() => diffParts(target));
+  const [parts, setParts] = useState<CountdownParts>(() => diffParts(target));
 
   useEffect(() => {
     setParts(diffParts(target));

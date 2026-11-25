@@ -70,11 +70,13 @@ function ToastCard({
   onDismiss: () => void;
 }) {
   const style = TONE_STYLES[tone];
+  const [leaving, setLeaving] = useState(false);
+  const close = () => setLeaving(true);
 
   useEffect(() => {
-    const timer = window.setTimeout(onDismiss, duration);
+    const timer = window.setTimeout(() => setLeaving(true), duration);
     return () => window.clearTimeout(timer);
-  }, [id, onDismiss, duration]);
+  }, [id, duration]);
 
   const startY = useRef<number | null>(null);
   const [dragY, setDragY] = useState(0);
@@ -87,7 +89,10 @@ function ToastCard({
 
   return (
     <div
-      className="pointer-events-auto animate-toast-in w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-white shadow-[0_18px_50px_rgba(22,26,23,0.16)]"
+      className={`pointer-events-auto ${leaving ? "animate-toast-out" : "animate-toast-in"} w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-white shadow-[0_18px_50px_rgba(22,26,23,0.16)]`}
+      onAnimationEnd={(e) => {
+        if (leaving && e.target === e.currentTarget) onDismiss();
+      }}
       style={{
         touchAction: "none",
         transform: dragY ? `translateY(${dragY}px)` : undefined,
@@ -126,7 +131,7 @@ function ToastCard({
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => {
               action.onClick();
-              onDismiss();
+              close();
             }}
             className="self-center rounded-full px-3 py-1 text-sm font-semibold text-ink transition hover:bg-mist"
           >
@@ -135,7 +140,7 @@ function ToastCard({
         ) : null}
         <button
           type="button"
-          onClick={onDismiss}
+          onClick={close}
           className="rounded-full px-2 py-1 text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
           aria-label="Закрити"
         >

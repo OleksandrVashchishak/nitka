@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 export const OVERLAY_EXIT_MS = {
-  drawer: 320,
-  modal: 280,
-  confirm: 280,
+  drawer: 220,
+  modal: 160,
+  confirm: 160,
 } as const;
 
 /**

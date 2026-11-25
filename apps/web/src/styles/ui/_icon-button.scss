@@ -11,10 +11,10 @@
   line-height: 0;
   flex-shrink: 0;
   transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    opacity 0.15s ease,
-    transform 0.12s ease;
+    background var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard),
+    opacity var(--motion-duration-fast) var(--motion-ease-standard),
+    transform var(--motion-duration-fast) var(--motion-ease-standard);
 
   &:hover:not(:disabled) {
     background: rgba(26, 26, 26, 0.06);

@@ -15,9 +15,9 @@
   background: #fff;
   flex-shrink: 0;
   transition:
-    background-color 0.28s ease,
-    border-color 0.28s ease,
-    transform 0.2s ease;
+    background-color var(--motion-duration-slow) var(--motion-ease-standard),
+    border-color var(--motion-duration-slow) var(--motion-ease-standard),
+    transform var(--motion-duration-base) var(--motion-ease-standard);
 
   &.is-checked {
     border-color: #61040f;
@@ -39,8 +39,8 @@
     opacity: 0;
     transform: scale(0.35);
     transition:
-      opacity 0.18s ease,
-      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity var(--motion-duration-fast) var(--motion-ease-standard),
+      transform var(--motion-duration-slow) var(--motion-ease-enter);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -83,9 +83,9 @@
   cursor: pointer;
   appearance: none;
   transition:
-    background-color 0.28s ease,
-    border-color 0.28s ease,
-    transform 0.18s ease;
+    background-color var(--motion-duration-slow) var(--motion-ease-standard),
+    border-color var(--motion-duration-slow) var(--motion-ease-standard),
+    transform var(--motion-duration-fast) var(--motion-ease-standard);
 
   &.is-selected {
     background: #f0febb;

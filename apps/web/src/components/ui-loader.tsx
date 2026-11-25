@@ -21,7 +21,7 @@ export function PageLoader({
 }: LoaderProps) {
   return (
     <div
-      className={`flex min-h-[280px] flex-col items-center justify-center gap-5 py-16 ${className}`}
+      className={`fata-page-loader flex min-h-[280px] flex-col items-center justify-center gap-5 py-16 ${className}`}
       role="status"
       aria-live="polite"
     >

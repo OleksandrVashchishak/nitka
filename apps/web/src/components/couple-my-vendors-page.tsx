@@ -55,6 +55,7 @@ import {
   type VendorMeta,
 } from "@/lib/vendor-manager";
 import "@/styles/cabinet/cabinet.scss";
+import { useStaggerOnce } from "@/hooks/use-stagger-once";
 
 type FormState = {
   category: string;
@@ -108,6 +109,7 @@ function contactValue(vendor: ExternalVendor, meta: VendorMeta) {
 }
 
 function MyVendorsInner() {
+  const staggerRef = useStaggerOnce();
   const user = useAuthStore((s) => s.user);
   const [manual, setManual] = useState<ExternalVendor[]>([]);
   const [plan, setPlan] = useState<string[]>([]);
@@ -439,7 +441,7 @@ function MyVendorsInner() {
             </Button>
           </div>
 
-          <div className="cabinet-vendors-list">
+          <div ref={staggerRef} className="cabinet-vendors-list">
             {rows.map(({ cat, vendors }) => {
               if (!vendors.length) {
                 return (
@@ -578,7 +580,7 @@ function MyVendorsInner() {
           />
         }
       >
-        <ul className="cabinet-vendors-plan-list">
+        <ul ref={staggerRef} className="cabinet-vendors-plan-list">
           {VENDOR_MANAGER_CATEGORIES.filter((c) => c.slug !== "other").map(
             (cat) => {
               const locked = lockedPlanSlugs.has(cat.slug);

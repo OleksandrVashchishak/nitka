@@ -1,10 +1,15 @@
 import localFont from "next/font/local";
 import {
+  Comforter,
   Cormorant_Garamond,
+  Cormorant_Infant,
+  Forum,
   Great_Vibes,
+  Jost,
   Oranienbaum,
   Manrope,
   Marck_Script,
+  Spectral,
 } from "next/font/google";
 
 /** Standard width — nav, buttons, kickers */
@@ -76,3 +81,46 @@ export const manrope = Manrope({
   preload: false,
 });
 
+
+/** Сайт-запрошення «Ботанічний» — заголовки */
+export const forum = Forum({
+  variable: "--font-forum",
+  weight: "400",
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  preload: false,
+});
+
+/** Сайт-запрошення «Ботанічний» — текст і підписи */
+export const jost = Jost({
+  variable: "--font-jost",
+  weight: ["300", "400", "500"],
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  preload: false,
+  /* Без авто-fallback (Arial): є/і/ї/ґ, яких немає в Jost, має добирати Manrope зі стеку в стилях */
+  adjustFontFallback: false,
+});
+
+/** Сайт-запрошення «Ніжний» — рукописні слова в заголовках, монограма */
+export const comforter = Comforter({
+  variable: "--font-comforter",
+  weight: "400",
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  preload: false,
+});
+
+/** Сайт-запрошення «Ніжний» — курсивні підписи, час, номери */
+export const cormorantInfant = Cormorant_Infant({
+  variable: "--font-cormorant-infant",
+  weight: ["300"],
+  style: ["italic"],
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  preload: false,
+});
+
+/** Сайт-запрошення «Ніжний» — основний текст */
+export const spectral = Spectral({
+  variable: "--font-spectral",
+  weight: ["300", "400"],
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  preload: false,
+});

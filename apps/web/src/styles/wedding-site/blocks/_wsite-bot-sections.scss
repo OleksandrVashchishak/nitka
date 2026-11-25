@@ -1,0 +1,763 @@
+@use "wsite-bot-units" as *;
+
+/* «Ботанічний»: секції після розкладу */
+
+/* ——— Story ——— */
+.wsite-bot-story {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: u(110);
+  padding: u(120) u(80);
+  overflow: hidden;
+  background: var(--bot-dark);
+
+  &__bg {
+    position: absolute;
+    z-index: -1;
+    left: u(1000);
+    top: u(60);
+    width: u(818);
+    height: u(1000);
+    opacity: 0.12;
+    color: var(--bot-sage);
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    gap: u(22);
+    width: u(576);
+    padding: u(18) u(18) u(26);
+    background: var(--bot-cream);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  }
+
+  &__img {
+    width: 100%;
+    height: u(640);
+    object-fit: cover;
+  }
+
+  &__card-olive {
+    width: u(115);
+    height: u(46);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: u(28);
+    width: u(594);
+  }
+
+  .wsite-bot__title {
+    font-size: fs(64, 34);
+    line-height: 1.11;
+  }
+
+  &__olive {
+    width: u(115);
+    height: u(46);
+    color: var(--bot-sage);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.7em;
+    font-weight: 300;
+    font-size: fs(17, 15);
+    line-height: 1.7;
+    color: rgba(241, 236, 221, 0.82);
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 64px 24px;
+
+    &__bg {
+      left: m(150);
+      top: m(480);
+      width: m(507);
+      height: m(620);
+    }
+
+    &__text {
+      gap: 20px;
+      width: 100%;
+    }
+
+    .wsite-bot__title {
+      font-size: 44px;
+    }
+
+    &__olive {
+      width: 100px;
+      height: 40px;
+    }
+
+    &__body {
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    &__card {
+      order: 1;
+      gap: 16px;
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px 12px 18px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    &__img {
+      height: auto;
+      aspect-ratio: 318 / 400;
+    }
+
+    &__card-olive {
+      width: 85px;
+      height: 34px;
+    }
+  }
+}
+
+/* ——— Couple ——— */
+.wsite-bot-couple {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: u(120) u(80);
+  background: var(--bot-bg);
+
+  &__profile {
+    display: flex;
+    flex-direction: column;
+    gap: u(28);
+    width: u(480);
+
+    &--first {
+      order: 0;
+    }
+
+    &--second {
+      order: 2;
+      padding-top: u(160);
+    }
+  }
+
+  &__photo {
+    width: u(480);
+    height: u(640);
+    padding: u(15);
+  }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    gap: u(14);
+    padding: u(28) u(32) u(32);
+    border: 1px solid rgba(110, 114, 67, 0.4);
+    background: var(--bot-paper);
+  }
+
+  &__mark {
+    height: u(56);
+
+    &--wild {
+      width: u(50);
+    }
+
+    &--lavender {
+      width: u(30);
+    }
+  }
+
+  &__name {
+    font-family: var(--bot-font-display);
+    font-weight: 400;
+    font-size: fs(56, 32);
+    line-height: 1.1;
+    color: var(--bot-ink);
+  }
+
+  &__bio {
+    font-weight: 300;
+    font-size: fs(16, 14);
+    line-height: 1.65;
+    color: var(--bot-olive);
+  }
+
+  &__amp {
+    order: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: u(220);
+    font-family: var(--bot-font-script);
+    font-size: u(200);
+    line-height: 1.25;
+    color: rgba(110, 114, 67, 0.85);
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 64px 24px;
+
+    &__profile {
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 342px;
+
+      &--second {
+        padding-top: 0;
+      }
+    }
+
+    &__photo {
+      width: 280px;
+      height: 370px;
+      padding: 11px;
+    }
+
+    &__label {
+      align-self: stretch;
+      gap: 10px;
+      padding: 22px 24px 26px;
+    }
+
+    &__mark {
+      height: 48px;
+
+      &--wild {
+        width: 43px;
+      }
+
+      &--lavender {
+        width: 26px;
+      }
+    }
+
+    &__name {
+      font-size: 40px;
+    }
+
+    &__bio {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    &__amp {
+      width: 160px;
+      height: 140px;
+      font-size: 96px;
+    }
+  }
+}
+
+/* ——— Proposal ——— */
+.wsite-bot-proposal {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: u(80);
+  padding: u(120) u(80);
+  overflow: hidden;
+  background: var(--bot-sage-soft);
+
+  &__bg {
+    position: absolute;
+    z-index: -1;
+    left: u(-260);
+    top: u(133);
+    width: u(671);
+    height: u(820);
+    opacity: 0.45;
+    color: var(--bot-bg);
+    transform: rotate(-18deg);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: u(26);
+    width: u(560);
+  }
+
+  &__title {
+    font-size: fs(62, 34);
+    line-height: 1.05;
+  }
+
+  &__olive {
+    width: u(115);
+    height: u(46);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.7em;
+    font-weight: 300;
+    font-size: fs(17, 15);
+    line-height: 1.7;
+    color: var(--bot-olive);
+  }
+
+  &__photos {
+    position: relative;
+    flex-shrink: 0;
+    width: u(640);
+    height: u(660);
+  }
+
+  &__card {
+    position: absolute;
+    width: u(328);
+    padding: u(14) u(14) u(56);
+    background: var(--bot-cream);
+    box-shadow: 0 18px 36px rgba(26, 26, 13, 0.22);
+
+    img {
+      width: 100%;
+      height: u(400);
+      object-fit: cover;
+    }
+
+    &--left {
+      left: u(10);
+      top: u(37);
+      transform: rotate(-4deg);
+    }
+
+    &--right {
+      left: u(249);
+      top: u(150);
+      transform: rotate(5deg);
+    }
+  }
+
+  &__lavender {
+    position: absolute;
+    left: u(401);
+    top: u(-15);
+    width: u(129);
+    height: u(240);
+    transform: rotate(18deg);
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 64px 24px;
+
+    &__bg {
+      left: m(-160);
+      top: m(688);
+      width: m(425);
+      height: m(520);
+    }
+
+    /* На мобілці фото стоять між абзацами: розбираємо обгортки */
+    &__text,
+    &__photos {
+      display: contents;
+    }
+
+    .wsite-bot__eyebrow {
+      order: 1;
+    }
+
+    &__title {
+      order: 2;
+      font-size: 36px;
+      line-height: 1.1;
+    }
+
+    &__olive {
+      order: 3;
+      width: 100px;
+      height: 40px;
+    }
+
+    &__card--left {
+      order: 4;
+    }
+
+    &__body {
+      order: 5;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    &__card--right {
+      order: 6;
+    }
+
+    &__card {
+      position: relative;
+      left: auto;
+      top: auto;
+      align-self: center;
+      width: 280px;
+      margin: 12px 0;
+      padding: 12px 12px 44px;
+      box-shadow: 0 12px 24px rgba(26, 26, 13, 0.22);
+
+      img {
+        height: 300px;
+      }
+
+      &--left {
+        transform: rotate(-3deg);
+      }
+
+      &--right {
+        transform: rotate(3deg);
+      }
+    }
+
+    &__lavender {
+      display: none;
+    }
+  }
+}
+
+/* ——— Details ——— */
+.wsite-bot-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: u(56);
+  padding: u(120) u(80);
+  background: var(--bot-paper);
+
+  &__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: u(20);
+  }
+
+  &__emblem {
+    width: u(115);
+    height: u(96);
+  }
+
+  &__title {
+    font-size: fs(62, 34);
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  &__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: u(24);
+    width: 100%;
+    max-width: u(1280);
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: u(16);
+    width: calc((100% - #{u(24)}) / 2);
+    min-height: u(280);
+    padding: u(48) u(48) u(52);
+    border: 1px solid rgba(110, 114, 67, 0.35);
+    background: var(--bot-bg);
+  }
+
+  &__card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: u(56);
+  }
+
+  &__num {
+    font-family: var(--bot-font-display);
+    font-size: fs(44, 28);
+    line-height: 1.11;
+    color: var(--bot-moss);
+  }
+
+  &__mark {
+    opacity: 0.75;
+
+    &--wild {
+      width: u(50);
+      height: u(56);
+    }
+
+    &--lavender {
+      width: u(30);
+      height: u(56);
+    }
+
+    &--olive {
+      width: u(115);
+      height: u(46);
+    }
+  }
+
+  &__name {
+    font-family: var(--bot-font-display);
+    font-weight: 400;
+    font-size: fs(34, 24);
+    line-height: 1.12;
+    color: var(--bot-ink);
+  }
+
+  &__text {
+    font-weight: 300;
+    font-size: fs(16, 14);
+    line-height: 1.65;
+    color: var(--bot-olive);
+    white-space: pre-line;
+  }
+
+  @include mobile {
+    gap: 24px;
+    padding: 64px 24px;
+
+    &__head {
+      gap: 16px;
+    }
+
+    &__emblem {
+      width: 86px;
+      height: 72px;
+    }
+
+    &__title {
+      font-size: 40px;
+    }
+
+    &__grid {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      max-width: 342px;
+    }
+
+    &__card {
+      gap: 12px;
+      width: 100%;
+      min-height: 0;
+      padding: 28px 28px 30px;
+    }
+
+    &__card-top {
+      min-height: 44px;
+    }
+
+    &__num {
+      font-size: 32px;
+    }
+
+    &__mark {
+      &--wild {
+        width: 40px;
+        height: 44px;
+      }
+
+      &--lavender {
+        width: 24px;
+        height: 44px;
+      }
+
+      &--olive {
+        width: 70px;
+        height: 28px;
+      }
+    }
+
+    &__name {
+      font-size: 26px;
+      line-height: 1.15;
+    }
+
+    &__text {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+  }
+}
+
+/* ——— RSVP ——— */
+.wsite-bot-rsvp {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: u(28);
+  padding: u(140) u(80);
+  overflow: hidden;
+  background: var(--bot-dark);
+  text-align: center;
+
+  &__bg {
+    position: absolute;
+    z-index: -1;
+    left: u(-270);
+    top: u(-60);
+    width: u(589);
+    height: u(720);
+    opacity: 0.22;
+    color: var(--bot-sage);
+    transform: rotate(8deg);
+  }
+
+  &__title {
+    font-size: fs(64, 34);
+    line-height: 1.11;
+  }
+
+  &__emblem {
+    width: u(115);
+    height: u(96);
+    color: var(--bot-sage);
+  }
+
+  &__body {
+    max-width: u(680);
+    font-weight: 300;
+    font-size: fs(17, 15);
+    line-height: 1.7;
+    color: rgba(241, 236, 221, 0.8);
+    white-space: pre-line;
+  }
+
+  @include mobile {
+    gap: 20px;
+    padding: 72px 24px;
+
+    &__bg {
+      left: m(-214);
+      top: m(40);
+      width: m(376);
+      height: m(460);
+      opacity: 0.2;
+    }
+
+    &__title {
+      font-size: 40px;
+      line-height: 1.1;
+    }
+
+    &__emblem {
+      width: 86px;
+      height: 72px;
+    }
+
+    &__body {
+      max-width: 342px;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+  }
+}
+
+/* ——— Final ——— */
+.wsite-bot-final {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: u(32);
+  padding: u(100) u(80) u(120);
+  background: var(--bot-bg);
+  text-align: center;
+
+  &__photo {
+    width: u(240);
+    height: u(320);
+    padding: u(11);
+  }
+
+  &__title {
+    font-size: fs(56, 30);
+    line-height: 1.1;
+  }
+
+  &__olive {
+    width: u(115);
+    height: u(46);
+  }
+
+  &__names {
+    font-family: var(--bot-font-script);
+    font-size: fs(64, 40);
+    line-height: 1.25;
+    color: var(--bot-moss);
+  }
+
+  @include mobile {
+    gap: 24px;
+    padding: 64px 24px 80px;
+
+    &__photo {
+      width: 200px;
+      height: 270px;
+      padding: 9px;
+    }
+
+    &__title {
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    &__olive {
+      width: 80px;
+      height: 32px;
+    }
+
+    &__names {
+      font-size: 44px;
+    }
+  }
+}
+
+/* ——— Footer ——— */
+.wsite-bot-footer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 14px;
+  padding: u(40) u(80);
+  background: var(--bot-dark);
+  font-size: fs(13, 11);
+  line-height: 1.46;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(241, 236, 221, 0.7);
+
+  &__logo {
+    width: 159px;
+    height: auto;
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px 36px;
+    font-size: 11px;
+  }
+}

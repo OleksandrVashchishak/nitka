@@ -9,48 +9,42 @@ export type DesignOption = {
 /** UI catalog for Design tab. templateId maps to API-supported themes. */
 export const DESIGN_OPTIONS: DesignOption[] = [
   {
-    id: "editorial",
+    id: "modern",
     templateId: "classic-white",
-    name: "Редакційний",
-    description: "Класична типографія з динамічними сітками",
+    name: "Сучасний",
+    description: "Елегантна типографія з круглими зображеннями",
     thumb: "/landing/couple.jpg",
   },
   {
-    id: "minimal",
-    templateId: "classic-white",
-    name: "Мінімалістичний",
-    description: "Чисті лінії, багато повітря і спокій",
-    thumb: "/landing/hero-photo.jpg",
-  },
-  {
-    id: "romantic",
+    id: "gentle",
     templateId: "navy-gold",
-    name: "Романтичний",
-    description: "М’які акценти й тепло фото-героя",
+    name: "Ніжний",
+    description: "М’які тони та квіткові візерунки",
     thumb: "/landing/compare-1.jpg",
   },
   {
     id: "botanical",
-    templateId: "dark-botanical",
+    templateId: "botanical",
     name: "Ботанічний",
-    description: "Темний фон із флоральними деталями",
+    description: "Елегантні органічні лінії листя та мінімалізм",
     thumb: "/landing/feat-1.jpg",
   },
   {
-    id: "modern",
+    id: "fashionable",
     templateId: "navy-gold",
-    name: "Сучасний",
-    description: "Контраст, ритм і сучасна композиція",
+    name: "Фешенебельний",
+    description: "Вишуканий дизайн у червоному кольорі",
     thumb: "/landing/feat-2.jpg",
   },
-  {
-    id: "elegant",
-    templateId: "classic-white",
-    name: "Елегантний",
-    description: "Стриманий тон і витончена типографіка",
-    thumb: "/landing/feat-3.jpg",
-  },
 ];
+
+/** Не тема, а замовлення: замість превʼю показуємо форму заявки. */
+export const CUSTOM_DESIGN = {
+  id: "custom",
+  name: "Кастомний дизайн",
+  description: "Ви можете замовити у нас оригінальний дизайн сайту саме для вас",
+  thumb: "/landing/hero-photo.jpg",
+};
 
 export function designIdFromTemplate(templateId: string) {
   return (

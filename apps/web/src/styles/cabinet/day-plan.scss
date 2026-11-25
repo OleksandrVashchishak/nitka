@@ -96,7 +96,7 @@
   color: #b0a9a5;
   cursor: grab;
   touch-action: none;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--motion-duration-fast) var(--motion-ease-standard), background var(--motion-duration-fast) var(--motion-ease-standard);
 
   &:hover:not(:disabled) {
     color: #8c8582;
@@ -142,7 +142,7 @@
   display: grid;
   grid-template-rows: 0fr;
   opacity: 1;
-  transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: grid-template-rows var(--motion-duration-slow) var(--motion-ease-enter);
 
   &.is-visible {
     grid-template-rows: 1fr;
@@ -152,8 +152,8 @@
     grid-template-rows: 0fr;
     opacity: 0;
     transition:
-      grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.22s ease;
+      grid-template-rows var(--motion-duration-slow) var(--motion-ease-standard),
+      opacity var(--motion-duration-base) var(--motion-ease-standard);
     pointer-events: none;
   }
 }
@@ -180,7 +180,7 @@
   .cabinet-day-plan-time,
   .cabinet-day-plan-marker,
   .cabinet-day-plan-card {
-    animation: day-plan-part-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: day-plan-part-in var(--motion-duration-slow) var(--motion-ease-enter) both;
   }
 
   .cabinet-day-plan-time {

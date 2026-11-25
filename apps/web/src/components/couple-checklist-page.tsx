@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { IconAddCircle, IconQuickAdd } from "@/components/cabinet-task-icons";
 import { IconClose } from "@/components/icon-close";
 import { CabinetEmptyState } from "@/components/cabinet-empty-state";
@@ -11,6 +19,14 @@ import { CabinetMobileFiltersBar } from "@/components/cabinet-mobile-filters-bar
 import { useMenuOutsideClose } from "@/hooks/use-menu-outside-close";
 import { usePagedVisible } from "@/hooks/use-paged-visible";
 import { CabinetShowMore } from "@/components/cabinet-show-more";
+import {
+  CabinetSearch,
+  CabinetSearchButton,
+  CabinetSearchEmpty,
+  CabinetSearchScreen,
+} from "@/components/cabinet-search";
+import { useListSearch } from "@/hooks/use-list-search";
+import { matchesSearch } from "@/lib/list-search";
 import { IconButton } from "@/components/ui/icon-button";
 import { DateInput } from "@/components/ui/date-input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -73,6 +89,7 @@ import {
   type CabinetCategoryId,
 } from "@/lib/cabinet-categories";
 import "@/styles/cabinet/cabinet.scss";
+import { useStaggerOnce } from "@/hooks/use-stagger-once";
 
 type StatusFilter = "all" | "open" | "done";
 type TypeFilter = "all" | CabinetCategoryId;
@@ -162,6 +179,7 @@ function firstName(value: string) {
 }
 
 function ChecklistInner() {
+  const staggerRef = useStaggerOnce();
   const user = useAuthStore((s) => s.user);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -195,6 +213,9 @@ function ChecklistInner() {
   const [inviteBusy, setInviteBusy] = useState(false);
   const [inviteDismissed, setInviteDismissed] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const search = useListSearch();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ChecklistRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -339,8 +360,38 @@ function ChecklistInner() {
     return { status, types, due, who };
   }, [rows, today, soonLimit, weekLimit]);
 
+  const sortRows = useCallback(
+    (list: ChecklistRow[]) =>
+      list.sort((a, b) => {
+        const aDone = doneOnLoadRef.current.has(a.id) ? 1 : 0;
+        const bDone = doneOnLoadRef.current.has(b.id) ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        if (sortMode === "alpha") {
+          return a.title.localeCompare(b.title, "uk");
+        }
+        if (sortMode === "recent") {
+          // cuid() ids start with a creation timestamp, so newer ids sort later.
+          return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
+        }
+        const aDue = a.effectiveDue ?? "9999-99-99";
+        const bDue = b.effectiveDue ?? "9999-99-99";
+        if (sortMode === "urgent") {
+          const aOver = a.effectiveDue && a.effectiveDue < today ? 0 : 1;
+          const bOver = b.effectiveDue && b.effectiveDue < today ? 0 : 1;
+          if (aOver !== bOver) return aOver - bOver;
+        }
+        if (aDue !== bDue) return aDue.localeCompare(bDue);
+        return a.sortOrder - b.sortOrder;
+      }),
+    [sortMode, today],
+  );
+
+  // Десктоп: пошук разом з фільтрами («І») і сортуванням.
   const filtered = useMemo(() => {
     const list = rows.filter((row) => {
+      if (!mobileSearchOpen && !matchesSearch(row.title, search.term)) {
+        return false;
+      }
       if (statusFilter === "open" && row.status === "DONE") return false;
       if (statusFilter === "done" && row.status !== "DONE") return false;
       if (!matchesTypeFilter(row.taskType, typeFilter)) return false;
@@ -380,39 +431,37 @@ function ChecklistInner() {
       }
       return true;
     });
-
-    return list.sort((a, b) => {
-      const aDone = doneOnLoadRef.current.has(a.id) ? 1 : 0;
-      const bDone = doneOnLoadRef.current.has(b.id) ? 1 : 0;
-      if (aDone !== bDone) return aDone - bDone;
-      if (sortMode === "alpha") {
-        return a.title.localeCompare(b.title, "uk");
-      }
-      if (sortMode === "recent") {
-        // cuid() ids start with a creation timestamp, so newer ids sort later.
-        return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
-      }
-      const aDue = a.effectiveDue ?? "9999-99-99";
-      const bDue = b.effectiveDue ?? "9999-99-99";
-      if (sortMode === "urgent") {
-        const aOver = a.effectiveDue && a.effectiveDue < today ? 0 : 1;
-        const bOver = b.effectiveDue && b.effectiveDue < today ? 0 : 1;
-        if (aOver !== bOver) return aOver - bOver;
-      }
-      if (aDue !== bDue) return aDue.localeCompare(bDue);
-      return a.sortOrder - b.sortOrder;
-    });
+    return sortRows(list);
   }, [
     rows,
     statusFilter,
     typeFilter,
     dueFilter,
     whoFilter,
-    sortMode,
+    sortRows,
     today,
     soonLimit,
     weekLimit,
+    search.term,
+    mobileSearchOpen,
   ]);
+
+  // Мобільний: пошук по всьому списку, без фільтрів.
+  const mobileResults = useMemo(
+    () =>
+      mobileSearchOpen && search.term
+        ? sortRows(rows.filter((row) => matchesSearch(row.title, search.term)))
+        : [],
+    [rows, sortRows, search.term, mobileSearchOpen],
+  );
+  const mobilePaged = usePagedVisible(mobileResults, {
+    resetDeps: [sortMode, search.term],
+  });
+
+  function closeMobileSearch() {
+    search.clear();
+    setMobileSearchOpen(false);
+  }
 
   const activeFilterCount = [
     statusFilter !== "all",
@@ -443,7 +492,14 @@ function ChecklistInner() {
   }
 
   const { visible, hasMore, showMore } = usePagedVisible(filtered, {
-    resetDeps: [statusFilter, typeFilter, dueFilter, whoFilter, sortMode],
+    resetDeps: [
+      statusFilter,
+      typeFilter,
+      dueFilter,
+      whoFilter,
+      sortMode,
+      search.term,
+    ],
   });
   const doneCount = counts.status.done;
   const totalCount = counts.status.all;
@@ -772,6 +828,103 @@ function ChecklistInner() {
     );
   }
 
+  function renderTaskRow(task: ChecklistRow) {
+    const done = task.status === "DONE";
+    const meta = typeMeta(task.taskType);
+    return (
+      <li
+        key={task.id}
+        className={`cabinet-task-row${done ? " is-done" : ""}`}
+      >
+        <Checkbox
+          checked={done}
+          aria-label={done ? "Повернути в роботу" : "Виконано"}
+          onCheckedChange={() => void onToggle(task)}
+        />
+        <div className="cabinet-task-body">
+          <div className="cabinet-task-main">
+            <p className="cabinet-task-title">{task.title}</p>
+            <span className={`cabinet-task-tag is-${meta.tone}`}>
+              {meta.label}
+            </span>
+          </div>
+          <div className="cabinet-task-meta-wrap">
+            <span
+              className={`cabinet-task-date${
+                task.effectiveDue
+                  ? taskDateTone(task.effectiveDue, done)
+                  : ""
+              }`}
+            >
+              {task.effectiveDue
+                ? formatTaskDate(task.effectiveDue)
+                : null}
+            </span>
+            <div className="cabinet-task-actions">
+              <span className="cabinet-task-assignee-slot">
+                <TaskResponsibleAvatar
+                  who={task.who}
+                  ownerName={ownerShort}
+                  partnerName={partnerShort}
+                  otherName={task.assigneeName}
+                />
+              </span>
+              <div className="cabinet-ctx-menu-wrap">
+                <IconButton
+                  variant="ghost"
+                  aria-label="Меню завдання"
+                  aria-expanded={menuOpenId === task.id}
+                  icon={<IconMore />}
+                  onClick={() =>
+                    setMenuOpenId((id) =>
+                      id === task.id ? null : task.id,
+                    )
+                  }
+                />
+                {menuOpenId === task.id ? (
+                  <CabinetContextMenu>
+                    <CabinetContextMenuItem
+                      icon={<IconEdit />}
+                      onClick={() => openEdit(task)}
+                    >
+                      Редагувати
+                    </CabinetContextMenuItem>
+                    <CabinetContextMenuItem
+                      icon={<IconTrash />}
+                      danger
+                      onClick={() => requestDelete(task)}
+                    >
+                      Видалити
+                    </CabinetContextMenuItem>
+
+                    <CabinetContextMenuDivider />
+                    <TaskAssigneeMenuBlock
+                      who={task.who}
+                      otherName={task.assigneeName}
+                      ownerName={ownerShort}
+                      partnerName={partnerShort}
+                      onSelect={(assignee) =>
+                        void onSetAssignee(task, assignee, {
+                          keepMenuOpen: assignee === "other",
+                        })
+                      }
+                      onSaveOtherName={(name) => {
+                        setMenuOpenId(null);
+                        void onSetAssignee(task, "other", {
+                          assigneeName: name || null,
+                        });
+                      }}
+                    />
+                  </CabinetContextMenu>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    );
+  }
+
   return (
     <div className="cabinet-tasks-page">
       <CabinetPageHeader
@@ -779,12 +932,22 @@ function ChecklistInner() {
         summary={summary}
         initials={partnerInitials}
         actions={
-          <IconButton
-            variant="quick-add"
-            aria-label="Додати завдання"
-            icon={<IconQuickAdd />}
-            onClick={openCreate}
-          />
+          <>
+            <CabinetSearchButton
+              className="cabinet-search-button--mobile"
+              label="Пошук завдань"
+              onClick={() => {
+                search.clear();
+                setMobileSearchOpen(true);
+              }}
+            />
+            <IconButton
+              variant="quick-add"
+              aria-label="Додати завдання"
+              icon={<IconQuickAdd />}
+              onClick={openCreate}
+            />
+          </>
         }
       />
 
@@ -874,8 +1037,18 @@ function ChecklistInner() {
 
         <section className="cabinet-tasks-list-panel">
           <div className="cabinet-tasks-list-head">
-            <h2>Список завдань</h2>
+            <h2>
+              Список завдань
+              {search.term ? ` (${filtered.length})` : null}
+            </h2>
             <div className="cabinet-tasks-list-actions">
+              <CabinetSearch
+                value={search.query}
+                onChange={search.setQuery}
+                open={searchOpen}
+                onOpenChange={setSearchOpen}
+                placeholder="Пошук завдань"
+              />
               <Select
                 className="cabinet-tasks-sort"
                 size="m"
@@ -892,11 +1065,14 @@ function ChecklistInner() {
                 type="button"
                 tone="ink"
                 size="s"
-                className="cabinet-tasks-add-btn"
+                className={`cabinet-tasks-add-btn${
+                  searchOpen ? " cabinet-tasks-add-btn--icon" : ""
+                }`}
+                aria-label={searchOpen ? "Додати завдання" : undefined}
                 onClick={openCreate}
               >
                 <IconAddCircle />
-                Додати завдання
+                {searchOpen ? null : "Додати завдання"}
               </Button>
             </div>
           </div>
@@ -910,7 +1086,13 @@ function ChecklistInner() {
             />
           ) : null}
 
-          {visible.length === 0 ? (
+          {visible.length === 0 && search.term && rows.length > 0 ? (
+            <CabinetSearchEmpty
+              query={search.query}
+              onClear={search.clear}
+              filtersActive={filtersActive}
+            />
+          ) : visible.length === 0 ? (
             <CabinetEmptyState
               variant="soft"
               description={
@@ -948,103 +1130,8 @@ function ChecklistInner() {
               }
             />
           ) : (
-            <ul className="cabinet-task-list">
-              {visible.map((task) => {
-                const done = task.status === "DONE";
-                const meta = typeMeta(task.taskType);
-                return (
-                  <li
-                    key={task.id}
-                    className={`cabinet-task-row${done ? " is-done" : ""}`}
-                  >
-                    <Checkbox
-                      checked={done}
-                      aria-label={done ? "Повернути в роботу" : "Виконано"}
-                      onCheckedChange={() => void onToggle(task)}
-                    />
-                    <div className="cabinet-task-body">
-                      <div className="cabinet-task-main">
-                        <p className="cabinet-task-title">{task.title}</p>
-                        <span className={`cabinet-task-tag is-${meta.tone}`}>
-                          {meta.label}
-                        </span>
-                      </div>
-                      <div className="cabinet-task-meta-wrap">
-                        <span
-                          className={`cabinet-task-date${
-                            task.effectiveDue
-                              ? taskDateTone(task.effectiveDue, done)
-                              : ""
-                          }`}
-                        >
-                          {task.effectiveDue
-                            ? formatTaskDate(task.effectiveDue)
-                            : null}
-                        </span>
-                        <div className="cabinet-task-actions">
-                          <span className="cabinet-task-assignee-slot">
-                            <TaskResponsibleAvatar
-                              who={task.who}
-                              ownerName={ownerShort}
-                              partnerName={partnerShort}
-                              otherName={task.assigneeName}
-                            />
-                          </span>
-                          <div className="cabinet-ctx-menu-wrap">
-                            <IconButton
-                              variant="ghost"
-                              aria-label="Меню завдання"
-                              aria-expanded={menuOpenId === task.id}
-                              icon={<IconMore />}
-                              onClick={() =>
-                                setMenuOpenId((id) =>
-                                  id === task.id ? null : task.id,
-                                )
-                              }
-                            />
-                            {menuOpenId === task.id ? (
-                              <CabinetContextMenu>
-                                <CabinetContextMenuItem
-                                  icon={<IconEdit />}
-                                  onClick={() => openEdit(task)}
-                                >
-                                  Редагувати
-                                </CabinetContextMenuItem>
-                                <CabinetContextMenuItem
-                                  icon={<IconTrash />}
-                                  danger
-                                  onClick={() => requestDelete(task)}
-                                >
-                                  Видалити
-                                </CabinetContextMenuItem>
-
-                                <CabinetContextMenuDivider />
-                                <TaskAssigneeMenuBlock
-                                  who={task.who}
-                                  otherName={task.assigneeName}
-                                  ownerName={ownerShort}
-                                  partnerName={partnerShort}
-                                  onSelect={(assignee) =>
-                                    void onSetAssignee(task, assignee, {
-                                      keepMenuOpen: assignee === "other",
-                                    })
-                                  }
-                                  onSaveOtherName={(name) => {
-                                    setMenuOpenId(null);
-                                    void onSetAssignee(task, "other", {
-                                      assigneeName: name || null,
-                                    });
-                                  }}
-                                />
-                              </CabinetContextMenu>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
+            <ul ref={staggerRef} className="cabinet-task-list">
+              {visible.map(renderTaskRow)}
             </ul>
           )}
 
@@ -1077,6 +1164,35 @@ function ChecklistInner() {
           <CabinetShowMore hasMore={hasMore} onShowMore={showMore} />
         </section>
       </div>
+
+      <CabinetSearchScreen
+        open={mobileSearchOpen}
+        value={search.query}
+        onChange={search.setQuery}
+        onClose={closeMobileSearch}
+        placeholder="Пошук завдань"
+      >
+        {search.term ? (
+          mobileResults.length === 0 ? (
+            <CabinetSearchEmpty
+              variant="screen"
+              itemsLabel="завдань"
+              query={search.query}
+              onClear={search.clear}
+            />
+          ) : (
+            <>
+              <ul ref={staggerRef} className="cabinet-task-list">
+                {mobilePaged.visible.map(renderTaskRow)}
+              </ul>
+              <CabinetShowMore
+                hasMore={mobilePaged.hasMore}
+                onShowMore={mobilePaged.showMore}
+              />
+            </>
+          )
+        ) : null}
+      </CabinetSearchScreen>
 
       <CabinetFiltersSheet
         open={filtersOpen}

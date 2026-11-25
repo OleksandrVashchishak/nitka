@@ -1,4 +1,5 @@
 import type { WebsiteContent } from "@/lib/website-api";
+import { WsiteBotanical } from "@/components/wedding-site/botanical/wsite-botanical";
 import { WsiteClosing } from "@/components/wedding-site/sections/wsite-closing";
 import { WsiteCountdown } from "@/components/wedding-site/sections/wsite-countdown";
 import { WsiteCouple } from "@/components/wedding-site/sections/wsite-couple";
@@ -100,6 +101,23 @@ export function WeddingSite({
   const showCouple = sections.story;
   const showProposal =
     sections.story && Boolean(content.proposalBody?.trim());
+
+  if (templateId === "botanical") {
+    return (
+      <WsiteBotanical
+        content={content}
+        sections={sections}
+        bride={bride}
+        groom={groom}
+        initials={initials}
+        date={formatHeroDate(targetDate, content.dateLabel)}
+        targetDate={targetDate}
+        detailItems={detailItems}
+        showProposal={showProposal}
+        compact={mini}
+      />
+    );
+  }
 
   const theme = themeClass(templateId);
 

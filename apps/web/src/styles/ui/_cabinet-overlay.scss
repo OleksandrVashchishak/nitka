@@ -16,25 +16,29 @@
 .cabinet-modal-root.cabinet-overlay-root {
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.24s ease;
+  transition: opacity var(--motion-duration-exit) var(--motion-ease-standard);
 }
 
 .cabinet-modal-root.cabinet-overlay-root.is-open {
   pointer-events: auto;
   opacity: 1;
+  transition-duration: var(--motion-duration-slow);
 }
 
 .cabinet-modal-root.cabinet-overlay-root .cabinet-modal {
-  transform: translateY(8px) scale(0.98);
+  transform: translateY(var(--motion-shift-sm)) scale(0.98);
   opacity: 0;
   transition:
-    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.24s ease;
+    transform var(--motion-duration-exit) var(--motion-ease-exit),
+    opacity var(--motion-duration-exit) var(--motion-ease-standard);
 }
 
 .cabinet-modal-root.cabinet-overlay-root.is-open .cabinet-modal {
   transform: none;
   opacity: 1;
+  transition:
+    transform var(--motion-duration-slow) var(--motion-ease-enter),
+    opacity var(--motion-duration-base) var(--motion-ease-standard);
 }
 
 /* Centered drawer presentation (budget desktop) — data-attr fallback;
@@ -52,14 +56,17 @@
   box-shadow: 0 16px 48px rgb(0 0 0 / 0.18);
   opacity: 0;
   transition:
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.24s ease;
+    transform var(--motion-duration-exit) var(--motion-ease-exit),
+    opacity var(--motion-duration-exit) var(--motion-ease-standard);
 }
 
 .cabinet-drawer-root.is-open[data-desktop-presentation="centered"] .cabinet-drawer,
 .cabinet-drawer-root.is-open .cabinet-overlay-drawer--centered {
   transform: translate(-50%, -50%);
   opacity: 1;
+  transition:
+    transform var(--motion-duration-slow) var(--motion-ease-enter),
+    opacity var(--motion-duration-base) var(--motion-ease-standard);
 }
 
 /* Mobile layout variants via data-mobile-variant on root */
